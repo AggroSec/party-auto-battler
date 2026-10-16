@@ -1,0 +1,71 @@
+import type { BoardPos, BuffableStat, Side, Stats, TriggerEvent } from './types.ts';
+
+/** Stable per-combat unit id: "p0".."p4" for the player, "e0".."e4" for the enemy. */
+export type UnitId = string;
+
+export type Winner = Side | 'draw';
+
+export interface UnitSnapshot {
+  id: UnitId;
+  name: string;
+  classId: string;
+  side: Side;
+  pos: BoardPos;
+  stats: Stats;
+}
+
+/**
+ * The combat event log. The UI replays this; it never computes outcomes.
+ * Every event carries the tick it happened on; most carry a source and/or target.
+ */
+export type CombatEvent =
+  | { tick: number; type: 'combatStart'; units: UnitSnapshot[] }
+  | { tick: number; type: 'turn'; source: UnitId }
+  | { tick: number; type: 'attack'; source: UnitId; target: UnitId }
+  | { tick: number; type: 'ability'; source: UnitId; abilityId: string; name: string }
+  | { tick: number; type: 'trigger'; source: UnitId; label: string; on: TriggerEvent }
+  | {
+      tick: number;
+      type: 'damage';
+      source: UnitId;
+      target: UnitId;
+      /** HP actually lost. */
+      value: number;
+      /** Damage soaked by shields. */
+      absorbed: number;
+      hpAfter: number;
+    }
+  | { tick: number; type: 'heal'; source: UnitId; target: UnitId; value: number; hpAfter: number }
+  | { tick: number; type: 'shield'; source: UnitId; target: UnitId; value: number; shieldAfter: number }
+  | {
+      tick: number;
+      type: 'buff';
+      source: UnitId;
+      target: UnitId;
+      stat: BuffableStat;
+      value: number;
+      statAfter: number;
+    }
+  | { tick: number; type: 'death'; target: UnitId; source: UnitId }
+  | { tick: number; type: 'combatEnd'; winner: Winner; reason: 'elimination' | 'tickCap' };
+
+export type CombatEventType = CombatEvent['type'];
+
+export interface UnitSummary {
+  id: UnitId;
+  name: string;
+  side: Side;
+  damageDealt: number;
+  damageTaken: number;
+  healingDone: number;
+  shieldingDone: number;
+  kills: number;
+  survived: boolean;
+}
+
+export interface CombatResult {
+  winner: Winner;
+  ticks: number;
+  events: CombatEvent[];
+  summary: UnitSummary[];
+}
