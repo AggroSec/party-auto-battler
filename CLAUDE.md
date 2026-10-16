@@ -10,10 +10,45 @@ This is an **AI-directed project**. Brandon (the owner) sets direction, design a
 
 - **Work autonomously within a milestone.** Don't stop to ask about things you can decide sensibly yourself. Record those decisions in `docs/DECISIONS.md` and keep going.
 - **Stop and ask only when** a choice changes the game's design in a way the player would notice (new mechanic, removing a class, changing the run structure). The same applies when a choice adds a runtime dependency not listed below, or when you're blocked.
-- **Stop at the end of every milestone.** Write a checkpoint summary in `docs/CHECKPOINTS.md` covering what was built, what to playtest, known issues and balance numbers from the simulator. Then wait for Brandon's go-ahead.
+- **Stop at the end of every milestone.** Write a checkpoint summary in `docs/CHECKPOINTS.md` covering what was built, what to playtest, known issues and balance numbers from the simulator. Then open a pull request (see Git workflow) and wait for Brandon's review.
 - **Never mark work done with failing tests or type errors.** `npm run check` must pass before every commit.
 - **Small, frequent commits** using Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `balance:`).
 - If a design detail in this file is ambiguous, pick the option that makes builds more interesting and log it.
+
+## Git workflow
+
+**Never commit directly to `main`.** Every change reaches `main` through a pull request that Brandon reviews and merges.
+
+**Branches**
+- Start each milestone from an up-to-date `main` on a branch named `milestone-<N>-<short-name>` (e.g. `milestone-1-engine`).
+- Standalone fixes outside a milestone go on `fix/<short-name>`.
+
+**Opening the PR (at each checkpoint)**
+1. Make sure `npm run check` and `npm run build` pass locally.
+2. Push the branch and open a PR with `gh pr create`:
+   - Title: `Milestone <N>: <name>`
+   - Body: the checkpoint summary (what was built, what to playtest and how, known issues, simulator balance numbers), plus `Closes #<issue>` for any related issues.
+3. Stop and wait. **Never merge your own PRs.** Brandon reviews and squash-merges.
+
+**Handling review feedback**
+- Read comments with `gh pr view <number> --comments`.
+- Address each comment in new commits on the same branch, push, then reply on the PR summarizing what changed.
+- Don't force-push or rewrite history once a review has started.
+
+**After a merge**
+- `git checkout main && git pull`, delete the merged branch locally, then start the next milestone branch.
+
+**Issues**
+- If you find a bug or idea outside the current milestone's scope, open an issue with `gh issue create` instead of fixing it silently mid-milestone.
+
+**CI/CD (set up in Milestone 1)**
+- `.github/workflows/ci.yml`: on every pull request and push to `main`, use the current Node LTS and run `npm ci`, `npm run check` and `npm run build`. CI must stay green.
+- `.github/workflows/deploy.yml` (added in Milestone 6): deploy to GitHub Pages on push to `main` only.
+- `.github/pull_request_template.md` with sections matching the checkpoint summary.
+
+**Never commit**
+- Secrets, tokens, `.env` files, `node_modules/`, build output (`dist/`), or `CLAUDE.local.md`. Keep `.gitignore` current.
+- Don't change repo settings (visibility, branch protection, collaborators). Brandon owns those.
 
 ## Stack
 
@@ -100,7 +135,7 @@ docs/
 
 ## Milestones (stop for a checkpoint after each)
 
-1. **Engine core:** units, stats, deterministic combat with event log, targeting, tests.
+1. **Scaffold + engine core:** Vite/TS/React/Vitest project setup, `.gitignore`, CI workflow, PR template, `docs/` files. Then units, stats, deterministic combat with event log, targeting, tests.
 2. **Run loop:** shop, gold, party positioning, rounds, lives, enemy generation, tests.
 3. **Builds:** XP, talent choices, advanced classes, items, synergies, and the simulator with bots.
 4. **Playable UI:** shop screen, party board with drag-to-position, combat playback, run summary.
