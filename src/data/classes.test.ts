@@ -21,9 +21,10 @@ describe('class data', () => {
   });
 
   it('createUnit applies stat bonuses without mutating class data', () => {
+    const base = { ...CLASSES.warrior.baseStats };
     const u = createUnit('warrior', { name: 'Brom', statBonus: { atk: 2 } });
-    expect(u).toMatchObject({ name: 'Brom', classId: 'warrior', stats: { atk: 7, hp: 40 } });
-    expect(CLASSES.warrior.baseStats.atk).toBe(5);
+    expect(u).toMatchObject({ name: 'Brom', classId: 'warrior', stats: { atk: base.atk + 2, hp: base.hp } });
+    expect(CLASSES.warrior.baseStats).toEqual(base);
   });
 });
 
