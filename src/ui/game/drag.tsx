@@ -7,7 +7,7 @@ import { decodeTarget, encodeTarget, type DragSource, type DropTarget } from './
 const DRAG_THRESHOLD_PX = 6;
 /** While dragging near the top or bottom edge, scroll the page (for small screens). */
 const EDGE_PX = 70;
-const EDGE_SCROLL_PX = 14;
+const EDGE_SCROLL_PX = 10;
 
 interface ActiveDrag {
   source: DragSource;
@@ -48,7 +48,9 @@ export function DragProvider({
   onDrop: (source: DragSource, target: DropTarget) => void;
 }) {
   const [active, setActive] = useState<ActiveDrag | null>(null);
-  const pending = useRef<{ source: DragSource; ghost: ReactNode; x0: number; y0: number; started: boolean } | null>(null);
+  const pending = useRef<{ source: DragSource; ghost: ReactNode; x0: number; y0: number; x: number; y: number; started: boolean } | null>(
+    null,
+  );
   const lastDrag = useRef({ at: 0, key: '' });
   const handlers = useRef({ canDrop, onDrop });
   useEffect(() => {
@@ -74,10 +76,24 @@ export function DragProvider({
         p.started = true;
       }
       e.preventDefault();
-      if (e.clientY < EDGE_PX) window.scrollBy(0, -EDGE_SCROLL_PX);
-      else if (e.clientY > window.innerHeight - EDGE_PX) window.scrollBy(0, EDGE_SCROLL_PX);
-      setActive({ source: p.source, ghost: p.ghost, x: e.clientX, y: e.clientY, over: targetAt(e.clientX, e.clientY) });
+      p.x = e.clientX;
+      p.y = e.clientY;
+      setActive({ source: p.source, ghost: p.ghost, x: p.x, y: p.y, over: targetAt(p.x, p.y) });
     };
+    // Scroll while the pointer rests near the top or bottom edge (a held finger sends no moves).
+    let frame = 0;
+    const edgeScroll = () => {
+      const p = pending.current;
+      if (p?.started) {
+        const dy = p.y < EDGE_PX ? -EDGE_SCROLL_PX : p.y > window.innerHeight - EDGE_PX ? EDGE_SCROLL_PX : 0;
+        if (dy !== 0) {
+          window.scrollBy(0, dy);
+          setActive((a) => (a ? { ...a, over: targetAt(p.x, p.y) } : a));
+        }
+      }
+      frame = requestAnimationFrame(edgeScroll);
+    };
+    frame = requestAnimationFrame(edgeScroll);
     const up = (e: PointerEvent) => end(e.clientX, e.clientY, true);
     const cancel = (e: PointerEvent) => end(e.clientX, e.clientY, false);
     const key = (e: KeyboardEvent) => {
@@ -88,6 +104,7 @@ export function DragProvider({
     window.addEventListener('pointercancel', cancel);
     window.addEventListener('keydown', key);
     return () => {
+      cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
       window.removeEventListener('pointercancel', cancel);
@@ -99,7 +116,7 @@ export function DragProvider({
     active,
     begin: (e, source, ghost) => {
       if (e.button !== 0) return;
-      pending.current = { source, ghost, x0: e.clientX, y0: e.clientY, started: false };
+      pending.current = { source, ghost, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, started: false };
     },
     canDrop,
     justDragged: (source) => lastDrag.current.key === JSON.stringify(source) && performance.now() - lastDrag.current.at < 250,

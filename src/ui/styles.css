@@ -204,7 +204,8 @@ button.fight:hover:not(:disabled) { background: linear-gradient(180deg, #3460b8,
 .drag-ghost .unit-card, .drag-ghost .offer-card { background: var(--panel-2); border: 1px solid var(--class-color, var(--border)); border-radius: var(--radius); }
 .drag-ghost .item-chip { background: var(--panel-2); }
 .sell-zone {
-  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 900;
+  /* Centred without transform, so the pop-in animation can't shift it. */
+  position: fixed; left: 0; right: 0; bottom: 18px; margin: 0 auto; width: fit-content; z-index: 900;
   padding: 16px 32px; border-radius: var(--radius); font-weight: 700;
   background: color-mix(in srgb, var(--enemy) 15%, var(--panel)); border: 2px dashed var(--enemy);
   animation: pop-in 0.15s ease-out;
@@ -277,7 +278,7 @@ button.fight:hover:not(:disabled) { background: linear-gradient(180deg, #3460b8,
 .arena-unit.acting.hit .arena-body { animation: lunge-up var(--beat) ease-out; }
 .arena-unit.targeted .arena-body { border-color: var(--enemy); }
 .callout {
-  position: absolute; left: 50%; top: -14px; transform: translateX(-50%); z-index: 3;
+  position: absolute; left: 0; right: 0; top: -14px; margin: 0 auto; width: fit-content; z-index: 3;
   padding: 2px 8px; border-radius: 999px; white-space: nowrap; font-size: 0.75rem; font-weight: 700;
   background: var(--class-color); color: #111; animation: pop-in 0.2s ease-out;
 }
