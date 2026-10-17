@@ -49,7 +49,7 @@ describe('abilities', () => {
     name: 'Zap',
     description: '',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'melee', amount: { flat: 1 } }],
+    effects: [{ kind: 'damage', target: 'nearest', amount: { flat: 1 } }],
   };
 
   const actions = (p: Party, tickCap: number) =>

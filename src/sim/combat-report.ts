@@ -57,20 +57,10 @@ export function runDuels(fightsPerPair: number, seed: string): DuelMatrix {
   return { winRate, overall };
 }
 
-/** Lower = further forward. Mimics a sensible player until real bots exist (M3). */
-const FRONT_PREFERENCE: Record<ClassId, number> = {
-  warrior: 0,
-  rogue: 1,
-  cleric: 2,
-  necromancer: 3,
-  ranger: 3,
-  mage: 4,
-};
-
 function randomParty(rng: Rng): { party: Party; classes: Set<ClassId> } {
   const ids = Array.from({ length: 5 }, () => rng.pick(CLASS_IDS));
   // Stable sort keeps the random draw order among equal preferences.
-  const placed = [...ids].sort((a, b) => FRONT_PREFERENCE[a] - FRONT_PREFERENCE[b]);
+  const placed = [...ids].sort((a, b) => CLASSES[a].placement - CLASSES[b].placement);
   return { party: partyOf(placed.slice(0, 3), placed.slice(3)), classes: new Set(ids) };
 }
 

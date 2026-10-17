@@ -1,23 +1,18 @@
-import type { AbilityDef, Stats, TargetSelector, TriggeredEffect } from '../engine/types.ts';
+import type { UnitTemplate } from '../engine/types.ts';
 
 export type ClassId = 'warrior' | 'rogue' | 'mage' | 'cleric' | 'ranger' | 'necromancer';
 
 export type ClassRole = 'frontline' | 'striker' | 'caster' | 'support';
 
-export interface ClassDef {
+/** A playable class. `triggers` are innate passives; talents and items add more in M3. */
+export interface ClassDef extends UnitTemplate {
   id: ClassId;
-  name: string;
   role: ClassRole;
   /** Tags for party synergies (M3), e.g. 'caster', 'martial'. */
   tags: readonly string[];
   /** Locked behind meta progression. */
   unlockable: boolean;
   description: string;
-  baseStats: Stats;
-  attackTarget: TargetSelector;
-  ability: AbilityDef;
-  /** Innate class passives. Talents and items add more triggers later. */
-  triggers: readonly TriggeredEffect[];
 }
 
 export const CLASSES: Record<ClassId, ClassDef> = {
@@ -29,7 +24,9 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     unlockable: false,
     description: 'Durable front-liner who hits the whole enemy front row.',
     baseStats: { hp: 42, atk: 6, def: 3, spd: 8 },
-    attackTarget: 'melee',
+    range: 'melee',
+    placement: 0,
+    attackTarget: 'nearest',
     ability: {
       id: 'cleave',
       name: 'Cleave',
@@ -54,7 +51,9 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     unlockable: false,
     description: 'Fast striker who slips past the front line to finish off the back row.',
     baseStats: { hp: 24, atk: 6, def: 1, spd: 13 },
-    attackTarget: 'melee',
+    range: 'melee',
+    placement: 1,
+    attackTarget: 'nearest',
     ability: {
       id: 'backstab',
       name: 'Backstab',
@@ -78,7 +77,9 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     unlockable: false,
     description: 'Fragile caster whose Fireball splashes across a row.',
     baseStats: { hp: 24, atk: 7, def: 0, spd: 9 },
-    attackTarget: 'melee',
+    range: 'ranged',
+    placement: 4,
+    attackTarget: 'nearest',
     ability: {
       id: 'fireball',
       name: 'Fireball',
@@ -96,7 +97,9 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     unlockable: false,
     description: 'Healer who shields the party at the start of combat.',
     baseStats: { hp: 30, atk: 4, def: 2, spd: 9 },
-    attackTarget: 'melee',
+    range: 'ranged',
+    placement: 2,
+    attackTarget: 'nearest',
     ability: {
       id: 'mend',
       name: 'Mend',
@@ -120,6 +123,8 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     unlockable: false,
     description: 'Ranged attacker who picks off the weakest enemy.',
     baseStats: { hp: 26, atk: 5, def: 1, spd: 11 },
+    range: 'ranged',
+    placement: 3,
     attackTarget: 'lowestHp',
     ability: {
       id: 'volley',
@@ -145,6 +150,8 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     unlockable: true,
     description: 'Drains life from enemies and grows stronger as allies fall.',
     baseStats: { hp: 24, atk: 5, def: 1, spd: 9 },
+    range: 'ranged',
+    placement: 3,
     attackTarget: 'lowestHp',
     ability: {
       id: 'drain',

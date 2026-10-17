@@ -20,6 +20,7 @@ export function createUnit(
       def: def.baseStats.def + (bonus.def ?? 0),
       spd: def.baseStats.spd + (bonus.spd ?? 0),
     },
+    range: def.range,
     attackTarget: def.attackTarget,
     ability: def.ability,
     triggers: def.triggers,

@@ -14,8 +14,13 @@ import type { Party } from './types.ts';
 
 /** A unit acts each time its gauge reaches this value. Gauge fills by SPD per tick. */
 export const ACTION_THRESHOLD = 100;
-/** Combat that runs this many ticks ends in a draw. */
+/** Combat that runs this many ticks ends in a draw (a safety net; sudden death ends fights first). */
 export const DEFAULT_TICK_CAP = 1000;
+/** Sudden death: from this tick, a pulse every OVERTIME_INTERVAL ticks deals true damage to everyone. */
+export const OVERTIME_START_TICK = 300;
+export const OVERTIME_INTERVAL = 10;
+/** Pulse N deals N x this fraction of each unit's max HP (5%, 10%, 15%, ...). */
+export const OVERTIME_PERCENT_PER_STAGE = 0.05;
 /** SPD is clamped to this range for gauge fill (at most one action per tick). */
 export const MIN_SPD = 1;
 export const MAX_SPD = ACTION_THRESHOLD;
@@ -46,6 +51,9 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
   let winner = checkWinner(state);
   while (winner === null && state.tick < tickCap) {
     state.tick += 1;
+    overtimePulse(state);
+    winner = checkWinner(state);
+    if (winner !== null) break;
     for (const unit of state.units) {
       if (unit.alive) unit.gauge += clampSpd(unit.spd);
     }
@@ -74,6 +82,21 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
       ...u.stats,
     })),
   };
+}
+
+/**
+ * Sudden death guarantees a result: healing and DEF walls can stall a fight,
+ * so after OVERTIME_START_TICK everyone takes escalating true damage.
+ */
+export function overtimePulse(state: CombatState): void {
+  const elapsed = state.tick - OVERTIME_START_TICK;
+  if (elapsed < 0 || elapsed % OVERTIME_INTERVAL !== 0) return;
+  const stage = elapsed / OVERTIME_INTERVAL + 1;
+  const percent = stage * OVERTIME_PERCENT_PER_STAGE;
+  emit(state, { tick: state.tick, type: 'overtime', stage, percent });
+  for (const unit of state.units.filter((u) => u.alive)) {
+    dealDamage(state, null, unit, Math.max(1, Math.round(unit.maxHp * percent)), { true: true }, 0);
+  }
 }
 
 function clampSpd(spd: number): number {
@@ -113,7 +136,7 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
   const [target] = selectTargets(state, unit, unit.setup.attackTarget);
   if (!target) return;
   emit(state, { tick: state.tick, type: 'attack', source: unit.id, target: target.id });
-  dealDamage(state, unit, target, unit.atk, false, 0);
+  dealDamage(state, unit, target, unit.atk, {}, 0);
   fireTriggers(state, unit, 'onAttack', { triggerTarget: target }, 0);
 }
 

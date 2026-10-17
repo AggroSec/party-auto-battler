@@ -23,8 +23,8 @@ export function frontmostRow(candidates: CombatUnit[]): CombatUnit[] {
   return front.length > 0 ? front : candidates.filter((u) => u.pos.row === 'back');
 }
 
-/** Melee: frontmost row first, then closest lane to the attacker, then lowest column. */
-export function meleeTarget(source: CombatUnit, enemies: CombatUnit[]): CombatUnit | undefined {
+/** Nearest: frontmost row first, then closest lane to the attacker, then lowest column. */
+export function nearestTarget(source: CombatUnit, enemies: CombatUnit[]): CombatUnit | undefined {
   const row = frontmostRow(enemies);
   const x = laneX(source.pos);
   return [...row].sort(
@@ -52,11 +52,11 @@ export function selectTargets(
   const one = (u: CombatUnit | undefined) => (u ? [u] : []);
 
   switch (selector) {
-    case 'melee':
-      return one(meleeTarget(source, enemies));
+    case 'nearest':
+      return one(nearestTarget(source, enemies));
     case 'backlineFirst': {
       const back = enemies.filter((u) => u.pos.row === 'back');
-      return back.length > 0 ? one(minBy(back, (u) => u.hp)) : one(meleeTarget(source, enemies));
+      return back.length > 0 ? one(minBy(back, (u) => u.hp)) : one(nearestTarget(source, enemies));
     }
     case 'lowestHp':
       return one(minBy(enemies, (u) => u.hp));

@@ -4,35 +4,35 @@ import { byId, makeState, party, unit } from './test-helpers.ts';
 
 const ids = (units: { id: string }[]) => units.map((u) => u.id);
 
-describe('melee targeting', () => {
+describe('nearest targeting', () => {
   it('hits the front row, preferring the same column', () => {
     const s = makeState(party([unit(), unit(), unit()]), party([unit(), unit(), unit()], [unit(), unit()]));
-    expect(ids(selectTargets(s, byId(s, 'p0'), 'melee'))).toEqual(['e0']);
-    expect(ids(selectTargets(s, byId(s, 'p1'), 'melee'))).toEqual(['e1']);
-    expect(ids(selectTargets(s, byId(s, 'p2'), 'melee'))).toEqual(['e2']);
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'nearest'))).toEqual(['e0']);
+    expect(ids(selectTargets(s, byId(s, 'p1'), 'nearest'))).toEqual(['e1']);
+    expect(ids(selectTargets(s, byId(s, 'p2'), 'nearest'))).toEqual(['e2']);
   });
 
   it('picks the closest living front-row unit when its lane is empty', () => {
     const s = makeState(party([null, null, unit()]), party([unit(), null, null], [unit()]));
-    expect(ids(selectTargets(s, byId(s, 'p2'), 'melee'))).toEqual(['e0']);
+    expect(ids(selectTargets(s, byId(s, 'p2'), 'nearest'))).toEqual(['e0']);
   });
 
   it('only reaches the back row once the front row is dead', () => {
     const s = makeState(party([unit()]), party([unit()], [unit(), unit()]));
-    expect(ids(selectTargets(s, byId(s, 'p0'), 'melee'))).toEqual(['e0']);
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'nearest'))).toEqual(['e0']);
     byId(s, 'e0').alive = false;
-    expect(ids(selectTargets(s, byId(s, 'p0'), 'melee'))).toEqual(['e3']);
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'nearest'))).toEqual(['e3']);
   });
 
   it('breaks lane ties toward the lower column (back-row attacker)', () => {
     // Back col 0 sits at x=0.5: equidistant from front 0 and front 1.
     const s = makeState(party([], [unit()]), party([unit(), unit(), unit()]));
-    expect(ids(selectTargets(s, byId(s, 'p3'), 'melee'))).toEqual(['e0']);
+    expect(ids(selectTargets(s, byId(s, 'p3'), 'nearest'))).toEqual(['e0']);
   });
 });
 
 describe('other enemy selectors', () => {
-  it('backlineFirst picks the weakest back-row enemy, else falls back to melee', () => {
+  it('backlineFirst picks the weakest back-row enemy, else falls back to nearest', () => {
     const s = makeState(party([unit()]), party([unit()], [unit(), unit()]));
     byId(s, 'e4').hp = 3;
     expect(ids(selectTargets(s, byId(s, 'p0'), 'backlineFirst'))).toEqual(['e4']);
@@ -72,7 +72,7 @@ describe('other enemy selectors', () => {
   it('returns nothing when no enemies are alive', () => {
     const s = makeState(party([unit()]), party([unit()]));
     byId(s, 'e0').alive = false;
-    expect(selectTargets(s, byId(s, 'p0'), 'melee')).toEqual([]);
+    expect(selectTargets(s, byId(s, 'p0'), 'nearest')).toEqual([]);
     expect(selectTargets(s, byId(s, 'p0'), 'randomEnemy')).toEqual([]);
   });
 });

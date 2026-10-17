@@ -1,8 +1,9 @@
-import type { CombatEvent, UnitSnapshot } from '../engine/index.ts';
+import { OVERTIME_SOURCE, type CombatEvent, type UnitSnapshot } from '../engine/index.ts';
 
 /** Human-readable line for one combat event. Returns null for events not worth showing. */
 export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>): string | null {
   const n = (id: string) => {
+    if (id === OVERTIME_SOURCE) return 'Sudden death';
     const u = units.get(id);
     return u ? `${u.side === 'player' ? '🟦' : '🟥'} ${u.name}` : id;
   };
@@ -25,6 +26,8 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
       return `  ${n(e.target)} gains a ${e.value} shield (${e.shieldAfter} total)`;
     case 'buff':
       return `  ${n(e.target)} +${e.value} ${e.stat.toUpperCase()} → ${e.statAfter}`;
+    case 'overtime':
+      return `⏳ Sudden death! Everyone loses ${Math.round(e.percent * 100)}% max HP.`;
     case 'death':
       return `💀 ${n(e.target)} falls.`;
     case 'combatEnd':

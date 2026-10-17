@@ -20,7 +20,9 @@ export function unit(
     name: overrides.name ?? 'Dummy',
     classId: overrides.classId ?? 'dummy',
     stats: { hp: 20, atk: 5, def: 0, spd: 10, ...overrides.stats },
-    attackTarget: overrides.attackTarget ?? 'melee',
+    // Ranged by default so rule tests aren't affected by the back-row melee penalty.
+    range: overrides.range ?? 'ranged',
+    attackTarget: overrides.attackTarget ?? 'nearest',
     ability: overrides.ability ?? NEVER_CAST,
     triggers: overrides.triggers ?? [],
   };
