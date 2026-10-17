@@ -47,6 +47,13 @@ Brandon decided: sudden death (#1, option 3); back-row melee at 50% damage (#2, 
 - **The debug view gains a playable Run tab:** shop, a click-to-move board laid out with back slots between front lanes, fight and event log, and a run-end banner.
 - **The UI was verified in headless Chrome.** A script drives Chrome over the DevTools protocol using Node's built-in WebSocket, plays a full run and takes screenshots. No test dependency was added. Real drag-and-drop arrives in M4.
 
+## 2026-10-17 — Toolchain: Node 24
+
+- **Local dev moved to Node 24 LTS** (via nvm), matching CI's `lts/*`. Node 20 stopped receiving security patches in April 2026. This also retires the Debian npm 9 workaround.
+- **Vitest 4 → 5**, ESLint 10.12 → 10.13, `@types/node` 20 → 24. `engines.node` is now `>=22.12` (Vitest 5's minimum).
+- **TypeScript stays on 6.0.** typescript-eslint still supports only versions below 6.1. Revisit when it adds TS 7 support.
+- **esbuild's install script is explicitly denied** (`allowScripts` in `package.json`). npm 11 blocks dependency install scripts by default. esbuild (pulled in by `tsx` and Vite) works without its optional postinstall check, so the safer default stays in place.
+
 ## 2026-10-15 — Milestone 1
 
 ### Tooling
