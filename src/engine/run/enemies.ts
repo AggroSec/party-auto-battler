@@ -23,16 +23,23 @@ export function roundScaling(round: number, content: RunContent): Partial<Stats>
   return { hp: baseMultiplier + hpGrowthPerRound * r, atk: baseMultiplier + atkGrowthPerRound * r };
 }
 
-/** Level an enemy unit to `level`, making random choices as a player would. */
-function developEnemy(unit: OwnedUnit, level: number, round: number, ctx: RunContext, rng: Rng): void {
+/** Round a fractional value up with probability equal to its fraction. */
+function stochasticRound(value: number, rng: Rng): number {
+  const whole = Math.floor(value);
+  return whole + (rng.chance(value - whole) ? 1 : 0);
+}
+
+/** Level an enemy unit for the round, making random choices as a player would. */
+function developEnemy(unit: OwnedUnit, round: number, ctx: RunContext, rng: Rng): void {
   const cfg = ctx.config.progression;
+  const level = Math.max(1, stochasticRound(tableAt(ctx.content.enemyProgression.levelByRound, round), rng));
   const target = cfg.xpForLevel[Math.min(level, cfg.xpForLevel.length) - 1] ?? 0;
   const queue = grantXp(unit, target, ctx.content, cfg, rng);
   for (const choice of queue) {
     const options = choice.options.length > 0 ? choice.options : (talentOptions(unit, choice.level, ctx.content, cfg, rng) ?? []);
     if (options.length > 0) applyChoice(unit, { ...choice, options }, rng.int(options.length));
   }
-  const items = tableAt(ctx.content.enemyProgression.itemsByRound, round);
+  const items = stochasticRound(tableAt(ctx.content.enemyProgression.itemsByRound, round), rng);
   for (let i = 0; i < Math.min(items, cfg.maxItemsPerUnit) && ctx.content.itemPool.length > 0; i++) {
     unit.items.push(rng.pick(ctx.content.itemPool));
   }
@@ -55,7 +62,6 @@ export function generateEnemy(seed: string, round: number, ctx: RunContext): Ene
   const pool = content.enemies.filter((a) => a.minRound <= round);
   if (pool.length === 0) throw new Error(`No enemy archetypes available for round ${round}`);
 
-  const level = tableAt(content.enemyProgression.levelByRound, round);
   const picks = Array.from({ length: enemyCount(round, content) }, () => rng.pick(pool))
     // Place frontliners first so they claim the front row.
     .sort((x, y) => classFor(content, x.classId).placement - classFor(content, y.classId).placement);
@@ -66,7 +72,7 @@ export function generateEnemy(seed: string, round: number, ctx: RunContext): Ene
     const slot = autoPlaceSlot(builds, classFor(content, archetype.classId));
     if (!slot) return;
     const unit = newUnit(-(i + 1), archetype.classId, archetype.name);
-    developEnemy(unit, level, round, ctx, rng);
+    developEnemy(unit, round, ctx, rng);
     setSlot(builds, slot, unit);
     archetypeAt.set(unit, archetype);
   });

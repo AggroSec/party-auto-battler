@@ -118,9 +118,13 @@ export interface ShopLayout {
   trainingChance: number;
 }
 
+/**
+ * Enemy development by round (index 0 = round 1; later rounds reuse the last
+ * entry). Values may be fractional: 2.4 means each unit is level 3 with 40%
+ * chance, else level 2, so enemy power ramps smoothly instead of in steps.
+ */
 export interface EnemyProgression {
-  /** Enemy unit level by round (index 0 = round 1); later rounds reuse the last entry. */
   levelByRound: readonly number[];
-  /** Items per enemy unit by round. */
+  /** Items per enemy unit (fractional = chance of one more). */
   itemsByRound: readonly number[];
 }
