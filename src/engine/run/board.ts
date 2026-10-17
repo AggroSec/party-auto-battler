@@ -1,5 +1,5 @@
-import { BACK_SLOTS, FRONT_SLOTS, type Party, type Row, type Stats, type UnitSetup, type UnitTemplate } from '../types.ts';
-import type { Board, OwnedUnit, RunContent, SlotRef } from './types.ts';
+import { BACK_SLOTS, FRONT_SLOTS, type Row, type Stats, type UnitSetup, type UnitTemplate } from '../types.ts';
+import type { Board, SlotRef } from './types.ts';
 
 /** Templates at or below this placement priority prefer the front row. */
 export const FRONT_ROW_MAX_PLACEMENT = 1;
@@ -46,7 +46,7 @@ export function autoPlaceSlot(
   return empty.find((s) => s.row === preferred) ?? empty[0] ?? null;
 }
 
-/** Resolve a class template into an engine-ready unit. */
+/** Resolve a bare class template into an engine-ready unit (no build). Used by the Combat lab. */
 export function instantiate(
   template: UnitTemplate,
   opts: { name?: string; statBonus?: Partial<Stats>; statMultiplier?: Partial<Stats> } = {},
@@ -62,16 +62,4 @@ export function instantiate(
     ability: template.ability,
     triggers: template.triggers,
   };
-}
-
-export function templateFor(content: RunContent, classId: string): UnitTemplate {
-  const t = content.classes[classId];
-  if (!t) throw new Error(`Unknown class id: ${classId}`);
-  return t;
-}
-
-/** The player's board as a combat Party. */
-export function boardToParty(board: Board, content: RunContent): Party {
-  const toSetup = (u: OwnedUnit | null) => (u ? instantiate(templateFor(content, u.classId), { name: u.name }) : null);
-  return { front: board.front.map(toSetup), back: board.back.map(toSetup) };
 }

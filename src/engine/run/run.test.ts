@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { newUnit } from './build.ts';
 import { applyShopAction, createRun, fight } from './run.ts';
-import { ARCHETYPES, makeCtx } from './test-fixtures.ts';
+import { ARCHETYPES, TEST_CONFIG, makeCtx } from './test-fixtures.ts';
 import type { RunContext, RunState, ShopAction } from './types.ts';
 
 /** Apply an action that must succeed. */
@@ -19,7 +20,7 @@ function mustFight(state: RunState, ctx: RunContext) {
 /** A run with one unit of `classId` already on the board. */
 function runWith(classId: string, ctx: RunContext, seed = 'seed'): RunState {
   const s = createRun(seed, ctx);
-  s.board.front[0] = { uid: 99, classId, name: 'Hero' };
+  s.board.front[0] = newUnit(99, classId, 'Hero');
   s.gold = 7;
   return s;
 }
@@ -30,7 +31,7 @@ describe('createRun', () => {
     const s = createRun('seed', ctx);
     expect(s).toMatchObject({ phase: 'shop', round: 1, gold: 10, lives: 3, wins: 0 });
     expect(s.shop).toHaveLength(4);
-    expect(s.shop.every((o) => o && ['tank', 'archer'].includes(o.classId) && o.cost === 3)).toBe(true);
+    expect(s.shop.every((o) => o?.kind === 'unit' && ['tank', 'archer'].includes(o.classId) && o.cost === 3)).toBe(true);
   });
 
   it('is deterministic per seed', () => {
@@ -76,7 +77,7 @@ describe('shop actions', () => {
   });
 
   it('rejects buying onto a full board', () => {
-    const rich = makeCtx({ shopPool: ['tank'], config: { startingGold: 100, shopSize: 6 } });
+    const rich = makeCtx({ shopPool: ['tank'], config: { startingGold: 100, shop: { ...TEST_CONFIG.shop, unitSlots: 6 } } });
     let s = createRun('seed', rich);
     for (let i = 0; i < 5; i++) s = act(s, { type: 'buy', offer: i }, rich);
     expect(applyShopAction(s, { type: 'buy', offer: 5 }, rich)).toEqual({ ok: false, error: 'boardFull' });
@@ -197,6 +198,7 @@ describe('determinism and saves', () => {
     s = act(s, { type: 'reroll' }, ctx);
     s = act(s, { type: 'buy', offer: 1 }, ctx);
     s = mustFight(s, ctx).state;
+    while (s.pending.length > 0) s = act(s, { type: 'choose', option: 0 }, ctx);
     s = act(s, { type: 'reroll' }, ctx);
     return mustFight(s, ctx).state;
   };
