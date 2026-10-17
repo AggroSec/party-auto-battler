@@ -105,18 +105,23 @@ function clampSpd(spd: number): number {
 
 /**
  * Units whose gauge is full, in action order: fullest gauge first, then
- * higher SPD, then player before enemy, then board order.
+ * higher SPD, then board order. When units on opposite sides are still tied,
+ * a seeded coin flip (once per tick) decides which side goes first, so
+ * neither side has a built-in edge and fights stay deterministic.
  */
 export function readyUnits(state: CombatState): CombatUnit[] {
-  return state.units
-    .filter((u) => u.alive && u.gauge >= ACTION_THRESHOLD)
-    .sort(
-      (a, b) =>
-        b.gauge - a.gauge ||
-        clampSpd(b.spd) - clampSpd(a.spd) ||
-        (a.side === b.side ? 0 : a.side === 'player' ? -1 : 1) ||
-        a.order - b.order,
-    );
+  const ready = state.units.filter((u) => u.alive && u.gauge >= ACTION_THRESHOLD);
+  const tied = (a: CombatUnit, b: CombatUnit) => a.gauge === b.gauge && clampSpd(a.spd) === clampSpd(b.spd);
+  const crossSideTie = ready.some((a) => a.side === 'player' && ready.some((b) => b.side === 'enemy' && tied(a, b)));
+  // Only consume the Rng when a genuine cross-side tie exists.
+  const firstSide = crossSideTie && state.rng.chance(0.5) ? 'enemy' : 'player';
+  return ready.sort(
+    (a, b) =>
+      b.gauge - a.gauge ||
+      clampSpd(b.spd) - clampSpd(a.spd) ||
+      (a.side === b.side ? 0 : a.side === firstSide ? -1 : 1) ||
+      a.order - b.order,
+  );
 }
 
 function takeTurn(state: CombatState, unit: CombatUnit): void {

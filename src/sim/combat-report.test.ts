@@ -16,8 +16,11 @@ describe('combat report', () => {
     expect(formatReport(duels, teams, { duelsPerPair: 4 })).toContain('| Warrior |');
   });
 
-  it('scores mirror duels at exactly 50% thanks to side alternation', () => {
-    const duels = runDuels(10, 'mirror');
-    expect(duels.winRate.warrior.warrior).toBe(0.5);
+  it('scores mirror duels near 50%', () => {
+    const duels = runDuels(200, 'mirror');
+    for (const id of CLASS_IDS) {
+      expect(duels.winRate[id][id]).toBeGreaterThan(0.35);
+      expect(duels.winRate[id][id]).toBeLessThan(0.65);
+    }
   });
 });
