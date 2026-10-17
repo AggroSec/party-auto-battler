@@ -6,7 +6,7 @@ A browser-playable party auto-battler with RPG classes and builds. You draft a p
 
 ## Running locally
 
-Requires Node 20.19+.
+Requires Node 22.12+ (Node 24 LTS recommended, matching CI).
 
 ```sh
 npm install

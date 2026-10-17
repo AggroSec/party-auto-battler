@@ -2,6 +2,13 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-17 — Toolchain: Node 24
+
+- **Local dev moved to Node 24 LTS** (via nvm), matching CI's `lts/*`. Node 20 stopped receiving security patches in April 2026. This also retires the Debian npm 9 workaround.
+- **Vitest 4 → 5**, ESLint 10.12 → 10.13, `@types/node` 20 → 24. `engines.node` is now `>=22.12` (Vitest 5's minimum).
+- **TypeScript stays on 6.0.** typescript-eslint still supports only versions below 6.1. Revisit when it adds TS 7 support.
+- **esbuild's install script is explicitly denied** (`allowScripts` in `package.json`). npm 11 blocks dependency install scripts by default. esbuild (pulled in by `tsx` and Vite) works without its optional postinstall check, so the safer default stays in place.
+
 ## 2026-10-15 — Milestone 1
 
 ### Tooling
