@@ -106,10 +106,9 @@ export function runTeamFights(fights: number, seed: string): TeamReport {
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 const flag = (x: number) => (x > OUTLIER_HIGH ? ' ⚠️ high' : x < OUTLIER_LOW ? ' ⚠️ low' : '');
 
-export function formatReport(duels: DuelMatrix, teams: TeamReport, opts: { seed: string; duelsPerPair: number }): string {
+export function formatReport(duels: DuelMatrix, teams: TeamReport, opts: { duelsPerPair: number }): string {
   const name = (id: ClassId) => CLASSES[id].name;
   const lines: string[] = [];
-  lines.push(`Seed \`${opts.seed}\`. Draws count as half a win.`, '');
 
   lines.push(`### Random 5v5 fights (${teams.fights} fights)`, '');
   lines.push('Random 5-unit parties, placed by role (frontliners forward, casters back). Win rate of parties containing at least one of the class.', '');
