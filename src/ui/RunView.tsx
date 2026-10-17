@@ -1,10 +1,13 @@
 import { useMemo, useState } from 'react';
-import { CLASSES } from '../data/classes.ts';
 import { buildRunContext } from '../data/content.ts';
 import {
+  activeSynergies,
   applyShopAction,
+  boardUnits,
   createRun,
   fight,
+  getSlot,
+  resolveBoard,
   type FightResult,
   type OwnedUnit,
   type RunError,
@@ -12,6 +15,11 @@ import {
   type SlotRef,
 } from '../engine/run/index.ts';
 import { CombatReport } from './CombatReport.tsx';
+import { BoardPanel, sameSlot } from './run/BoardPanel.tsx';
+import { ChoicePanel } from './run/ChoicePanel.tsx';
+import { ShopPanel } from './run/ShopPanel.tsx';
+import { SynergyPanel } from './run/SynergyPanel.tsx';
+import { UnitDetail } from './run/UnitDetail.tsx';
 
 const ERRORS: Record<RunError, string> = {
   notShopPhase: 'The run is over.',
@@ -24,27 +32,31 @@ const ERRORS: Record<RunError, string> = {
   emptyBoard: 'Recruit at least one unit before fighting.',
   needsTarget: 'Select a unit on your board first, then buy.',
   itemSlotsFull: 'That unit already has 2 items.',
-  wrongClass: 'That training is for a different class.',
+  wrongClass: 'That training is for a different class. Select a matching unit.',
   noSuchItem: 'No such item.',
   pendingChoice: 'Make your level-up choices before fighting.',
   noPendingChoice: 'Nothing to choose.',
   invalidChoice: 'Invalid choice.',
 };
 
-const className = (classId: string) => CLASSES[classId as keyof typeof CLASSES]?.name ?? classId;
-const sameSlot = (a: SlotRef | null, b: SlotRef) => a?.row === b.row && a.col === b.col;
+type Mode = { kind: 'select' } | { kind: 'moveUnit' } | { kind: 'moveItem'; index: number };
 
 /**
- * Milestone 2 debug view of the run loop: shop, board, fight, repeat.
- * Deliberately plain. The real shop and board UI arrive in Milestone 4.
+ * Debug view of the run loop: shop, board, level-ups, fight, repeat.
+ * Deliberately plain. The real game UI arrives in Milestone 4.
  */
 export function RunView() {
   const ctx = useMemo(() => buildRunContext(), []);
   const [seed, setSeed] = useState('run-1');
   const [run, setRun] = useState(() => createRun('run-1', ctx));
   const [selected, setSelected] = useState<SlotRef | null>(null);
+  const [mode, setMode] = useState<Mode>({ kind: 'select' });
   const [lastFight, setLastFight] = useState<Extract<FightResult, { ok: true }> | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const party = useMemo(() => resolveBoard(run.board, ctx.content), [run.board, ctx]);
+  const synergies = useMemo(() => activeSynergies(boardUnits(run.board), ctx.content), [run.board, ctx]);
+  const selectedUnit = selected ? (getSlot(run.board, selected) ?? null) : null;
 
   const dispatch = (action: ShopAction) => {
     const r = applyShopAction(run, action, ctx);
@@ -58,12 +70,21 @@ export function RunView() {
   };
 
   const onSlotClick = (slot: SlotRef, unit: OwnedUnit | null) => {
-    if (selected && !sameSlot(selected, slot)) {
-      dispatch({ type: 'move', from: selected, to: slot });
-      setSelected(null);
+    if (selected && mode.kind === 'moveUnit') {
+      if (dispatch({ type: 'move', from: selected, to: slot })) setSelected(slot);
+      setMode({ kind: 'select' });
+    } else if (selected && mode.kind === 'moveItem') {
+      dispatch({ type: 'moveItem', from: selected, item: mode.index, to: slot });
+      setMode({ kind: 'select' });
     } else {
       setSelected(unit && !sameSlot(selected, slot) ? slot : null);
     }
+  };
+
+  const onBuy = (offer: number) => {
+    const o = run.shop[offer];
+    const to = o && o.kind !== 'unit' ? (selected ?? undefined) : undefined;
+    dispatch(to ? { type: 'buy', offer, to } : { type: 'buy', offer });
   };
 
   const onFight = () => {
@@ -71,7 +92,7 @@ export function RunView() {
     if (!r.ok) return setError(ERRORS[r.error]);
     setRun(r.state);
     setLastFight(r);
-    setSelected(null);
+    setMode({ kind: 'select' });
     setError(null);
   };
 
@@ -79,10 +100,18 @@ export function RunView() {
     setRun(createRun(seed, ctx));
     setLastFight(null);
     setSelected(null);
+    setMode({ kind: 'select' });
     setError(null);
   };
 
   const over = run.phase !== 'shop';
+  const pending = run.pending[0];
+  const hint =
+    mode.kind === 'moveUnit'
+      ? 'Click a slot to move the selected unit there (swaps if occupied).'
+      : mode.kind === 'moveItem'
+        ? 'Click the unit that should receive the item.'
+        : 'Click a unit to inspect it and to target items/training. Melee units fight at 50% from the back row unless they have reach.';
 
   return (
     <>
@@ -103,9 +132,7 @@ export function RunView() {
         </span>
         {run.draws > 0 && <span className="muted">{run.draws} draws</span>}
         {(run.winStreak > 1 || run.lossStreak > 1) && (
-          <span className="muted">
-            {run.winStreak > 1 ? `${run.winStreak}-win streak` : `${run.lossStreak}-loss streak`}
-          </span>
+          <span className="muted">{run.winStreak > 1 ? `${run.winStreak}-win streak` : `${run.lossStreak}-loss streak`}</span>
         )}
       </section>
 
@@ -118,77 +145,51 @@ export function RunView() {
         </section>
       )}
 
+      {!over && pending && (
+        <ChoicePanel
+          choice={pending}
+          unit={boardUnits(run.board).find((u) => u.uid === pending.uid)}
+          remaining={run.pending.length}
+          content={ctx.content}
+          onChoose={(option) => dispatch({ type: 'choose', option })}
+        />
+      )}
+
       {!over && (
         <div className="columns">
-          <section>
-            <h2>Shop</h2>
-            <ul className="shop">
-              {run.shop.map((offer, i) => (
-                <li key={i}>
-                  {offer ? (
-                    <>
-                      <span>
-                        {offer.kind === 'unit' ? (
-                          <>
-                            <strong>{offer.name}</strong> the {className(offer.classId)}
-                          </>
-                        ) : offer.kind === 'item' ? (
-                          <strong>{offer.itemId}</strong>
-                        ) : (
-                          <strong>{className(offer.classId)} training</strong>
-                        )}
-                      </span>
-                      <button onClick={() => dispatch({ type: 'buy', offer: i })}>Buy ({offer.cost}g)</button>
-                    </>
-                  ) : (
-                    <span className="muted">sold</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <button onClick={() => dispatch({ type: 'reroll' })}>Reroll ({ctx.config.rerollCost}g)</button>
-          </section>
-
+          <ShopPanel
+            shop={run.shop}
+            content={ctx.content}
+            rerollCost={ctx.config.rerollCost}
+            targetName={selectedUnit?.name ?? null}
+            onBuy={onBuy}
+            onReroll={() => dispatch({ type: 'reroll' })}
+          />
           <section>
             <h2>Party</h2>
-            <p className="muted">Click a unit, then another slot to move or swap. Melee units fight at 50% from the back row.</p>
-            <div className="board">
-              {(['front', 'back'] as const).map((row) => [
-                <span key={`${row}-label`} className="board-label muted">
-                  {row === 'front' ? 'Front' : 'Back'}
-                </span>,
-                ...run.board[row].map((unit, col) => (
-                  <button
-                    key={`${row}${col}`}
-                    className={`slot ${row}-${col} ${unit ? '' : 'empty'} ${sameSlot(selected, { row, col }) ? 'selected' : ''}`}
-                    onClick={() => onSlotClick({ row, col }, unit)}
-                  >
-                    {unit ? (
-                      <>
-                        <strong>{unit.name}</strong>
-                        <span className="muted">{className(unit.classId)}</span>
-                      </>
-                    ) : (
-                      <span className="muted">empty</span>
-                    )}
-                  </button>
-                )),
-              ])}
-            </div>
+            <BoardPanel board={run.board} content={ctx.content} selected={selected} hint={hint} onSlotClick={onSlotClick} />
             <div className="actions">
-              <button
-                disabled={!selected}
-                onClick={() => {
-                  if (selected && dispatch({ type: 'sell', from: selected })) setSelected(null);
-                }}
-              >
-                Sell selected (+{ctx.config.sellRefund}g)
+              <button disabled={!selectedUnit} onClick={() => setMode(mode.kind === 'moveUnit' ? { kind: 'select' } : { kind: 'moveUnit' })}>
+                {mode.kind === 'moveUnit' ? 'Cancel move' : 'Move unit'}
               </button>
-              <button className="primary" onClick={onFight}>
+              <button className="primary" disabled={!!pending} onClick={onFight}>
                 Fight round {run.round} ⚔️
               </button>
             </div>
             {error && <p className="error">{error}</p>}
+            {selected && selectedUnit && (
+              <UnitDetail
+                unit={selectedUnit}
+                setup={party[selected.row][selected.col] ?? null}
+                ctx={ctx}
+                movingItem={mode.kind === 'moveItem' ? mode.index : null}
+                onMoveItem={(index) => setMode(index === null ? { kind: 'select' } : { kind: 'moveItem', index })}
+                onSell={() => {
+                  if (dispatch({ type: 'sell', from: selected })) setSelected(null);
+                }}
+              />
+            )}
+            <SynergyPanel active={synergies} />
           </section>
         </div>
       )}
@@ -198,8 +199,14 @@ export function RunView() {
           <h2 className="last-fight">Last fight: round {lastFight.state.history.at(-1)?.round}</h2>
           {lastFight.income && (
             <p className="muted">
-              Income: +{lastFight.income.total}g (base {lastFight.income.base}, interest {lastFight.income.interest},
-              streak {lastFight.income.streak})
+              Income: +{lastFight.income.total}g (base {lastFight.income.base}, interest {lastFight.income.interest}, streak{' '}
+              {lastFight.income.streak}) · XP: +
+              {lastFight.combat.winner === 'player'
+                ? ctx.config.progression.xpPerWin
+                : lastFight.combat.winner === 'enemy'
+                  ? ctx.config.progression.xpPerLoss
+                  : ctx.config.progression.xpPerDraw}{' '}
+              to every unit
             </p>
           )}
           <CombatReport result={lastFight.combat} />

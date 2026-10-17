@@ -15,6 +15,7 @@ describe('debug UI', () => {
     const html = renderToString(<RunView />);
     expect(html).toContain('Round <!-- -->1');
     expect(html.match(/Buy \(/g)).toHaveLength(6);
+    expect(html).toContain('Synergies');
     expect(html.match(/>empty</g)).toHaveLength(5);
   });
 
