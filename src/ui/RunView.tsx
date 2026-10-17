@@ -22,6 +22,13 @@ const ERRORS: Record<RunError, string> = {
   emptySlot: 'Nothing there.',
   boardFull: 'Your party is full (5 units). Sell someone first.',
   emptyBoard: 'Recruit at least one unit before fighting.',
+  needsTarget: 'Select a unit on your board first, then buy.',
+  itemSlotsFull: 'That unit already has 2 items.',
+  wrongClass: 'That training is for a different class.',
+  noSuchItem: 'No such item.',
+  pendingChoice: 'Make your level-up choices before fighting.',
+  noPendingChoice: 'Nothing to choose.',
+  invalidChoice: 'Invalid choice.',
 };
 
 const className = (classId: string) => CLASSES[classId as keyof typeof CLASSES]?.name ?? classId;
@@ -121,7 +128,15 @@ export function RunView() {
                   {offer ? (
                     <>
                       <span>
-                        <strong>{offer.name}</strong> the {className(offer.classId)}
+                        {offer.kind === 'unit' ? (
+                          <>
+                            <strong>{offer.name}</strong> the {className(offer.classId)}
+                          </>
+                        ) : offer.kind === 'item' ? (
+                          <strong>{offer.itemId}</strong>
+                        ) : (
+                          <strong>{className(offer.classId)} training</strong>
+                        )}
                       </span>
                       <button onClick={() => dispatch({ type: 'buy', offer: i })}>Buy ({offer.cost}g)</button>
                     </>

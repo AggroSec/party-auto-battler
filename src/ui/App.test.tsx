@@ -14,7 +14,7 @@ describe('debug UI', () => {
   it('renders a run with shop offers and an empty party', () => {
     const html = renderToString(<RunView />);
     expect(html).toContain('Round <!-- -->1');
-    expect(html.match(/Buy \(/g)).toHaveLength(4);
+    expect(html.match(/Buy \(/g)).toHaveLength(6);
     expect(html.match(/>empty</g)).toHaveLength(5);
   });
 
