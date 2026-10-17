@@ -84,8 +84,8 @@ docs/
 ## Game design (starting point, owned by Brandon, refine in docs/DESIGN.md)
 
 **Run structure**
-- A run is up to 10 rounds. Each round has a **Shop phase** followed by a **Combat phase**.
-- The player starts with 5 lives and loses 1 per combat loss. 10 wins = run complete; 0 lives = run over.
+- A run continues until 10 wins or 0 lives (typically 10–14 rounds). Each round has a **Shop phase** followed by a **Combat phase**.
+- The player starts with 5 lives and loses 1 per combat loss; draws count as neither a win nor a loss. 10 wins = run complete; 0 lives = run over.
 - Enemy parties are generated per round from data, scaling with round number. No multiplayer.
 
 **Shop phase**
