@@ -41,7 +41,7 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 
 - Each round's enemy party is generated from **archetypes** (`src/data/enemies.ts`): Bandit Brute (Warrior), Cutthroat (Rogue), Poacher (Ranger), Hedge Mage (Mage, round 2+), Cult Acolyte (Cleric, round 3+) and Bonecaller (Necromancer, round 5+).
 - Party size by round: 2, 3, 4, then 5 from round 4.
-- Stats start at **75%** of a player unit's and grow **+4% HP / +3% ATK per round**. Enemies pass player base stats around round 8; from there, player progression (M3) has to keep up.
+- Stats start at **75%** of a player unit's and grow **+3.75% HP / +2.75% ATK per round**. Enemies pass player base stats around round 8; from there, player progression (M3) has to keep up.
 - The enemy depends only on the run seed and round number, so rerolling or reshuffling your party never changes who you fight.
 
 ## Board
@@ -63,7 +63,7 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 
 **Timeline.** Combat runs in ticks. Every tick, each living unit adds its SPD to an action gauge. When the gauge reaches 100, the unit takes a turn and the gauge drops by 100 (the overflow carries over). SPD 10 = one turn every 10 ticks. SPD is clamped to 1–100.
 
-**Turn order on the same tick:** fullest gauge first → higher SPD → player side before enemy → board order (front 0–2, then back 0–1).
+**Turn order on the same tick:** fullest gauge first → higher SPD → board order (front 0–2, then back 0–1). If units on *opposite* sides are still tied, a **seeded coin flip** (once per tick) decides which side goes first. Fights stay deterministic (same seed, same result), and neither side has a built-in edge. *(Changed in M2 review: the original player-first tie-break won 78% of exact mirror matches.)*
 
 **A turn:**
 1. `onTurnStart` triggers fire.
@@ -131,6 +131,11 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 - **#2 Back-row melee:** 50% damage while the front row stands (option 3). Implemented in M2; the issue stays open to revisit with talents and items.
 - **Run length:** play until 10 wins or 0 lives (the brief's "up to 10 rounds" conflicted with "10 wins = complete").
 - **Draws:** count as neither win nor loss.
+
+## Direction for Milestone 3 (from Brandon)
+
+- **Levelling is weighted random.** Each level-up adds stats rolled from per-class ranges, so growth leans toward the class identity without being fixed. For example, a Rogue might gain 3–5 SPD but only 1–3 HP per level, while a Warrior leans HP/DEF. Exact ranges get tuned with the simulator. Rolls use the seeded RNG, so a run is still reproducible from its seed. *(2026-10-17)*
+- Items and talents add further variety. Determinism is about reproducibility, not removing randomness.
 
 ## Open design questions (for Brandon)
 
