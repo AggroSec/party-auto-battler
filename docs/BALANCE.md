@@ -2,6 +2,10 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-10-17 — Milestone 4 (UI)
+
+No rule or content changes. `npm run sim -- --only runs` reproduces the M3 follow-up report below exactly. Making recruit names unique still uses one random draw per name, so every seeded shop is the same apart from names.
+
 ## 2026-10-17 — Milestone 3 review follow-up (taunt)
 
 Command: `npm run sim` (same seed and settings as the M3 report below). Changes since then: the `taunt` effect, Knight's Holy Bulwark (shield 2 + 100% DEF and taunt for 1 turn, was 3 + 150% DEF), and the Warrior talent Bulwark replaced by Challenge (start of combat: taunt for 1 turn).

@@ -9,7 +9,8 @@
 | Combat engine | ✅ Milestone 1 |
 | Run loop (shop, gold, rounds, lives, enemies) | ✅ Milestone 2 |
 | Builds (XP, talents, advanced classes, items, synergies) | ✅ Milestone 3 |
-| Playable UI | Milestone 4 |
+| Playable UI (screens, drag-to-position, combat playback, run summary) | ✅ Milestone 4 |
+| Balance, juice, credits, meta unlocks | Milestone 5 |
 
 ## Run structure
 
@@ -229,9 +230,35 @@ The highest tier met is active. Synergies apply to enemies too.
 - **Levelling is weighted random.** Each level-up adds stats rolled from per-class ranges, so growth leans toward the class identity without being fixed. For example, a Rogue might gain 3–5 SPD but only 1–3 HP per level, while a Warrior leans HP/DEF. Exact ranges get tuned with the simulator. Rolls use the seeded RNG, so a run is still reproducible from its seed. *(2026-10-17)*
 - Items and talents add further variety. Determinism is about reproducibility, not removing randomness.
 
+## UI (Milestone 4)
+
+**Screens:** Title → Shop → Combat → (result) → Shop … → Run summary. The combat lab (pick two line-ups, read the event log) is linked from the title screen.
+
+- **Title:** continue a saved run, start a new one (optional custom seed for a reproducible run), best run, short how-to.
+- **Shop:** HUD (round, gold, lives as hearts, wins progress, streak), the six offers as cards, the party board, a unit inspector, synergy progress and the Fight button. Level-up choices appear as a highlighted panel above the shop; you can keep shopping, but must choose before fighting.
+- **Combat:** the board as a battlefield, enemy on top and you below with the front rows facing each other. Playback steps through the engine's event log one turn at a time: the acting unit lunges, hits shake their target, floating numbers show damage, healing, shields and stat changes, and ability or trigger names pop up. Taunting units show 🎯, and sudden death announces itself. Controls: pause, 1x, 2x, skip, and replay. When it ends, a result panel shows lives lost, XP, income, per-unit damage dealt/taken/healed, and the full combat log on request.
+- **Run summary:** result, every round's outcome with the enemy's classes, the final party with each unit's run totals, and an MVP.
+
+**Interaction:** everything can be dragged *or* clicked.
+
+| Drag | Onto | Does | Click alternative |
+|---|---|---|---|
+| Recruit card | Empty slot | Buys into that slot | Click the card (auto-places) |
+| Item / training card | A unit | Buys it for that unit | Select the unit, click the card |
+| Unit | Any slot | Moves (swaps if occupied) | Inspector → Move, then click a slot |
+| Unit / item | Sell zone (appears while dragging) | Sells for the refund shown | Inspector → Sell |
+| Equipped item (inspector) | Another unit | Moves the item | Inspector → Move, then click a unit |
+
+Drag uses pointer events, so mouse, pen and touch all work. While dragging near the top or bottom of the screen the page scrolls. Valid drop targets highlight during a drag.
+
+**Persistence (localStorage, all reads and writes guarded):** the current run (after every action), the best run, and the playback speed. A save from an incompatible version, or one naming a class that no longer exists, is ignored instead of crashing.
+
+**Look:** dark theme, one colour and a placeholder glyph per class (advanced classes keep their base class's), drawn entirely with CSS. Emoji stand in for icons until the game-icons.net set and credits screen in M5. Animations respect `prefers-reduced-motion`. The layout works from phone width up.
+
 ## Open design questions (for Brandon)
 
 None blocking. Things to look at when playtesting M3 (they're balance and feel, not rules):
 
 1. **Late-game wall.** From round 11, every bot wins only about 20% (then 7%, 4%), regardless of skill. A run that reaches round 11 has already lost several fights, so it's a final hurdle for comeback runs. Does it feel fair or too punishing?
 2. **Talent feel.** Are level-up choices interesting, or do some feel like obvious picks?
+3. **Enemy preview (M4).** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? It would make positioning and item choices more deliberate. It's a design change, so it's Brandon's call.
