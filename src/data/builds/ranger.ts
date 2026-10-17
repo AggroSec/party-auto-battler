@@ -1,7 +1,7 @@
 import { advanced, on, talent, trig } from './dsl.ts';
 
 export const rangerTalents = [
-  talent('ranger/keen-eye', 'Keen Eye', '+2 ATK.', { stats: { atk: 2 } }),
+  talent('ranger/keen-eye', 'Keen Eye', '+1 ATK.', { stats: { atk: 1 } }),
   talent('ranger/rapid-fire', 'Rapid Fire', '20% on attack: your next Volley comes a turn sooner.', trig(
     on('onAttack', 'Rapid Fire', [{ kind: 'cooldown', target: 'self', turns: -1 }], { chance: 0.2 }),
   )),
@@ -22,16 +22,16 @@ export const sharpshooter = advanced({
   ability: {
     id: 'aimed-shot',
     name: 'Aimed Shot',
-    description: 'Every 3rd turn: deal 250% ATK piercing to the strongest enemy.',
+    description: 'Every 3rd turn: deal 220% ATK piercing to the strongest enemy.',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'highestAtk', amount: { atk: 2.5 }, pierce: true }],
+    effects: [{ kind: 'damage', target: 'highestAtk', amount: { atk: 2.2 }, pierce: true }],
   },
   modifier: {
-    stats: { atk: 3 },
+    stats: { atk: 2 },
     triggers: [on('onKill', 'Reload', [{ kind: 'cooldown', target: 'self', turns: -2 }])],
   },
   talents: [
-    talent('sharpshooter/deadeye', 'Deadeye', '+50% ability power.', { abilityPower: 0.5 }),
+    talent('sharpshooter/deadeye', 'Deadeye', '+35% ability power.', { abilityPower: 0.35 }),
     talent('sharpshooter/piercing', 'Piercing Arrows', 'Basic attacks deal an extra 30% ATK as piercing damage.', trig(
       on('onAttack', 'Piercing Arrows', [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 0.3 }, pierce: true }]),
     )),
@@ -60,9 +60,7 @@ export const beastmaster = advanced({
     triggers: [on('startOfCombat', 'Pack Leader', [{ kind: 'buff', target: 'allAllies', stat: 'atk', amount: { flat: 1 } }])],
   },
   talents: [
-    talent('beastmaster/alpha', 'Alpha', 'Start of combat: all allies gain +1 SPD.', trig(
-      on('startOfCombat', 'Alpha', [{ kind: 'buff', target: 'allAllies', stat: 'spd', amount: { flat: 1 } }]),
-    )),
+    talent('beastmaster/alpha', 'Alpha', '+2 SPD, +2 ATK.', { stats: { spd: 2, atk: 2 } }),
     talent('beastmaster/savage-bite', 'Savage Bite', '30% on attack: strip 1 DEF from the target.', trig(
       on('onAttack', 'Savage Bite', [{ kind: 'debuff', target: 'triggerTarget', stat: 'def', amount: { flat: 1 } }], { chance: 0.3 }),
     )),

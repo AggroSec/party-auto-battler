@@ -20,12 +20,12 @@ export const pyromancer = advanced({
   ability: {
     id: 'meteor',
     name: 'Meteor',
-    description: 'Every 3rd turn: deal 150% ATK to each enemy in the front row.',
-    cooldown: 3,
-    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.5 } }],
+    description: 'Every 2nd turn: deal 160% ATK to each enemy in the front row.',
+    cooldown: 2,
+    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.6 } }],
   },
   modifier: {
-    stats: { atk: 2 },
+    stats: { atk: 3, hp: 6 },
     triggers: [on('onKill', 'Combustion', [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.8 } }])],
   },
   talents: [
@@ -51,11 +51,10 @@ export const chronomancer = advanced({
   ability: {
     id: 'time-warp',
     name: 'Time Warp',
-    description: 'Every 3rd turn: allies’ abilities come 1 turn sooner, enemies’ 1 turn later; deal 100% ATK to the nearest enemy.',
+    description: 'Every 3rd turn: allies’ abilities come 1 turn sooner; deal 100% ATK to the nearest enemy.',
     cooldown: 3,
     effects: [
       { kind: 'cooldown', target: 'allAllies', turns: -1 },
-      { kind: 'cooldown', target: 'allEnemies', turns: 1 },
       { kind: 'damage', target: 'nearest', amount: { atk: 1 } },
     ],
   },
@@ -64,15 +63,17 @@ export const chronomancer = advanced({
     triggers: [on('startOfCombat', 'Slow Field', [{ kind: 'debuff', target: 'allEnemies', stat: 'spd', amount: { flat: 1 } }])],
   },
   talents: [
-    talent('chronomancer/haste', 'Haste', 'Start of combat: all allies gain +1 SPD.', trig(
-      on('startOfCombat', 'Haste', [{ kind: 'buff', target: 'allAllies', stat: 'spd', amount: { flat: 1 } }]),
+    talent('chronomancer/haste', 'Haste', 'Start of combat: gain +3 SPD.', trig(
+      on('startOfCombat', 'Haste', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 3 } }]),
     )),
-    talent('chronomancer/temporal-lock', 'Temporal Lock', 'After casting, the strongest enemy loses 2 SPD.', trig(
-      on('onAbility', 'Temporal Lock', [{ kind: 'debuff', target: 'highestAtk', stat: 'spd', amount: { flat: 2 } }]),
+    talent('chronomancer/temporal-lock', 'Temporal Lock', 'After casting, the strongest enemy loses 1 SPD.', trig(
+      on('onAbility', 'Temporal Lock', [{ kind: 'debuff', target: 'highestAtk', stat: 'spd', amount: { flat: 1 } }]),
     )),
     talent('chronomancer/rewind', 'Rewind', 'The first time you drop below 50% HP, heal 40% of max HP.', trig(
       on('onBloodied', 'Rewind', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.4 } }]),
     )),
-    talent('chronomancer/accelerate', 'Accelerate', 'Ability cooldown −1.', { abilityCooldown: -1 }),
+    talent('chronomancer/accelerate', 'Accelerate', 'Start of combat: your first Time Warp comes 2 turns sooner.', trig(
+      on('startOfCombat', 'Accelerate', [{ kind: 'cooldown', target: 'self', turns: -2 }]),
+    )),
   ],
 });

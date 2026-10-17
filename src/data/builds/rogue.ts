@@ -22,9 +22,9 @@ export const assassin = advanced({
   ability: {
     id: 'assassinate',
     name: 'Assassinate',
-    description: 'Every 3rd turn: deal 300% ATK to the weakest back-row enemy.',
+    description: 'Every 3rd turn: deal 320% ATK to the weakest back-row enemy.',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 3 } }],
+    effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 3.2 } }],
   },
   modifier: {
     stats: { atk: 3 },
@@ -33,8 +33,8 @@ export const assassin = advanced({
   talents: [
     talent('assassin/execute', 'Execute', '+50% ability power.', { abilityPower: 0.5 }),
     talent('assassin/tempo', 'Lethal Tempo', 'Ability cooldown −1.', { abilityCooldown: -1 }),
-    talent('assassin/toxin', 'Toxin', 'Basic attacks deal 2 extra piercing damage.', trig(
-      on('onAttack', 'Toxin', [{ kind: 'damage', target: 'triggerTarget', amount: { flat: 2 }, pierce: true }]),
+    talent('assassin/toxin', 'Toxin', 'Basic attacks deal 3 extra piercing damage.', trig(
+      on('onAttack', 'Toxin', [{ kind: 'damage', target: 'triggerTarget', amount: { flat: 3 }, pierce: true }]),
     )),
     talent('assassin/smoke-bomb', 'Smoke Bomb', 'When bloodied, shield 30% max HP and gain +3 SPD.', trig(
       on('onBloodied', 'Smoke Bomb', [

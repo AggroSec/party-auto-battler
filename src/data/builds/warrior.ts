@@ -51,23 +51,23 @@ export const berserker = advanced({
   ability: {
     id: 'whirlwind',
     name: 'Whirlwind',
-    description: 'Every 3rd turn: deal 70% ATK to every enemy.',
+    description: 'Every 3rd turn: deal 85% ATK to every enemy.',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.7 } }],
+    effects: [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.85 } }],
   },
   modifier: {
-    stats: { atk: 2, hp: 4 },
+    stats: { atk: 3, hp: 8 },
     lifesteal: 0.15,
     triggers: [on('onBloodied', 'Rage', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 4 } }])],
   },
   talents: [
     talent('berserker/bloodthirst', 'Bloodthirst', '+15% lifesteal.', { lifesteal: 0.15 }),
-    talent('berserker/frenzy', 'Frenzy', 'Each basic attack grants +1 SPD (max 5).', trig(
-      on('onAttack', 'Frenzy', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 1 } }], { limit: 5 }),
+    talent('berserker/frenzy', 'Frenzy', 'Each basic attack grants +1 SPD (max 8).', trig(
+      on('onAttack', 'Frenzy', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 1 } }], { limit: 8 }),
     )),
     talent('berserker/reckless', 'Reckless', '+4 ATK, −2 DEF.', { stats: { atk: 4, def: -2 } }),
-    talent('berserker/unstoppable', 'Unstoppable', 'When bloodied, shield yourself for 25% of max HP.', trig(
-      on('onBloodied', 'Unstoppable', [{ kind: 'shield', target: 'self', amount: { maxHp: 0.25 } }]),
+    talent('berserker/unstoppable', 'Unstoppable', 'When bloodied, shield yourself for 35% of max HP.', trig(
+      on('onBloodied', 'Unstoppable', [{ kind: 'shield', target: 'self', amount: { maxHp: 0.35 } }]),
     )),
   ],
 });

@@ -22,19 +22,22 @@ export const priest = advanced({
   ability: {
     id: 'prayer',
     name: 'Prayer of Healing',
-    description: 'Every 3rd turn: heal all allies for 140% ATK.',
+    description: 'Every 3rd turn: heal all allies for 180% ATK and shield them for 60% ATK.',
     cooldown: 3,
-    effects: [{ kind: 'heal', target: 'allAllies', amount: { atk: 1.4 } }],
+    effects: [
+      { kind: 'heal', target: 'allAllies', amount: { atk: 1.8 } },
+      { kind: 'shield', target: 'allAllies', amount: { atk: 0.6 } },
+    ],
   },
   modifier: {
     stats: { hp: 6 },
     triggers: [on('onAllyDeath', 'Last Rites', [{ kind: 'shield', target: 'allAllies', amount: { atk: 1 } }])],
   },
   talents: [
-    talent('priest/greater-heal', 'Greater Heal', '+40% ability power.', { abilityPower: 0.4 }),
+    talent('priest/greater-heal', 'Greater Heal', '+50% ability power.', { abilityPower: 0.5 }),
     talent('priest/grace', 'Divine Grace', 'Ability cooldown −1.', { abilityCooldown: -1 }),
-    talent('priest/guardian-angel', 'Guardian Angel', 'Once per combat, when an ally falls, heal the most injured ally for 300% ATK.', trig(
-      on('onAllyDeath', 'Guardian Angel', [{ kind: 'heal', target: 'lowestHpAlly', amount: { atk: 3 } }], { limit: 1 }),
+    talent('priest/guardian-angel', 'Guardian Angel', 'Twice per combat, when an ally falls, heal the most injured ally for 300% ATK.', trig(
+      on('onAllyDeath', 'Guardian Angel', [{ kind: 'heal', target: 'lowestHpAlly', amount: { atk: 3 } }], { limit: 2 }),
     )),
     talent('priest/halo', 'Halo', 'Start of combat: all allies gain +1 DEF.', trig(
       on('startOfCombat', 'Halo', [{ kind: 'buff', target: 'allAllies', stat: 'def', amount: { flat: 1 } }]),

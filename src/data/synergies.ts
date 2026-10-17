@@ -14,15 +14,15 @@ export const SYNERGIES: SynergyDef[] = [
     name: 'Martial Discipline',
     tiers: [
       { requires: [{ kind: 'tag', tag: 'martial', count: 2 }], description: 'Martial units +2 ATK.', modifier: { stats: { atk: 2 } }, appliesTo: { tag: 'martial' } },
-      { requires: [{ kind: 'tag', tag: 'martial', count: 4 }], description: 'Martial units +4 ATK.', modifier: { stats: { atk: 4 } }, appliesTo: { tag: 'martial' } },
+      { requires: [{ kind: 'tag', tag: 'martial', count: 4 }], description: 'Martial units +2 ATK and +4 HP.', modifier: { stats: { atk: 2, hp: 4 } }, appliesTo: { tag: 'martial' } },
     ],
   },
   {
     id: 'arcane',
     name: 'Arcane Circle',
     tiers: [
-      { requires: [{ kind: 'tag', tag: 'arcane', count: 2 }], description: 'Arcane units +25% ability power.', modifier: { abilityPower: 0.25 }, appliesTo: { tag: 'arcane' } },
-      { requires: [{ kind: 'tag', tag: 'arcane', count: 3 }], description: 'Arcane units +50% ability power.', modifier: { abilityPower: 0.5 }, appliesTo: { tag: 'arcane' } },
+      { requires: [{ kind: 'tag', tag: 'arcane', count: 2 }], description: 'Arcane units +30% ability power and +8 HP.', modifier: { abilityPower: 0.3, stats: { hp: 8 } }, appliesTo: { tag: 'arcane' } },
+      { requires: [{ kind: 'tag', tag: 'arcane', count: 3 }], description: 'Arcane units +50% ability power and +12 HP.', modifier: { abilityPower: 0.5, stats: { hp: 12 } }, appliesTo: { tag: 'arcane' } },
     ],
   },
   {
@@ -31,14 +31,14 @@ export const SYNERGIES: SynergyDef[] = [
     tiers: [
       {
         requires: [{ kind: 'tag', tag: 'guardian', count: 2 }],
-        description: 'Start of combat: every ally shields itself for 4.',
-        modifier: { triggers: [on('startOfCombat', 'Shield Wall', [{ kind: 'shield', target: 'self', amount: { flat: 4 } }])] },
+        description: 'Start of combat: every ally shields itself for 3.',
+        modifier: { triggers: [on('startOfCombat', 'Shield Wall', [{ kind: 'shield', target: 'self', amount: { flat: 3 } }])] },
         appliesTo: 'all',
       },
       {
         requires: [{ kind: 'tag', tag: 'guardian', count: 3 }],
-        description: 'Start of combat: every ally shields itself for 8.',
-        modifier: { triggers: [on('startOfCombat', 'Shield Wall', [{ kind: 'shield', target: 'self', amount: { flat: 8 } }])] },
+        description: 'Start of combat: every ally shields itself for 7.',
+        modifier: { triggers: [on('startOfCombat', 'Shield Wall', [{ kind: 'shield', target: 'self', amount: { flat: 7 } }])] },
         appliesTo: 'all',
       },
     ],
@@ -59,14 +59,14 @@ export const SYNERGIES: SynergyDef[] = [
     id: 'shadow',
     name: 'Shadow Pact',
     tiers: [
-      { requires: [{ kind: 'tag', tag: 'shadow', count: 2 }], description: 'Shadow units +15% lifesteal and +2 SPD.', modifier: { lifesteal: 0.15, stats: { spd: 2 } }, appliesTo: { tag: 'shadow' } },
+      { requires: [{ kind: 'tag', tag: 'shadow', count: 2 }], description: 'Shadow units +10% lifesteal and +1 SPD.', modifier: { lifesteal: 0.1, stats: { spd: 1 } }, appliesTo: { tag: 'shadow' } },
     ],
   },
   {
     id: 'wild',
     name: 'Call of the Wild',
     tiers: [
-      { requires: [{ kind: 'tag', tag: 'wild', count: 2 }], description: 'Every ally +1 SPD and +4 HP.', modifier: { stats: { spd: 1, hp: 4 } }, appliesTo: 'all' },
+      { requires: [{ kind: 'tag', tag: 'wild', count: 2 }], description: 'Wild units +1 SPD.', modifier: { stats: { spd: 1 } }, appliesTo: { tag: 'wild' } },
     ],
   },
   {
@@ -89,8 +89,8 @@ export const SYNERGIES: SynergyDef[] = [
     id: 'party',
     name: 'Adventuring Party',
     tiers: [
-      { requires: [{ kind: 'distinctClasses', count: 4 }], description: '4 different classes: every ally +6 HP.', modifier: { stats: { hp: 6 } }, appliesTo: 'all' },
-      { requires: [{ kind: 'distinctClasses', count: 5 }], description: '5 different classes: every ally +10 HP and +1 ATK.', modifier: { stats: { hp: 10, atk: 1 } }, appliesTo: 'all' },
+      { requires: [{ kind: 'distinctClasses', count: 4 }], description: '4 different classes: every ally +3 HP.', modifier: { stats: { hp: 3 } }, appliesTo: 'all' },
+      { requires: [{ kind: 'distinctClasses', count: 5 }], description: '5 different classes: every ally +4 HP.', modifier: { stats: { hp: 4 } }, appliesTo: 'all' },
     ],
   },
 ];
