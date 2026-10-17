@@ -4,7 +4,7 @@ import { Rng } from '../engine/index.ts';
 import { createRun, unitCount } from '../engine/run/index.ts';
 import { BOTS, greedyBot, partyPower, randomBot, resolvePending, sensibleBot, synergyBot, synergyTagOf } from './bots.ts';
 import { entityRows, formatRunReports, MIN_FIGHTS_FOR_FLAG } from './run-format.ts';
-import { mergeEntities, runBot } from './run-report.ts';
+import { mergeEntities, runBot, type BotRunReport } from './run-report.ts';
 
 describe('run simulator', () => {
   const ctx = buildRunContext();
@@ -50,6 +50,28 @@ describe('run simulator', () => {
     expect(synergyTagOf(s, ctx)).toBe(synergyTagOf(s, ctx));
     expect(greedyBot.name).toBe('greedy');
     expect(synergyBot.name).toBe('synergy');
+  });
+
+  it('round-adjusted lift removes round bias', () => {
+    const tally = (fights: number, score: number) => ({ fights, score });
+    const fake = (entities: [string, [number, ReturnType<typeof tally>][]][], rounds: [number, ReturnType<typeof tally>][]) =>
+      ({ entities: new Map(entities.map(([k, v]) => [k, new Map(v)])), rounds: new Map(rounds) }) as unknown as BotRunReport;
+    // Round 1 is easy (90%), round 10 is hard (20%). "late" only appears in round 10 and wins 20% there: lift 0.
+    // "strong" also only appears in round 10 but wins 60% there: lift +40 points.
+    const merged = mergeEntities([
+      fake(
+        [
+          ['item:late', [[10, tally(10, 2)]]],
+          ['item:strong', [[10, tally(10, 6)]]],
+        ],
+        [
+          [1, tally(100, 90)],
+          [10, tally(100, 20)],
+        ],
+      ),
+    ]);
+    expect(merged.get('item:late')!.lift).toBeCloseTo(0);
+    expect(merged.get('item:strong')!.lift).toBeCloseTo(0.4);
   });
 
   it('tracks entities and formats a report with outlier flags', () => {

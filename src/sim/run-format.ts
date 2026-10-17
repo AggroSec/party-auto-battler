@@ -1,7 +1,7 @@
 // Markdown formatting for the run simulator report.
 import type { RunContent } from '../engine/run/index.ts';
 import type { Bot } from './bots.ts';
-import { mergeEntities, type BotRunReport, type EntityKind, type Tally } from './run-report.ts';
+import { mergeEntities, type BotRunReport, type EntityKind, type EntityStat } from './run-report.ts';
 
 export const OUTLIER_HIGH = 0.65;
 export const OUTLIER_LOW = 0.35;
@@ -16,10 +16,12 @@ export interface EntityRow {
   name: string;
   fights: number;
   winRate: number;
+  /** Round-adjusted lift (see EntityStat). */
+  lift: number;
   flag: '' | 'high' | 'low';
 }
 
-export function entityRows(entities: Map<string, Tally>, content: RunContent): EntityRow[] {
+export function entityRows(entities: Map<string, EntityStat>, content: RunContent): EntityRow[] {
   const name = (kind: EntityKind, id: string): string => {
     if (kind === 'class') return content.classes[id]?.name ?? id;
     if (kind === 'advanced') return content.advancedClasses[id]?.name ?? id;
@@ -32,20 +34,21 @@ export function entityRows(entities: Map<string, Tally>, content: RunContent): E
     const [kind, id] = key.split(/:(.*)/s) as [EntityKind, string];
     const winRate = t.score / t.fights;
     const flag = t.fights < MIN_FIGHTS_FOR_FLAG ? '' : winRate > OUTLIER_HIGH ? 'high' : winRate < OUTLIER_LOW ? 'low' : '';
-    return { kind, id, name: name(kind, id), fights: t.fights, winRate, flag };
+    return { kind, id, name: name(kind, id), fights: t.fights, winRate, lift: t.lift, flag };
   });
 }
 
 function entityTable(rows: EntityRow[], title: string, limit?: number): string[] {
-  const sorted = [...rows].sort((a, b) => b.winRate - a.winRate);
+  const sorted = [...rows].sort((a, b) => b.lift - a.lift);
   const shown = limit && sorted.length > limit * 2 ? [...sorted.slice(0, limit), null, ...sorted.slice(-limit)] : sorted;
-  const lines = [`##### ${title}`, '', '| | Fights | Win rate |', '|---|---:|---:|'];
+  const lines = [`##### ${title}`, '', '| | Fights | Win rate | Lift vs round avg |', '|---|---:|---:|---:|'];
   for (const r of shown) {
     if (!r) {
-      lines.push(`| … ${sorted.length - limit! * 2} more … | | |`);
+      lines.push(`| … ${sorted.length - limit! * 2} more … | | | |`);
       continue;
     }
-    lines.push(`| ${r.name} | ${r.fights} | ${pct(r.winRate)}${r.flag ? ` ⚠️ ${r.flag}` : ''} |`);
+    const lift = `${r.lift >= 0 ? '+' : '−'}${Math.abs(r.lift * 100).toFixed(1)}`;
+    lines.push(`| ${r.name} | ${r.fights} | ${pct(r.winRate)}${r.flag ? ` ⚠️ ${r.flag}` : ''} | ${lift} |`);
   }
   return [...lines, ''];
 }
@@ -76,7 +79,8 @@ export function formatRunReports(reports: BotRunReport[], bots: readonly Bot[], 
   lines.push(
     `Share of fights won while the entity was on the player's board (draws count half). ` +
       `Flagged if above ${pct(OUTLIER_HIGH)} or below ${pct(OUTLIER_LOW)} with at least ${MIN_FIGHTS_FOR_FLAG} fights. ` +
-      `For reference, the overall fight win rate is ${pct(reports.reduce((s, r) => s + r.fightWinRate, 0) / reports.length)}.`,
+      `For reference, the overall fight win rate is ${pct(reports.reduce((s, r) => s + r.fightWinRate, 0) / reports.length)}. ` +
+      `**Lift** compares each fight with the average result for that round (points), removing the bias from things that only show up in later, harder rounds; tables are sorted by it.`,
     '',
   );
   lines.push(

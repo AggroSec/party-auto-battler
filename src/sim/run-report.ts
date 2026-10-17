@@ -30,20 +30,28 @@ export interface BotRunReport {
   avgUnspentGold: number;
   avgLevel: number;
   stuckRuns: number;
-  /** Per-entity tallies, keyed `${kind}:${id}`. */
-  entities: Map<string, Tally>;
+  /** Per-entity tallies by round, keyed `${kind}:${id}`. */
+  entities: Map<string, Map<number, Tally>>;
+  /** All fights by round (for round-adjusted lift). */
+  rounds: Map<number, Tally>;
 }
 
-function bump(map: Map<string, Tally>, key: string, score: number): void {
+function bump<K>(map: Map<K, Tally>, key: K, score: number, fights = 1): void {
   const t = map.get(key) ?? { fights: 0, score: 0 };
-  map.set(key, { fights: t.fights + 1, score: t.score + score });
+  map.set(key, { fights: t.fights + fights, score: t.score + score });
+}
+
+function bumpByRound(map: Map<string, Map<number, Tally>>, key: string, round: number, score: number): void {
+  let inner = map.get(key);
+  if (!inner) map.set(key, (inner = new Map()));
+  bump(inner, round, score);
 }
 
 export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): BotRunReport {
   const botRng = new Rng(`${seed}:${bot.name}`);
   const hist = Array<number>(ctx.config.winsToComplete + 1).fill(0);
-  const byRound = new Map<string, Tally>();
-  const entities = new Map<string, Tally>();
+  const byRound = new Map<number, Tally>();
+  const entities = new Map<string, Map<number, Tally>>();
   let completed = 0, winsSum = 0, roundsSum = 0, fights = 0, draws = 0, wins = 0;
   let unspent = 0, stuck = 0, tickCap = 0, levelSum = 0, unitSamples = 0;
 
@@ -65,7 +73,7 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
       const score = r.combat.winner === 'player' ? 1 : r.combat.winner === 'draw' ? 0.5 : 0;
       if (r.combat.winner === 'draw') draws++;
       wins += score;
-      bump(byRound, String(shopped.round), score);
+      bump(byRound, shopped.round, score);
 
       const units = boardUnits(shopped.board);
       const present = new Set<string>();
@@ -78,7 +86,7 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
         for (const t of u.talents) present.add(`talent:${t}`);
       }
       for (const a of activeSynergies(units, ctx.content)) present.add(`synergy:${a.synergy.id}#${a.tier + 1}`);
-      for (const key of present) bump(entities, key, score);
+      for (const key of present) bumpByRound(entities, key, shopped.round, score);
       state = r.state;
     }
     if (state.phase === 'complete') completed++;
@@ -98,8 +106,9 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
     tickCapHits: tickCap,
     winsHistogram: hist,
     winRateByRound: [...byRound.entries()]
-      .map(([round, t]) => ({ round: Number(round), fights: t.fights, winRate: t.score / t.fights }))
+      .map(([round, t]) => ({ round, fights: t.fights, winRate: t.score / t.fights }))
       .sort((a, b) => a.round - b.round),
+    rounds: byRound,
     avgUnspentGold: fights ? unspent / fights : 0,
     avgLevel: unitSamples ? levelSum / unitSamples : 0,
     stuckRuns: stuck,
@@ -107,14 +116,36 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
   };
 }
 
-/** Merge entity tallies across bots. */
-export function mergeEntities(reports: BotRunReport[]): Map<string, Tally> {
-  const merged = new Map<string, Tally>();
+export interface EntityStat extends Tally {
+  /**
+   * Round-adjusted lift: average of (result − that round's overall win rate)
+   * across the entity's fights. Removes the bias from entities that only
+   * appear in later, harder rounds. +0.05 = wins 5 points more than usual.
+   */
+  lift: number;
+}
+
+/** Merge tallies across bots and compute raw and round-adjusted rates. */
+export function mergeEntities(reports: BotRunReport[]): Map<string, EntityStat> {
+  const rounds = new Map<number, Tally>();
+  for (const r of reports) for (const [round, t] of r.rounds) bump(rounds, round, t.score, t.fights);
+  const base = (round: number) => {
+    const t = rounds.get(round);
+    return t ? t.score / t.fights : 0;
+  };
+
+  const merged = new Map<string, EntityStat>();
   for (const r of reports) {
-    for (const [k, t] of r.entities) {
-      const m = merged.get(k) ?? { fights: 0, score: 0 };
-      merged.set(k, { fights: m.fights + t.fights, score: m.score + t.score });
+    for (const [key, byRound] of r.entities) {
+      const m = merged.get(key) ?? { fights: 0, score: 0, lift: 0 };
+      for (const [round, t] of byRound) {
+        m.fights += t.fights;
+        m.score += t.score;
+        m.lift += t.score - t.fights * base(round); // summed for now
+      }
+      merged.set(key, m);
     }
   }
+  for (const m of merged.values()) m.lift = m.fights ? m.lift / m.fights : 0;
   return merged;
 }
