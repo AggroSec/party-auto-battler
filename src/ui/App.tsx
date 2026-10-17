@@ -1,30 +1,37 @@
 import { useState } from 'react';
 import { CombatLab } from './CombatLab.tsx';
-import { RunView } from './RunView.tsx';
+import { CombatScreen } from './game/CombatScreen.tsx';
+import { RunSummary } from './game/RunSummary.tsx';
+import { ShopScreen } from './game/ShopScreen.tsx';
+import { TitleScreen } from './game/TitleScreen.tsx';
+import { useGame } from './game/useGame.ts';
 
-type Tab = 'run' | 'lab';
-
-/**
- * Debug shell for engine milestones. The real game UI (shop screen, drag-to-
- * position board, animated combat playback) arrives in Milestone 4.
- */
+/** Screen router. Game state lives in useGame; the engine does all the rules. */
 export function App() {
-  const [tab, setTab] = useState<Tab>('run');
+  const game = useGame();
+  const [lab, setLab] = useState(false);
+
+  if (lab) {
+    return (
+      <main className="app lab">
+        <header className="lab-head">
+          <button type="button" onClick={() => setLab(false)}>
+            ← Back
+          </button>
+          <h1>Combat lab</h1>
+          <span className="muted">Pick two line-ups and a seed, then read the event log.</span>
+        </header>
+        <CombatLab />
+      </main>
+    );
+  }
+
   return (
     <main className="app">
-      <header>
-        <h1>Party Auto-Battler</h1>
-        <p className="muted">Engine debug build. Not the final UI.</p>
-        <nav className="tabs">
-          <button className={tab === 'run' ? 'active' : ''} onClick={() => setTab('run')}>
-            Run
-          </button>
-          <button className={tab === 'lab' ? 'active' : ''} onClick={() => setTab('lab')}>
-            Combat lab
-          </button>
-        </nav>
-      </header>
-      {tab === 'run' ? <RunView /> : <CombatLab />}
+      {game.screen === 'title' && <TitleScreen game={game} onOpenLab={() => setLab(true)} />}
+      {game.screen === 'shop' && <ShopScreen game={game} />}
+      {game.screen === 'combat' && game.lastFight && <CombatScreen key={game.lastFight.round} game={game} />}
+      {game.screen === 'summary' && <RunSummary game={game} />}
     </main>
   );
 }
