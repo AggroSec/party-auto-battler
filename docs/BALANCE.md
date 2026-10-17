@@ -2,6 +2,180 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-10-17 — Milestone 3 review follow-up (taunt)
+
+Command: `npm run sim` (same seed and settings as the M3 report below). Changes since then: the `taunt` effect, Knight's Holy Bulwark (shield 2 + 100% DEF and taunt for 1 turn, was 3 + 150% DEF), and the Warrior talent Bulwark replaced by Challenge (start of combat: taunt for 1 turn).
+
+**Reading it**
+- **Tuning taunt:** with 2-turn taunts and the old shields, Knight's lift went from +4.3 to +7.7 and Challenge from −0.9 to +9.0. 1-turn taunts, with the shields trimmed to pay for them, settle at Knight +5.4 and Challenge +5.9.
+- **Backline protection:** player back-row deaths while a front-liner still stood fell from 62% to 56% of back-row deaths (sensible bot, 400 runs). Taunt uptime is about a third of a Knight's turns, so it helps without making the back row untouchable.
+- **Unchanged overall:** completion is sensible 24.3%, greedy 21.1%, synergy 16.4%, random 5.9%, and the same 3 raw synergy outliers.
+- **Lift spreads:** classes −1.3 to +2.4, advanced classes −2.5 to +5.4, items −2.0 to +3.8, synergies −1.2 to +7.4, talents −3.1 to +8.6. Adventuring Party tier 2 rose to +7.4, because Warrior-heavy parties got stronger. Accelerate (+8.6) is still the top talent.
+- **The late-game wall Brandon hit in playtesting is visible here:** round 11 is about 19% for every bot, then 7%. This is the top item for M5.
+
+Seed `m3`. Draws count as half a win.
+
+##### Full runs (2000 per bot, starter classes)
+
+| Bot | Completed (10 wins) | Avg wins | Avg rounds | Fight win rate | Avg unit level | Unspent gold | Draws | Tick-cap | Stuck |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| random | 5.9% | 3.87 | 8.6 | 45.0% | 2.99 | 3.5 | 0.1% | 0 | 0 |
+| sensible | 24.3% | 7.91 | 11.8 | 66.8% | 3.64 | 2.4 | 0.1% | 0 | 0 |
+| greedy | 21.1% | 7.76 | 11.8 | 65.5% | 3.64 | 3.1 | 0.0% | 0 | 0 |
+| synergy | 16.4% | 6.74 | 11.1 | 61.1% | 3.49 | 1.9 | 0.3% | 0 | 0 |
+
+- **random**: Random purchases and targets, rerolls 30% of the time with spare gold, random level-up choices.
+- **sensible**: Two frontliners then class variety; then items/training for its best units; random level-up choices.
+- **greedy**: Buys the offer that most raises estimated party power (HP×DEF × ATK×SPD); picks choices the same way.
+- **synergy**: Chooses a synergy tag per run, recruits and advances toward it, gears its tagged units, random talents.
+
+###### Fight win rate by round
+
+| Round | random | sensible | greedy | synergy |
+|---:|---:|---:|---:|---:|
+| 1 | 53.8% | 94.2% | 96.9% | 94.0% |
+| 2 | 60.7% | 99.9% | 99.6% | 93.5% |
+| 3 | 59.0% | 98.5% | 97.5% | 86.1% |
+| 4 | 53.4% | 97.5% | 96.1% | 87.6% |
+| 5 | 38.5% | 81.7% | 83.2% | 67.8% |
+| 6 | 37.4% | 73.8% | 70.7% | 59.6% |
+| 7 | 41.3% | 72.5% | 68.3% | 57.0% |
+| 8 | 41.8% | 65.0% | 62.1% | 52.7% |
+| 9 | 37.2% | 52.0% | 50.0% | 43.4% |
+| 10 | 33.0% | 39.2% | 35.8% | 34.0% |
+| 11 | 18.9% | 18.8% | 18.2% | 19.2% |
+| 12 | 10.7% | 6.8% | 6.4% | 9.2% |
+| 13 | 2.9% | 3.4% | 3.2% | 3.6% |
+| 14 | 3.5% | 2.0% | 1.2% | 2.2% |
+| 15 | 0.0% | 0.0% | 0.0% | 0.0% |
+| 16 | – | – | – | 0.0% |
+
+###### Pick-to-win rates (all bots combined)
+
+Share of fights won while the entity was on the player's board (draws count half). Flagged if above 65.0% or below 35.0% with at least 300 fights. For reference, the overall fight win rate is 59.6%. **Lift** compares each fight with the average result for that round (points), removing the bias from things that only show up in later, harder rounds; tables are sorted by it.
+
+**Outliers (3):** Call of the Wild (tier 1) (synergy, 67.6%), Shadow Pact (tier 1) (synergy, 70.3%), Shield Wall (tier 1) (synergy, 68.8%)
+
+####### Classes
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Warrior | 63646 | 61.7% | +2.4 |
+| Ranger | 56509 | 61.3% | +1.8 |
+| Rogue | 60786 | 61.2% | +1.8 |
+| Cleric | 53573 | 60.5% | +0.9 |
+| Mage | 46779 | 58.9% | −1.3 |
+
+####### Advanced classes
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Knight | 30830 | 54.8% | +5.4 |
+| Inquisitor | 24933 | 53.2% | +4.3 |
+| Duelist | 31048 | 53.3% | +4.2 |
+| Sharpshooter | 27591 | 53.3% | +3.8 |
+| Chronomancer | 13742 | 52.4% | +2.5 |
+| Pyromancer | 22371 | 51.3% | +1.4 |
+| Berserker | 24732 | 49.5% | +0.3 |
+| Beastmaster | 16302 | 49.6% | −0.5 |
+| Priest | 15871 | 48.9% | −1.8 |
+| Assassin | 17637 | 48.2% | −2.5 |
+
+####### Synergies
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Adventuring Party (tier 2) | 4899 | 63.7% | +7.4 |
+| Shield Wall (tier 1) | 14553 | 68.8% ⚠️ high | +6.3 |
+| Martial Discipline (tier 2) | 31577 | 62.3% | +5.9 |
+| Adventuring Party (tier 1) | 29930 | 61.2% | +4.6 |
+| Vanguard (tier 1) | 40897 | 62.5% | +4.4 |
+| Arcane Circle (tier 2) | 3895 | 61.1% | +4.4 |
+| Divine Choir (tier 1) | 33905 | 55.5% | +3.0 |
+| Shield Wall (tier 2) | 3853 | 63.9% | +1.1 |
+| Shadow Pact (tier 1) | 10970 | 70.3% ⚠️ high | +0.7 |
+| Call of the Wild (tier 1) | 8554 | 67.6% ⚠️ high | +0.6 |
+| Martial Discipline (tier 1) | 42153 | 63.1% | −0.3 |
+| Arcane Circle (tier 1) | 9611 | 58.4% | −1.2 |
+
+####### Items
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Time Shard | 17224 | 46.9% | +3.8 |
+| Giant's Belt | 21797 | 46.3% | +1.4 |
+| Swift Boots | 20654 | 45.9% | +1.3 |
+| Iron Sword | 21016 | 46.0% | +1.2 |
+| Smoke Cloak | 20949 | 45.8% | +0.9 |
+| Hourglass | 10742 | 44.0% | +0.4 |
+| Chainmail | 20919 | 45.1% | +0.2 |
+| Healing Charm | 20425 | 44.9% | +0.2 |
+| Tower Shield | 17384 | 43.2% | +0.1 |
+| Long Spear | 19642 | 44.8% | −0.1 |
+| Spellbook | 18153 | 43.0% | −0.5 |
+| Holy Symbol | 17679 | 42.2% | −1.0 |
+| Rage Gauntlets | 17661 | 41.7% | −1.2 |
+| Skull Totem | 17119 | 41.9% | −1.5 |
+| Assassin's Dagger | 17531 | 42.1% | −1.7 |
+| Vampiric Fang | 18316 | 41.4% | −1.7 |
+| Hunting Bow | 17611 | 41.8% | −1.8 |
+| Thorned Mail | 16987 | 41.4% | −2.0 |
+
+####### Talents (top and bottom 10)
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Accelerate | 4418 | 47.4% | +8.6 |
+| Aegis | 10806 | 44.3% | +7.1 |
+| Righteous | 14833 | 45.4% | +6.4 |
+| Challenge | 15936 | 61.3% | +5.9 |
+| Steady Aim | 5632 | 44.3% | +5.9 |
+| Haste | 4313 | 44.1% | +5.9 |
+| Zeal | 12137 | 44.6% | +5.8 |
+| En Garde | 16251 | 45.1% | +5.6 |
+| Retribution | 11561 | 42.7% | +5.4 |
+| Quickcast | 10717 | 61.1% | +5.1 |
+| … 40 more … | | | |
+| Evasion | 15338 | 55.5% | −0.7 |
+| Divine Grace | 5209 | 39.3% | −0.7 |
+| Holy Strike | 12164 | 55.9% | −0.8 |
+| Frenzy | 4638 | 37.8% | −1.4 |
+| Ignite | 11961 | 55.4% | −1.5 |
+| Unstoppable | 4671 | 37.5% | −1.7 |
+| Sanctuary | 11832 | 55.3% | −1.8 |
+| Greater Heal | 5163 | 37.8% | −1.8 |
+| Guardian Angel | 5321 | 37.2% | −2.3 |
+| Toxin | 5965 | 36.3% | −3.1 |
+
+
+##### Random 5v5 fights (2000 fights)
+
+Random 5-unit parties, placed by role (frontliners forward, casters back). Win rate of parties containing at least one of the class.
+
+| Class | Appearances | Win rate |
+|---|---:|---:|
+| Warrior | 2382 | 44.8% |
+| Rogue | 2457 | 49.2% |
+| Mage | 2377 | 43.9% |
+| Cleric | 2360 | 53.3% |
+| Ranger | 2349 | 56.7% |
+| Necromancer | 2395 | 55.7% |
+
+Draws: 0 (0.0%), tick-cap timeouts: 0, avg length: 97.8 ticks, longest: 367 ticks (cap 1000).
+
+##### 1v1 duels (200 per pairing, sides alternated)
+
+| Row beats column | Warrior | Rogue | Mage | Cleric | Ranger | Necromancer | Overall |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Warrior | – | 100.0% | 100.0% | 0.0% | 51.5% | 100.0% | 70.3% |
+| Rogue | 0.0% | – | 100.0% | 100.0% | 52.5% | 100.0% | 70.5% |
+| Mage | 0.0% | 0.0% | – | 100.0% | 0.0% | 100.0% | 40.0% |
+| Cleric | 100.0% | 0.0% | 0.0% | – | 0.0% | 100.0% | 40.0% |
+| Ranger | 49.0% | 45.0% | 100.0% | 100.0% | – | 100.0% | 78.8% |
+| Necromancer | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | – | 0.0% |
+
+_Duels are a sanity check, not a balance target: supports and backliners are expected to lose 1v1._
+
 ## 2026-10-17 — Milestone 3 (builds)
 
 Command: `npm run sim`: 2,000 full runs for each of 4 bots, plus the combat probe. Includes XP and levels, talents, advanced classes, items, training, synergies, and enemies that develop the same way.

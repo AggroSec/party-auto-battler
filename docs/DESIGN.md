@@ -39,7 +39,7 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 - Bought units auto-place into their preferred row (Warrior and Rogue front, others back), overflowing to any empty slot. Units can be moved freely; moving onto an occupied slot swaps the two.
 - Duplicates of a class are allowed and never merge (#5, Brandon's call).
 - **Extra slots** roll an item, or (35% of the time, if you own a unit) **training** for one of the classes on your board, e.g. "Warrior Training: +2 XP to one Warrior". Training is class-specific and random, so you reroll to chase XP for the unit you want (#5).
-- Items and training go to the unit you select. Items can be moved between units in the shop. Selling a unit refunds 1 gold plus 1 per equipped item.
+- Items and training go to the unit you select. Items can be moved between units in the shop, or sold on their own for 1 gold to free the slot. Selling a unit refunds 1 gold plus 1 per equipped item.
 
 ## Enemies
 
@@ -99,11 +99,13 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 
 Ties are always broken by board order, so targeting is deterministic.
 
+**Taunt:** while any enemy is taunting, the single-target enemy selectors (`nearest`, `backlineFirst`, `lowestHp`, `highestAtk`, `randomEnemy`) choose only among taunting units, using their normal rule. Area effects (`enemyFrontRow`, `allEnemies`, splash) and trigger targets are unaffected. *(M3 review: Brandon asked for a taunting Warrior/Knight because backliners died while the front line stood.)*
+
 ## Effects and triggers
 
 All special behaviour (class abilities now, talents and items later) is data: a list of **effects** fired by an ability or a **trigger**.
 
-**Effects:** `damage` (with optional `hits`, `splash` to row neighbours, `pierce`), `heal` (capped at max HP), `shield`, `buff` and `debuff` (ATK/DEF/SPD, rest of combat; debuffs floor at 0), `cooldown` (shift a unit's next ability sooner or later; never sooner than next turn). Amounts scale off the source's stats: `flat + atk×ATK + def×DEF + maxHp×MaxHP`.
+**Effects:** `damage` (with optional `hits`, `splash` to row neighbours, `pierce`), `heal` (capped at max HP), `shield`, `buff` and `debuff` (ATK/DEF/SPD, rest of combat; debuffs floor at 0), `cooldown` (shift a unit's next ability sooner or later; never sooner than next turn), `taunt` (draw enemy single-target attacks and abilities for the unit's next N turns; reapplying refreshes rather than stacks). Amounts scale off the source's stats: `flat + atk×ATK + def×DEF + maxHp×MaxHP`.
 
 **Unit traits** (from talents, items, advanced classes and synergies): `reach` (no back-row melee penalty), `lifesteal` (heal a share of damage dealt), `abilityPower` (scales the unit's ability damage, heals and shields).
 
@@ -162,7 +164,7 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 
 | Base | Advanced | Tags | Ability | Passive |
 |---|---|---|---|---|
-| Warrior | **Knight** | martial, guardian, divine | Holy Bulwark: shield all allies 3 + 150% DEF | 25% when hurt: shield self 3 |
+| Warrior | **Knight** | martial, guardian, divine | Holy Bulwark: shield all allies 2 + 100% DEF and taunt for 1 turn | 25% when hurt: shield self 3 |
 | Warrior | **Berserker** | martial | Whirlwind: 85% ATK to every enemy | +15% lifesteal; +4 ATK when bloodied |
 | Rogue | **Assassin** | shadow | Assassinate: 320% ATK to weakest back-row enemy | Shield 6 on kill |
 | Rogue | **Duelist** | martial | Flurry: 3 × 80% ATK on nearest | Reach; 35% riposte for 80% ATK |

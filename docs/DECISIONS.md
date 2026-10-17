@@ -2,6 +2,16 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-17 — Milestone 3 review follow-ups
+
+Brandon's playtest asked for: selling items, a taunt for Warrior or at least Knight ("doesn't need to be 100% uptime unless they invest in lowering the cooldown"), and a dev play log. The details below were decided autonomously.
+
+- **Taunt is an effect, not a trait,** so any ability, talent or item can grant it with a duration. It redirects single-target enemy selectors only; AoE and splash still reach the back row, so mages and Berserkers keep their role.
+- **Duration counts the taunter's own turns** and ticks down at the start of its turn, like ability cooldowns. Reapplying takes the longer duration instead of stacking, so cooldown-reduction builds raise uptime without making it permanent.
+- **Tuning:** 1 turn on Knight's 3-turn Holy Bulwark is about 33% uptime. The shields were trimmed (3 + 150% DEF → 2 + 100% DEF) because 2-turn taunts with full shields gave Knight +7.7 lift. Base Warriors get taunt through Challenge (start of combat, 1 turn), which replaces Bulwark (a self-shield talent that had −0.9 lift).
+- **Item selling refunds 1 gold** (the existing `itemSellRefund`), the same value an item adds when you sell its unit. The bots don't use it yet.
+- **Play log:** dev builds post the run seed, every shop action and each fight result to a Vite dev-server endpoint, appended to `playlogs/<date>.jsonl` (gitignored). The engine is deterministic, so `npm run playlog` replays the log exactly and flags it if a result ever differs. Logging is compiled out of production builds and needs no extra dependencies.
+
 ## 2026-10-17 — Milestone 3
 
 Brandon decided: weighted random stat growth per class (in conversation during the M2 review); no merging, XP via random class training in the shop (#5). Everything below was decided autonomously.

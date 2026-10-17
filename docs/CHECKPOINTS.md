@@ -44,7 +44,16 @@ Milestone summaries, newest first. Each one becomes the body of that milestone's
 - Click a unit for its full build: final stats including synergies, ability, talents and items, plus buttons to move items and sell.
 - Active synergies, and explicit Move buttons for units and items.
 
-**Tests:** 171, up from 129. They cover every new effect, trait and trigger; build resolution and stacking; item class bonuses; synergy tiers and tag changes on advancing; XP thresholds and growth rolls; choice queues, including deferred post-advance options; items, training, selling and moving; enemy development; integrity of all build content (every talent in exactly one pool, every reference valid); simulator determinism; the lift maths; and a real-content end-to-end run.
+**Tests:** 180, up from 129 (171 at the first review; the follow-ups add taunt, item selling and play-log replay tests). They cover every new effect, trait and trigger; build resolution and stacking; item class bonuses; synergy tiers and tag changes on advancing; XP thresholds and growth rolls; choice queues, including deferred post-advance options; items, training, selling and moving; enemy development; integrity of all build content (every talent in exactly one pool, every reference valid); simulator determinism; the lift maths; and a real-content end-to-end run.
+
+### Review follow-ups (after Brandon's first playtest)
+
+- **Sell items:** each equipped item has a Sell button (+1g) in the unit panel, so a full unit can make room for a better item.
+- **Taunt:** a new `taunt` effect. While a unit taunts, enemy single-target attacks and abilities must target it; area attacks still hit everyone.
+  - **Knight:** Holy Bulwark now taunts for 1 turn every 3rd turn (about a third of the time, more with cooldown reduction), with a smaller shield to pay for it.
+  - **Warrior:** a new base talent, Challenge, taunts for 1 turn at the start of combat. It replaces Bulwark.
+  - **Result:** backline deaths while a front-liner still stood fell from 62% to 56%. Knight's lift is +5.4 (it was +4.3).
+- **Dev play log:** under `npm run dev`, your run's seed, every shop action and each fight result are appended to `playlogs/<date>.jsonl` (gitignored). `npm run playlog` replays them through the engine, round by round: what you bought and chose, both parties' builds, damage per unit, death order, and notes such as gold past the interest cap or back-row melee without reach.
 
 ### Fixed during development
 

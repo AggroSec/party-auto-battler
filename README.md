@@ -13,6 +13,7 @@ npm install
 npm run dev     # local dev server (currently a debug view: Run + Combat lab)
 npm run check   # typecheck + lint + tests
 npm run sim     # headless balance simulator
+npm run playlog # replay play logs recorded by npm run dev (playlogs/)
 npm run build   # production build
 ```
 
