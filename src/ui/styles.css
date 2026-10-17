@@ -1,0 +1,56 @@
+:root {
+  --bg: #14161c;
+  --panel: #1d2029;
+  --text: #e6e8ef;
+  --muted: #8a90a2;
+  --border: #2d3140;
+  --player: #4c8dff;
+  --enemy: #ff5c5c;
+  --draw: #c9a227;
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app { max-width: 1100px; margin: 0 auto; padding: 16px; }
+h1 { margin: 0 0 4px; }
+h2 { font-size: 1rem; margin: 0 0 8px; }
+.muted { color: var(--muted); font-size: 0.85em; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 16px 0; }
+.lineup { border: 1px solid var(--border); border-radius: 8px; background: var(--panel); padding: 8px 12px; }
+.lineup .row { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+.lineup .row > span { width: 3em; }
+select, input {
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px;
+}
+.seed { display: flex; flex-direction: column; gap: 4px; }
+
+.banner { padding: 10px 14px; border-radius: 8px; font-weight: 600; margin-bottom: 16px; border-left: 4px solid; background: var(--panel); }
+.banner.player { border-color: var(--player); }
+.banner.enemy { border-color: var(--enemy); }
+.banner.draw { border-color: var(--draw); }
+
+.columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 16px; }
+@media (max-width: 800px) { .columns { grid-template-columns: minmax(0, 1fr); } }
+section { min-width: 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+th:not(:first-child), td:not(:first-child) { text-align: right; }
+tr.dead td:first-child { text-decoration: line-through; color: var(--muted); }
+
+.log {
+  list-style: none; margin: 0; padding: 8px; max-height: 70vh; overflow-y: auto;
+  background: var(--panel); border-radius: 8px; font-family: ui-monospace, monospace; font-size: 0.8rem;
+}
+.log li { white-space: pre-wrap; padding: 1px 0; }
+.tick { display: inline-block; width: 3.5em; color: var(--muted); }
