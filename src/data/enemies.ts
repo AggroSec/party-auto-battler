@@ -19,6 +19,6 @@ export const ENEMY_SCALING: EnemyScaling = {
   // Full-size enemy parties arrive early but weaker (75%), then outgrow the player's
   // base units around round 8. Retune in M3 once units gain XP, talents and items.
   baseMultiplier: 0.75,
-  hpGrowthPerRound: 0.04,
-  atkGrowthPerRound: 0.03,
+  hpGrowthPerRound: 0.0375,
+  atkGrowthPerRound: 0.0275,
 };
