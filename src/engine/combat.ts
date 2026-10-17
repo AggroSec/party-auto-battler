@@ -134,7 +134,8 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
     const { ability } = unit.setup;
     unit.cooldown = ability.cooldown;
     emit(state, { tick: state.tick, type: 'ability', source: unit.id, abilityId: ability.id, name: ability.name });
-    applyEffects(state, unit, ability.effects, {}, 0);
+    applyEffects(state, unit, ability.effects, {}, 0, unit.setup.abilityPower ?? 1);
+    fireTriggers(state, unit, 'onAbility', {}, 0);
     return;
   }
 

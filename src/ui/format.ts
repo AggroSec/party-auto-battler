@@ -25,7 +25,9 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
     case 'shield':
       return `  ${n(e.target)} gains a ${e.value} shield (${e.shieldAfter} total)`;
     case 'buff':
-      return `  ${n(e.target)} +${e.value} ${e.stat.toUpperCase()} → ${e.statAfter}`;
+      return `  ${n(e.target)} ${e.value >= 0 ? '+' : ''}${e.value} ${e.stat.toUpperCase()} → ${e.statAfter}`;
+    case 'cooldown':
+      return `  ${n(e.target)}'s ability ${e.turns < 0 ? 'hastened' : 'delayed'} (${e.cooldownAfter} turn${e.cooldownAfter === 1 ? '' : 's'} left)`;
     case 'overtime':
       return `⏳ Sudden death! Everyone loses ${Math.round(e.percent * 100)}% max HP.`;
     case 'death':

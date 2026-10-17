@@ -28,6 +28,8 @@ export interface CombatUnit {
   gauge: number;
   cooldown: number;
   alive: boolean;
+  /** Has dropped below 50% HP this combat (onBloodied fires once). */
+  bloodied: boolean;
   /** Fire counts per trigger, for TriggeredEffect.limit. */
   triggerFires: Map<TriggeredEffect, number>;
   stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived'>;
@@ -82,6 +84,7 @@ export function createCombatUnits(party: Party, side: Side): CombatUnit[] {
       gauge: 0,
       cooldown: setup.ability.initialCooldown ?? setup.ability.cooldown,
       alive: true,
+      bloodied: false,
       triggerFires: new Map(),
       stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0 },
     };
