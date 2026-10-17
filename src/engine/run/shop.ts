@@ -2,9 +2,15 @@ import type { Rng } from '../rng.ts';
 import { boardUnits } from './build.ts';
 import type { Board, RunContext, ShopOffer } from './types.ts';
 
-export function rollUnitOffer(rng: Rng, ctx: RunContext): ShopOffer {
+/**
+ * A recruit offer. Its name avoids `taken` (names in the party and already in
+ * this shop) so a party never has two units with the same name.
+ */
+export function rollUnitOffer(rng: Rng, ctx: RunContext, taken: ReadonlySet<string> = new Set()): ShopOffer {
   const classId = rng.pick(ctx.content.shopPool);
-  return { kind: 'unit', classId, name: rng.pick(ctx.content.unitNames), cost: ctx.config.unitCost };
+  const free = ctx.content.unitNames.filter((n) => !taken.has(n));
+  const name = rng.pick(free.length > 0 ? free : ctx.content.unitNames);
+  return { kind: 'unit', classId, name, cost: ctx.config.unitCost };
 }
 
 /**
@@ -26,8 +32,11 @@ export function rollExtraOffer(rng: Rng, ctx: RunContext, board: Board): ShopOff
 /** A fresh shop: unit slots first, then extra (item/training) slots. */
 export function rollShop(rng: Rng, ctx: RunContext, board: Board): ShopOffer[] {
   const { unitSlots, extraSlots } = ctx.config.shop;
-  return [
-    ...Array.from({ length: unitSlots }, () => rollUnitOffer(rng, ctx)),
-    ...Array.from({ length: extraSlots }, () => rollExtraOffer(rng, ctx, board)),
-  ];
+  const taken = new Set(boardUnits(board).map((u) => u.name));
+  const units = Array.from({ length: unitSlots }, () => {
+    const offer = rollUnitOffer(rng, ctx, taken);
+    if (offer.kind === 'unit') taken.add(offer.name);
+    return offer;
+  });
+  return [...units, ...Array.from({ length: extraSlots }, () => rollExtraOffer(rng, ctx, board))];
 }

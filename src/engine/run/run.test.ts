@@ -122,6 +122,19 @@ describe('shop actions', () => {
     });
   });
 
+  it('recruit names avoid the party and each other while names last', () => {
+    const c = makeCtx({ content: { unitNames: ['Ann', 'Bo', 'Cy', 'Di', 'Ed'] } });
+    const s = runWith('tank', c);
+    s.board.front[0]!.name = 'Ann';
+    for (let i = 0; i < 20; i++) {
+      const shop = act({ ...s, gold: 10 }, { type: 'reroll' }, c).shop;
+      const names = shop.flatMap((o) => (o?.kind === 'unit' ? [o.name] : []));
+      expect(names).not.toContain('Ann');
+      expect(new Set(names).size).toBe(names.length);
+      s.rngState += 1;
+    }
+  });
+
   it('never mutates the input state', () => {
     const s = start();
     const before = structuredClone(s);
