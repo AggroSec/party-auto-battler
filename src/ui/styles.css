@@ -54,3 +54,42 @@ tr.dead td:first-child { text-decoration: line-through; color: var(--muted); }
 }
 .log li { white-space: pre-wrap; padding: 1px 0; }
 .tick { display: inline-block; width: 3.5em; color: var(--muted); }
+
+button {
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;
+  font: inherit; cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.primary { border-color: var(--player); font-weight: 600; }
+
+.tabs { display: flex; gap: 6px; margin: 12px 0 4px; }
+.tabs button.active { border-color: var(--player); }
+
+.hud { display: flex; flex-wrap: wrap; gap: 16px; font-weight: 600; margin-bottom: 12px; }
+
+.shop { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 6px; }
+.shop li {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px;
+}
+
+.board {
+  display: grid; gap: 8px; max-width: 28em;
+  grid-template-columns: 3em repeat(6, minmax(0, 1fr));
+}
+.board-label { align-self: center; grid-column: 1; }
+/* Each front slot spans two of six columns; back slots straddle the front lanes. */
+.slot { min-height: 3.6em; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.slot.front-0 { grid-column: 2 / span 2; }
+.slot.front-1 { grid-column: 4 / span 2; }
+.slot.front-2 { grid-column: 6 / span 2; }
+.slot.back-0 { grid-column: 3 / span 2; }
+.slot.back-1 { grid-column: 5 / span 2; }
+.slot.empty { border-style: dashed; }
+.slot.selected { border-color: var(--draw); box-shadow: 0 0 0 1px var(--draw); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.error { color: var(--enemy); }
+
+.last-fight { margin-top: 24px; }
