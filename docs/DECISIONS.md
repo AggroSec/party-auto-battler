@@ -2,6 +2,68 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-17 — Milestone 3
+
+Brandon decided: weighted random stat growth per class (in conversation during the M2 review); no merging, XP via random class training in the shop (#5). Everything below was decided autonomously.
+
+### Engine
+- **One shared `UnitModifier` shape** for talents, items, advanced classes and synergies: stats, triggers, reach, lifesteal, ability power and cooldown change. Everything stacks additively, and nothing class-specific is coded.
+- **New effects and traits were added only where content needed them:**
+  - `debuff` and `cooldown` effects: Chronomancer, Plaguelord and the debuff talents.
+  - `onAbility` and `onBloodied` triggers: spell-echo talents, Berserker rage, "second wind" effects.
+  - `reach`, `lifesteal` and `abilityPower` traits.
+- **`abilityPower` scales damage, heals and shields from the ability itself.** It doesn't affect triggers or basic attacks, so it stays a caster stat.
+- **`onBloodied` fires once per combat** and never on a killing blow.
+- **Damage resolution moved to `hits.ts`,** to keep files under ~300 lines.
+
+### Progression and choices
+- **XP:** every unit on the board gets win 2, loss 1, draw 1. Levels 1–5 at 0/2/5/9/14 XP, so a round-1 unit advances around round 4 and maxes around round 8. A loss still grants XP, a soft comeback mechanic.
+- **The choice schedule:**
+  - Level 2: talent from the base pool.
+  - Level 3: advanced class.
+  - Levels 4–5: talents from the advanced pool.
+
+  This gives 4 meaningful decisions per unit, each with 3 options (2 for the advance). All of them are choices, never flat stat bumps; stat growth is the automatic random roll Brandon asked for.
+- **Pending choices block the next fight but not shopping.** You can buy training, level up several times and resolve them in order. Talent options for levels after the advance are rolled only once the advanced class is picked, so they always come from the right pool.
+- **Talent pools have 4 per class or advanced class,** with 3 offered per level. A unit sees most of its pool across a run, and still chooses.
+
+### Shop, items, training
+- **Shop layout:** 4 unit slots + 2 extra slots. Each extra slot rolls training 35% of the time (only for classes on your board) and an item otherwise. Training is class-specific per #5, so chasing XP for one unit means rerolling.
+- **Training costs 3 gold for +2 XP,** about the XP of one win per unit, for the price of a unit.
+- **Class-tied items are soft:** anyone can equip them, and the tied class gets an extra effect. This follows Brandon's build-variety preference (costs and bonuses, not locks).
+- **Items:** movable between units during the shop phase. Selling a unit refunds 1 per item, and there's no stash (no bench in the brief).
+
+### Synergies
+- **Tags drive synergies,** and advanced classes replace their base tags. Advancing a Warrior to Knight adds divine (which can complete Vanguard or Divine Choir); advancing to Berserker drops guardian. The level-3 choice therefore also reshapes party synergies.
+- **The brief's examples map to:** "2+ casters" is Arcane Circle, and "frontline + healer" is Vanguard (guardian + divine).
+- **Adventuring Party (4–5 different classes)** rewards variety directly.
+- **Synergies apply to enemies too,** to keep the rules symmetric.
+
+### Enemies
+- **Enemies level and gear up with the same code as the player:** random talents, advanced classes and items. This keeps one system, gives enemy variety and puts every advanced class, talent and item into the fights on both sides.
+- **Fractional level and item curves.** Integer steps made every enemy advance or gain an item on the same round, creating sharp cliffs (98% → 56% win rate in one round). A fractional value is the chance each unit gets one more, which produces a smooth ramp.
+
+### Simulator
+- **Four bots:** random, sensible, greedy (maximizes an estimated party power) and synergy (picks a tag per run and builds toward it).
+  - Greedy's power estimate (effective HP × damage) undervalues effects and over-values ability power, so it's no better than sensible.
+  - It's a useful foil, because it exposed builds that look strong on paper but aren't (Pyromancer, arcane). A smarter bot is a possible M5 task.
+- **Round-adjusted lift.** Raw pick-to-win rates were badly confounded: items, advanced classes and level-4–5 talents only exist in later, harder rounds, so they all looked weak, while 2-of-a-tag synergies looked strong because they appear early.
+  - Lift compares each fight with that round's average. Balancing was done on lift.
+  - The brief's raw 65%/35% flags are still reported as specified.
+
+### Balance (see BALANCE.md)
+- **Difficulty targets:** random about 5%, sensible about 25% completion, a smooth decline by round, and average fight win rate around 60%.
+- **Notable changes:**
+  - Pyromancer's Meteor now casts every 2nd turn.
+  - Arcane Circle's tier 2 grants HP rather than faster casting (faster casting overshot to +16.5 lift).
+  - Chronomancer's Time Warp no longer delays enemies, and its talents were trimmed.
+  - Call of the Wild and Adventuring Party were reduced to modest bonuses.
+- **Remaining for M5:** Accelerate (+8 lift), the late-game wall (rounds 11+ about 20% for every bot), and greedy-bot quality.
+
+### UI
+- **Clicking a unit selects it** (shows details, targets items and training). Moving units and items uses explicit Move buttons, because selecting no longer doubles as moving: inspecting units shouldn't rearrange them by accident.
+- **Verified in headless Chrome:** a full run with 18 level-up choices, item and training purchases, and an item move, with no console errors.
+
 ## 2026-10-17 — Milestone 2
 
 Brandon decided: sudden death (#1, option 3); back-row melee at 50% damage (#2, option 3); play until 10 wins or 0 lives; draws count as neither. Everything below was decided autonomously.
