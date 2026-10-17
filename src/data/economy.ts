@@ -15,5 +15,23 @@ export const RUN_CONFIG: RunConfig = {
   unitCost: 3,
   sellRefund: 1,
   rerollCost: 1,
-  shopSize: 4,
+  shop: {
+    unitSlots: 4,
+    // Items and training (issue #5: training appears randomly, so rerolling chases it).
+    extraSlots: 2,
+    trainingChance: 0.35,
+  },
+  progression: {
+    // Levels 1-5. A unit bought in round 1 reaches level 3 around round 4.
+    xpForLevel: [0, 2, 5, 9, 14],
+    xpPerWin: 2,
+    xpPerLoss: 1,
+    xpPerDraw: 1,
+    advanceLevel: 3,
+    talentChoices: 3,
+    trainingXp: 2,
+    trainingCost: 3,
+    maxItemsPerUnit: 2,
+    itemSellRefund: 1,
+  },
 };

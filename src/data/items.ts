@@ -1,0 +1,142 @@
+import type { ItemDef } from '../engine/run/content-types.ts';
+import { on } from './builds/dsl.ts';
+
+const WARRIORS = ['warrior', 'knight', 'berserker'];
+const ROGUES = ['rogue', 'assassin', 'duelist'];
+const MAGES = ['mage', 'pyromancer', 'chronomancer'];
+const CLERICS = ['cleric', 'priest', 'inquisitor'];
+const RANGERS = ['ranger', 'sharpshooter', 'beastmaster'];
+const NECROS = ['necromancer', 'lich', 'plaguelord'];
+
+/**
+ * Up to 2 per unit. Anyone can equip anything; class-tied items give their
+ * tied classes an extra effect, which is where build-defining combos live.
+ */
+const ITEM_LIST: ItemDef[] = [
+  // Plain stat items.
+  { id: 'iron-sword', name: 'Iron Sword', description: '+3 ATK.', cost: 3, modifier: { stats: { atk: 3 } } },
+  { id: 'chainmail', name: 'Chainmail', description: '+2 DEF, +4 HP.', cost: 3, modifier: { stats: { def: 2, hp: 4 } } },
+  { id: 'swift-boots', name: 'Swift Boots', description: '+2 SPD.', cost: 3, modifier: { stats: { spd: 2 } } },
+  { id: 'giants-belt', name: "Giant's Belt", description: '+12 HP.', cost: 3, modifier: { stats: { hp: 12 } } },
+
+  // Effect items.
+  { id: 'vampiric-fang', name: 'Vampiric Fang', description: '+20% lifesteal.', cost: 4, modifier: { lifesteal: 0.2 } },
+  {
+    id: 'thorned-mail',
+    name: 'Thorned Mail',
+    description: 'When hurt, deal 2 piercing damage to the attacker.',
+    cost: 4,
+    modifier: { triggers: [on('onHurt', 'Thorns', [{ kind: 'damage', target: 'triggerSource', amount: { flat: 2 }, pierce: true }])] },
+  },
+  { id: 'hourglass', name: 'Hourglass', description: 'Ability cooldown −1.', cost: 5, modifier: { abilityCooldown: -1 } },
+  {
+    id: 'healing-charm',
+    name: 'Healing Charm',
+    description: 'The first time you drop below 50% HP, heal 25% of max HP.',
+    cost: 3,
+    modifier: { triggers: [on('onBloodied', 'Healing Charm', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.25 } }])] },
+  },
+
+  // Class-tied items.
+  {
+    id: 'long-spear',
+    name: 'Long Spear',
+    description: 'Fight at full strength from the back row. +1 ATK.',
+    cost: 3,
+    modifier: { reach: true, stats: { atk: 1 } },
+    classBonus: { classIds: WARRIORS, description: 'Warriors: +2 more ATK.', modifier: { stats: { atk: 2 } } },
+  },
+  {
+    id: 'tower-shield',
+    name: 'Tower Shield',
+    description: 'Start of combat: shield yourself for 8.',
+    cost: 4,
+    modifier: { triggers: [on('startOfCombat', 'Tower Shield', [{ kind: 'shield', target: 'self', amount: { flat: 8 } }])] },
+    classBonus: {
+      classIds: WARRIORS,
+      description: 'Warriors: also shield all allies for 3.',
+      modifier: { triggers: [on('startOfCombat', 'Shield Wall', [{ kind: 'shield', target: 'allAllies', amount: { flat: 3 } }])] },
+    },
+  },
+  {
+    id: 'smoke-cloak',
+    name: 'Smoke Cloak',
+    description: '+2 SPD.',
+    cost: 3,
+    modifier: { stats: { spd: 2 } },
+    classBonus: { classIds: ROGUES, description: 'Rogues: fight at full strength from the back row.', modifier: { reach: true } },
+  },
+  {
+    id: 'spellbook',
+    name: 'Spellbook',
+    description: '+25% ability power.',
+    cost: 4,
+    modifier: { abilityPower: 0.25 },
+    classBonus: { classIds: MAGES, description: 'Mages: +25% more.', modifier: { abilityPower: 0.25 } },
+  },
+  {
+    id: 'holy-symbol',
+    name: 'Holy Symbol',
+    description: '+20% ability power.',
+    cost: 4,
+    modifier: { abilityPower: 0.2 },
+    classBonus: {
+      classIds: [...CLERICS, 'knight'],
+      description: 'Clerics and Knights: start of combat, shield all allies for 3.',
+      modifier: { triggers: [on('startOfCombat', 'Blessed Symbol', [{ kind: 'shield', target: 'allAllies', amount: { flat: 3 } }])] },
+    },
+  },
+  {
+    id: 'hunting-bow',
+    name: 'Hunting Bow',
+    description: '25% on attack: strike again for 50% ATK.',
+    cost: 4,
+    modifier: {
+      triggers: [on('onAttack', 'Hunting Bow', [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 0.5 } }], { chance: 0.25 })],
+    },
+    classBonus: { classIds: RANGERS, description: 'Rangers: +2 ATK.', modifier: { stats: { atk: 2 } } },
+  },
+  {
+    id: 'skull-totem',
+    name: 'Skull Totem',
+    description: 'When an ally falls, gain +2 ATK.',
+    cost: 4,
+    modifier: { triggers: [on('onAllyDeath', 'Skull Totem', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 2 } }])] },
+    classBonus: {
+      classIds: NECROS,
+      description: 'Necromancers: also heal 200% ATK when an ally falls.',
+      modifier: { triggers: [on('onAllyDeath', 'Grave Feast', [{ kind: 'heal', target: 'self', amount: { atk: 2 } }])] },
+    },
+  },
+  {
+    id: 'rage-gauntlets',
+    name: 'Rage Gauntlets',
+    description: 'When bloodied, gain +4 ATK.',
+    cost: 4,
+    modifier: { triggers: [on('onBloodied', 'Rage Gauntlets', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 4 } }])] },
+    classBonus: { classIds: ['berserker'], description: 'Berserkers: +15% lifesteal.', modifier: { lifesteal: 0.15 } },
+  },
+  {
+    id: 'assassins-dagger',
+    name: "Assassin's Dagger",
+    description: 'On kill, your next ability comes a turn sooner.',
+    cost: 4,
+    modifier: { triggers: [on('onKill', "Assassin's Dagger", [{ kind: 'cooldown', target: 'self', turns: -1 }])] },
+    classBonus: { classIds: ROGUES, description: 'Rogues: +30% ability power.', modifier: { abilityPower: 0.3 } },
+  },
+  {
+    id: 'time-shard',
+    name: 'Time Shard',
+    description: 'Start of combat: shield yourself for 150% ATK.',
+    cost: 4,
+    modifier: { triggers: [on('startOfCombat', 'Time Shard', [{ kind: 'shield', target: 'self', amount: { atk: 1.5 } }])] },
+    classBonus: {
+      classIds: MAGES,
+      description: "Mages: start of combat, every enemy's ability comes a turn later.",
+      modifier: { triggers: [on('startOfCombat', 'Stasis', [{ kind: 'cooldown', target: 'allEnemies', turns: 1 }])] },
+    },
+  },
+];
+
+export const ITEMS: Record<string, ItemDef> = Object.fromEntries(ITEM_LIST.map((i) => [i.id, i]));
+export const ITEM_IDS = ITEM_LIST.map((i) => i.id);

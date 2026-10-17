@@ -1,4 +1,4 @@
-import type { EnemyArchetype, EnemyScaling } from '../engine/run/types.ts';
+import type { EnemyArchetype, EnemyProgression, EnemyScaling } from '../engine/run/types.ts';
 
 /**
  * Enemy roster. Each archetype fights as a class with small stat tweaks so
@@ -21,4 +21,10 @@ export const ENEMY_SCALING: EnemyScaling = {
   baseMultiplier: 0.75,
   hpGrowthPerRound: 0.0375,
   atkGrowthPerRound: 0.0275,
+};
+
+/** Enemies level, advance and gear up alongside the player. Tuned with `npm run sim`. */
+export const ENEMY_PROGRESSION: EnemyProgression = {
+  levelByRound: [1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5],
+  itemsByRound: [0, 0, 0, 0, 1, 1, 1, 1, 2],
 };
