@@ -15,7 +15,10 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
 
 /** Tuned with `npm run sim`; see docs/BALANCE.md. */
 export const ENEMY_SCALING: EnemyScaling = {
-  unitsByRound: [2, 3, 3, 4, 4, 5],
-  hpGrowthPerRound: 0.06,
-  atkGrowthPerRound: 0.05,
+  unitsByRound: [2, 3, 4, 5],
+  // Full-size enemy parties arrive early but weaker (75%), then outgrow the player's
+  // base units around round 8. Retune in M3 once units gain XP, talents and items.
+  baseMultiplier: 0.75,
+  hpGrowthPerRound: 0.04,
+  atkGrowthPerRound: 0.03,
 };

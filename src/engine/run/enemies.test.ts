@@ -13,7 +13,7 @@ describe('enemy generation', () => {
   });
 
   it('never exceeds the board size', () => {
-    const big = makeCtx({ content: { enemyScaling: { unitsByRound: [9], hpGrowthPerRound: 0, atkGrowthPerRound: 0 } } });
+    const big = makeCtx({ content: { enemyScaling: { unitsByRound: [9], baseMultiplier: 1, hpGrowthPerRound: 0, atkGrowthPerRound: 0 } } });
     expect(enemyCount(1, big.content)).toBe(5);
   });
 

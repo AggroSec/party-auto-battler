@@ -36,6 +36,8 @@ export interface EnemyArchetype {
 export interface EnemyScaling {
   /** Enemy party size per round (index 0 = round 1). Later rounds reuse the last entry. */
   unitsByRound: readonly number[];
+  /** Round-1 multiplier on enemy HP and ATK (below 1 = weaker than a player's unit). */
+  baseMultiplier: number;
   /** HP and ATK grow by this fraction per round after the first. */
   hpGrowthPerRound: number;
   atkGrowthPerRound: number;

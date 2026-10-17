@@ -66,7 +66,7 @@ export function makeCtx(
       classes: TEMPLATES,
       shopPool: over.shopPool ?? ['tank', 'archer'],
       enemies: over.enemies ?? [ARCHETYPES.grunt!, ARCHETYPES.sniper!],
-      enemyScaling: { unitsByRound: [1, 2, 3], hpGrowthPerRound: 0.1, atkGrowthPerRound: 0.1 },
+      enemyScaling: { unitsByRound: [1, 2, 3], baseMultiplier: 1, hpGrowthPerRound: 0.1, atkGrowthPerRound: 0.1 },
       unitNames: ['Ann', 'Bo', 'Cy'],
       ...over.content,
     },
