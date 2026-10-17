@@ -32,6 +32,7 @@ export interface BoardPos {
  * - backlineFirst: lowest-HP enemy in the back row, else nearest rule
  * - lowestHp / highestAtk: across all living enemies
  * - randomEnemy: uniform pick via the seeded Rng
+ *   (these five only consider taunting enemies while any are alive)
  * - enemyFrontRow: every living unit in the frontmost enemy row
  * - triggerSource / triggerTarget: the other units involved in a trigger
  *     onHurt:      triggerSource = attacker
@@ -79,13 +80,30 @@ export type Effect =
   | { kind: 'heal'; target: TargetSelector; amount: Amount }
   | { kind: 'shield'; target: TargetSelector; amount: Amount }
   /** Lasts until the end of combat. */
-  | { kind: 'buff'; target: TargetSelector; stat: BuffableStat; amount: Amount };
+  | { kind: 'buff'; target: TargetSelector; stat: BuffableStat; amount: Amount }
+  /** Lowers a stat for the rest of combat (never below 0). */
+  | { kind: 'debuff'; target: TargetSelector; stat: BuffableStat; amount: Amount }
+  /**
+   * Shifts the target's ability cooldown by `turns`: negative = cast sooner
+   * (haste), positive = delay. A hasted ability casts no sooner than next turn.
+   */
+  | { kind: 'cooldown'; target: TargetSelector; turns: number }
+  /**
+   * The target draws fire: enemies' single-target attacks and abilities must
+   * pick a taunting unit while one is alive. Area effects are unaffected.
+   * Lasts for the target's next `turns` turns; reapplying refreshes, not stacks.
+   */
+  | { kind: 'taunt'; target: TargetSelector; turns: number };
 
 export type TriggerEvent =
   | 'startOfCombat'
   | 'onTurnStart'
   | 'onAttack'
+  /** After the unit casts its ability. */
+  | 'onAbility'
   | 'onHurt'
+  /** The first time the unit drops below 50% HP in a combat (and survives). */
+  | 'onBloodied'
   | 'onKill'
   | 'onAllyDeath';
 
@@ -126,6 +144,12 @@ export interface UnitSetup {
   attackTarget: TargetSelector;
   ability: AbilityDef;
   triggers: readonly TriggeredEffect[];
+  /** Ignores the back-row melee penalty. */
+  reach?: boolean;
+  /** Heals the unit for this fraction of all damage it deals. */
+  lifesteal?: number;
+  /** Multiplier on the unit's ability damage, heals and shields (default 1). */
+  abilityPower?: number;
 }
 
 export type Range = 'melee' | 'ranged';

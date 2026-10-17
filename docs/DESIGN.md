@@ -8,7 +8,7 @@
 |---|---|
 | Combat engine | ✅ Milestone 1 |
 | Run loop (shop, gold, rounds, lives, enemies) | ✅ Milestone 2 |
-| Builds (XP, talents, advanced classes, items, synergies) | Milestone 3 |
+| Builds (XP, talents, advanced classes, items, synergies) | ✅ Milestone 3 |
 | Playable UI | Milestone 4 |
 
 ## Run structure
@@ -30,18 +30,24 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 | Unit cost | 3 |
 | Sell refund | 1 |
 | Reroll | 1 (the shop refreshes for free each round) |
-| Shop size | 4 units |
+| Shop size | 4 unit slots + 2 extra slots (items or training) |
+| Items | 3–5 gold |
+| Training | 3 gold for +2 XP |
 
 - Unspent gold carries over between rounds.
 - The shop offers starter classes with equal odds. Unlocked classes (Necromancer) join the pool through meta progression (M5).
 - Bought units auto-place into their preferred row (Warrior and Rogue front, others back), overflowing to any empty slot. Units can be moved freely; moving onto an occupied slot swaps the two.
-- Duplicates of a class are allowed. Units don't merge or level yet (see open questions).
+- Duplicates of a class are allowed and never merge (#5, Brandon's call).
+- **Extra slots** roll an item, or (35% of the time, if you own a unit) **training** for one of the classes on your board, e.g. "Warrior Training: +2 XP to one Warrior". Training is class-specific and random, so you reroll to chase XP for the unit you want (#5).
+- Items and training go to the unit you select. Items can be moved between units in the shop, or sold on their own for 1 gold to free the slot. Selling a unit refunds 1 gold plus 1 per equipped item.
 
 ## Enemies
 
 - Each round's enemy party is generated from **archetypes** (`src/data/enemies.ts`): Bandit Brute (Warrior), Cutthroat (Rogue), Poacher (Ranger), Hedge Mage (Mage, round 2+), Cult Acolyte (Cleric, round 3+) and Bonecaller (Necromancer, round 5+).
 - Party size by round: 2, 3, 4, then 5 from round 4.
-- Stats start at **75%** of a player unit's and grow **+3.75% HP / +2.75% ATK per round**. Enemies pass player base stats around round 8; from there, player progression (M3) has to keep up.
+- **Enemies develop like players do.** Each enemy unit is levelled for the round, making random talent and advanced-class choices, and carries random items. Levels and item counts are fractional averages (e.g. level 2.4 = each unit is level 3 with 40% chance), so enemy power ramps smoothly instead of in steps: level 1 → 5 over rounds 1–14, 0 → 2 items over rounds 1–12.
+- Synergies apply to enemies too.
+- On top of that, HP and ATK start at **95%** and grow **+7% HP / +4.5% ATK per round**.
 - The enemy depends only on the run seed and round number, so rerolling or reshuffling your party never changes who you fight.
 
 ## Board
@@ -93,11 +99,15 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 
 Ties are always broken by board order, so targeting is deterministic.
 
+**Taunt:** while any enemy is taunting, the single-target enemy selectors (`nearest`, `backlineFirst`, `lowestHp`, `highestAtk`, `randomEnemy`) choose only among taunting units, using their normal rule. Area effects (`enemyFrontRow`, `allEnemies`, splash) and trigger targets are unaffected. *(M3 review: Brandon asked for a taunting Warrior/Knight because backliners died while the front line stood.)*
+
 ## Effects and triggers
 
 All special behaviour (class abilities now, talents and items later) is data: a list of **effects** fired by an ability or a **trigger**.
 
-**Effects:** `damage` (with optional `hits`, `splash` to row neighbours, `pierce`), `heal` (capped at max HP), `shield`, `buff` (ATK/DEF/SPD, lasts the rest of combat). Amounts scale off the source's stats: `flat + atk×ATK + def×DEF + maxHp×MaxHP`.
+**Effects:** `damage` (with optional `hits`, `splash` to row neighbours, `pierce`), `heal` (capped at max HP), `shield`, `buff` and `debuff` (ATK/DEF/SPD, rest of combat; debuffs floor at 0), `cooldown` (shift a unit's next ability sooner or later; never sooner than next turn), `taunt` (draw enemy single-target attacks and abilities for the unit's next N turns; reapplying refreshes rather than stacks). Amounts scale off the source's stats: `flat + atk×ATK + def×DEF + maxHp×MaxHP`.
+
+**Unit traits** (from talents, items, advanced classes and synergies): `reach` (no back-row melee penalty), `lifesteal` (heal a share of damage dealt), `abilityPower` (scales the unit's ability damage, heals and shields).
 
 **Triggers:**
 
@@ -106,7 +116,9 @@ All special behaviour (class abilities now, talents and items later) is data: a 
 | `startOfCombat` | Before the first tick | – | – |
 | `onTurnStart` | Start of the unit's turn | – | – |
 | `onAttack` | After the unit's basic attack (not abilities) | – | unit attacked |
+| `onAbility` | After the unit casts its ability | – | – |
 | `onHurt` | Unit takes damage and survives | attacker | – |
+| `onBloodied` | First time the unit drops below 50% HP (and survives) | attacker | – |
 | `onKill` | Unit kills an enemy | – | victim |
 | `onAllyDeath` | Another unit on the same side dies | killer | fallen ally |
 
@@ -125,18 +137,101 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 
 🔒 = unlockable via meta progression (Milestone 5).
 
+**Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Necromancer arcane + shadow. Advanced classes replace their base tags.
+
+**Level-up stat growth** (each level rolls an integer in the range, from the seeded RNG; Brandon's direction):
+
+| Class | HP | ATK | DEF | SPD |
+|---|---|---|---|---|
+| Warrior | 3–5 | 0–2 | 0–1 | 0–1 |
+| Rogue | 1–3 | 1–2 | 0–1 | 1–3 |
+| Mage | 1–3 | 1–2 | 0 | 0–1 |
+| Cleric | 2–4 | 0–1 | 0–1 | 0–1 |
+| Ranger | 1–3 | 1–2 | 0–1 | 1–2 |
+| Necromancer | 1–3 | 1–2 | 0–1 | 0–1 |
+
+## Progression
+
+- **XP from combat:** every unit on the board gains 2 XP for a win and 1 for a loss or draw. Training adds more.
+- **Levels 1–5** at 0 / 2 / 5 / 9 / 14 cumulative XP. A unit bought in round 1 reaches level 3 around round 4 and level 5 around round 8.
+- **Every level-up** rolls stat growth and offers a choice (the run blocks the next fight until you pick):
+  - **Level 2:** 1 of 3 talents from the base class pool.
+  - **Level 3:** advance into 1 of 2 advanced classes. This replaces the ability and tags, and adds stats and a passive.
+  - **Levels 4–5:** 1 of 3 talents from the advanced class pool.
+- Content lives in `src/data/builds/<class>.ts`: 4 base talents per class, and 2 advanced classes with 4 talents each. That's 12 advanced classes and 72 talents.
+
+## Advanced classes
+
+| Base | Advanced | Tags | Ability | Passive |
+|---|---|---|---|---|
+| Warrior | **Knight** | martial, guardian, divine | Holy Bulwark: shield all allies 2 + 100% DEF and taunt for 1 turn | 25% when hurt: shield self 3 |
+| Warrior | **Berserker** | martial | Whirlwind: 85% ATK to every enemy | +15% lifesteal; +4 ATK when bloodied |
+| Rogue | **Assassin** | shadow | Assassinate: 320% ATK to weakest back-row enemy | Shield 6 on kill |
+| Rogue | **Duelist** | martial | Flurry: 3 × 80% ATK on nearest | Reach; 35% riposte for 80% ATK |
+| Mage | **Pyromancer** | arcane | Meteor (every 2nd turn): 160% ATK to the enemy front row | Kills fling 80% ATK at a random enemy |
+| Mage | **Chronomancer** | arcane | Time Warp: allies' abilities 1 turn sooner, 100% ATK nearest | Start of combat: enemies −1 SPD |
+| Cleric | **Priest** | divine | Prayer of Healing: heal all 180% ATK, shield all 60% ATK | Ally death: shield all 100% ATK |
+| Cleric | **Inquisitor** | divine, martial | Judgment: 200% ATK pierce to strongest, self-heal 100% ATK | After casting: strongest enemy −2 DEF |
+| Ranger | **Sharpshooter** | martial | Aimed Shot: 220% ATK pierce to strongest | Kills: next ability 2 turns sooner |
+| Ranger | **Beastmaster** | wild | Call the Pack: 4 × 70% ATK at random enemies | Start of combat: allies +1 ATK |
+| Necromancer | **Lich** | arcane, shadow | Death Nova: 90% ATK to all, self-heal 100% ATK | Kills heal 200% ATK |
+| Necromancer | **Plaguelord** | shadow | Plague: all enemies −1 ATK/−1 DEF, 50% ATK to all | Ally death: all enemies −1 ATK |
+
+## Items
+
+Up to 2 per unit, bought from the shop's extra slots. **Anyone can equip anything.** Class-tied items give their classes an *extra* effect rather than being locked to them, in keeping with the build-variety principle.
+
+| Item | Cost | Effect | Class bonus |
+|---|---|---|---|
+| Iron Sword / Chainmail / Swift Boots / Giant's Belt | 3 | +3 ATK / +2 DEF +4 HP / +2 SPD / +12 HP | – |
+| Vampiric Fang | 4 | +20% lifesteal | – |
+| Thorned Mail | 4 | When hurt, 2 piercing damage to attacker | – |
+| Hourglass | 5 | Ability cooldown −1 | – |
+| Healing Charm | 3 | When bloodied, heal 25% max HP | – |
+| Long Spear | 3 | Reach, +1 ATK | Warriors: +2 ATK |
+| Tower Shield | 4 | Start of combat: shield self 8 | Warriors: also shield all allies 3 |
+| Smoke Cloak | 3 | +2 SPD | Rogues: reach |
+| Spellbook | 4 | +25% ability power | Mages: +25% more |
+| Holy Symbol | 4 | +20% ability power | Clerics & Knights: shield all allies 3 |
+| Hunting Bow | 4 | 25% on attack: extra 50% ATK hit | Rangers: +2 ATK |
+| Skull Totem | 4 | Ally death: +2 ATK | Necromancers: also heal 200% ATK |
+| Rage Gauntlets | 4 | When bloodied: +4 ATK | Berserkers: +15% lifesteal |
+| Assassin's Dagger | 4 | Kills: next ability 1 turn sooner | Rogues: +30% ability power |
+| Time Shard | 4 | Start of combat: shield self 150% ATK | Mages: every enemy's first ability 1 turn later |
+
+"Warriors", "Rogues" and so on include that class's advanced classes. Reach items and talents (Long Spear, Smoke Cloak for Rogues, Polearm Training, Shadowstep, Duelist) are the #2 hook: ways for a build to opt out of the back-row melee penalty.
+
+## Synergies
+
+The highest tier met is active. Synergies apply to enemies too.
+
+| Synergy | Requirement | Bonus |
+|---|---|---|
+| Martial Discipline | 2 / 4 martial | Martial units +2 ATK / +2 ATK +4 HP |
+| Arcane Circle | 2 / 3 arcane | Arcane units +30% AP +8 HP / +50% AP +12 HP |
+| Shield Wall | 2 / 3 guardian | Every ally starts with a 3 / 7 shield |
+| Divine Choir | 2 divine | Every ally heals 2 HP at the start of its turns |
+| Shadow Pact | 2 shadow | Shadow units +10% lifesteal, +1 SPD |
+| Call of the Wild | 2 wild | Wild units +1 SPD |
+| Vanguard | 1 guardian + 1 divine | Guardians +3 DEF (the brief's "frontline + healer") |
+| Adventuring Party | 4 / 5 different classes | Every ally +3 / +4 HP |
+
 ## Resolved design questions
 
 - **#1 Heal stalemates:** sudden death (option 3). Implemented in M2.
-- **#2 Back-row melee:** 50% damage while the front row stands (option 3). Implemented in M2; the issue stays open to revisit with talents and items.
+- **#2 Back-row melee:** 50% damage while the front row stands (option 3). Implemented in M2. M3 adds reach items, talents and the Duelist as ways around it. The issue stays open to revisit.
+- **#5 Duplicates:** no merging. XP comes from combat plus random class-specific training offers in the shop (option 3, M3).
 - **Run length:** play until 10 wins or 0 lives (the brief's "up to 10 rounds" conflicted with "10 wins = complete").
 - **Draws:** count as neither win nor loss.
 
-## Direction for Milestone 3 (from Brandon)
+## Direction from Brandon (implemented in M3)
 
 - **Levelling is weighted random.** Each level-up adds stats rolled from per-class ranges, so growth leans toward the class identity without being fixed. For example, a Rogue might gain 3–5 SPD but only 1–3 HP per level, while a Warrior leans HP/DEF. Exact ranges get tuned with the simulator. Rolls use the seeded RNG, so a run is still reproducible from its seed. *(2026-10-17)*
 - Items and talents add further variety. Determinism is about reproducibility, not removing randomness.
 
 ## Open design questions (for Brandon)
 
-1. **Duplicate units** ([#5](https://github.com/AggroSec/party-auto-battler/issues/5)). Buying a second Warrior just gives you two separate Warriors. Many auto-battlers let duplicates merge to level up. The brief says units gain XP *from combat*. For M3, should XP come only from combat, or should merging duplicates also grant XP? Merging adds a reason to reroll and a gold sink.
+None blocking. Things to look at when playtesting M3 (they're balance and feel, not rules):
+
+1. **Late-game wall.** From round 11, every bot wins only about 20% (then 7%, 4%), regardless of skill. A run that reaches round 11 has already lost several fights, so it's a final hurdle for comeback runs. Does it feel fair or too punishing?
+2. **Talent feel.** Are level-up choices interesting, or do some feel like obvious picks?

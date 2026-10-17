@@ -5,14 +5,15 @@ import { parseArgs } from 'node:util';
 import { buildRunContext } from '../data/content.ts';
 import { BOTS } from './bots.ts';
 import { formatReport, runDuels, runTeamFights } from './combat-report.ts';
-import { formatRunReports, runBot } from './run-report.ts';
+import { formatRunReports } from './run-format.ts';
+import { runBot } from './run-report.ts';
 
 const { values } = parseArgs({
   options: {
     runs: { type: 'string', default: '2000' },
     fights: { type: 'string', default: '2000' },
     duels: { type: 'string', default: '200' },
-    seed: { type: 'string', default: 'm2' },
+    seed: { type: 'string', default: 'm3' },
     only: { type: 'string' },
     out: { type: 'string' },
   },
@@ -25,7 +26,7 @@ if (values.only !== 'combat') {
   const runs = Number(values.runs);
   const ctx = buildRunContext();
   const reports = BOTS.map((bot) => runBot(bot, ctx, runs, `${seed}:runs`));
-  sections.push(`### Full runs (${runs} per bot, starter classes)`, formatRunReports(reports, BOTS));
+  sections.push(`### Full runs (${runs} per bot, starter classes)`, formatRunReports(reports, BOTS, ctx.content));
 }
 
 if (values.only !== 'runs') {

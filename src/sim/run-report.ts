@@ -1,42 +1,66 @@
-// Full-run simulation: bots play complete runs; report difficulty and economy.
-import { CLASSES } from '../data/classes.ts';
-import { Rng } from '../engine/index.ts';
-import { createRun, fight, type RunContext } from '../engine/run/index.ts';
-import type { Bot } from './bots.ts';
+// Full-run simulation: bots play complete runs; we tally how often fights are
+// won when each class, advanced class, item, talent and synergy is present.
+import { DEFAULT_TICK_CAP, Rng } from '../engine/index.ts';
+import { activeSynergies, boardUnits, createRun, fight, type RunContext } from '../engine/run/index.ts';
+import { resolvePending, type Bot } from './bots.ts';
 
 /** Safety net: a run can't need more fights than wins + lives (+ draws). */
 const MAX_ROUNDS = 40;
+
+export type EntityKind = 'class' | 'advanced' | 'item' | 'talent' | 'synergy';
+
+export interface Tally {
+  fights: number;
+  /** Wins, with draws counted as half. */
+  score: number;
+}
 
 export interface BotRunReport {
   bot: string;
   runs: number;
   completionRate: number;
   avgWins: number;
+  /** Average number of rounds played (the brief's "average round reached"). */
   avgRounds: number;
   drawRate: number;
-  /** winsHistogram[n] = runs that ended with n wins. */
+  fightWinRate: number;
+  tickCapHits: number;
   winsHistogram: number[];
-  /** Share of fights won, by round number. */
   winRateByRound: { round: number; fights: number; winRate: number }[];
-  /** Average gold left unspent when entering combat. */
   avgUnspentGold: number;
-  /** Fight win rate when the class was on the board (draws count half). */
-  byClass: { classId: string; fights: number; winRate: number }[];
+  avgLevel: number;
   stuckRuns: number;
+  /** Per-entity tallies by round, keyed `${kind}:${id}`. */
+  entities: Map<string, Map<number, Tally>>;
+  /** All fights by round (for round-adjusted lift). */
+  rounds: Map<number, Tally>;
+}
+
+function bump<K>(map: Map<K, Tally>, key: K, score: number, fights = 1): void {
+  const t = map.get(key) ?? { fights: 0, score: 0 };
+  map.set(key, { fights: t.fights + fights, score: t.score + score });
+}
+
+function bumpByRound(map: Map<string, Map<number, Tally>>, key: string, round: number, score: number): void {
+  let inner = map.get(key);
+  if (!inner) map.set(key, (inner = new Map()));
+  bump(inner, round, score);
 }
 
 export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): BotRunReport {
   const botRng = new Rng(`${seed}:${bot.name}`);
   const hist = Array<number>(ctx.config.winsToComplete + 1).fill(0);
-  const byRound = new Map<number, { n: number; w: number }>();
-  const byClass = new Map<string, { n: number; w: number }>();
-  let completed = 0, winsSum = 0, roundsSum = 0, fights = 0, draws = 0, unspent = 0, stuck = 0;
+  const byRound = new Map<number, Tally>();
+  const entities = new Map<string, Map<number, Tally>>();
+  let completed = 0, winsSum = 0, roundsSum = 0, fights = 0, draws = 0, wins = 0;
+  let unspent = 0, stuck = 0, tickCap = 0, levelSum = 0, unitSamples = 0;
 
   for (let i = 0; i < runs; i++) {
     let state = createRun(`${seed}:run${i}`, ctx);
     let rounds = 0;
     while (state.phase === 'shop' && rounds < MAX_ROUNDS) {
-      const shopped = bot.shop(state, ctx, botRng);
+      let shopped = resolvePending(bot, state, ctx, botRng);
+      shopped = resolvePending(bot, bot.shop(shopped, ctx, botRng), ctx, botRng);
       const r = fight(shopped, ctx);
       if (!r.ok) {
         stuck++;
@@ -45,15 +69,24 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
       rounds++;
       fights++;
       unspent += shopped.gold;
+      if (r.combat.ticks >= DEFAULT_TICK_CAP) tickCap++;
       const score = r.combat.winner === 'player' ? 1 : r.combat.winner === 'draw' ? 0.5 : 0;
       if (r.combat.winner === 'draw') draws++;
-      const br = byRound.get(shopped.round) ?? { n: 0, w: 0 };
-      byRound.set(shopped.round, { n: br.n + 1, w: br.w + score });
-      const classes = new Set([...shopped.board.front, ...shopped.board.back].flatMap((u) => (u ? [u.classId] : [])));
-      for (const c of classes) {
-        const bc = byClass.get(c) ?? { n: 0, w: 0 };
-        byClass.set(c, { n: bc.n + 1, w: bc.w + score });
+      wins += score;
+      bump(byRound, shopped.round, score);
+
+      const units = boardUnits(shopped.board);
+      const present = new Set<string>();
+      for (const u of units) {
+        levelSum += u.level;
+        unitSamples++;
+        present.add(`class:${u.classId}`);
+        if (u.advancedClassId) present.add(`advanced:${u.advancedClassId}`);
+        for (const it of u.items) present.add(`item:${it}`);
+        for (const t of u.talents) present.add(`talent:${t}`);
       }
+      for (const a of activeSynergies(units, ctx.content)) present.add(`synergy:${a.synergy.id}#${a.tier + 1}`);
+      for (const key of present) bumpByRound(entities, key, shopped.round, score);
       state = r.state;
     }
     if (state.phase === 'complete') completed++;
@@ -69,60 +102,50 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
     avgWins: winsSum / runs,
     avgRounds: roundsSum / runs,
     drawRate: fights ? draws / fights : 0,
+    fightWinRate: fights ? wins / fights : 0,
+    tickCapHits: tickCap,
     winsHistogram: hist,
     winRateByRound: [...byRound.entries()]
-      .sort(([a], [b]) => a - b)
-      .map(([round, t]) => ({ round, fights: t.n, winRate: t.w / t.n })),
+      .map(([round, t]) => ({ round, fights: t.fights, winRate: t.score / t.fights }))
+      .sort((a, b) => a.round - b.round),
+    rounds: byRound,
     avgUnspentGold: fights ? unspent / fights : 0,
-    byClass: [...byClass.entries()].map(([classId, t]) => ({ classId, fights: t.n, winRate: t.w / t.n })),
+    avgLevel: unitSamples ? levelSum / unitSamples : 0,
     stuckRuns: stuck,
+    entities,
   };
 }
 
-const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
-const className = (id: string) => (CLASSES as Record<string, { name: string }>)[id]?.name ?? id;
+export interface EntityStat extends Tally {
+  /**
+   * Round-adjusted lift: average of (result − that round's overall win rate)
+   * across the entity's fights. Removes the bias from entities that only
+   * appear in later, harder rounds. +0.05 = wins 5 points more than usual.
+   */
+  lift: number;
+}
 
-export function formatRunReports(reports: BotRunReport[], bots: readonly Bot[]): string {
-  const lines: string[] = [];
-  lines.push('| Bot | Runs | Completed (10 wins) | Avg wins | Avg rounds | Draw rate | Avg unspent gold | Stuck |');
-  lines.push('|---|---:|---:|---:|---:|---:|---:|---:|');
+/** Merge tallies across bots and compute raw and round-adjusted rates. */
+export function mergeEntities(reports: BotRunReport[]): Map<string, EntityStat> {
+  const rounds = new Map<number, Tally>();
+  for (const r of reports) for (const [round, t] of r.rounds) bump(rounds, round, t.score, t.fights);
+  const base = (round: number) => {
+    const t = rounds.get(round);
+    return t ? t.score / t.fights : 0;
+  };
+
+  const merged = new Map<string, EntityStat>();
   for (const r of reports) {
-    lines.push(
-      `| ${r.bot} | ${r.runs} | ${pct(r.completionRate)} | ${r.avgWins.toFixed(2)} | ${r.avgRounds.toFixed(1)} | ` +
-        `${pct(r.drawRate)} | ${r.avgUnspentGold.toFixed(1)} | ${r.stuckRuns} |`,
-    );
+    for (const [key, byRound] of r.entities) {
+      const m = merged.get(key) ?? { fights: 0, score: 0, lift: 0 };
+      for (const [round, t] of byRound) {
+        m.fights += t.fights;
+        m.score += t.score;
+        m.lift += t.score - t.fights * base(round); // summed for now
+      }
+      merged.set(key, m);
+    }
   }
-  lines.push('', ...bots.map((b) => `- **${b.name}**: ${b.description}`), '');
-
-  const rounds = Math.max(...reports.map((r) => r.winRateByRound.length));
-  lines.push('#### Fight win rate by round', '');
-  lines.push(`| Round | ${reports.map((r) => r.bot).join(' | ')} |`, `|---:|${reports.map(() => '---:').join('|')}|`);
-  for (let i = 0; i < rounds; i++) {
-    const cells = reports.map((r) => {
-      const row = r.winRateByRound[i];
-      return row ? `${pct(row.winRate)} (${row.fights})` : '–';
-    });
-    lines.push(`| ${i + 1} | ${cells.join(' | ')} |`);
-  }
-  lines.push('');
-
-  lines.push('#### Runs ending with N wins', '');
-  const maxWins = reports[0]?.winsHistogram.length ?? 0;
-  lines.push(`| Wins | ${reports.map((r) => r.bot).join(' | ')} |`, `|---:|${reports.map(() => '---:').join('|')}|`);
-  for (let w = 0; w < maxWins; w++) {
-    lines.push(`| ${w} | ${reports.map((r) => r.winsHistogram[w]).join(' | ')} |`);
-  }
-  lines.push('');
-
-  lines.push('#### Fight win rate with class on the board', '');
-  const classIds = [...new Set(reports.flatMap((r) => r.byClass.map((c) => c.classId)))];
-  lines.push(`| Class | ${reports.map((r) => r.bot).join(' | ')} |`, `|---|${reports.map(() => '---:').join('|')}|`);
-  for (const id of classIds) {
-    const cells = reports.map((r) => {
-      const c = r.byClass.find((x) => x.classId === id);
-      return c ? pct(c.winRate) : '–';
-    });
-    lines.push(`| ${className(id)} | ${cells.join(' | ')} |`);
-  }
-  return lines.join('\n');
+  for (const m of merged.values()) m.lift = m.fights ? m.lift / m.fights : 0;
+  return merged;
 }

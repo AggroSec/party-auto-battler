@@ -11,7 +11,8 @@
     "typecheck": "tsc -b",
     "lint": "eslint .",
     "check": "tsc -b && eslint . && vitest run",
-    "sim": "tsx src/sim/index.ts"
+    "sim": "tsx src/sim/index.ts",
+    "playlog": "tsx src/sim/playlog-cli.ts"
   },
   "dependencies": {
     "react": "^19.3.1",

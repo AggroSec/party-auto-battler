@@ -1,5 +1,17 @@
 import type { CombatResult, Winner } from '../events.ts';
-import type { BoardPos, Party, Stats, UnitTemplate } from '../types.ts';
+import type { BoardPos, Party, Stats } from '../types.ts';
+import type {
+  AdvancedClassDef,
+  ClassTemplate,
+  EnemyProgression,
+  ItemDef,
+  ProgressionConfig,
+  ShopLayout,
+  SynergyDef,
+  TalentDef,
+} from './content-types.ts';
+
+export type * from './content-types.ts';
 
 /** Economy and run-structure numbers. Lives in data so the simulator can tune it. */
 export interface RunConfig {
@@ -18,7 +30,8 @@ export interface RunConfig {
   unitCost: number;
   sellRefund: number;
   rerollCost: number;
-  shopSize: number;
+  shop: ShopLayout;
+  progression: ProgressionConfig;
 }
 
 export interface EnemyArchetype {
@@ -29,7 +42,7 @@ export interface EnemyArchetype {
   classId: string;
   /** First round this archetype can appear. */
   minRound: number;
-  /** Multipliers on the class's base stats (default 1). */
+  /** Multipliers on the final stats (default 1). */
   statMultiplier?: Partial<Stats>;
 }
 
@@ -45,11 +58,18 @@ export interface EnemyScaling {
 
 /** Content the run layer needs. Built from src/data; synthetic in tests. */
 export interface RunContent {
-  classes: Readonly<Record<string, UnitTemplate>>;
+  classes: Readonly<Record<string, ClassTemplate>>;
+  advancedClasses: Readonly<Record<string, AdvancedClassDef>>;
+  talents: Readonly<Record<string, TalentDef>>;
+  items: Readonly<Record<string, ItemDef>>;
+  synergies: readonly SynergyDef[];
   /** Class ids the shop can offer (locked classes excluded). */
   shopPool: readonly string[];
+  /** Item ids the shop can offer. */
+  itemPool: readonly string[];
   enemies: readonly EnemyArchetype[];
   enemyScaling: EnemyScaling;
+  enemyProgression: EnemyProgression;
   unitNames: readonly string[];
 }
 
@@ -58,11 +78,20 @@ export interface RunContext {
   content: RunContent;
 }
 
-/** A unit the player owns. M3 adds XP, talents and items here. */
+/** A unit's build: everything needed to resolve it into a combat UnitSetup. */
 export interface OwnedUnit {
   uid: number;
+  /** Base class id. */
   classId: string;
   name: string;
+  level: number;
+  /** Cumulative XP. */
+  xp: number;
+  advancedClassId: string | null;
+  talents: string[];
+  items: string[];
+  /** Stats gained from level-up rolls. */
+  growth: Stats;
 }
 
 export interface Board {
@@ -72,10 +101,20 @@ export interface Board {
 
 export type SlotRef = BoardPos;
 
-export interface ShopOffer {
-  classId: string;
-  name: string;
-  cost: number;
+export type ShopOffer =
+  | { kind: 'unit'; classId: string; name: string; cost: number }
+  | { kind: 'item'; itemId: string; cost: number }
+  /** +XP for one unit of `classId` (base class). */
+  | { kind: 'training'; classId: string; xp: number; cost: number };
+
+/** A level-up decision the player must make before the next fight. */
+export interface PendingChoice {
+  uid: number;
+  /** The level that triggered the choice. */
+  level: number;
+  kind: 'talent' | 'advance';
+  /** Talent ids or advanced class ids. */
+  options: string[];
 }
 
 export interface IncomeBreakdown {
@@ -88,7 +127,7 @@ export interface IncomeBreakdown {
 export interface RoundRecord {
   round: number;
   result: Winner;
-  /** Enemy class ids, in board order. */
+  /** Enemy class ids (advanced where applicable), in board order. */
   enemy: string[];
   income: IncomeBreakdown | null;
 }
@@ -101,7 +140,7 @@ export type RunPhase = 'shop' | 'complete' | 'defeated';
  */
 export interface RunState {
   seed: string;
-  /** Shop RNG position; enemies and combats derive their own RNG from seed + round. */
+  /** Shop/level-up RNG position; enemies and combats derive their own RNG from seed + round. */
   rngState: number;
   phase: RunPhase;
   /** The round currently being shopped for (1-based). */
@@ -116,15 +155,23 @@ export interface RunState {
   board: Board;
   /** null = already bought this round. */
   shop: (ShopOffer | null)[];
+  /** Level-up choices to resolve (in order) before the next fight. */
+  pending: PendingChoice[];
   nextUid: number;
   history: RoundRecord[];
 }
 
 export type ShopAction =
+  /** `to`: where a unit goes (optional, auto-placed), or which unit gets an item/training (required). */
   | { type: 'buy'; offer: number; to?: SlotRef }
   | { type: 'sell'; from: SlotRef }
   | { type: 'move'; from: SlotRef; to: SlotRef }
-  | { type: 'reroll' };
+  | { type: 'moveItem'; from: SlotRef; item: number; to: SlotRef }
+  /** Remove an item from a unit for `progression.itemSellRefund` gold, freeing the slot. */
+  | { type: 'sellItem'; from: SlotRef; item: number }
+  | { type: 'reroll' }
+  /** Resolve the first pending choice by option index. */
+  | { type: 'choose'; option: number };
 
 export type RunError =
   | 'notShopPhase'
@@ -134,7 +181,14 @@ export type RunError =
   | 'slotOccupied'
   | 'emptySlot'
   | 'boardFull'
-  | 'emptyBoard';
+  | 'emptyBoard'
+  | 'needsTarget'
+  | 'itemSlotsFull'
+  | 'wrongClass'
+  | 'noSuchItem'
+  | 'pendingChoice'
+  | 'noPendingChoice'
+  | 'invalidChoice';
 
 export type ActionResult = { ok: true; state: RunState } | { ok: false; error: RunError };
 
@@ -146,7 +200,8 @@ export type FightResult =
       combat: CombatResult;
       playerParty: Party;
       enemyParty: Party;
+      /** Enemy builds, for display and simulator stats. */
+      enemyBuilds: Board;
       income: IncomeBreakdown | null;
     }
   | { ok: false; error: RunError };
-

@@ -2,6 +2,109 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 3 — Builds (2026-10-17)
+
+### What was built
+
+**Progression**
+- Units earn XP from every fight: +2 for a win, +1 for a loss or draw.
+- Levels 1–5 at 0 / 2 / 5 / 9 / 14 XP. Each level-up rolls **weighted random stat growth** per class, your direction: a Rogue leans SPD, a Warrior leans HP and DEF.
+- **Every level-up is a choice:**
+  - Level 2: pick 1 of 3 base talents.
+  - Level 3: advance into 1 of 2 advanced classes. This changes the ability, tags, stats and passive.
+  - Levels 4–5: pick 1 of 3 talents from the advanced class's pool.
+- You can't fight until your choices are made, but you can keep shopping meanwhile.
+
+**Content (all data, in `src/data/`)**
+- **12 advanced classes**, two per class: Knight/Berserker, Assassin/Duelist, Pyromancer/Chronomancer, Priest/Inquisitor, Sharpshooter/Beastmaster, Lich/Plaguelord.
+- **72 talents:** 4 per base class and 4 per advanced class.
+- **18 items**, up to 2 per unit. Anyone can equip anything, and 10 are class-tied: the tied class gets an extra effect (Long Spear + Warriors, Spellbook + Mages, …).
+- **8 synergies** from class tags, including "frontline + healer" (Vanguard) and an Adventuring Party bonus for 4–5 different classes.
+- Reach items and talents (Long Spear, Polearm Training, Shadowstep, Smoke Cloak for Rogues, Duelist) give builds a way around the back-row melee penalty (#2).
+
+**Shop and training (#5, your call):** 4 unit slots + 2 extra slots. Each extra slot rolls an item, or **class-specific training** (+2 XP for one unit of a class on your board) about a third of the time. You reroll to chase training for the unit you want. No merging.
+
+**Enemies** level up, advance, take talents and carry items like you do, with synergies. That gives them build variety and puts every piece of content into play on both sides. Their level and item curves are fractional, so difficulty ramps smoothly.
+
+**Engine additions**
+- Traits: reach, lifesteal, ability power.
+- Effects: debuff, cooldown (haste or delay).
+- Triggers: `onAbility`, `onBloodied`.
+- A single `UnitModifier` shape behind talents, items, advanced classes and synergies.
+
+**Simulator (`npm run sim`)**
+- Four bots: random, sensible, greedy, synergy-focused. All of them shop, target items and training, and make level-up choices.
+- The report covers completion, wins, average rounds, average unit level, unspent gold, tick-cap hits, stuck runs and the win rate by round.
+- Pick-to-win rates for every class, advanced class, item, talent and synergy, with the brief's 65%/35% outlier flags.
+- A new **round-adjusted lift** column. Raw rates are biased by *when* things appear, so I balanced on lift.
+
+**Debug UI (`npm run dev` → Run):**
+- Level-up choice cards.
+- A shop showing item effects and class bonuses.
+- Click a unit for its full build: final stats including synergies, ability, talents and items, plus buttons to move items and sell.
+- Active synergies, and explicit Move buttons for units and items.
+
+**Tests:** 180, up from 129 (171 at the first review; the follow-ups add taunt, item selling and play-log replay tests). They cover every new effect, trait and trigger; build resolution and stacking; item class bonuses; synergy tiers and tag changes on advancing; XP thresholds and growth rolls; choice queues, including deferred post-advance options; items, training, selling and moving; enemy development; integrity of all build content (every talent in exactly one pool, every reference valid); simulator determinism; the lift maths; and a real-content end-to-end run.
+
+### Review follow-ups (after Brandon's first playtest)
+
+- **Sell items:** each equipped item has a Sell button (+1g) in the unit panel, so a full unit can make room for a better item.
+- **Taunt:** a new `taunt` effect. While a unit taunts, enemy single-target attacks and abilities must target it; area attacks still hit everyone.
+  - **Knight:** Holy Bulwark now taunts for 1 turn every 3rd turn (about a third of the time, more with cooldown reduction), with a smaller shield to pay for it.
+  - **Warrior:** a new base talent, Challenge, taunts for 1 turn at the start of combat. It replaces Bulwark.
+  - **Result:** backline deaths while a front-liner still stood fell from 62% to 56%. Knight's lift is +5.4 (it was +4.3).
+- **Dev play log:** under `npm run dev`, your run's seed, every shop action and each fight result are appended to `playlogs/<date>.jsonl` (gitignored). `npm run playlog` replays them through the engine, round by round: what you bought and chose, both parties' builds, damage per unit, death order, and notes such as gold past the interest cap or back-row melee without reach.
+
+### Fixed during development
+
+- **Deferred talent choices could vanish:** resolving a level-2 talent wiped a queued level-4 choice that was waiting on the advanced class. A new test caught it before commit, and it's fixed.
+
+### What to playtest (and how)
+
+1. `npm install`, then `npm run dev`. The **Run** tab opens by default.
+2. Play a few runs (change the seed for different shops and enemies). Worth checking:
+   - **Level-ups:** after your first win, a ⭐ panel asks for a talent. At level 3 you choose an advanced class. Are the choices interesting, or are some obvious?
+   - **Builds:** click a unit to see its final stats. Try a class-tied item on its class (the bonus shows in gold) and on another class.
+   - **Back-row melee:** put a Warrior in the back with a Long Spear, or take Polearm Training. It should hit at full strength.
+   - **Synergies:** two Warriors gives Shield Wall; a Warrior plus a Cleric gives Vanguard. Advancing a Warrior to Knight adds divine.
+   - **Training:** it only appears for classes you own. Reroll to chase it.
+   - **Difficulty:** rounds 1–4 are easy, then it ramps. Rounds 11+ are very hard for everyone (see known issues). Does that feel right?
+3. `npm run sim` prints all the tables in about 35 seconds.
+
+### Known issues / open questions
+
+- **Late-game wall:** from round 11, every bot wins only about 20% (then 7%, 4%), regardless of skill. Comeback runs hit a hard final hurdle. That's a balance question for M5, unless you want it changed sooner.
+- **Accelerate** (Chronomancer talent) is the strongest pick left, at +8 lift. Queued for the M5 balance pass.
+- **Three raw outliers** (Call of the Wild, Shadow Pact, Shield Wall tier 1) are an early-round artefact; their round-adjusted lift is only +1 to +6.
+- **The greedy bot isn't smarter than the sensible one.** Its power estimate undervalues effects. It's useful as a foil, and could be improved in M5.
+- **Necromancer** is still locked (meta unlocks are M5). Enemies already use it.
+- The debug UI is still plain: no drag-and-drop, icons or animation (M4).
+
+### Simulator balance numbers
+
+2,000 full runs per bot, seed `m3`:
+
+| Bot | Completed | Avg wins | Avg rounds | Fight win rate | Avg unit level | Unspent gold |
+|---|---:|---:|---:|---:|---:|---:|
+| random | 5.9% | 3.87 | 8.6 | 44.9% | 2.99 | 3.4 |
+| sensible | 24.4% | 7.89 | 11.8 | 66.8% | 3.64 | 2.5 |
+| greedy | 21.5% | 7.75 | 11.8 | 65.6% | 3.64 | 3.1 |
+| synergy | 15.1% | 6.68 | 11.1 | 60.6% | 3.49 | 1.9 |
+
+Sensible-bot win rate by round: 94, 100, 98, 96, 82, 72, 71, 65, 53, 39, 19, 7, 5, 2%.
+
+Round-adjusted lift ranges:
+
+| Category | Lift range |
+|---|---|
+| Classes | −1.7 to +2.2 |
+| Advanced classes | −2.9 (Priest) to +5.3 (Inquisitor) |
+| Items | −2.3 to +3.6 |
+| Synergies | −2.7 to +5.9 |
+| Talents | −3.2 to +8.2 |
+
+0 tick-cap hits, 0 stuck runs. Full tables are in [BALANCE.md](BALANCE.md).
+
 ## Milestone 2 — Run loop (2026-10-17)
 
 ### What was built

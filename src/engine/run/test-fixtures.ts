@@ -1,9 +1,11 @@
 // Synthetic content for run-layer tests, independent of real class balance.
 import { NEVER_CAST } from '../test-helpers.ts';
-import type { UnitTemplate } from '../types.ts';
+import type { AdvancedClassDef, ClassTemplate, GrowthTable, ItemDef, SynergyDef, TalentDef } from './content-types.ts';
 import type { EnemyArchetype, RunConfig, RunContext, RunContent } from './types.ts';
 
-const template = (id: string, over: Partial<UnitTemplate> & Pick<UnitTemplate, 'baseStats'>): UnitTemplate => ({
+const FLAT: GrowthTable = { hp: [2, 2], atk: [1, 1], def: [0, 0], spd: [0, 0] };
+
+const template = (id: string, over: Partial<ClassTemplate> & Pick<ClassTemplate, 'baseStats'>): ClassTemplate => ({
   id,
   name: id,
   range: 'melee',
@@ -11,22 +13,94 @@ const template = (id: string, over: Partial<UnitTemplate> & Pick<UnitTemplate, '
   ability: NEVER_CAST,
   triggers: [],
   placement: 0,
+  tags: [],
+  growth: FLAT,
+  talents: [],
+  advancedClasses: [],
   ...over,
 });
 
 export const TEMPLATES = {
-  tank: template('tank', { baseStats: { hp: 30, atk: 5, def: 2, spd: 10 }, placement: 0 }),
+  tank: template('tank', {
+    baseStats: { hp: 30, atk: 5, def: 2, spd: 10 },
+    placement: 0,
+    tags: ['guard'],
+    talents: ['tough', 'strong', 'quick', 'sturdy'],
+    advancedClasses: ['paladin', 'brute'],
+  }),
   archer: template('archer', {
     baseStats: { hp: 20, atk: 6, def: 0, spd: 10 },
     range: 'ranged',
     attackTarget: 'lowestHp',
     placement: 3,
+    tags: ['wild'],
+    growth: { hp: [1, 3], atk: [0, 2], def: [0, 1], spd: [1, 4] },
   }),
   /** Wins any fight against the fixtures. */
   titan: template('titan', { baseStats: { hp: 999, atk: 999, def: 0, spd: 50 } }),
   /** Deals no damage: two walls only end by sudden death, on the same pulse (a draw). */
   wall: template('wall', { baseStats: { hp: 50, atk: 0, def: 0, spd: 10 } }),
-} satisfies Record<string, UnitTemplate>;
+} satisfies Record<string, ClassTemplate>;
+
+export const TALENTS: Record<string, TalentDef> = {
+  tough: { id: 'tough', name: 'Tough', description: '+10 HP', stats: { hp: 10 } },
+  strong: { id: 'strong', name: 'Strong', description: '+2 ATK', stats: { atk: 2 } },
+  quick: { id: 'quick', name: 'Quick', description: '-1 cooldown', abilityCooldown: -1 },
+  sturdy: { id: 'sturdy', name: 'Sturdy', description: '+1 DEF', stats: { def: 1 } },
+  holy1: { id: 'holy1', name: 'Holy 1', description: '+5 HP', stats: { hp: 5 } },
+  holy2: { id: 'holy2', name: 'Holy 2', description: '+5 HP', stats: { hp: 5 } },
+};
+
+export const ADVANCED: Record<string, AdvancedClassDef> = {
+  paladin: {
+    id: 'paladin',
+    name: 'Paladin',
+    baseClassId: 'tank',
+    description: 'Holy tank',
+    tags: ['guard', 'holy'],
+    ability: { ...NEVER_CAST, id: 'smite', name: 'Smite', cooldown: 4 },
+    modifier: { stats: { def: 2 } },
+    talents: ['holy1', 'holy2'],
+  },
+  brute: {
+    id: 'brute',
+    name: 'Brute',
+    baseClassId: 'tank',
+    description: 'Hits hard',
+    tags: ['guard'],
+    ability: NEVER_CAST,
+    modifier: { stats: { atk: 3 }, lifesteal: 0.2 },
+    talents: [],
+  },
+};
+
+export const ITEMS: Record<string, ItemDef> = {
+  sword: { id: 'sword', name: 'Sword', description: '+3 ATK', cost: 3, modifier: { stats: { atk: 3 } } },
+  boots: {
+    id: 'boots',
+    name: 'Boots',
+    description: '+2 SPD; tanks also gain reach',
+    cost: 4,
+    modifier: { stats: { spd: 2 } },
+    classBonus: { classIds: ['tank'], description: 'reach', modifier: { reach: true } },
+  },
+};
+
+export const SYNERGIES: SynergyDef[] = [
+  {
+    id: 'guards',
+    name: 'Guards',
+    tiers: [
+      { requires: [{ kind: 'tag', tag: 'guard', count: 2 }], description: '+1 DEF', modifier: { stats: { def: 1 } }, appliesTo: { tag: 'guard' } },
+      { requires: [{ kind: 'tag', tag: 'guard', count: 3 }], description: '+3 DEF', modifier: { stats: { def: 3 } }, appliesTo: { tag: 'guard' } },
+    ],
+  },
+  {
+    id: 'mixed',
+    name: 'Mixed',
+    tiers: [{ requires: [{ kind: 'distinctClasses', count: 2 }], description: '+4 HP', modifier: { stats: { hp: 4 } }, appliesTo: 'all' }],
+  },
+];
 
 export const TEST_CONFIG: RunConfig = {
   startingGold: 10,
@@ -42,7 +116,19 @@ export const TEST_CONFIG: RunConfig = {
   unitCost: 3,
   sellRefund: 1,
   rerollCost: 1,
-  shopSize: 4,
+  shop: { unitSlots: 4, extraSlots: 0, trainingChance: 0.5 },
+  progression: {
+    xpForLevel: [0, 2, 5, 9, 14],
+    xpPerWin: 2,
+    xpPerLoss: 1,
+    xpPerDraw: 1,
+    advanceLevel: 3,
+    talentChoices: 3,
+    trainingXp: 2,
+    trainingCost: 3,
+    maxItemsPerUnit: 2,
+    itemSellRefund: 1,
+  },
 };
 
 export const ARCHETYPES: Record<string, EnemyArchetype> = {
@@ -64,9 +150,15 @@ export function makeCtx(
     config: { ...TEST_CONFIG, ...over.config },
     content: {
       classes: TEMPLATES,
+      advancedClasses: ADVANCED,
+      talents: TALENTS,
+      items: ITEMS,
+      synergies: SYNERGIES,
       shopPool: over.shopPool ?? ['tank', 'archer'],
+      itemPool: ['sword', 'boots'],
       enemies: over.enemies ?? [ARCHETYPES.grunt!, ARCHETYPES.sniper!],
       enemyScaling: { unitsByRound: [1, 2, 3], baseMultiplier: 1, hpGrowthPerRound: 0.1, atkGrowthPerRound: 0.1 },
+      enemyProgression: { levelByRound: [1], itemsByRound: [0] },
       unitNames: ['Ann', 'Bo', 'Cy'],
       ...over.content,
     },

@@ -2,7 +2,7 @@
 
 A browser-playable party auto-battler with RPG classes and builds. You draft a party, position it, equip it and level it up between rounds, then the fight resolves on its own. Think Super Auto Pets or Backpack Battles, with the depth coming from CRPG-style classes, talent choices and advanced-class upgrades.
 
-> 🚧 Early development. Milestones 1–2 (combat engine, run loop) are done, and you can play a full run in a plain debug view. The real game UI arrives in Milestone 4. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
+> 🚧 Early development. Milestones 1–3 (combat engine, run loop, builds) are done: levels, talents, advanced classes, items and synergies, all playable in a plain debug view. The real game UI arrives in Milestone 4. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
 
 ## Running locally
 
@@ -13,6 +13,7 @@ npm install
 npm run dev     # local dev server (currently a debug view: Run + Combat lab)
 npm run check   # typecheck + lint + tests
 npm run sim     # headless balance simulator
+npm run playlog # replay play logs recorded by npm run dev (playlogs/)
 npm run build   # production build
 ```
 

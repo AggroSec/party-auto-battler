@@ -1,8 +1,12 @@
-import { absorb, mitigate, resolveAmount } from './damage.ts';
-import { OVERTIME_SOURCE } from './events.ts';
-import { emit, living, type CombatState, type CombatUnit } from './state.ts';
+// Effects and triggers: the data-driven layer behind abilities, passives,
+// talents, items and synergies.
+import { resolveAmount } from './damage.ts';
+import { applyHeal, dealDamage } from './hits.ts';
+import { emit, type CombatState, type CombatUnit } from './state.ts';
 import { rowNeighbours, selectTargets, type TargetContext } from './targeting.ts';
 import type { Effect, TriggerEvent } from './types.ts';
+
+export { BACKLINE_MELEE_MULTIPLIER, BLOODIED_THRESHOLD, dealDamage, isBacklineMelee, type DamageOptions } from './hits.ts';
 
 /**
  * Triggers can cause further triggers (a hit fires onHurt, whose effect kills
@@ -31,14 +35,19 @@ export function fireTriggers(
   }
 }
 
+/**
+ * Apply effects from `source`. `power` scales damage, heals and shields; it's
+ * the unit's abilityPower when casting an ability, and 1 otherwise.
+ */
 export function applyEffects(
   state: CombatState,
   source: CombatUnit,
   effects: readonly Effect[],
   ctx: TargetContext,
   depth: number,
+  power = 1,
 ): void {
-  for (const effect of effects) applyEffect(state, source, effect, ctx, depth);
+  for (const effect of effects) applyEffect(state, source, effect, ctx, depth, power);
 }
 
 function applyEffect(
@@ -47,13 +56,14 @@ function applyEffect(
   effect: Effect,
   ctx: TargetContext,
   depth: number,
+  power: number,
 ): void {
   switch (effect.kind) {
     case 'damage': {
       const hits = effect.hits ?? 1;
       for (let i = 0; i < hits; i++) {
         for (const target of selectTargets(state, source, effect.target, ctx)) {
-          const raw = resolveAmount(effect.amount, source);
+          const raw = resolveAmount(effect.amount, source) * power;
           // Capture neighbours before the primary hit, in case it kills the target.
           const neighbours = effect.splash ? rowNeighbours(state, target) : [];
           const opts = { pierce: effect.pierce ?? false };
@@ -66,24 +76,12 @@ function applyEffect(
       return;
     }
     case 'heal': {
-      const amount = Math.round(resolveAmount(effect.amount, source));
-      for (const target of selectTargets(state, source, effect.target, ctx)) {
-        const value = Math.min(amount, target.maxHp - target.hp);
-        target.hp += value;
-        source.stats.healingDone += value;
-        emit(state, {
-          tick: state.tick,
-          type: 'heal',
-          source: source.id,
-          target: target.id,
-          value,
-          hpAfter: target.hp,
-        });
-      }
+      const amount = resolveAmount(effect.amount, source) * power;
+      for (const target of selectTargets(state, source, effect.target, ctx)) applyHeal(state, source, target, amount);
       return;
     }
     case 'shield': {
-      const value = Math.round(resolveAmount(effect.amount, source));
+      const value = Math.round(resolveAmount(effect.amount, source) * power);
       for (const target of selectTargets(state, source, effect.target, ctx)) {
         target.shield += value;
         source.stats.shieldingDone += value;
@@ -98,91 +96,44 @@ function applyEffect(
       }
       return;
     }
-    case 'buff': {
-      const value = Math.round(resolveAmount(effect.amount, source));
+    case 'buff':
+    case 'debuff': {
+      const magnitude = Math.round(resolveAmount(effect.amount, source));
       for (const target of selectTargets(state, source, effect.target, ctx)) {
-        target[effect.stat] += value;
+        const before = target[effect.stat];
+        target[effect.stat] = effect.kind === 'buff' ? before + magnitude : Math.max(0, before - magnitude);
         emit(state, {
           tick: state.tick,
           type: 'buff',
           source: source.id,
           target: target.id,
           stat: effect.stat,
-          value,
+          value: target[effect.stat] - before,
           statAfter: target[effect.stat],
         });
       }
       return;
     }
-  }
-}
-
-/** Damage multiplier for melee units attacking from the back row while their front row stands. */
-export const BACKLINE_MELEE_MULTIPLIER = 0.5;
-
-/** True when a melee unit is stuck behind living allies and hits at reduced strength. */
-export function isBacklineMelee(state: CombatState, unit: CombatUnit): boolean {
-  return (
-    unit.setup.range === 'melee' &&
-    unit.pos.row === 'back' &&
-    living(state, unit.side).some((u) => u.pos.row === 'front')
-  );
-}
-
-export interface DamageOptions {
-  /** Ignore DEF. */
-  pierce?: boolean;
-  /** True damage: ignore DEF and shields (sudden death). */
-  true?: boolean;
-}
-
-/**
- * Apply one hit: mitigation, shields, HP loss, then onHurt or death triggers.
- * `source` is null for environmental damage (sudden death), which credits no one.
- */
-export function dealDamage(
-  state: CombatState,
-  source: CombatUnit | null,
-  target: CombatUnit,
-  raw: number,
-  opts: DamageOptions,
-  depth: number,
-): void {
-  if (!target.alive) return;
-  const scaled = source && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
-  const damage = mitigate(scaled, target.def, opts.pierce === true || opts.true === true);
-  const { toShield, toHp } = opts.true ? { toShield: 0, toHp: damage } : absorb(damage, target.shield);
-  const hpLost = Math.min(target.hp, toHp);
-  target.shield -= toShield;
-  target.hp -= hpLost;
-  if (source) source.stats.damageDealt += hpLost + toShield;
-  target.stats.damageTaken += hpLost + toShield;
-  emit(state, {
-    tick: state.tick,
-    type: 'damage',
-    source: source?.id ?? OVERTIME_SOURCE,
-    target: target.id,
-    value: hpLost,
-    absorbed: toShield,
-    hpAfter: target.hp,
-  });
-
-  if (target.hp <= 0) {
-    kill(state, target, source, depth);
-  } else if (damage > 0) {
-    fireTriggers(state, target, 'onHurt', source ? { triggerSource: source } : {}, depth);
-  }
-}
-
-function kill(state: CombatState, target: CombatUnit, killer: CombatUnit | null, depth: number): void {
-  target.alive = false;
-  emit(state, { tick: state.tick, type: 'death', target: target.id, source: killer?.id ?? OVERTIME_SOURCE });
-  if (killer) {
-    if (killer !== target && killer.side !== target.side) killer.stats.kills += 1;
-    fireTriggers(state, killer, 'onKill', { triggerTarget: target }, depth);
-  }
-  for (const ally of living(state, target.side)) {
-    const ctx = killer ? { triggerSource: killer, triggerTarget: target } : { triggerTarget: target };
-    fireTriggers(state, ally, 'onAllyDeath', ctx, depth);
+    case 'cooldown': {
+      for (const target of selectTargets(state, source, effect.target, ctx)) {
+        target.cooldown = Math.max(1, target.cooldown + effect.turns);
+        emit(state, {
+          tick: state.tick,
+          type: 'cooldown',
+          source: source.id,
+          target: target.id,
+          turns: effect.turns,
+          cooldownAfter: target.cooldown,
+        });
+      }
+      return;
+    }
+    case 'taunt': {
+      for (const target of selectTargets(state, source, effect.target, ctx)) {
+        target.taunt = Math.max(target.taunt, effect.turns);
+        emit(state, { tick: state.tick, type: 'taunt', source: source.id, target: target.id, turns: target.taunt });
+      }
+      return;
+    }
   }
 }
