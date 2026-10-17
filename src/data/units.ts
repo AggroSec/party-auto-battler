@@ -1,3 +1,4 @@
+import { instantiate } from '../engine/run/board.ts';
 import type { Party, Stats, UnitSetup } from '../engine/types.ts';
 import { CLASSES, type ClassId } from './classes.ts';
 
@@ -9,21 +10,7 @@ export function createUnit(
   classId: ClassId,
   opts: { name?: string; statBonus?: Partial<Stats> } = {},
 ): UnitSetup {
-  const def = CLASSES[classId];
-  const bonus = opts.statBonus ?? {};
-  return {
-    name: opts.name ?? def.name,
-    classId,
-    stats: {
-      hp: def.baseStats.hp + (bonus.hp ?? 0),
-      atk: def.baseStats.atk + (bonus.atk ?? 0),
-      def: def.baseStats.def + (bonus.def ?? 0),
-      spd: def.baseStats.spd + (bonus.spd ?? 0),
-    },
-    attackTarget: def.attackTarget,
-    ability: def.ability,
-    triggers: def.triggers,
-  };
+  return instantiate(CLASSES[classId], opts);
 }
 
 /** Shorthand for building a party from class ids. `null` leaves a slot empty. */

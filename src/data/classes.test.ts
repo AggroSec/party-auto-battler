@@ -42,6 +42,21 @@ describe('full fights with real classes', () => {
     expect(a.events).toEqual(b.events);
   });
 
+  it('gives neither side an edge in exact mirror matches', () => {
+    // Regression: a player-first tie-break used to win ~78% of mirrors.
+    const rng = new Rng('mirror-fairness');
+    let playerScore = 0;
+    const n = 400;
+    for (let i = 0; i < n; i++) {
+      const ids = Array.from({ length: 5 }, () => rng.pick(CLASS_IDS));
+      const make = () => partyOf(ids.slice(0, 3), ids.slice(3));
+      const w = simulateCombat({ player: make(), enemy: make(), rng: rng.fork() }).winner;
+      playerScore += w === 'player' ? 1 : w === 'draw' ? 0.5 : 0;
+    }
+    expect(playerScore / n).toBeGreaterThan(0.42);
+    expect(playerScore / n).toBeLessThan(0.58);
+  });
+
   it('always terminates within the tick cap across many random matchups', () => {
     const rng = new Rng('fuzz');
     for (let i = 0; i < 500; i++) {

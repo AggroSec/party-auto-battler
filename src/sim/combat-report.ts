@@ -57,20 +57,10 @@ export function runDuels(fightsPerPair: number, seed: string): DuelMatrix {
   return { winRate, overall };
 }
 
-/** Lower = further forward. Mimics a sensible player until real bots exist (M3). */
-const FRONT_PREFERENCE: Record<ClassId, number> = {
-  warrior: 0,
-  rogue: 1,
-  cleric: 2,
-  necromancer: 3,
-  ranger: 3,
-  mage: 4,
-};
-
 function randomParty(rng: Rng): { party: Party; classes: Set<ClassId> } {
   const ids = Array.from({ length: 5 }, () => rng.pick(CLASS_IDS));
   // Stable sort keeps the random draw order among equal preferences.
-  const placed = [...ids].sort((a, b) => FRONT_PREFERENCE[a] - FRONT_PREFERENCE[b]);
+  const placed = [...ids].sort((a, b) => CLASSES[a].placement - CLASSES[b].placement);
   return { party: partyOf(placed.slice(0, 3), placed.slice(3)), classes: new Set(ids) };
 }
 
@@ -116,10 +106,9 @@ export function runTeamFights(fights: number, seed: string): TeamReport {
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 const flag = (x: number) => (x > OUTLIER_HIGH ? ' ⚠️ high' : x < OUTLIER_LOW ? ' ⚠️ low' : '');
 
-export function formatReport(duels: DuelMatrix, teams: TeamReport, opts: { seed: string; duelsPerPair: number }): string {
+export function formatReport(duels: DuelMatrix, teams: TeamReport, opts: { duelsPerPair: number }): string {
   const name = (id: ClassId) => CLASSES[id].name;
   const lines: string[] = [];
-  lines.push(`Seed \`${opts.seed}\`. Draws count as half a win.`, '');
 
   lines.push(`### Random 5v5 fights (${teams.fights} fights)`, '');
   lines.push('Random 5-unit parties, placed by role (frontliners forward, casters back). Win rate of parties containing at least one of the class.', '');

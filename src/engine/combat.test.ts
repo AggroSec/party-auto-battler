@@ -27,9 +27,25 @@ describe('timeline', () => {
     ]);
   });
 
-  it('breaks exact ties player-first, then by board order', () => {
-    const r = fight(party([pacifist(10), pacifist(10)]), party([pacifist(10)]), 1, 10);
-    expect(ofType(r.events, 'turn').map((t) => t.source)).toEqual(['p0', 'p1', 'e0']);
+  it('breaks cross-side ties with a seeded coin flip, keeping board order within a side', () => {
+    const firsts = new Set<string>();
+    for (let seed = 1; seed <= 40; seed++) {
+      const order = ofType(fight(party([pacifist(10), pacifist(10)]), party([pacifist(10)]), seed, 10).events, 'turn').map(
+        (t) => t.source,
+      );
+      expect([['p0', 'p1', 'e0'], ['e0', 'p0', 'p1']]).toContainEqual(order);
+      firsts.add(order[0]!);
+      // Same seed, same order.
+      expect(ofType(fight(party([pacifist(10), pacifist(10)]), party([pacifist(10)]), seed, 10).events, 'turn').map((t) => t.source)).toEqual(order);
+    }
+    expect(firsts).toEqual(new Set(['p0', 'e0']));
+  });
+
+  it('only flips a coin for genuine ties (a faster unit always goes first)', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const r = fight(party([pacifist(10)]), party([pacifist(11)]), seed, 10);
+      expect(ofType(r.events, 'turn')[0]?.source).toBe('e0');
+    }
   });
 
   it('never lets a dead unit act', () => {
@@ -49,7 +65,7 @@ describe('abilities', () => {
     name: 'Zap',
     description: '',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'melee', amount: { flat: 1 } }],
+    effects: [{ kind: 'damage', target: 'nearest', amount: { flat: 1 } }],
   };
 
   const actions = (p: Party, tickCap: number) =>

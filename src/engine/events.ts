@@ -5,6 +5,9 @@ export type UnitId = string;
 
 export type Winner = Side | 'draw';
 
+/** `source` of damage/death events caused by sudden death rather than a unit. */
+export const OVERTIME_SOURCE = 'overtime';
+
 export interface UnitSnapshot {
   id: UnitId;
   name: string;
@@ -27,6 +30,7 @@ export type CombatEvent =
   | {
       tick: number;
       type: 'damage';
+      /** A unit id, or OVERTIME_SOURCE for sudden-death damage. */
       source: UnitId;
       target: UnitId;
       /** HP actually lost. */
@@ -47,6 +51,8 @@ export type CombatEvent =
       statAfter: number;
     }
   | { tick: number; type: 'death'; target: UnitId; source: UnitId }
+  /** A sudden-death pulse: every living unit takes `percent` of max HP as true damage. */
+  | { tick: number; type: 'overtime'; stage: number; percent: number }
   | { tick: number; type: 'combatEnd'; winner: Winner; reason: 'elimination' | 'tickCap' };
 
 export type CombatEventType = CombatEvent['type'];

@@ -28,8 +28,8 @@ export interface BoardPos {
 
 /**
  * Who an effect hits. Enemy/ally is relative to the unit producing the effect.
- * - melee: frontmost enemy row, preferring the closest column
- * - backlineFirst: lowest-HP enemy in the back row, else melee rule
+ * - nearest: frontmost enemy row, preferring the closest column
+ * - backlineFirst: lowest-HP enemy in the back row, else nearest rule
  * - lowestHp / highestAtk: across all living enemies
  * - randomEnemy: uniform pick via the seeded Rng
  * - enemyFrontRow: every living unit in the frontmost enemy row
@@ -40,7 +40,7 @@ export interface BoardPos {
  *     onAllyDeath: triggerSource = killer, triggerTarget = fallen ally
  */
 export type TargetSelector =
-  | 'melee'
+  | 'nearest'
   | 'backlineFirst'
   | 'lowestHp'
   | 'highestAtk'
@@ -120,10 +120,30 @@ export interface UnitSetup {
   name: string;
   classId: string;
   stats: Stats;
+  /** Melee units deal reduced damage from the back row while their front row stands. */
+  range: Range;
   /** Targeting for basic attacks. Damage is 1x ATK. */
   attackTarget: TargetSelector;
   ability: AbilityDef;
   triggers: readonly TriggeredEffect[];
+}
+
+export type Range = 'melee' | 'ranged';
+
+/**
+ * Class-level content the run layer turns into UnitSetups. Data files
+ * (src/data) provide these; the combat engine itself never sees them.
+ */
+export interface UnitTemplate {
+  id: string;
+  name: string;
+  baseStats: Stats;
+  range: Range;
+  attackTarget: TargetSelector;
+  ability: AbilityDef;
+  triggers: readonly TriggeredEffect[];
+  /** Placement priority for auto-placement: lower = further forward. */
+  placement: number;
 }
 
 export interface Party {

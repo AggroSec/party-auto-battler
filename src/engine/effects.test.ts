@@ -11,7 +11,7 @@ const fight = (player: Party, enemy: Party, tickCap?: number) =>
 describe('effects', () => {
   it('splash damages row neighbours only', () => {
     const s = makeState(party([unit()]), party([unit(), unit(), unit()], [unit()]));
-    applyEffects(s, byId(s, 'p0'), [{ kind: 'damage', target: 'melee', amount: { flat: 10 }, splash: 0.5 }], {}, 0);
+    applyEffects(s, byId(s, 'p0'), [{ kind: 'damage', target: 'nearest', amount: { flat: 10 }, splash: 0.5 }], {}, 0);
     expect(byId(s, 'e0').hp).toBe(10);
     expect(byId(s, 'e1').hp).toBe(15);
     expect(byId(s, 'e2').hp).toBe(20);
@@ -20,7 +20,7 @@ describe('effects', () => {
 
   it('multi-hit effects re-select their target each hit', () => {
     const s = makeState(party([unit()]), party([unit({ stats: { hp: 4 } }), unit()]));
-    applyEffects(s, byId(s, 'p0'), [{ kind: 'damage', target: 'melee', amount: { flat: 5 }, hits: 2 }], {}, 0);
+    applyEffects(s, byId(s, 'p0'), [{ kind: 'damage', target: 'nearest', amount: { flat: 5 }, hits: 2 }], {}, 0);
     expect(byId(s, 'e0').alive).toBe(false);
     expect(byId(s, 'e1').hp).toBe(15);
   });
@@ -36,7 +36,7 @@ describe('effects', () => {
   it('shields absorb damage before HP', () => {
     const s = makeState(party([unit()]), party([unit()]));
     applyEffects(s, byId(s, 'p0'), [{ kind: 'shield', target: 'self', amount: { flat: 4 } }], {}, 0);
-    dealDamage(s, byId(s, 'e0'), byId(s, 'p0'), 6, false, 0);
+    dealDamage(s, byId(s, 'e0'), byId(s, 'p0'), 6, {}, 0);
     expect(byId(s, 'p0')).toMatchObject({ shield: 0, hp: 18 });
     expect(ofType(s.events, 'damage')[0]).toMatchObject({ value: 2, absorbed: 4 });
   });
@@ -75,7 +75,7 @@ describe('triggers', () => {
       { stats: { hp: 100, atk: 0, spd: 1 } },
     );
     const s = makeState(party([unit()]), party([thorny]));
-    dealDamage(s, byId(s, 'p0'), byId(s, 'e0'), 5, false, 0);
+    dealDamage(s, byId(s, 'p0'), byId(s, 'e0'), 5, {}, 0);
     expect(byId(s, 'p0').hp).toBe(18);
   });
 
@@ -105,7 +105,7 @@ describe('triggers', () => {
       { label: 'Harvest', on: 'onAllyDeath', effects: [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 1 } }] },
     ]);
     const s = makeState(party([grim, grim]), party([grim]));
-    dealDamage(s, byId(s, 'e0'), byId(s, 'p0'), 999, true, 0);
+    dealDamage(s, byId(s, 'e0'), byId(s, 'p0'), 999, { pierce: true }, 0);
     const fired = ofType(s.events, 'trigger').map((t) => t.source);
     expect(fired).toEqual(['p1']);
   });
@@ -126,23 +126,23 @@ describe('triggers', () => {
       { stats: { hp: 1000, atk: 0 } },
     );
     const s = makeState(party([thorny]), party([thorny]));
-    dealDamage(s, byId(s, 'p0'), byId(s, 'e0'), 1, true, 0);
+    dealDamage(s, byId(s, 'p0'), byId(s, 'e0'), 1, { pierce: true }, 0);
     expect(ofType(s.events, 'trigger')).toHaveLength(MAX_TRIGGER_DEPTH + 1);
   });
 
-  it('chance-based triggers are seeded', () => {
+  it('chance-based triggers are seeded and fire at roughly their rate', () => {
     const lucky = withTriggers(
       [{ label: 'Lucky', on: 'onAttack', chance: 0.5, effects: [] }],
-      { stats: { atk: 0 } },
+      { stats: { atk: 0, hp: 1000, spd: 50 } },
     );
-    const count = (seed: number) =>
-      ofType(
-        simulateCombat({ player: party([lucky]), enemy: party([unit({ stats: { atk: 0 } })]), rng: new Rng(seed), tickCap: 1000 })
-          .events,
-        'trigger',
-      ).length;
-    expect(count(5)).toBe(count(5));
-    expect(count(5)).toBeGreaterThan(20);
-    expect(count(5)).toBeLessThan(80);
+    const run = (seed: number) => {
+      const r = simulateCombat({ player: party([lucky]), enemy: party([unit({ stats: { atk: 0, hp: 1000 } })]), rng: new Rng(seed) });
+      const attacks = ofType(r.events, 'attack').filter((a) => a.source === 'p0').length;
+      return { procs: ofType(r.events, 'trigger').length, attacks };
+    };
+    expect(run(5)).toEqual(run(5));
+    const { procs, attacks } = run(5);
+    expect(procs / attacks).toBeGreaterThan(0.35);
+    expect(procs / attacks).toBeLessThan(0.65);
   });
 });

@@ -2,6 +2,86 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 2 — Run loop (2026-10-17)
+
+### What was built
+
+**Your M1 design calls**
+- **Sudden death (#1):** from tick 300, a pulse every 10 ticks deals true damage to every unit, growing 5% → 10% → 15%… of max HP. Tick-cap timeouts dropped from 0.15% to 0, and the longest fight is now about 370 ticks.
+- **Back-row melee (#2):** Warriors and Rogues in the back row deal 50% damage while their front row stands, and full damage once it falls. Units now declare melee or ranged. #2 stays open as you asked.
+
+**Run loop (`src/engine/run/`)** is a pure, deterministic reducer over plain JSON state, so saves are ready for later:
+- Play until **10 wins** (complete) or **0 lives** (over), starting with 5 lives. Draws count as neither. Both were your calls.
+- **Shop:** 4 random units at 3g each, reroll for 1g, sell for a 1g refund, and a free refresh every round.
+- **Board:** units auto-place into their preferred row on purchase, and can be moved or swapped anywhere.
+- **Economy:** 10 starting gold, then 5 per round, plus interest (1 per 5 unspent, max 2), plus a streak bonus (+1 at 2 in a row, +2 at 4, for wins *or* losses).
+- **Enemies:** six archetypes (Bandit Brute, Cutthroat, Poacher, Hedge Mage, Cult Acolyte, Bonecaller) unlocking by round.
+  - Party size grows 2 → 3 → 4 → 5 by round 4.
+  - Stats start at 75% and grow each round (+3.75% HP, +2.75% ATK).
+  - Each enemy depends only on seed + round, so rerolling can't change your next fight.
+- All economy and enemy numbers live in `src/data/`.
+
+**Simulator (`npm run sim`):** full runs with two bots (random and sensible). It reports completion rate, the wins distribution, the difficulty curve by round, unspent gold and per-class win rates. The M1 combat probe still runs alongside.
+
+**Debug UI (`npm run dev`):** a new **Run** tab where you can play a whole run. It has the shop, a click-to-move board (back slots drawn between front lanes, matching targeting), fights with the event log and income breakdown, and a run-end banner. The M1 page lives on as **Combat lab**. I verified it by driving a full run in headless Chrome: no console errors.
+
+**Tests:** 129, up from 73. New coverage:
+- sudden death (timing, escalation, true damage, draws, no kill credit)
+- the back-row penalty (on/off, abilities, ranged exempt)
+- economy formulas
+- board placement and moves
+- every shop action and its error cases, plus input immutability
+- win, loss and draw settlement, and run completion and defeat
+- enemy generation (size, unlocks, scaling, placement, determinism)
+- "rerolls don't change the enemy"
+- same seed + actions → same run, and save/resume through JSON
+- fair cross-side tie-breaks (coin flip, mirror matches about 50/50)
+- simulator determinism and a UI render
+
+### Fixed during review
+
+- **Mirror matches were rigged for the player.** When units on both sides were ready on the same tick, the player always acted first. That won 78% of exact mirrors (Brandon's Warrior/Cleric mirror test was a flawless 5-0) and quietly inflated run results. Cross-side ties now go to a **seeded coin flip**, which keeps fights deterministic and makes mirrors about 50/50. A regression test guards it.
+- **Enemy growth retuned** (+4%/+3% → +3.75%/+2.75% per round) to restore the intended ~14% completion now that the player's hidden edge is gone.
+- Recorded Brandon's direction for M3 levelling (weighted random stat gains per class) in DESIGN.md.
+
+### What to playtest (and how)
+
+1. `npm install`, then `npm run dev`. The **Run** tab opens by default.
+2. Play a few runs (change the seed for a different shop and enemies). Worth checking:
+   - **The early game is easy on purpose** (rounds 1–3 are near-certain wins). Does it feel too easy, or like a good warm-up?
+   - **Difficulty bites around rounds 6–8.** Does the ramp feel fair?
+   - **Back-row melee:** put a Rogue in the back and read the log. Its hits should be halved until your front row dies.
+   - **Sudden death and fair mirrors:** in the Combat lab, set *both* sides to **Warrior ×3 front + Cleric ×2 back**, then try these seeds:
+     - `a`: the fight stalls, ⏳ pulses start at tick 300, and both sides fall to the same pulse (a draw at tick 370).
+     - `d`: the enemy wins at tick 238.
+     - `demo`: the player wins at tick 238.
+
+     Across 200 seeds this mirror goes 55 player / 53 enemy / 92 draw. Before the fix, the player won every time.
+   - **Gold:** you'll notice gold piling up once your party is full. That's expected until M3 (see known issues).
+3. `npm run sim` prints all the tables in about 5 seconds.
+
+### Known issues / open questions
+
+- **#5 (needs your call before M3):** should duplicate units merge or grant XP? My suggestion is merging as XP, which gives the shop a second purpose and a gold sink.
+- **No gold sink yet:** bots enter combat with about 32–36 unspent gold. Items and progression (M3) are the planned sinks.
+- **Choices matter only a little yet:** sensible beats random 14.4% to 11.3% on completion. Every unit is at base power until talents and items land in M3.
+- **Enemy scaling is tuned for no player progression** and will be retuned in M3.
+- **I edited CLAUDE.md:** the run-structure lines now say "until 10 wins or 0 lives" and that draws count as neither, matching your answers. Revert it if you'd rather keep the brief untouched.
+- The debug UI is still deliberately plain: no drag-and-drop, animation or icons (M4).
+
+### Simulator balance numbers
+
+2,000 full runs per bot, seed `m2`:
+
+| Bot | Completed (10 wins) | Avg wins | Avg rounds | Avg unspent gold |
+|---|---:|---:|---:|---:|
+| random | 11.3% | 6.45 | 11.0 | 32.2 |
+| sensible | 14.4% | 7.66 | 12.2 | 36.1 |
+
+Sensible-bot fight win rate by round: 99% (round 1), 100%, 100%, 99%, 89%, 79%, **56%** (round 7), 42%, 34%, 29%, 23%, 20%, 11%, 8% (round 14).
+
+Combat probe (role-placed random 5v5): every class is between 44% and 57%, with no outliers, 0 timeouts and a 0% draw rate. Full tables are in [BALANCE.md](BALANCE.md).
+
 ## Milestone 1 — Scaffold + engine core (2026-10-15)
 
 ### What was built

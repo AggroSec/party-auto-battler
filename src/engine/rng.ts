@@ -39,6 +39,11 @@ export class Rng {
     return items[this.int(items.length)] as T;
   }
 
+  /** Current internal state. `new Rng(rng.getState())` resumes the exact sequence (for saves). */
+  getState(): number {
+    return this.state;
+  }
+
   /** Derive an independent generator, e.g. one per combat in a run. */
   fork(): Rng {
     return new Rng(this.int(4294967296));

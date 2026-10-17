@@ -2,6 +2,52 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-17 — Milestone 2
+
+Brandon decided: sudden death (#1, option 3); back-row melee at 50% damage (#2, option 3); play until 10 wins or 0 lives; draws count as neither. Everything below was decided autonomously.
+
+### Combat rules
+- **Sudden death tuning:** starts at tick 300 (about 3× an average fight), pulses every 10 ticks, and deals stage × 5% of max HP as true damage. True damage means DEF and shields can't stall it out, and a % of max HP means it neither favours nor punishes big HP pools: the side holding a higher HP percentage wins. A consequence worth knowing: two untouched units fall on the same pulse, a draw.
+- **Sudden-death damage has no source unit.** It's logged with `source: 'overtime'`, credits no damage or kills, and doesn't fire `onKill`. `onHurt` and `onAllyDeath` still fire, without a `triggerSource`.
+- **The back-row melee penalty covers all damage a melee unit deals,** abilities and triggers included, not just basic attacks. Otherwise Rogue's Backstab (its main damage) would dodge the trade-off. It's checked per hit, so it lifts the moment the front row falls. It's a soft cost that talents and items can remove later (see the build-variety note in #2).
+- **Cross-side ties are broken by a seeded coin flip** (from M2 review). It's flipped once per tick, and only when units on opposite sides tie on gauge and SPD, so the Rng isn't consumed needlessly. Within a side, board order still decides. Exact mirror matches went from 78/22 to about 50/50, and a regression test now guards it.
+- **Units declare `range: 'melee' | 'ranged'`** explicitly. The `'melee'` target selector was renamed `'nearest'`, because casters use it too and "melee" now means the unit property.
+
+### Run loop
+- **Pure reducer over JSON-safe state:** `createRun`, `applyShopAction`, `fight`. The UI, the simulator bots and future saves all drive the same functions. `RunState` round-trips through `JSON.stringify` (tested), ready for `localStorage` in M4/M5.
+- **Three RNG streams:**
+  - the shop draws from a stream stored in `RunState`
+  - enemies use `seed:enemy:round`
+  - combat uses `seed:combat:round`
+
+  So rerolls never change the upcoming enemy, and two players on the same seed face the same enemies.
+- **Content is passed in** as a `RunContext` (config + content), not imported by the engine. Run-layer tests use small synthetic content, so rebalancing classes never breaks rule tests.
+- **Selling is allowed** (refund 1g). With a fixed 5-slot party, replacing a unit would otherwise be impossible.
+- **No bench and no shop freezing.** Neither is in the brief, and both are visible mechanics. They can be added later if wanted.
+- **Fighting needs at least one unit** (`emptyBoard` error) instead of auto-losing. This prevents a misclick from costing a life.
+- **Duplicates are allowed with no merging.** Merging is a design question (raised in DESIGN.md).
+- **The shop refreshes free each round,** and unspent gold carries over (it's needed for interest).
+- **Unit names are random picks from a name list,** shown as "Brom the Warrior". They're flavour that makes the event log easier to follow.
+
+### Economy (first pass, tune again in M3)
+- Starting gold is 10, enough for 3 units in round 1. Base income is 5 (about 1–2 units a round).
+- Interest is +1 per 5 gold, capped at **2** rather than 3. With nothing to spend on after the party fills, a higher cap only inflates hoards.
+- Streak bonuses apply to win *and* loss streaks: momentum and a comeback cushion.
+- **Known gap:** there's no gold sink once the party is full, and bots average 30+ unspent gold. Items and progression in M3 are the intended sinks.
+
+### Enemies
+- **Archetypes reuse class templates** with small stat multipliers (a Brute is a Warrior with +10% HP and −10% ATK). One combat system, and the enemy roster reads as its own faction.
+- **Archetypes unlock by round** (Hedge Mage from round 2, Acolyte from 3, Bonecaller from 5), so early fights are simpler to read.
+- **Difficulty curve:** the first scaling (+6% HP / +5% ATK per round, 5 units at round 6) produced a cliff, with sensible-bot win rate going from 74% in round 5 to 1% in round 6. Replaced with full-size parties by round 4 at 75% stats, growing 4% HP / 3% ATK per round, which gives a gradual decline. After the tie-break fix removed the player's hidden edge, sensible-bot completion fell from 14% to 6%, so growth was eased to 3.75% HP / 2.75% ATK, restoring about 14%. Player units don't grow until M3, so this curve will be retuned then.
+
+### Simulator
+- Two bots for now: **random** and **sensible** (wants 2 frontliners, then class variety). The brief's greedy and synergy-focused bots need M3 systems to mean anything.
+- The run report covers: completion rate, wins distribution, win rate by round (the difficulty curve), average unspent gold (economy health), and fight win rate per class.
+
+### UI
+- **The debug view gains a playable Run tab:** shop, a click-to-move board laid out with back slots between front lanes, fight and event log, and a run-end banner.
+- **The UI was verified in headless Chrome.** A script drives Chrome over the DevTools protocol using Node's built-in WebSocket, plays a full run and takes screenshots. No test dependency was added. Real drag-and-drop arrives in M4.
+
 ## 2026-10-17 — Toolchain: Node 24
 
 - **Local dev moved to Node 24 LTS** (via nvm), matching CI's `lts/*`. Node 20 stopped receiving security patches in April 2026. This also retires the Debian npm 9 workaround.
@@ -25,6 +71,7 @@ Dated record of choices Claude Code made autonomously under the working agreemen
 - **The engine doesn't look up content by id.** `simulateCombat` takes fully resolved `UnitSetup`s (stats, attack target, ability, triggers). `src/data/units.ts` builds them from class data. The run loop and build systems (M2/M3) will layer level, talents and items on top before combat, and the engine stays content-agnostic.
 - **Timeline:** an SPD-filled action gauge with threshold 100, rather than a priority queue of next-action times. It's simple to reason about, it gives integer ticks for the UI to play back, and overflow carry-over keeps speed ratios exact. SPD is clamped to 1–100, so at most one action per tick.
 - **Tie-break order:** gauge → SPD → player side → board order. Player-first is a slight player bias, which suits a single-player game. The simulator alternates sides in duels to cancel it out.
+  - **Correction (2026-10-17):** this wasn't slight. Brandon's mirror-match test in the Combat lab showed the player winning 78% of exact mirrors, because the side that always acts first on shared ticks snowballs. It also inflated M2's run completion rate. Replaced with a seeded coin flip; see the M2 entry.
 - **Damage formula:** `max(1, round(raw × 10/(10+DEF)))`. Multiplicative with diminishing returns, so DEF stacking (talents/items later) can't create invulnerable units, and stats can stay small and readable.
 - **Abilities use turn-count cooldowns** ("every Nth turn") rather than mana. They're readable on a unit card, they interact naturally with SPD (faster units cast more often), and they're easy for talents to modify later.
 - **Buffs last for the whole combat** (no durations) in M1. Timed effects and debuffs can be added to the effect system when a talent or item needs them.
