@@ -72,6 +72,17 @@ describe('shop extras', () => {
     });
   });
 
+  it('sellItem frees the slot for the item refund', () => {
+    let s = setup([]);
+    s.board.front[0]!.items = ['sword', 'boots'];
+    const gold = s.gold;
+    s = act(s, { type: 'sellItem', from: front0, item: 0 }, ctx);
+    expect(s.board.front[0]?.items).toEqual(['boots']);
+    expect(s.gold).toBe(gold + ctx.config.progression.itemSellRefund);
+    expect(applyShopAction(s, { type: 'sellItem', from: front0, item: 3 }, ctx)).toEqual({ ok: false, error: 'noSuchItem' });
+    expect(applyShopAction(s, { type: 'sellItem', from: front1, item: 0 }, ctx)).toEqual({ ok: false, error: 'emptySlot' });
+  });
+
   it('selling refunds equipped items and drops the unit’s pending choices', () => {
     let s = setup([{ kind: 'training', classId: 'tank', xp: 2, cost: 3 }]);
     s.board.front[0]!.items = ['sword', 'boots'];

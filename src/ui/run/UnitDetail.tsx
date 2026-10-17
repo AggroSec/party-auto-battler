@@ -9,6 +9,7 @@ export function UnitDetail({
   ctx,
   movingItem,
   onMoveItem,
+  onSellItem,
   onSell,
 }: {
   unit: OwnedUnit;
@@ -17,6 +18,7 @@ export function UnitDetail({
   ctx: RunContext;
   movingItem: number | null;
   onMoveItem: (index: number | null) => void;
+  onSellItem: (index: number) => void;
   onSell: () => void;
 }) {
   const { content, config } = ctx;
@@ -65,7 +67,8 @@ export function UnitDetail({
             <li key={`${id}${i}`}>
               🎒 <strong>{item?.name ?? id}</strong>: {item?.description}
               {bonus && <span className="bonus"> {item?.classBonus?.description}</span>}{' '}
-              <button onClick={() => onMoveItem(movingItem === i ? null : i)}>{movingItem === i ? 'Cancel move' : 'Move'}</button>
+              <button onClick={() => onMoveItem(movingItem === i ? null : i)}>{movingItem === i ? 'Cancel move' : 'Move'}</button>{' '}
+              <button onClick={() => onSellItem(i)}>Sell (+{prog.itemSellRefund}g)</button>
             </li>
           );
         })}

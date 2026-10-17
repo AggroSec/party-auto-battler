@@ -31,7 +31,7 @@ const ERRORS: Record<RunError, string> = {
   boardFull: 'Your party is full (5 units). Sell someone first.',
   emptyBoard: 'Recruit at least one unit before fighting.',
   needsTarget: 'Select a unit on your board first, then buy.',
-  itemSlotsFull: 'That unit already has 2 items.',
+  itemSlotsFull: 'That unit already has 2 items. Sell or move one first.',
   wrongClass: 'That training is for a different class. Select a matching unit.',
   noSuchItem: 'No such item.',
   pendingChoice: 'Make your level-up choices before fighting.',
@@ -184,6 +184,10 @@ export function RunView() {
                 ctx={ctx}
                 movingItem={mode.kind === 'moveItem' ? mode.index : null}
                 onMoveItem={(index) => setMode(index === null ? { kind: 'select' } : { kind: 'moveItem', index })}
+                onSellItem={(item) => {
+                  dispatch({ type: 'sellItem', from: selected, item });
+                  setMode({ kind: 'select' });
+                }}
                 onSell={() => {
                   if (dispatch({ type: 'sell', from: selected })) setSelected(null);
                 }}

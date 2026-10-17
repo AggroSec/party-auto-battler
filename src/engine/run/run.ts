@@ -123,6 +123,15 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
       to.items.push(itemId);
       return { ok: true, state: next };
     }
+    case 'sellItem': {
+      if (!isValidSlot(action.from)) return fail('invalidSlot');
+      const unit = getSlot(next.board, action.from);
+      if (!unit) return fail('emptySlot');
+      if (unit.items[action.item] === undefined) return fail('noSuchItem');
+      unit.items.splice(action.item, 1);
+      next.gold += progression.itemSellRefund;
+      return { ok: true, state: next };
+    }
     case 'reroll': {
       if (next.gold < ctx.config.rerollCost) return fail('notEnoughGold');
       next.gold -= ctx.config.rerollCost;

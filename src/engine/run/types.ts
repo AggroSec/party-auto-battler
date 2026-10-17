@@ -167,6 +167,8 @@ export type ShopAction =
   | { type: 'sell'; from: SlotRef }
   | { type: 'move'; from: SlotRef; to: SlotRef }
   | { type: 'moveItem'; from: SlotRef; item: number; to: SlotRef }
+  /** Remove an item from a unit for `progression.itemSellRefund` gold, freeing the slot. */
+  | { type: 'sellItem'; from: SlotRef; item: number }
   | { type: 'reroll' }
   /** Resolve the first pending choice by option index. */
   | { type: 'choose'; option: number };
