@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { buildRunContext } from '../data/content.ts';
 import {
   activeSynergies,
@@ -15,6 +15,7 @@ import {
   type SlotRef,
 } from '../engine/run/index.ts';
 import { CombatReport } from './CombatReport.tsx';
+import { logPlay, newRunId } from './playlog.ts';
 import { BoardPanel, sameSlot } from './run/BoardPanel.tsx';
 import { ChoicePanel } from './run/ChoicePanel.tsx';
 import { ShopPanel } from './run/ShopPanel.tsx';
@@ -49,6 +50,7 @@ export function RunView() {
   const ctx = useMemo(() => buildRunContext(), []);
   const [seed, setSeed] = useState('run-1');
   const [run, setRun] = useState(() => createRun('run-1', ctx));
+  const [runId, setRunId] = useState(newRunId);
   const [selected, setSelected] = useState<SlotRef | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: 'select' });
   const [lastFight, setLastFight] = useState<Extract<FightResult, { ok: true }> | null>(null);
@@ -58,8 +60,12 @@ export function RunView() {
   const synergies = useMemo(() => activeSynergies(boardUnits(run.board), ctx.content), [run.board, ctx]);
   const selectedUnit = selected ? (getSlot(run.board, selected) ?? null) : null;
 
+  // Dev play log: one start entry per run (seed), then every action and fight.
+  useEffect(() => logPlay({ type: 'start', run: runId, seed: run.seed }), [runId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const dispatch = (action: ShopAction) => {
     const r = applyShopAction(run, action, ctx);
+    logPlay(r.ok ? { type: 'action', run: runId, action } : { type: 'action', run: runId, action, error: r.error });
     if (r.ok) {
       setRun(r.state);
       setError(null);
@@ -90,6 +96,7 @@ export function RunView() {
   const onFight = () => {
     const r = fight(run, ctx);
     if (!r.ok) return setError(ERRORS[r.error]);
+    logPlay({ type: 'fight', run: runId, round: run.round, winner: r.combat.winner });
     setRun(r.state);
     setLastFight(r);
     setMode({ kind: 'select' });
@@ -98,6 +105,7 @@ export function RunView() {
 
   const newRun = () => {
     setRun(createRun(seed, ctx));
+    setRunId(newRunId());
     setLastFight(null);
     setSelected(null);
     setMode({ kind: 'select' });

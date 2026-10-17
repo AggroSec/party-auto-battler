@@ -27,3 +27,4 @@ export { enemyCount, generateEnemy, roundScaling, type EnemyParty } from './enem
 export { grantXp, maxLevel, rollGrowth, sample, talentOptions } from './progression.ts';
 export { rollShop } from './shop.ts';
 export type * from './types.ts';
+export type { PlayLogEntry } from './log.ts';
