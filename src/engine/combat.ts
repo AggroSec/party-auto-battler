@@ -126,6 +126,7 @@ export function readyUnits(state: CombatState): CombatUnit[] {
 
 function takeTurn(state: CombatState, unit: CombatUnit): void {
   emit(state, { tick: state.tick, type: 'turn', source: unit.id });
+  if (unit.taunt > 0) unit.taunt -= 1;
   fireTriggers(state, unit, 'onTurnStart', {}, 0);
   if (!unit.alive || checkWinner(state) !== null) return;
 

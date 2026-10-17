@@ -128,5 +128,12 @@ function applyEffect(
       }
       return;
     }
+    case 'taunt': {
+      for (const target of selectTargets(state, source, effect.target, ctx)) {
+        target.taunt = Math.max(target.taunt, effect.turns);
+        emit(state, { tick: state.tick, type: 'taunt', source: source.id, target: target.id, turns: target.taunt });
+      }
+      return;
+    }
   }
 }

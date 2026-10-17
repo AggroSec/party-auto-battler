@@ -102,3 +102,31 @@ describe('ally and context selectors', () => {
     expect(selectTargets(s, p0, 'triggerSource', { triggerSource: e0 })).toEqual([]);
   });
 });
+
+describe('taunt', () => {
+  it('redirects single-target selectors to the taunting unit', () => {
+    const s = makeState(party([unit()]), party([unit(), unit(), unit()], [unit(), unit()]));
+    byId(s, 'e4').hp = 1;
+    byId(s, 'e2').taunt = 1;
+    for (const sel of ['nearest', 'backlineFirst', 'lowestHp', 'highestAtk', 'randomEnemy'] as const) {
+      expect(ids(selectTargets(s, byId(s, 'p0'), sel))).toEqual(['e2']);
+    }
+  });
+
+  it('leaves area and ally selectors alone', () => {
+    const s = makeState(party([unit()]), party([unit(), unit()], [unit()]));
+    byId(s, 'e1').taunt = 1;
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'enemyFrontRow'))).toEqual(['e0', 'e1']);
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'allEnemies'))).toEqual(['e0', 'e1', 'e3']);
+  });
+
+  it('applies the normal rule among several taunters, and lapses when they die', () => {
+    const s = makeState(party([unit()]), party([unit(), unit(), unit()]));
+    byId(s, 'e1').taunt = 1;
+    byId(s, 'e2').taunt = 1;
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'nearest'))).toEqual(['e1']);
+    byId(s, 'e1').alive = false;
+    byId(s, 'e2').alive = false;
+    expect(ids(selectTargets(s, byId(s, 'p0'), 'nearest'))).toEqual(['e0']);
+  });
+});

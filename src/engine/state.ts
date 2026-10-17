@@ -27,6 +27,8 @@ export interface CombatUnit {
   shield: number;
   gauge: number;
   cooldown: number;
+  /** Own turns of taunt left (0 = not taunting). */
+  taunt: number;
   alive: boolean;
   /** Has dropped below 50% HP this combat (onBloodied fires once). */
   bloodied: boolean;
@@ -83,6 +85,7 @@ export function createCombatUnits(party: Party, side: Side): CombatUnit[] {
       shield: 0,
       gauge: 0,
       cooldown: setup.ability.initialCooldown ?? setup.ability.cooldown,
+      taunt: 0,
       alive: true,
       bloodied: false,
       triggerFires: new Map(),

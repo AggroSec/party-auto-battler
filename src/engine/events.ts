@@ -42,6 +42,7 @@ export type CombatEvent =
   | { tick: number; type: 'heal'; source: UnitId; target: UnitId; value: number; hpAfter: number }
   | { tick: number; type: 'shield'; source: UnitId; target: UnitId; value: number; shieldAfter: number }
   | { tick: number; type: 'cooldown'; source: UnitId; target: UnitId; turns: number; cooldownAfter: number }
+  | { tick: number; type: 'taunt'; source: UnitId; target: UnitId; turns: number }
   /** Stat change; `value` is negative for debuffs. */
   | {
       tick: number;

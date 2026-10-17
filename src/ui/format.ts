@@ -28,6 +28,8 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
       return `  ${n(e.target)} ${e.value >= 0 ? '+' : ''}${e.value} ${e.stat.toUpperCase()} → ${e.statAfter}`;
     case 'cooldown':
       return `  ${n(e.target)}'s ability ${e.turns < 0 ? 'hastened' : 'delayed'} (${e.cooldownAfter} turn${e.cooldownAfter === 1 ? '' : 's'} left)`;
+    case 'taunt':
+      return `  ${n(e.target)} taunts the enemy (${e.turns} turn${e.turns === 1 ? '' : 's'})`;
     case 'overtime':
       return `⏳ Sudden death! Everyone loses ${Math.round(e.percent * 100)}% max HP.`;
     case 'death':

@@ -100,3 +100,26 @@ describe('new triggers', () => {
     expect(ofType(s.events, 'trigger')).toHaveLength(0);
   });
 });
+
+describe('taunt', () => {
+  it('draws attacks for the taunter\'s next N turns, then lapses', () => {
+    const taunter = unit({
+      stats: { hp: 200, atk: 0, spd: 5 },
+      triggers: [{ label: 'Challenge', on: 'startOfCombat', effects: [{ kind: 'taunt', target: 'self', turns: 2 }] }],
+    });
+    const squishy = unit({ stats: { hp: 200, atk: 0, spd: 1 } });
+    const assassin = unit({ stats: { atk: 1 }, attackTarget: 'backlineFirst' });
+    const r = simulateCombat({ player: party([taunter], [squishy]), enemy: party([assassin]), rng: new Rng(1), tickCap: 50 });
+    expect(ofType(r.events, 'taunt')[0]).toMatchObject({ source: 'p0', target: 'p0', turns: 2 });
+    // The enemy (SPD 10) acts at ticks 10..50; the taunter's turns at 20 and 40 tick the taunt down.
+    const enemyAttacks = ofType(r.events, 'attack').filter((a) => a.source === 'e0');
+    expect(enemyAttacks.map((a) => a.target)).toEqual(['p0', 'p0', 'p0', 'p0', 'p3']);
+  });
+
+  it('reapplying refreshes the duration instead of stacking', () => {
+    const s = makeState(party([unit()]), party([tough()]));
+    const taunt = { kind: 'taunt', target: 'self', turns: 2 } as const;
+    applyEffects(s, byId(s, 'p0'), [taunt, taunt], {}, 0);
+    expect(byId(s, 'p0').taunt).toBe(2);
+  });
+});

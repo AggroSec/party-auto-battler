@@ -38,7 +38,7 @@ describe('run simulator', () => {
     for (const bot of BOTS) {
       let s = createRun('lv', ctx);
       s = bot.shop(s, ctx, new Rng(2));
-      s.pending = [{ uid: s.board.front[0]?.uid ?? s.board.back[0]!.uid, level: 2, kind: 'talent', options: ['warrior/bulwark', 'warrior/polearm'] }];
+      s.pending = [{ uid: s.board.front[0]?.uid ?? s.board.back[0]!.uid, level: 2, kind: 'talent', options: ['warrior/challenge', 'warrior/polearm'] }];
       s.board.front[0] ??= s.board.back[0]!;
       expect(resolvePending(bot, s, ctx, new Rng(3)).pending).toEqual([]);
     }

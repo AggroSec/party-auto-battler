@@ -48,22 +48,25 @@ export function selectTargets(
   ctx: TargetContext = {},
 ): CombatUnit[] {
   const enemies = living(state, opponent(source.side));
+  // Single-target enemy selectors must pick a taunting unit if any are alive.
+  const taunters = enemies.filter((u) => u.taunt > 0);
+  const pool = taunters.length > 0 ? taunters : enemies;
   const allies = living(state, source.side);
   const one = (u: CombatUnit | undefined) => (u ? [u] : []);
 
   switch (selector) {
     case 'nearest':
-      return one(nearestTarget(source, enemies));
+      return one(nearestTarget(source, pool));
     case 'backlineFirst': {
-      const back = enemies.filter((u) => u.pos.row === 'back');
-      return back.length > 0 ? one(minBy(back, (u) => u.hp)) : one(nearestTarget(source, enemies));
+      const back = pool.filter((u) => u.pos.row === 'back');
+      return back.length > 0 ? one(minBy(back, (u) => u.hp)) : one(nearestTarget(source, pool));
     }
     case 'lowestHp':
-      return one(minBy(enemies, (u) => u.hp));
+      return one(minBy(pool, (u) => u.hp));
     case 'highestAtk':
-      return one(minBy(enemies, (u) => -u.atk));
+      return one(minBy(pool, (u) => -u.atk));
     case 'randomEnemy':
-      return enemies.length > 0 ? [state.rng.pick([...enemies].sort(byOrder))] : [];
+      return pool.length > 0 ? [state.rng.pick([...pool].sort(byOrder))] : [];
     case 'enemyFrontRow':
       return frontmostRow(enemies).sort(byOrder);
     case 'allEnemies':

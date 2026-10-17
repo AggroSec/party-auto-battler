@@ -32,6 +32,7 @@ export interface BoardPos {
  * - backlineFirst: lowest-HP enemy in the back row, else nearest rule
  * - lowestHp / highestAtk: across all living enemies
  * - randomEnemy: uniform pick via the seeded Rng
+ *   (these five only consider taunting enemies while any are alive)
  * - enemyFrontRow: every living unit in the frontmost enemy row
  * - triggerSource / triggerTarget: the other units involved in a trigger
  *     onHurt:      triggerSource = attacker
@@ -86,7 +87,13 @@ export type Effect =
    * Shifts the target's ability cooldown by `turns`: negative = cast sooner
    * (haste), positive = delay. A hasted ability casts no sooner than next turn.
    */
-  | { kind: 'cooldown'; target: TargetSelector; turns: number };
+  | { kind: 'cooldown'; target: TargetSelector; turns: number }
+  /**
+   * The target draws fire: enemies' single-target attacks and abilities must
+   * pick a taunting unit while one is alive. Area effects are unaffected.
+   * Lasts for the target's next `turns` turns; reapplying refreshes, not stacks.
+   */
+  | { kind: 'taunt'; target: TargetSelector; turns: number };
 
 export type TriggerEvent =
   | 'startOfCombat'

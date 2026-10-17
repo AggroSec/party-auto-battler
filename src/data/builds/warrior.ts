@@ -7,8 +7,8 @@ export const warriorTalents = [
   talent('warrior/second-wind', 'Second Wind', 'The first time you drop below 50% HP, heal 30% of max HP.', trig(
     on('onBloodied', 'Second Wind', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.3 } }]),
   )),
-  talent('warrior/bulwark', 'Bulwark', 'Start of combat: shield yourself for 4 + 100% DEF.', trig(
-    on('startOfCombat', 'Bulwark', [{ kind: 'shield', target: 'self', amount: { flat: 4, def: 1 } }]),
+  talent('warrior/challenge', 'Challenge', 'Start of combat: taunt for 1 turn.', trig(
+    on('startOfCombat', 'Challenge', [{ kind: 'taunt', target: 'self', turns: 1 }]),
   )),
   talent('warrior/polearm', 'Polearm Training', 'Fight at full strength from the back row. +1 ATK.', { reach: true, stats: { atk: 1 } }),
 ];
@@ -17,14 +17,17 @@ export const knight = advanced({
   id: 'knight',
   name: 'Knight',
   baseClassId: 'warrior',
-  description: 'Holy protector who shields the whole party.',
+  description: 'Holy protector who shields the party and draws enemy fire.',
   tags: ['martial', 'guardian', 'divine'],
   ability: {
     id: 'holy-bulwark',
     name: 'Holy Bulwark',
-    description: 'Every 3rd turn: shield all allies for 3 + 150% DEF.',
+    description: 'Every 3rd turn: shield all allies for 2 + 100% DEF and taunt for 1 turn.',
     cooldown: 3,
-    effects: [{ kind: 'shield', target: 'allAllies', amount: { flat: 3, def: 1.5 } }],
+    effects: [
+      { kind: 'shield', target: 'allAllies', amount: { flat: 2, def: 1 } },
+      { kind: 'taunt', target: 'self', turns: 1 },
+    ],
   },
   modifier: {
     stats: { hp: 8, def: 2 },
