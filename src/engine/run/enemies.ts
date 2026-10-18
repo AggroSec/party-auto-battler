@@ -18,8 +18,8 @@ export function enemyCount(round: number, content: RunContent): number {
 
 /** Per-round multiplier applied on top of each archetype's own multipliers. */
 export function roundScaling(round: number, content: RunContent): Partial<Stats> {
-  const { baseMultiplier, hpGrowthPerRound, atkGrowthPerRound } = content.enemyScaling;
-  const r = round - 1;
+  const { baseMultiplier, hpGrowthPerRound, atkGrowthPerRound, growthUntilRound } = content.enemyScaling;
+  const r = Math.min(round, growthUntilRound ?? round) - 1;
   return { hp: baseMultiplier + hpGrowthPerRound * r, atk: baseMultiplier + atkGrowthPerRound * r };
 }
 

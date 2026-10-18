@@ -54,6 +54,8 @@ export interface EnemyScaling {
   /** HP and ATK grow by this fraction per round after the first. */
   hpGrowthPerRound: number;
   atkGrowthPerRound: number;
+  /** Growth stops after this round (later rounds stay at its multiplier). Omit for no cap. */
+  growthUntilRound?: number;
 }
 
 /** Content the run layer needs. Built from src/data; synthetic in tests. */

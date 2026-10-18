@@ -38,6 +38,12 @@ describe('enemy generation', () => {
     expect(r3.stats.atk).toBe(6);
   });
 
+  it('stops growing after growthUntilRound', () => {
+    const capped = { ...content, enemyScaling: { ...content.enemyScaling, growthUntilRound: 4 } };
+    expect(roundScaling(9, capped)).toEqual(roundScaling(4, capped));
+    expect(roundScaling(9, content).hp).toBeGreaterThan(roundScaling(4, content).hp!);
+  });
+
   it('applies archetype multipliers', () => {
     const beefy = makeCtx({ enemies: [{ ...ARCHETYPES.grunt!, statMultiplier: { hp: 2 } }], content: { synergies: [] } });
     expect(units(generateEnemy('s', 1, beefy))[0]!.stats.hp).toBe(60);

@@ -22,18 +22,20 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
 export const ENEMY_SCALING: EnemyScaling = {
   unitsByRound: [2, 3, 4, 5],
   // M5: players now choose their stat points (stronger than the old random
-  // rolls), so enemies start at full strength and grow 8% HP / 5% ATK per
-  // round on top of their own levels.
+  // rolls), so enemies start at full strength and grow 9% HP / 5.5% ATK per
+  // round through round 10, then stop: the late game stays hard without
+  // becoming a wall for comeback runs.
   baseMultiplier: 1,
-  hpGrowthPerRound: 0.08,
-  atkGrowthPerRound: 0.05,
+  hpGrowthPerRound: 0.09,
+  atkGrowthPerRound: 0.055,
+  growthUntilRound: 10,
 };
 
 /** Enemies level, advance and gear up alongside the player. Tuned with `npm run sim`. */
 export const ENEMY_PROGRESSION: EnemyProgression = {
   // Fractional: e.g. 2.4 = each unit is level 3 with 40% chance, else level 2.
   // M5: a gentler climb through level 3 (advanced classes) and a plateau
-  // after round 10, so the late game is hard without being a wall.
-  levelByRound: [1, 1.3, 1.7, 2.1, 2.4, 2.7, 3, 3.3, 3.6, 3.9, 4.1, 4.3, 4.4, 4.5],
-  itemsByRound: [0, 0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.3, 1.4, 1.5, 1.6],
+  // after round 10.
+  levelByRound: [1, 1.3, 1.7, 2.1, 2.4, 2.7, 3, 3.3, 3.6, 3.9, 4, 4.1, 4.1, 4.2],
+  itemsByRound: [0, 0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.3, 1.4, 1.4, 1.4],
 };
