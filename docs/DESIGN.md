@@ -10,7 +10,11 @@
 | Run loop (shop, gold, rounds, lives, enemies) | ✅ Milestone 2 |
 | Builds (XP, talents, advanced classes, items, synergies) | ✅ Milestone 3 |
 | Playable UI (screens, drag-to-position, combat playback, run summary) | ✅ Milestone 4 |
-| Balance, juice, credits, meta unlocks | Milestone 5 |
+| Progression, balance and new classes (stat points, Monk/Bard/Druid/Warlock/Engineer, summons) | ✅ Milestone 5 |
+| Level cap 10, tertiary classes at level 7, ability-granting talents | Milestone 6 |
+| Meta progression (difficulty ladder, achievements, unlocks, starting perks, daily seed) | Milestone 7 |
+| Juice (icons, sound, credits) | Milestone 8 |
+| Ship (GitHub Pages, README) | Milestone 9 |
 
 ## Run structure
 
@@ -31,40 +35,41 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 | Unit cost | 3 |
 | Sell refund | 1 |
 | Reroll | 1 (the shop refreshes for free each round) |
-| Shop size | 4 unit slots + 2 extra slots (items or training) |
+| Shop size | 4 unit slots + 2 extra slots (items or training); with a full board, 2 unit slots + 4 extra slots |
 | Items | 3–5 gold |
 | Training | 3 gold for +2 XP |
 
 - Unspent gold carries over between rounds.
-- The shop offers starter classes with equal odds. Unlocked classes (Necromancer) join the pool through meta progression (M5).
-- Bought units auto-place into their preferred row (Warrior and Rogue front, others back), overflowing to any empty slot. Units can be moved freely; moving onto an occupied slot swaps the two.
+- The shop offers the ten starter classes with equal odds. Unlocked classes (Necromancer) join the pool through meta progression (Milestone 7).
+- **Once your board is full,** two of the four recruit slots become item/training slots, since recruits are then only useful as replacements. *(Brandon, M5.)*
+- Bought units auto-place into their preferred row (Warrior, Rogue and Monk front, others back), overflowing to any empty slot. Units can be moved freely; moving onto an occupied slot swaps the two.
 - Duplicates of a class are allowed and never merge (#5, Brandon's call).
-- **Extra slots** roll an item, or (35% of the time, if you own a unit) **training** for one of the classes on your board, e.g. "Warrior Training: +2 XP to one Warrior". Training is class-specific and random, so you reroll to chase XP for the unit you want (#5).
+- **Extra slots** roll an item, or (35% of the time, if you own a unit) **training** for one of the classes on your board, e.g. "Warrior Training: +2 XP to one Warrior". Training is class-specific and random, so you reroll to chase XP for the unit you want (#5). It's only offered for classes with a unit below the level cap, and a max-level unit can't take it. *(Brandon, M5.)*
 - Items and training go to the unit you select. Items can be moved between units in the shop, or sold on their own for 1 gold to free the slot. Selling a unit refunds 1 gold plus 1 per equipped item.
 
 ## Enemies
 
-- Each round's enemy party is generated from **archetypes** (`src/data/enemies.ts`): Bandit Brute (Warrior), Cutthroat (Rogue), Poacher (Ranger), Hedge Mage (Mage, round 2+), Cult Acolyte (Cleric, round 3+) and Bonecaller (Necromancer, round 5+).
+- Each round's enemy party is generated from **archetypes** (`src/data/enemies.ts`): Bandit Brute (Warrior), Cutthroat (Rogue), Poacher (Ranger), Hedge Mage (Mage, round 2+), Temple Brawler (Monk, 2+), Cult Acolyte (Cleric, 3+), Wandering Minstrel (Bard, 3+), Grove Keeper (Druid, 3+), Goblin Tinker (Engineer, 4+), Blood Cultist (Warlock, 4+) and Bonecaller (Necromancer, 5+).
 - Party size by round: 2, 3, 4, then 5 from round 4.
-- **Enemies develop like players do.** Each enemy unit is levelled for the round, making random talent and advanced-class choices, and carries random items. Levels and item counts are fractional averages (e.g. level 2.4 = each unit is level 3 with 40% chance), so enemy power ramps smoothly instead of in steps: level 1 → 5 over rounds 1–14, 0 → 2 items over rounds 1–12.
+- **Enemies develop like players do.** Each enemy unit is levelled for the round, making random talent and advanced-class choices, spends its stat points on its class's recommended spread, and carries random items. Levels and item counts are fractional averages (e.g. level 2.4 = each unit is level 3 with 40% chance), so enemy power ramps smoothly instead of in steps: level 1 → 3 by round 7, then up to 4.5 by round 14; 0 → 1.6 items over rounds 1–12.
 - Synergies apply to enemies too.
-- On top of that, HP and ATK start at **95%** and grow **+7% HP / +4.5% ATK per round**.
+- On top of that, HP and ATK start at **100%** and grow **+8% HP / +5% ATK per round**.
 - The enemy depends only on the run seed and round number, so rerolling or reshuffling your party never changes who you fight.
 
 ## Board
 
 - Each side has a **front row (3 slots)** and a **back row (2 slots)**.
 - The back row's slots sit *between* the front row's lanes: back slot 0 is between front 0 and 1, back slot 1 is between front 1 and 2. This matters for nearest-lane targeting.
-- **Back-row melee:** melee units (Warrior, Rogue) in the back row deal **50% damage** while any ally stands in their front row. Once the front row falls, they hit at full strength. This applies to all their damage, abilities included. *(Issue #2, option 3; kept open to revisit with talents and items.)*
+- **Back-row melee:** melee units (Warrior, Rogue, Monk, and melee summons like the Treant) in the back row deal **50% damage** while any ally stands in their front row. Once the front row falls, they hit at full strength. This applies to all their damage, abilities included. *(Issue #2, option 3; kept open to revisit with talents and items.)*
 
 ## Stats
 
 | Stat | Meaning | Typical range (base) |
 |---|---|---|
-| HP | Health. 0 = dead. | 22–42 |
+| HP | Health. 0 = dead. | 24–42 |
 | ATK | Basic attack damage; most abilities scale off it. | 4–7 |
 | DEF | Damage reduction with diminishing returns. | 0–3 |
-| SPD | How fast the action gauge fills. | 8–13 |
+| SPD | How fast the action gauge fills. | 8–14 |
 
 ## Combat rules
 
@@ -94,6 +99,7 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 | `randomEnemy` | Uniform random (seeded). |
 | `enemyFrontRow` | Every living unit in the frontmost enemy row. |
 | `allEnemies` / `allAllies` | Everyone on that side. |
+| `otherAllies` | Every ally except the unit itself. |
 | `self` | The unit itself. |
 | `lowestHpAlly` | Ally (including self) with the lowest HP **percentage**. |
 | `triggerSource` / `triggerTarget` | The other unit involved in a trigger (see below). |
@@ -106,7 +112,9 @@ Ties are always broken by board order, so targeting is deterministic.
 
 All special behaviour (class abilities now, talents and items later) is data: a list of **effects** fired by an ability or a **trigger**.
 
-**Effects:** `damage` (with optional `hits`, `splash` to row neighbours, `pierce`), `heal` (capped at max HP), `shield`, `buff` and `debuff` (ATK/DEF/SPD, rest of combat; debuffs floor at 0), `cooldown` (shift a unit's next ability sooner or later; never sooner than next turn), `taunt` (draw enemy single-target attacks and abilities for the unit's next N turns; reapplying refreshes rather than stacks). Amounts scale off the source's stats: `flat + atk×ATK + def×DEF + maxHp×MaxHP`.
+**Effects:** `damage` (with optional `hits`, `splash` to row neighbours, `pierce`), `heal` (capped at max HP), `shield`, `buff` and `debuff` (ATK/DEF/SPD, rest of combat; debuffs floor at 0), `cooldown` (shift a unit's next ability sooner or later; haste never brings it closer than a floor, by default next turn), `taunt` (draw enemy single-target attacks and abilities for the unit's next N turns; reapplying refreshes rather than stacks), `payHp` (the unit loses HP as a cost; true damage that credits no attacker, so it never feeds lifesteal or "when hurt, hit the attacker" effects), and `summon` (see below).
+
+**Summons (M5).** A `summon` effect puts a combat-only unit (Turret, Sentry, Treant, Imp) into the first empty slot on the summoner's side, preferred row first; it can take the slot of a fallen unit. Its HP and ATK are a share of the summoner's, multiplied by ability power. It acts on the gauge like anyone else and keeps its side alive. **If the board is full, the summoner's fallback effect fires instead** (a rocket, a heal, a bolt). So summoners reward leaving slots empty, but still work in a full party. Summons never join your board after the fight. Amounts scale off the source's stats: `flat + atk×ATK + def×DEF + maxHp×MaxHP`.
 
 **Unit traits** (from talents, items, advanced classes and synergies): `reach` (no back-row melee penalty), `lifesteal` (heal a share of damage dealt), `abilityPower` (scales the unit's ability damage, heals and shields).
 
@@ -134,47 +142,71 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 | Mage | Caster | Ranged | 24/7/0/9 | nearest | **Fireball** (3): 200% ATK to the weakest enemy, 50% splash to its row neighbours | – |
 | Cleric | Support | Ranged | 30/4/2/9 | nearest | **Mend** (2): heal the most injured ally for 250% ATK | **Blessing:** start of combat, shield all allies for 100% ATK |
 | Ranger | Striker | Ranged | 26/5/1/11 | lowest HP | **Volley** (3): 3 arrows at random enemies, 80% ATK each | **Quick Shot:** 25% on attack, extra 50% ATK pierce hit |
+| Monk | Striker | Melee | 30/5/2/14 | nearest | **Flurry** (3): 3 × 50% ATK on the nearest enemy | **Momentum:** +1 SPD per basic attack (max 3) |
+| Bard | Support | Ranged | 26/4/1/10 | random | **Rousing Ballad** (3): all allies +1 ATK | **Inspire:** start of combat, all allies +1 SPD |
+| Druid | Support | Ranged | 34/5/1/9 | nearest | **Entangle** (3): 90% ATK to the enemy front row, which loses 1 SPD | **Thornhide:** 30% when hurt, 2 piercing damage to the attacker |
+| Warlock | Caster | Ranged | 28/7/0/9 | highest ATK | **Shadow Bolt** (3): 230% ATK to the strongest enemy, then pay 8% max HP | **Soul Siphon:** heal 25% max HP on kill |
+| Engineer | Caster | Ranged | 28/5/2/9 | nearest | **Deploy Turret** (4, first on turn 2): summon a Turret (50% HP, 60% ATK); full board: 160% ATK rocket | **Field Repairs:** 30% at turn start, heal the most wounded ally 3 |
 | Necromancer 🔒 | Caster | Ranged | 24/5/1/9 | lowest HP | **Drain Life** (3): 150% ATK to the weakest enemy, heal self 100% ATK | **Dark Harvest:** +2 ATK when an ally dies |
 
-🔒 = unlockable via meta progression (Milestone 5).
+🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request.
 
-**Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Necromancer arcane + shadow. Advanced classes replace their base tags.
+**Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Monk martial + spirit, Bard arcane + spirit, Druid wild + nature, Warlock shadow + occult, Engineer tech, Necromancer arcane + shadow. Advanced classes replace their base tags.
 
-**Level-up stat growth** (each level rolls an integer in the range, from the seeded RNG; Brandon's direction):
+**Recommended stat spreads** (relative weights; the "Recommended" button and enemies follow these, players can ignore them):
 
 | Class | HP | ATK | DEF | SPD |
 |---|---|---|---|---|
-| Warrior | 3–5 | 0–2 | 0–1 | 0–1 |
-| Rogue | 1–3 | 1–2 | 0–1 | 1–3 |
-| Mage | 1–3 | 1–2 | 0 | 0–1 |
-| Cleric | 2–4 | 0–1 | 0–1 | 0–1 |
-| Ranger | 1–3 | 1–2 | 0–1 | 1–2 |
-| Necromancer | 1–3 | 1–2 | 0–1 | 0–1 |
+| Warrior | 4 | 3 | 2 | 1 |
+| Rogue | 1 | 3 | 1 | 4 |
+| Mage | 2 | 4 | 0 | 1 |
+| Cleric | 3 | 2 | 2 | 1 |
+| Ranger | 2 | 3 | 1 | 3 |
+| Monk | 2 | 3 | 1 | 4 |
+| Bard | 3 | 2 | 1 | 3 |
+| Druid | 4 | 2 | 2 | 1 |
+| Warlock | 2 | 4 | 1 | 2 |
+| Engineer | 3 | 3 | 2 | 1 |
+| Necromancer | 2 | 4 | 1 | 1 |
+
+Some advanced classes override their base spread (e.g. Knight leans HP/DEF, Windwalker SPD).
 
 ## Progression
 
 - **XP from combat:** every unit on the board gains 2 XP for a win and 1 for a loss or draw. Training adds more.
 - **Levels 1–5** at 0 / 2 / 5 / 9 / 14 cumulative XP. A unit bought in round 1 reaches level 3 around round 4 and level 5 around round 8.
-- **Every level-up** rolls stat growth and offers a choice (the run blocks the next fight until you pick):
+- **Every level-up grants stat points** that you spend however you like: **3 per level, 5 at levels 3 and 5** (16 by level 5). One point buys **+3 HP, or +1 ATK, +1 DEF or +1 SPD**. Spend them in the unit inspector; "Recommended" fills in the class's spread. Points still unspent when you fight go on the recommended spread automatically, so nobody is forced to min-max. *(Brandon, M5: replaces the random growth rolls, so a Berserker can skip HP entirely and dump ATK and SPD.)*
+- **Max-level units gain no XP.** *(Brandon, M5.)*
+- **Every level-up** also offers a choice (the run blocks the next fight until you pick):
   - **Level 2:** 1 of 3 talents from the base class pool.
   - **Level 3:** advance into 1 of 2 advanced classes. This replaces the ability and tags, and adds stats and a passive.
   - **Levels 4–5:** 1 of 3 talents from the advanced class pool.
-- Content lives in `src/data/builds/<class>.ts`: 4 base talents per class, and 2 advanced classes with 4 talents each. That's 12 advanced classes and 72 talents.
+- Content lives in `src/data/builds/<class>.ts`, one file per class: the base class, its 4 talents, and 2 advanced classes with 4 talents each. That's 11 classes, 22 advanced classes and 132 talents.
 
 ## Advanced classes
 
 | Base | Advanced | Tags | Ability | Passive |
 |---|---|---|---|---|
-| Warrior | **Knight** | martial, guardian, divine | Holy Bulwark: shield all allies 2 + 100% DEF and taunt for 1 turn | 25% when hurt: shield self 3 |
+| Warrior | **Knight** | martial, guardian, divine | Holy Bulwark: shield all allies 2 + 60% DEF and taunt for 1 turn | 20% when hurt: shield self 3 |
 | Warrior | **Berserker** | martial | Whirlwind: 85% ATK to every enemy | +15% lifesteal; +4 ATK when bloodied |
-| Rogue | **Assassin** | shadow | Assassinate: 320% ATK to weakest back-row enemy | Shield 6 on kill |
+| Rogue | **Assassin** | shadow | Assassinate: 320% ATK to weakest back-row enemy | Shield 8 on kill |
 | Rogue | **Duelist** | martial | Flurry: 3 × 80% ATK on nearest | Reach; 35% riposte for 80% ATK |
-| Mage | **Pyromancer** | arcane | Meteor (every 2nd turn): 160% ATK to the enemy front row | Kills fling 80% ATK at a random enemy |
-| Mage | **Chronomancer** | arcane | Time Warp: allies' abilities 1 turn sooner, 100% ATK nearest | Start of combat: enemies −1 SPD |
+| Mage | **Pyromancer** | arcane | Meteor (every 2nd turn): 140% ATK to the enemy front row | Kills fling 80% ATK at a random enemy |
+| Mage | **Chronomancer** | arcane | Time Warp (every 2nd turn): *other* allies' abilities 1 turn sooner, but never closer than 2 turns; 150% ATK nearest | Start of combat: enemies −1 SPD |
 | Cleric | **Priest** | divine | Prayer of Healing: heal all 180% ATK, shield all 60% ATK | Ally death: shield all 100% ATK |
-| Cleric | **Inquisitor** | divine, martial | Judgment: 200% ATK pierce to strongest, self-heal 100% ATK | After casting: strongest enemy −2 DEF |
+| Cleric | **Inquisitor** | divine, martial | Judgment: 170% ATK pierce to strongest, self-heal 100% ATK | After casting: strongest enemy −1 DEF |
 | Ranger | **Sharpshooter** | martial | Aimed Shot: 220% ATK pierce to strongest | Kills: next ability 2 turns sooner |
 | Ranger | **Beastmaster** | wild | Call the Pack: 4 × 70% ATK at random enemies | Start of combat: allies +1 ATK |
+| Monk | **Windwalker** | martial, spirit | Hundred Fists: 5 × 45% ATK at random enemies | +2 SPD on kill |
+| Monk | **Iron Fist** | martial, guardian, spirit | Counterstance: shield self 3 + 120% DEF and taunt for 1 turn | 25% when hurt: riposte for 60% ATK |
+| Bard | **Skald** | martial, spirit | War Chant: all allies +2 ATK | Ally death: all allies +1 ATK |
+| Bard | **Trickster** | arcane, shadow | Discord (every 4th turn): every enemy's ability 1 turn later, strongest enemy −2 ATK | Start of combat: enemy front row −1 SPD |
+| Druid | **Shapeshifter** | wild, guardian, nature | Maul: 170% ATK to the nearest enemy and taunt for 1 turn | When bloodied: +3 ATK, +2 DEF |
+| Druid | **Grove Warden** | nature, divine | Call of the Grove (first on turn 2): summon a Treant (80% HP, 60% ATK); full board: heal all 120% ATK | Turn start: heal the most wounded ally 3 |
+| Warlock | **Hexer** | shadow, occult | Withering Curse: all enemies −1 ATK/−1 DEF, then 60% ATK to all | Kills: all enemies −1 DEF |
+| Warlock | **Demonologist** | arcane, occult | Summon Imp (first on turn 2): Imp (40% HP, 70% ATK); full board: 180% ATK to strongest | Ally death: +2 ATK |
+| Engineer | **Machinist** | tech | Deploy Sentry (first on turn 1): Sentry (50% HP, 70% ATK); full board: 220% ATK rocket, 50% splash | Turn start: heal the most wounded ally 4 |
+| Engineer | **Demolitionist** | tech, martial | Cluster Bomb: 2 × 50% ATK to every enemy | Kills: 40% ATK to every enemy |
 | Necromancer | **Lich** | arcane, shadow | Death Nova: 90% ATK to all, self-heal 100% ATK | Kills heal 200% ATK |
 | Necromancer | **Plaguelord** | shadow | Plague: all enemies −1 ATK/−1 DEF, 50% ATK to all | Ally death: all enemies −1 ATK |
 
@@ -199,6 +231,17 @@ Up to 2 per unit, bought from the shop's extra slots. **Anyone can equip anythin
 | Rage Gauntlets | 4 | When bloodied: +4 ATK | Berserkers: +15% lifesteal |
 | Assassin's Dagger | 4 | Kills: next ability 1 turn sooner | Rogues: +30% ability power |
 | Time Shard | 4 | Start of combat: shield self 150% ATK | Mages: every enemy's first ability 1 turn later |
+| Quicksilver Rapier | 5 | +2 ATK, +2 SPD | – |
+| Featherweight Charm | 3 | +4 SPD, −6 HP | – |
+| Winged Sandals | 5 | Start of combat: all allies +1 SPD | – |
+| Adrenaline Vial | 3 | When bloodied: +5 SPD | – |
+| Prayer Beads | 3 | +2 SPD | Monks: +1 SPD per basic attack (max 4) |
+| Enchanted Lute | 4 | +20% ability power | Bards: start of combat, all allies +1 ATK |
+| Oak Heart | 3 | +10 HP | Druids: 25% when hurt, shield self 4 |
+| Cursed Tome | 3 | +3 ATK, −4 HP | Warlocks: +15% lifesteal |
+| Gearbox | 3 | +2 DEF, +1 SPD | Engineers: +40% ability power |
+
+The speed items are issue #9's first step: more ways to build around SPD before touching class SPD itself.
 
 "Warriors", "Rogues" and so on include that class's advanced classes. Reach items and talents (Long Spear, Smoke Cloak for Rogues, Polearm Training, Shadowstep, Duelist) are the #2 hook: ways for a build to opt out of the back-row melee penalty.
 
@@ -209,11 +252,15 @@ The highest tier met is active. Synergies apply to enemies too.
 | Synergy | Requirement | Bonus |
 |---|---|---|
 | Martial Discipline | 2 / 4 martial | Martial units +2 ATK / +2 ATK +4 HP |
-| Arcane Circle | 2 / 3 arcane | Arcane units +30% AP +8 HP / +50% AP +12 HP |
+| Arcane Circle | 2 / 3 arcane | Arcane units +30% AP +8 HP / +40% AP +10 HP |
 | Shield Wall | 2 / 3 guardian | Every ally starts with a 3 / 7 shield |
 | Divine Choir | 2 divine | Every ally heals 2 HP at the start of its turns |
 | Shadow Pact | 2 shadow | Shadow units +10% lifesteal, +1 SPD |
-| Call of the Wild | 2 wild | Wild units +1 SPD |
+| Call of the Wild | 2 wild | Wild units +2 SPD |
+| Inner Harmony | 2 / 3 spirit | Spirit units +2 SPD / +2 SPD +6 HP |
+| Nature's Bond | 2 nature | Every ally +8 HP, +1 DEF |
+| Dark Covenant | 2 occult | Occult units +4 ATK, −6 HP |
+| Workshop | 2 tech | Tech units +40% AP (stronger turrets and bombs), +2 DEF |
 | Vanguard | 1 guardian + 1 divine | Guardians +3 DEF (the brief's "frontline + healer") |
 | Adventuring Party | 4 / 5 different classes | Every ally +3 / +4 HP |
 
@@ -225,18 +272,19 @@ The highest tier met is active. Synergies apply to enemies too.
 - **Run length:** play until 10 wins or 0 lives (the brief's "up to 10 rounds" conflicted with "10 wins = complete").
 - **Draws:** count as neither win nor loss.
 
-## Direction from Brandon (implemented in M3)
+## Direction from Brandon
 
-- **Levelling is weighted random.** Each level-up adds stats rolled from per-class ranges, so growth leans toward the class identity without being fixed. For example, a Rogue might gain 3–5 SPD but only 1–3 HP per level, while a Warrior leans HP/DEF. Exact ranges get tuned with the simulator. Rolls use the seeded RNG, so a run is still reproducible from its seed. *(2026-10-17)*
-- Items and talents add further variety. Determinism is about reproducibility, not removing randomness.
+- *(M3, 2026-10-17)* Levelling was weighted random: per-class stat ranges rolled each level. **Replaced in M5:** the rolls were too narrow to feel random, and Brandon chose player-allocated stat points instead (see Progression).
+- *(M5, 2026-10-18)* No XP at max level; mostly items and training once the party is full; an actions column in the combat summary; stat points with recommended spreads; five new classes (Monk, Bard, Druid, Warlock, Engineer); speed items before any class SPD change (#9); a look at Knight + Priest + Chronomancer (#10).
+- *(Planned)* Level cap 10 with a tertiary class at level 7 and ability-granting talents (Milestone 6). Meta progression with a difficulty ladder, achievements that unlock classes, items, synergies and starting perks, and a daily seed (Milestone 7). Unlocks mostly add variety but may help a little; the ladder's difficulty outpaces that help, and unlocked content joins the enemy pool. Brandon will pick further classes after the core project ships.
 
 ## UI (Milestone 4)
 
 **Screens:** Title → Shop → Combat → (result) → Shop … → Run summary. The combat lab (pick two line-ups, read the event log) is linked from the title screen.
 
 - **Title:** continue a saved run, start a new one (optional custom seed for a reproducible run), best run, short how-to.
-- **Shop:** HUD (round, gold, lives as hearts, wins progress, streak), the six offers as cards, the party board, a unit inspector, synergy progress and the Fight button. Level-up choices appear as a highlighted panel above the shop; you can keep shopping, but must choose before fighting.
-- **Combat:** the board as a battlefield, enemy on top and you below with the front rows facing each other. Playback steps through the engine's event log one turn at a time: the acting unit lunges, hits shake their target, floating numbers show damage, healing, shields and stat changes, and ability or trigger names pop up. Each unit's action gauge fills by SPD under its HP bar and turns gold when it acts, and the wait between turns grows with the ticks that passed, so speed differences are visible. Taunting units show 🎯, and sudden death announces itself. Controls: pause, 1x, 2x, skip, and replay. When it ends, a result panel shows lives lost, XP, income, each level-up with the stats it rolled, per-unit damage dealt/taken/healed, and the full combat log on request.
+- **Shop:** HUD (round, gold, lives as hearts, wins progress, streak), the six offers as cards, the party board, a unit inspector (with the stat-point panel when a unit has points; units with points show a gold +N badge), synergy progress and the Fight button. Level-up choices appear as a highlighted panel above the shop; you can keep shopping, but must choose before fighting.
+- **Combat:** the board as a battlefield, enemy on top and you below with the front rows facing each other. Playback steps through the engine's event log one turn at a time: the acting unit lunges, hits shake their target, floating numbers show damage, healing, shields and stat changes, and ability or trigger names pop up. Each unit's action gauge fills by SPD under its HP bar and turns gold when it acts, and the wait between turns grows with the ticks that passed, so speed differences are visible. Taunting units show 🎯, and sudden death announces itself. Controls: pause, 1x, 2x, skip, and replay. When it ends, a result panel shows lives lost, XP, income, each level-up with the stat points it earned, per-unit actions (attacks and ability casts), damage dealt/taken/healed, and the full combat log on request. Summoned units appear with a dashed border and are listed in the summary as summons.
 - **Run summary:** result, every round's outcome with the enemy's classes, the final party with each unit's run totals, and an MVP.
 
 **Interaction:** everything can be dragged *or* clicked.
@@ -257,8 +305,9 @@ Drag uses pointer events, so mouse, pen and touch all work. While dragging near 
 
 ## Open design questions (for Brandon)
 
-None blocking. Things to look at when playtesting M3 (they're balance and feel, not rules):
+None blocking. Things to look at when playtesting M5:
 
-1. **Late-game wall.** From round 11, every bot wins only about 20% (then 7%, 4%), regardless of skill. A run that reaches round 11 has already lost several fights, so it's a final hurdle for comeback runs. Does it feel fair or too punishing?
-2. **Talent feel.** Are level-up choices interesting, or do some feel like obvious picks?
-3. **Enemy preview (M4).** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? It would make positioning and item choices more deliberate. It's a design change, so it's Brandon's call.
+1. **Difficulty.** Rounds 5–10 are harder than in M4 and the late game plateaus instead of walling. Is the base game now a fair challenge, before the ladder adds harder tiers?
+2. **Stat points.** Is 3 per level (5 at levels 3 and 5) the right amount, and is +3 HP per point competitive with +1 ATK/DEF/SPD?
+3. **Summoners.** Engineer, Machinist, Grove Warden and Demonologist want empty slots. Does running four units plus summons feel like a real choice?
+4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4.

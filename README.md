@@ -2,7 +2,7 @@
 
 A browser-playable party auto-battler with RPG classes and builds. You draft a party, position it, equip it and level it up between rounds, then the fight resolves on its own. Think Super Auto Pets or Backpack Battles, with the depth coming from CRPG-style classes, talent choices and advanced-class upgrades.
 
-> 🚧 In development. Milestones 1–4 are done: the combat engine, run loop, builds (levels, talents, advanced classes, items, synergies) and a playable UI with drag-to-position and animated combat playback. Balance, juice and credits come next in Milestone 5. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
+> 🚧 In development. Milestones 1–5 are done: the combat engine, run loop, builds (levels, stat points, talents, advanced classes, items, synergies), a playable UI with drag-to-position and animated combat playback, and 11 classes including summoners. Next: level cap 10 with tertiary classes (Milestone 6), then meta progression, juice and shipping. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
 
 ## Running locally
 
