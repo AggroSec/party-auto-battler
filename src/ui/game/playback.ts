@@ -10,6 +10,8 @@ export interface UnitView {
   pos: BoardPos;
   maxHp: number;
   hp: number;
+  /** HP at the end of the previous frame, so the bar animates from there. */
+  hpFrom: number;
   shield: number;
   atk: number;
   def: number;
@@ -17,6 +19,10 @@ export interface UnitView {
   alive: boolean;
   /** Own turns of taunt left. */
   taunt: number;
+  /** Action gauge (acts at 100), as of the last turn event. */
+  gauge: number;
+  /** Where the gauge animates from this frame: the previous value, or the new one when it dropped (a spent turn snaps down). */
+  gaugeFrom: number;
 }
 
 /** Something to animate on a unit during a frame. */
@@ -35,6 +41,8 @@ export type FrameKind = 'start' | 'turn' | 'overtime' | 'end';
 export interface Frame {
   kind: FrameKind;
   tick: number;
+  /** Ticks since the previous frame: how long gauges were filling. */
+  gap: number;
   /** Unit state after this frame's events. */
   units: Record<UnitId, UnitView>;
   /** The unit taking its turn, if any. */
@@ -53,12 +61,12 @@ export interface Frame {
 }
 
 function emptyFrame(kind: FrameKind, tick: number, units: Record<UnitId, UnitView>): Frame {
-  return { kind, tick, units, actor: null, ability: null, attacked: [], fx: [], events: [] };
+  return { kind, tick, gap: 0, units, actor: null, ability: null, attacked: [], fx: [], events: [] };
 }
 
 function cloneUnits(units: Record<UnitId, UnitView>): Record<UnitId, UnitView> {
   const out: Record<UnitId, UnitView> = {};
-  for (const [id, u] of Object.entries(units)) out[id] = { ...u };
+  for (const [id, u] of Object.entries(units)) out[id] = { ...u, hpFrom: u.hp, gaugeFrom: u.gauge };
   return out;
 }
 
@@ -68,6 +76,12 @@ function apply(frame: Frame, e: CombatEvent): void {
   switch (e.type) {
     case 'turn': {
       frame.actor = e.source;
+      for (const [id, gauge] of Object.entries(e.gauges)) {
+        const t = u[id];
+        if (!t) continue;
+        t.gaugeFrom = gauge < t.gauge ? gauge : t.gaugeFrom;
+        t.gauge = gauge;
+      }
       const actor = u[e.source];
       // Mirrors the engine: taunt ticks down at the start of the taunter's turn.
       if (actor && actor.taunt > 0) actor.taunt -= 1;
@@ -153,12 +167,15 @@ export function buildTimeline(result: CombatResult): Frame[] {
       pos: s.pos,
       maxHp: s.stats.hp,
       hp: s.stats.hp,
+      hpFrom: s.stats.hp,
       shield: 0,
       atk: s.stats.atk,
       def: s.stats.def,
       spd: s.stats.spd,
       alive: true,
       taunt: 0,
+      gauge: 0,
+      gaugeFrom: 0,
     };
   }
   const frames: Frame[] = [emptyFrame('start', 0, units)];
@@ -166,6 +183,7 @@ export function buildTimeline(result: CombatResult): Frame[] {
   const open = (kind: FrameKind, tick: number) => {
     const prev = current ?? frames[0]!;
     current = emptyFrame(kind, tick, cloneUnits(prev.units));
+    current.gap = tick - prev.tick;
     frames.push(current);
     return current;
   };

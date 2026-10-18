@@ -3,6 +3,7 @@ import type { CombatResult, UnitSnapshot } from '../../engine/index.ts';
 import type { RunContent } from '../../engine/run/index.ts';
 import { describeEvent } from '../format.ts';
 import { Arena } from './Arena.tsx';
+import { LevelUpGains } from './ChoicePanel.tsx';
 import { classStyle } from './classStyle.ts';
 import { buildTimeline, type Frame } from './playback.ts';
 import { usePlayback } from './usePlayback.ts';
@@ -110,6 +111,14 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
           </span>
         )}
       </p>
+      {fight.levelUps.length > 0 && (
+        <div className="result-levelups">
+          <h3>⭐ Level up!</h3>
+          {fight.levelUps.map((l) => (
+            <LevelUpGains key={l.uid} levelUp={l} showName />
+          ))}
+        </div>
+      )}
       <FightSummary combat={fight.combat} content={game.ctx.content} />
       <div className="result-actions">
         <button type="button" onClick={() => setShowLog((s) => !s)}>

@@ -44,6 +44,17 @@ describe('combat playback timeline', () => {
     }
   });
 
+  it('shows the actor with a full gauge and fills, never drains, the others', () => {
+    for (let seed = 0; seed < 10; seed++) {
+      const frames = buildTimeline(randomFight(seed));
+      for (const [i, f] of frames.entries()) {
+        if (f.kind === 'turn') expect(f.units[f.actor!]!.gauge).toBeGreaterThanOrEqual(100);
+        expect(f.gap).toBe(i === 0 ? 0 : f.tick - frames[i - 1]!.tick);
+        for (const u of Object.values(f.units)) expect(u.gaugeFrom).toBeLessThanOrEqual(u.gauge);
+      }
+    }
+  });
+
   it('does not mutate earlier frames', () => {
     const frames = buildTimeline(randomFight(3));
     expect(Object.values(frames[0]!.units).every((u) => u.hp === u.maxHp)).toBe(true);

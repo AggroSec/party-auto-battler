@@ -13,6 +13,7 @@ import {
   type ShopAction,
 } from '../../engine/run/index.ts';
 import { logPlay, newRunId } from '../playlog.ts';
+import { levelUps, mergeLevelUps, type LevelUp } from './levelUps.ts';
 import {
   addFightStats,
   BEST_KEY,
@@ -35,6 +36,7 @@ export interface FightView {
   enemy: Board;
   income: IncomeBreakdown | null;
   xp: number;
+  levelUps: LevelUp[];
 }
 
 export type Screen = 'title' | 'shop' | 'combat' | 'summary';
@@ -51,6 +53,8 @@ export function useGame() {
   const [stats, setStats] = useState<RunStats>(() => saved?.stats ?? {});
   const [lastFight, setLastFight] = useState<FightView | null>(null);
   const [error, setError] = useState<RunError | null>(null);
+  /** Recent level-ups (this round's fight and any training since), for showing stat gains. */
+  const [recentLevelUps, setRecentLevelUps] = useState<LevelUp[]>([]);
   const [best, setBest] = useState<BestRun | null>(() => load(BEST_KEY, isBestRun));
   const [canContinue, setCanContinue] = useState(saved !== null);
 
@@ -68,6 +72,7 @@ export function useGame() {
       setRun(createRun(seed, ctx));
       setStats({});
       setLastFight(null);
+      setRecentLevelUps([]);
       setError(null);
       setScreen('shop');
       logPlay({ type: 'start', run: id, seed });
@@ -85,6 +90,8 @@ export function useGame() {
       const r = applyShopAction(run, action, ctx);
       logPlay(r.ok ? { type: 'action', run: runId, action } : { type: 'action', run: runId, action, error: r.error });
       if (r.ok) {
+        const gained = levelUps(run.board, r.state.board);
+        if (gained.length > 0) setRecentLevelUps((l) => mergeLevelUps(l, gained));
         setRun(r.state);
         setError(null);
       } else {
@@ -101,7 +108,9 @@ export function useGame() {
     logPlay({ type: 'fight', run: runId, round: run.round, winner: r.combat.winner });
     const { progression } = ctx.config;
     const xp = { player: progression.xpPerWin, enemy: progression.xpPerLoss, draw: progression.xpPerDraw }[r.combat.winner];
-    setLastFight({ round: run.round, combat: r.combat, board: run.board, enemy: r.enemyBuilds, income: r.income, xp });
+    const gained = levelUps(run.board, r.state.board);
+    setLastFight({ round: run.round, combat: r.combat, board: run.board, enemy: r.enemyBuilds, income: r.income, xp, levelUps: gained });
+    setRecentLevelUps(gained);
     setStats((s) => addFightStats(s, run.board, r.combat));
     setRun(r.state);
     setError(null);
@@ -130,6 +139,7 @@ export function useGame() {
     run,
     stats,
     lastFight,
+    recentLevelUps,
     error,
     clearError: () => setError(null),
     best,

@@ -7,9 +7,14 @@ export type Speed = 1 | 2;
 const SPEED_KEY = 'speed';
 const isSpeed = (x: unknown): x is Speed => x === 1 || x === 2;
 
+/** Extra time per tick of gauge filling before a turn, so faster units visibly act more often. */
+export const TICK_MS = 40;
+const MAX_GAP_TICKS = 10;
+
 /** Base time a frame stays on screen at 1x, in ms. */
 export function frameDuration(frame: Frame | undefined): number {
   if (!frame) return 0;
+  const fill = Math.min(frame.gap, MAX_GAP_TICKS) * TICK_MS;
   switch (frame.kind) {
     case 'start':
       return frame.fx.length > 0 ? 900 : 600;
@@ -18,7 +23,7 @@ export function frameDuration(frame: Frame | undefined): number {
     case 'end':
       return 0;
     case 'turn':
-      return frame.ability ? 950 : 650;
+      return (frame.ability ? 950 : 650) + fill;
   }
 }
 

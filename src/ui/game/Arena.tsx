@@ -44,7 +44,10 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
   const trigger = fx.find((f) => f.kind === 'trigger');
   const callout = acting && frame.ability ? frame.ability : trigger?.kind === 'trigger' ? trigger.label : null;
   const hpPct = Math.max(0, (unit.hp / unit.maxHp) * 100);
+  const hpFromPct = Math.max(0, (unit.hpFrom / unit.maxHp) * 100);
   const shieldPct = Math.min(100, (unit.shield / unit.maxHp) * 100);
+  const gaugePct = Math.min(100, unit.gauge);
+  const gaugeFromPct = Math.min(100, unit.gaugeFrom);
   const cls = [
     'arena-unit',
     unit.side,
@@ -66,13 +69,27 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
         <span className="arena-name">{unit.name}</span>
         <span className="arena-class">{className(content, unit.classId)}</span>
         <div className="hp-bar" role="meter" aria-label={`${unit.name} HP`} aria-valuenow={unit.hp} aria-valuemin={0} aria-valuemax={unit.maxHp}>
-          <span className="hp" style={{ width: `${hpPct}%` }} />
+          <span className="hp" style={{ '--from': `${hpFromPct}%`, '--to': `${hpPct}%` } as React.CSSProperties} />
           {shieldPct > 0 && <span className="shield-bar" style={{ width: `${shieldPct}%` }} />}
           <span className="hp-text">
             {unit.hp}/{unit.maxHp}
             {unit.shield > 0 ? ` +${unit.shield}` : ''}
           </span>
         </div>
+        {unit.alive && (
+          <div
+            className={`gauge-bar${gaugePct >= 100 ? ' full' : ''}`}
+            role="meter"
+            aria-label={`${unit.name} action gauge`}
+            aria-valuenow={Math.round(gaugePct)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            title={`Action gauge: fills by SPD (${unit.spd}) each tick, acts at 100`}
+          >
+            <span className="gauge" style={{ '--from': `${gaugeFromPct}%`, '--to': `${gaugePct}%` } as React.CSSProperties} />
+            <span className="gauge-spd">💨{unit.spd}</span>
+          </div>
+        )}
         {unit.taunt > 0 && (
           <span className="taunt-icon" title="Taunting: enemies must target this unit">
             🎯

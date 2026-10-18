@@ -87,6 +87,7 @@ export function ShopScreen({ game }: { game: Game }) {
             choice={pending}
             unit={units.find((u) => u.uid === pending.uid)}
             remaining={run.pending.length}
+            levelUp={game.recentLevelUps.find((l) => l.uid === pending.uid && l.from < pending.level && pending.level <= l.to)}
             content={ctx.content}
             onChoose={(option) => act({ type: 'choose', option })}
           />
