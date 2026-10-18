@@ -23,6 +23,12 @@ All decided autonomously. The UI is in scope for this milestone, and none of the
 - **The run is saved after every action and fight** (localStorage, versioned envelope, every access in try/catch). Refreshing the page offers "Continue run". Saves that fail validation (wrong version, a class that no longer exists) are ignored. The best run (most wins, then fewest rounds) and the playback speed are saved too. Finished runs are cleared.
 - **New runs get a random seed by default;** the title screen offers a custom seed for reproducible runs and bug reports. The dev play log records resumed runs with their saved state, so `npm run playlog` still replays them.
 
+### Review follow-ups (2026-10-18)
+- **The engine's `turn` event now carries every living unit's gauge** (the actor's still full, before it pays 100). The playback shows gauges from the log instead of re-implementing the fill rules in the UI, so it can't drift from the engine. Outcomes are unchanged; the simulator numbers are identical.
+- **Turn pacing includes gauge time:** each frame waits an extra 40ms per tick since the previous frame (capped at 10 ticks), so the gauges fill visibly and units that share a tick act back to back.
+- **HP and gauge bars animate from the previous frame's value** via a CSS keyframe. The unit card is re-mounted every frame to replay its animations, which had silently disabled the HP bar's transition.
+- **Level-up stat gains are worked out in the UI by diffing the board before and after** a fight or a training purchase (growth is cumulative in the run state). They're kept in memory only, so after a page reload the choice panel shows the choice without the gains.
+
 ### Small rule-adjacent fix
 - **Recruit names are unique within your party and the current shop.** Two units called Lark in one party made combat and summaries ambiguous. It still uses one RNG draw per name, so seeds and simulator results are unchanged.
 

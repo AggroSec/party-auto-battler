@@ -23,15 +23,18 @@ The debug view is gone; the game now has real screens.
   - Warning badges for melee units in the back row without reach, and ⭐ on units with a level-up waiting.
 - **Combat screen:**
   - The fight plays back turn by turn from the engine's event log. The acting unit lunges, hit units shake, and floating numbers show damage, healing, shields and stat changes.
-  - Ability and trigger names pop up, HP and shield bars animate, taunts show 🎯, and sudden death is announced.
+  - Ability and trigger names pop up, HP bars drain, taunts show 🎯, and sudden death is announced.
+  - **Action gauges** (review feedback): each unit has a bar under its HP that fills by its SPD and turns gold when it acts, with the SPD shown beside it. Time between turns now scales with how many ticks passed, so faster units visibly act more often.
   - Controls: pause, 1x, 2x, skip and replay.
-  - **End-of-fight panel:** victory/defeat, lives, XP and income, a per-unit dealt/taken/healed table for both sides, and the full combat log on request.
+  - **End-of-fight panel:** victory/defeat, lives, XP and income, **every level-up with the stats it rolled** (review feedback; also shown on the level-up choice panel, including level-ups from training), a per-unit dealt/taken/healed table for both sides, and the full combat log on request.
 - **Run summary:** every round's result and enemy classes, the final party with each unit's run totals, and an MVP.
 - **Saving:** the run is saved to localStorage after every action, so a refresh doesn't lose it. Best run and playback speed are remembered. Every storage access is guarded.
 - **Works on phones:** drag uses pointer events, so touch works, and the page auto-scrolls while you drag near the screen edge. The layout goes down to phone width with no sideways scrolling.
 - **Small fix:** recruit names are unique within your party and the shop. Two units called "Lark" in one party made fights confusing.
 
-**Tests:** 200, up from 180. New tests cover:
+**Tests:** 205, up from 180. New tests cover:
+- Turn events record every living unit's gauge; the playback shows the actor full and never drains a gauge except when its unit acts.
+- Level-up stat gains between two boards.
 - The playback timeline: frame per turn, every event replayed once, final HP and survivors match the engine.
 - Drag-and-drop rules and their encoding.
 - Merged floating text.
