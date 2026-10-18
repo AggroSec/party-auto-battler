@@ -281,6 +281,9 @@ button.fight:hover:not(:disabled) { background: linear-gradient(180deg, #3460b8,
 .result-levelups { margin: 8px 0; padding: 8px 12px; border-radius: var(--radius); background: var(--bg-2); }
 .result-levelups h3 { margin: 0 0 4px; font-size: 0.95rem; }
 @keyframes gain-pop { from { opacity: 0; transform: translateY(6px) scale(0.8); } to { opacity: 1; transform: none; } }
+.arena-unit.summoned .arena-body { border-style: dashed; }
+.arena-unit.spawning .arena-body { animation: spawn var(--beat) ease-out; }
+@keyframes spawn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
 .taunt-icon { position: absolute; top: -8px; right: -6px; font-size: 1rem; }
 .arena-unit.taunting .arena-body { box-shadow: 0 0 0 2px var(--draw); }
 .arena-unit.dead .arena-body { opacity: 0.3; filter: grayscale(1); }

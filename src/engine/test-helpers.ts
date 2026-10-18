@@ -45,6 +45,7 @@ export function makeState(player: Party, enemy: Party, seed = 1): CombatState {
     units: [...createCombatUnits(player, 'player'), ...createCombatUnits(enemy, 'enemy')],
     events: [],
     rng: new Rng(seed),
+    summons: 0,
   };
 }
 

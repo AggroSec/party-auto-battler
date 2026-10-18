@@ -55,6 +55,8 @@ export type CombatEvent =
       statAfter: number;
     }
   | { tick: number; type: 'death'; target: UnitId; source: UnitId }
+  /** A unit was summoned into an empty slot mid-combat. */
+  | { tick: number; type: 'summon'; source: UnitId; unit: UnitSnapshot }
   /** A sudden-death pulse: every living unit takes `percent` of max HP as true damage. */
   | { tick: number; type: 'overtime'; stage: number; percent: number }
   | { tick: number; type: 'combatEnd'; winner: Winner; reason: 'elimination' | 'tickCap' };
@@ -70,7 +72,13 @@ export interface UnitSummary {
   healingDone: number;
   shieldingDone: number;
   kills: number;
+  /** Turns spent on a basic attack. */
+  attacks: number;
+  /** Turns spent casting the ability. */
+  abilities: number;
   survived: boolean;
+  /** Set on summoned units: who summoned them. */
+  summonedBy?: UnitId;
 }
 
 export interface CombatResult {

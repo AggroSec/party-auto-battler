@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import type { CombatResult, UnitSnapshot } from '../../engine/index.ts';
+import type { CombatResult } from '../../engine/index.ts';
 import type { RunContent } from '../../engine/run/index.ts';
-import { describeEvent } from '../format.ts';
+import { combatUnits, describeEvent } from '../format.ts';
 import { Arena } from './Arena.tsx';
 import { LevelUpGains } from './ChoicePanel.tsx';
 import { classStyle } from './classStyle.ts';
@@ -34,8 +34,7 @@ function caption(frame: Frame | undefined): string {
 }
 
 function FightSummary({ combat, content }: { combat: CombatResult; content: RunContent }) {
-  const start = combat.events[0];
-  const classOf = new Map(start?.type === 'combatStart' ? start.units.map((u) => [u.id, u.classId]) : []);
+  const classOf = new Map([...combatUnits(combat.events).values()].map((u) => [u.id, u.classId]));
   const max = Math.max(1, ...combat.summary.map((s) => Math.max(s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone)));
   return (
     <div className="fight-summary">
@@ -75,8 +74,7 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
 }
 
 function CombatLog({ combat }: { combat: CombatResult }) {
-  const start = combat.events[0];
-  const units = new Map<string, UnitSnapshot>(start?.type === 'combatStart' ? start.units.map((u) => [u.id, u]) : []);
+  const units = combatUnits(combat.events);
   return (
     <ol className="log">
       {combat.events.map((e, i) => {

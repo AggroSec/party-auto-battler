@@ -58,6 +58,8 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
     hit ? 'hit' : '',
     frame.attacked.includes(unit.id) ? 'targeted' : '',
     unit.taunt > 0 ? 'taunting' : '',
+    unit.summoned ? 'summoned' : '',
+    fx.some((f) => f.kind === 'summon') ? 'spawning' : '',
   ].join(' ');
   return (
     <div className={cls} style={{ '--class-color': style.color } as React.CSSProperties}>
@@ -113,7 +115,7 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
 }
 
 function Side({ frame, frameIndex, side, content }: { frame: Frame; frameIndex: number; side: 'player' | 'enemy'; content: RunContent }) {
-  const units = Object.values(frame.units).filter((u) => u.side === side);
+  const units = Object.values(frame.units).filter((u) => u.side === side && !u.replaced);
   return (
     <div className={`arena-side ${side}`}>
       {units.map((u) => (

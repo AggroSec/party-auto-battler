@@ -42,6 +42,7 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
     units: [...createCombatUnits(player, 'player'), ...createCombatUnits(enemy, 'enemy')],
     events: [],
     rng,
+    summons: 0,
   };
 
   emit(state, { tick: 0, type: 'combatStart', units: state.units.map(snapshot) });
@@ -79,6 +80,7 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
       side: u.side,
       survived: u.alive,
       ...u.stats,
+      ...(u.summonedBy ? { summonedBy: u.summonedBy } : {}),
     })),
   };
 }
@@ -136,6 +138,7 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
   if (unit.cooldown <= 0) {
     const { ability } = unit.setup;
     unit.cooldown = ability.cooldown;
+    unit.stats.abilities += 1;
     emit(state, { tick: state.tick, type: 'ability', source: unit.id, abilityId: ability.id, name: ability.name });
     applyEffects(state, unit, ability.effects, {}, 0, unit.setup.abilityPower ?? 1);
     fireTriggers(state, unit, 'onAbility', {}, 0);
@@ -144,6 +147,7 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
 
   const [target] = selectTargets(state, unit, unit.setup.attackTarget);
   if (!target) return;
+  unit.stats.attacks += 1;
   emit(state, { tick: state.tick, type: 'attack', source: unit.id, target: target.id });
   dealDamage(state, unit, target, unit.atk, {}, 0);
   fireTriggers(state, unit, 'onAttack', { triggerTarget: target }, 0);

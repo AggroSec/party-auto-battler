@@ -93,7 +93,30 @@ export type Effect =
    * pick a taunting unit while one is alive. Area effects are unaffected.
    * Lasts for the target's next `turns` turns; reapplying refreshes, not stacks.
    */
-  | { kind: 'taunt'; target: TargetSelector; turns: number };
+  | { kind: 'taunt'; target: TargetSelector; turns: number }
+  /**
+   * Put a new unit on the source's side in an empty slot (preferred row
+   * first). Its HP and ATK scale with the summoner (and ability power). With
+   * no empty slot, `fallback` effects are applied instead.
+   */
+  | { kind: 'summon'; summon: SummonDef; fallback?: Effect[] };
+
+/** A combat-only unit created by a summon effect. It never joins the run's board. */
+export interface SummonDef {
+  name: string;
+  /** Display id for the UI (e.g. 'turret'); not a class in the run's content. */
+  classId: string;
+  /** Scaled from the summoner, e.g. { maxHp: 0.5 }. Ability power multiplies HP and ATK. */
+  hp: Amount;
+  atk: Amount;
+  def: number;
+  spd: number;
+  range: Range;
+  attackTarget: TargetSelector;
+  row: Row;
+  ability?: AbilityDef;
+  triggers?: readonly TriggeredEffect[];
+}
 
 export type TriggerEvent =
   | 'startOfCombat'

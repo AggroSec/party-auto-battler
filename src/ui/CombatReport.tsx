@@ -1,14 +1,10 @@
 import { useMemo } from 'react';
-import type { CombatResult, UnitSnapshot } from '../engine/index.ts';
-import { describeEvent } from './format.ts';
+import type { CombatResult } from '../engine/index.ts';
+import { combatUnits, describeEvent } from './format.ts';
 
 /** Outcome banner, per-unit summary and readable event log for one fight. */
 export function CombatReport({ result }: { result: CombatResult }) {
-  const units = useMemo(() => {
-    const start = result.events[0];
-    const list: UnitSnapshot[] = start?.type === 'combatStart' ? start.units : [];
-    return new Map(list.map((u) => [u.id, u]));
-  }, [result]);
+  const units = useMemo(() => combatUnits(result.events), [result]);
 
   const lines = result.events
     .map((e) => ({ tick: e.tick, text: describeEvent(e, units) }))
