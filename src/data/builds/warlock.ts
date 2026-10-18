@@ -101,7 +101,7 @@ export const warlockClass: ClassDef = {
   tags: ['shadow', 'occult'],
   unlockable: false,
   description: 'Pays in blood for huge damage: every bolt costs a slice of their own HP.',
-  baseStats: { hp: 26, atk: 7, def: 0, spd: 9 },
+  baseStats: { hp: 28, atk: 7, def: 0, spd: 9 },
   range: 'ranged',
   placement: 3,
   statWeights: { hp: 2, atk: 4, def: 1, spd: 2 },
@@ -111,10 +111,10 @@ export const warlockClass: ClassDef = {
   ability: {
     id: 'shadow-bolt',
     name: 'Shadow Bolt',
-    description: 'Every 3rd turn: deal 200% ATK to the strongest enemy, then lose 8% of your max HP.',
+    description: 'Every 3rd turn: deal 230% ATK to the strongest enemy, then lose 8% of your max HP.',
     cooldown: 3,
     effects: [
-      { kind: 'damage', target: 'highestAtk', amount: { atk: 2 } },
+      { kind: 'damage', target: 'highestAtk', amount: { atk: 2.3 } },
       { kind: 'payHp', amount: { maxHp: 0.08 } },
     ],
   },

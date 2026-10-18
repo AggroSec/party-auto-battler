@@ -21,9 +21,9 @@ export const pyromancer = advanced({
   ability: {
     id: 'meteor',
     name: 'Meteor',
-    description: 'Every 2nd turn: deal 160% ATK to each enemy in the front row.',
+    description: 'Every 2nd turn: deal 140% ATK to each enemy in the front row.',
     cooldown: 2,
-    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.6 } }],
+    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.4 } }],
   },
   modifier: {
     stats: { atk: 3, hp: 6 },
@@ -52,11 +52,11 @@ export const chronomancer = advanced({
   ability: {
     id: 'time-warp',
     name: 'Time Warp',
-    description: 'Every 3rd turn: allies’ abilities come 1 turn sooner; deal 100% ATK to the nearest enemy.',
-    cooldown: 3,
+    description: 'Every 2nd turn: other allies’ abilities come 1 turn sooner (but not sooner than 2 turns away); deal 150% ATK to the nearest enemy.',
+    cooldown: 2,
     effects: [
-      { kind: 'cooldown', target: 'allAllies', turns: -1 },
-      { kind: 'damage', target: 'nearest', amount: { atk: 1 } },
+      { kind: 'cooldown', target: 'otherAllies', turns: -1, min: 2 },
+      { kind: 'damage', target: 'nearest', amount: { atk: 1.5 } },
     ],
   },
   modifier: {

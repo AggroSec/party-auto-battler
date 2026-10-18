@@ -1,6 +1,6 @@
 // Shop-phase bots for the run simulator. Each makes shop decisions and
 // level-up choices; together they give coverage of classes, items and talents.
-import { allSlots, applyShopAction, getSlot, resolveBoard, unitCount } from '../engine/run/index.ts';
+import { allSlots, applyShopAction, autoAllocate, getSlot, resolveBoard, STATS, unitCount } from '../engine/run/index.ts';
 import type { PendingChoice, RunContext, RunState, ShopAction, SlotRef } from '../engine/run/index.ts';
 import type { Party, Rng } from '../engine/index.ts';
 
@@ -11,6 +11,8 @@ export interface Bot {
   shop(state: RunState, ctx: RunContext, rng: Rng): RunState;
   /** Pick an option index for the first pending choice. */
   choose(state: RunState, choice: PendingChoice, ctx: RunContext, rng: Rng): number;
+  /** Spend stat points. Bots without this leave them to the fight's recommended auto-spend. */
+  allocate?(state: RunState, ctx: RunContext, rng: Rng): RunState;
 }
 
 export function tryAct(state: RunState, action: ShopAction, ctx: RunContext): RunState | null {
@@ -56,12 +58,28 @@ export function partyPower(party: Party): number {
   return total;
 }
 
-const power = (s: RunState, ctx: RunContext) => partyPower(resolveBoard(s.board, ctx.content));
+/** Party power as it would fight: unspent stat points go on the recommended spread. */
+const power = (s: RunState, ctx: RunContext) => {
+  const copy = structuredClone(s);
+  autoAllocate(copy, ctx);
+  return partyPower(resolveBoard(copy.board, ctx.content));
+};
+
+/** Spend every point one at a time with `pick` choosing the stat. */
+function spendEach(s: RunState, ctx: RunContext, pick: (s: RunState, at: SlotRef) => (typeof STATS)[number]): RunState {
+  let state = s;
+  for (const at of filledSlots(state)) {
+    for (let guard = 0; getSlot(state.board, at)!.statPoints > 0 && guard < 100; guard++) {
+      state = tryAct(state, { type: 'allocate', at, points: { [pick(state, at)]: 1 } }, ctx) ?? state;
+    }
+  }
+  return state;
+}
 
 /** Buys random affordable offers for random valid targets; sometimes rerolls; random choices. */
 export const randomBot: Bot = {
   name: 'random',
-  description: 'Random purchases and targets, rerolls 30% of the time with spare gold, random level-up choices.',
+  description: 'Random purchases and targets, rerolls 30% of the time with spare gold, random level-up choices and stat points.',
   shop(state, ctx, rng) {
     let s = state;
     for (let guard = 0; guard < 30; guard++) {
@@ -76,6 +94,7 @@ export const randomBot: Bot = {
     return s;
   },
   choose: (_s, choice, _ctx, rng) => rng.int(choice.options.length),
+  allocate: (s, ctx, rng) => spendEach(s, ctx, () => rng.pick(STATS)),
 };
 
 /**
@@ -124,7 +143,7 @@ export const sensibleBot: Bot = {
 /** Buys whatever raises its estimated party power most; picks power-maximizing choices. */
 export const greedyBot: Bot = {
   name: 'greedy',
-  description: 'Buys the offer that most raises estimated party power (HP×DEF × ATK×SPD); picks choices the same way.',
+  description: 'Buys the offer that most raises estimated party power (HP×DEF × ATK×SPD); picks choices and stat points the same way.',
   shop(state, ctx, rng) {
     let s = state;
     for (let guard = 0; guard < 30; guard++) {
@@ -161,6 +180,17 @@ export const greedyBot: Bot = {
     });
     return bestIdx;
   },
+  allocate: (s, ctx) =>
+    spendEach(s, ctx, (state, at) => {
+      let best: (typeof STATS)[number] = 'hp';
+      let bestPower = -Infinity;
+      for (const stat of STATS) {
+        const r = applyShopAction(state, { type: 'allocate', at, points: { [stat]: 1 } }, ctx);
+        const p = r.ok ? power(r.state, ctx) : -Infinity;
+        if (p > bestPower) [best, bestPower] = [stat, p];
+      }
+      return best;
+    }),
 };
 
 /** Picks a random synergy tag per run and builds around it. */

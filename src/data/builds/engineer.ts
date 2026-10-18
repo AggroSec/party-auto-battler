@@ -18,7 +18,7 @@ export const engineerTalents = [
 const turret: SummonDef = {
   name: 'Turret',
   classId: 'turret',
-  hp: { maxHp: 0.4 },
+  hp: { maxHp: 0.5 },
   atk: { atk: 0.6 },
   def: 1,
   spd: 9,
@@ -38,21 +38,21 @@ export const machinist = advanced({
   ability: {
     id: 'deploy-sentry',
     name: 'Deploy Sentry',
-    description: 'Every 3rd turn (first on turn 1): summon a Sentry in an empty slot (50% of your max HP, 70% ATK). If the board is full, fire a rocket for 150% ATK at the nearest enemy (30% splash).',
+    description: 'Every 3rd turn (first on turn 1): summon a Sentry in an empty slot (50% of your max HP, 70% ATK). If the board is full, fire a rocket for 220% ATK at the nearest enemy (50% splash).',
     cooldown: 3,
     initialCooldown: 1,
     effects: [
       {
         kind: 'summon',
         summon: sentry,
-        fallback: [{ kind: 'damage', target: 'nearest', amount: { atk: 1.5 }, splash: 0.3 }],
+        fallback: [{ kind: 'damage', target: 'nearest', amount: { atk: 2.2 }, splash: 0.5 }],
       },
     ],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
   modifier: {
-    stats: { hp: 6, def: 1 },
-    triggers: [on('onTurnStart', 'Maintenance', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 3 } }])],
+    stats: { hp: 6, def: 1, atk: 2 },
+    triggers: [on('onTurnStart', 'Maintenance', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 4 } }])],
   },
   talents: [
     talent('machinist/hardened-frames', 'Hardened Frames', '+40% ability power (stronger sentries).', { abilityPower: 0.4 }),
@@ -115,10 +115,10 @@ export const engineerClass: ClassDef = {
   ability: {
     id: 'deploy-turret',
     name: 'Deploy Turret',
-    description: 'Every 4th turn (first on turn 2): summon a Turret in an empty slot (40% of your max HP, 60% ATK). If the board is full, fire a rocket for 130% ATK at the nearest enemy instead.',
+    description: 'Every 4th turn (first on turn 2): summon a Turret in an empty slot (50% of your max HP, 60% ATK). If the board is full, fire a rocket for 160% ATK at the nearest enemy instead.',
     cooldown: 4,
     initialCooldown: 2,
-    effects: [{ kind: 'summon', summon: turret, fallback: [{ kind: 'damage', target: 'nearest', amount: { atk: 1.3 } }] }],
+    effects: [{ kind: 'summon', summon: turret, fallback: [{ kind: 'damage', target: 'nearest', amount: { atk: 1.6 } }] }],
   },
   triggers: [on('onTurnStart', 'Field Repairs', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 3 } }], { chance: 0.3 })],
 };

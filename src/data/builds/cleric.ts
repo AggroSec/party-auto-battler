@@ -55,16 +55,16 @@ export const inquisitor = advanced({
   ability: {
     id: 'judgment',
     name: 'Judgment',
-    description: 'Every 3rd turn: deal 200% ATK piercing to the strongest enemy and heal yourself for 100% ATK.',
+    description: 'Every 3rd turn: deal 170% ATK piercing to the strongest enemy and heal yourself for 100% ATK.',
     cooldown: 3,
     effects: [
-      { kind: 'damage', target: 'highestAtk', amount: { atk: 2 }, pierce: true },
+      { kind: 'damage', target: 'highestAtk', amount: { atk: 1.7 }, pierce: true },
       { kind: 'heal', target: 'self', amount: { atk: 1 } },
     ],
   },
   modifier: {
     stats: { atk: 2, def: 1 },
-    triggers: [on('onAbility', 'Condemn', [{ kind: 'debuff', target: 'highestAtk', stat: 'def', amount: { flat: 2 } }])],
+    triggers: [on('onAbility', 'Condemn', [{ kind: 'debuff', target: 'highestAtk', stat: 'def', amount: { flat: 1 } }])],
   },
   talents: [
     talent('inquisitor/zeal', 'Zeal', '+3 ATK.', { stats: { atk: 3 } }),

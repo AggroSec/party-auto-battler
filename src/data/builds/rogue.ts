@@ -28,8 +28,8 @@ export const assassin = advanced({
     effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 3.2 } }],
   },
   modifier: {
-    stats: { atk: 3 },
-    triggers: [on('onKill', 'Vanish', [{ kind: 'shield', target: 'self', amount: { flat: 6 } }])],
+    stats: { atk: 3, hp: 4, spd: 1 },
+    triggers: [on('onKill', 'Vanish', [{ kind: 'shield', target: 'self', amount: { flat: 8 } }])],
   },
   talents: [
     talent('assassin/execute', 'Execute', '+50% ability power.', { abilityPower: 0.5 }),

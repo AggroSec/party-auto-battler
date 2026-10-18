@@ -23,16 +23,16 @@ export const knight = advanced({
   ability: {
     id: 'holy-bulwark',
     name: 'Holy Bulwark',
-    description: 'Every 3rd turn: shield all allies for 2 + 100% DEF and taunt for 1 turn.',
+    description: 'Every 3rd turn: shield all allies for 2 + 60% DEF and taunt for 1 turn.',
     cooldown: 3,
     effects: [
-      { kind: 'shield', target: 'allAllies', amount: { flat: 2, def: 1 } },
+      { kind: 'shield', target: 'allAllies', amount: { flat: 2, def: 0.6 } },
       { kind: 'taunt', target: 'self', turns: 1 },
     ],
   },
   modifier: {
     stats: { hp: 8, def: 2 },
-    triggers: [on('onHurt', 'Stalwart', [{ kind: 'shield', target: 'self', amount: { flat: 3 } }], { chance: 0.25 })],
+    triggers: [on('onHurt', 'Stalwart', [{ kind: 'shield', target: 'self', amount: { flat: 3 } }], { chance: 0.2 })],
   },
   talents: [
     talent('knight/aegis', 'Aegis', 'Start of combat: shield all allies for 5.', trig(

@@ -26,16 +26,16 @@ export const shapeshifter = advanced({
   ability: {
     id: 'maul',
     name: 'Maul',
-    description: 'Every 3rd turn: deal 140% ATK to the nearest enemy and taunt for 1 turn.',
+    description: 'Every 3rd turn: deal 170% ATK to the nearest enemy and taunt for 1 turn.',
     cooldown: 3,
     effects: [
-      { kind: 'damage', target: 'nearest', amount: { atk: 1.4 } },
+      { kind: 'damage', target: 'nearest', amount: { atk: 1.7 } },
       { kind: 'taunt', target: 'self', turns: 1 },
     ],
   },
   statWeights: { hp: 5, atk: 2, def: 3, spd: 1 },
   modifier: {
-    stats: { hp: 14, def: 2, atk: 1 },
+    stats: { hp: 18, def: 2, atk: 2 },
     triggers: [
       on('onBloodied', 'Primal Fury', [
         { kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 3 } },
@@ -60,8 +60,8 @@ export const shapeshifter = advanced({
 const treant: SummonDef = {
   name: 'Treant',
   classId: 'treant',
-  hp: { maxHp: 0.6 },
-  atk: { atk: 0.5 },
+  hp: { maxHp: 0.8 },
+  atk: { atk: 0.6 },
   def: 2,
   spd: 7,
   range: 'melee',
@@ -78,15 +78,15 @@ export const groveWarden = advanced({
   ability: {
     id: 'call-of-the-grove',
     name: 'Call of the Grove',
-    description: 'Every 4th turn (first on turn 2): summon a Treant in an empty slot (60% of your max HP, 50% ATK). If the board is full, heal all allies for 80% ATK instead.',
-    cooldown: 4,
+    description: 'Every 3rd turn (first on turn 2): summon a Treant in an empty slot (80% of your max HP, 60% ATK). If the board is full, heal all allies for 120% ATK instead.',
+    cooldown: 3,
     initialCooldown: 2,
-    effects: [{ kind: 'summon', summon: treant, fallback: [{ kind: 'heal', target: 'allAllies', amount: { atk: 0.8 } }] }],
+    effects: [{ kind: 'summon', summon: treant, fallback: [{ kind: 'heal', target: 'allAllies', amount: { atk: 1.2 } }] }],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
   modifier: {
-    stats: { hp: 6, atk: 1 },
-    triggers: [on('onTurnStart', 'Rejuvenate', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 2 } }])],
+    stats: { hp: 10, atk: 2 },
+    triggers: [on('onTurnStart', 'Rejuvenate', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 3 } }])],
   },
   talents: [
     talent('grove-warden/bloom', 'Bloom', 'After your ability, heal all allies for 50% ATK.', trig(
@@ -109,7 +109,7 @@ export const druidClass: ClassDef = {
   tags: ['wild', 'nature'],
   unlockable: false,
   description: 'Nature caster who slows the enemy front line; becomes a bear or a healer.',
-  baseStats: { hp: 30, atk: 5, def: 1, spd: 9 },
+  baseStats: { hp: 34, atk: 5, def: 1, spd: 9 },
   range: 'ranged',
   placement: 3,
   statWeights: { hp: 4, atk: 2, def: 2, spd: 1 },
@@ -119,10 +119,10 @@ export const druidClass: ClassDef = {
   ability: {
     id: 'entangle',
     name: 'Entangle',
-    description: 'Every 3rd turn: deal 70% ATK to each enemy in the front row and slow them by 1 SPD.',
+    description: 'Every 3rd turn: deal 90% ATK to each enemy in the front row and slow them by 1 SPD.',
     cooldown: 3,
     effects: [
-      { kind: 'damage', target: 'enemyFrontRow', amount: { atk: 0.7 } },
+      { kind: 'damage', target: 'enemyFrontRow', amount: { atk: 0.9 } },
       { kind: 'debuff', target: 'enemyFrontRow', stat: 'spd', amount: { flat: 1 } },
     ],
   },

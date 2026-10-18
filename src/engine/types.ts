@@ -51,6 +51,8 @@ export type TargetSelector =
   | 'self'
   | 'lowestHpAlly'
   | 'allAllies'
+  /** Every living ally except the source. */
+  | 'otherAllies'
   | 'triggerSource'
   | 'triggerTarget';
 
@@ -85,9 +87,10 @@ export type Effect =
   | { kind: 'debuff'; target: TargetSelector; stat: BuffableStat; amount: Amount }
   /**
    * Shifts the target's ability cooldown by `turns`: negative = cast sooner
-   * (haste), positive = delay. A hasted ability casts no sooner than next turn.
+   * (haste), positive = delay. Haste never takes a cooldown below `min`
+   * (default 1: casts no sooner than next turn).
    */
-  | { kind: 'cooldown'; target: TargetSelector; turns: number }
+  | { kind: 'cooldown'; target: TargetSelector; turns: number; min?: number }
   /**
    * The target draws fire: enemies' single-target attacks and abilities must
    * pick a taunting unit while one is alive. Area effects are unaffected.

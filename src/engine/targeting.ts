@@ -77,6 +77,8 @@ export function selectTargets(
       return one(minBy(allies, (u) => u.hp / u.maxHp));
     case 'allAllies':
       return [...allies].sort(byOrder);
+    case 'otherAllies':
+      return allies.filter((u) => u !== source).sort(byOrder);
     case 'triggerSource':
       return ctx.triggerSource?.alive ? [ctx.triggerSource] : [];
     case 'triggerTarget':

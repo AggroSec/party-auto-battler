@@ -26,13 +26,13 @@ export const windwalker = advanced({
   ability: {
     id: 'hundred-fists',
     name: 'Hundred Fists',
-    description: 'Every 3rd turn: strike random enemies 5 times for 35% ATK each.',
+    description: 'Every 3rd turn: strike random enemies 5 times for 45% ATK each.',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.35 }, hits: 5 }],
+    effects: [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.45 }, hits: 5 }],
   },
   statWeights: { hp: 1, atk: 3, def: 1, spd: 5 },
   modifier: {
-    stats: { spd: 3, atk: 1, hp: 4 },
+    stats: { spd: 3, atk: 2, hp: 6 },
     triggers: [on('onKill', 'Wind Step', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 2 } }])],
   },
   talents: [
@@ -58,20 +58,20 @@ export const ironFist = advanced({
   ability: {
     id: 'counterstance',
     name: 'Counterstance',
-    description: 'Every 3rd turn: shield yourself for 4 + 150% DEF and taunt for 1 turn.',
+    description: 'Every 3rd turn: shield yourself for 3 + 120% DEF and taunt for 1 turn.',
     cooldown: 3,
     effects: [
-      { kind: 'shield', target: 'self', amount: { flat: 4, def: 1.5 } },
+      { kind: 'shield', target: 'self', amount: { flat: 3, def: 1.2 } },
       { kind: 'taunt', target: 'self', turns: 1 },
     ],
   },
   statWeights: { hp: 4, atk: 2, def: 3, spd: 2 },
   modifier: {
-    stats: { hp: 10, def: 2 },
-    triggers: [on('onHurt', 'Riposte', [{ kind: 'damage', target: 'triggerSource', amount: { atk: 0.6 } }], { chance: 0.35 })],
+    stats: { hp: 8, def: 2 },
+    triggers: [on('onHurt', 'Riposte', [{ kind: 'damage', target: 'triggerSource', amount: { atk: 0.6 } }], { chance: 0.25 })],
   },
   talents: [
-    talent('iron-fist/stone-body', 'Stone Body', '+3 DEF, −1 SPD.', { stats: { def: 3, spd: -1 } }),
+    talent('iron-fist/stone-body', 'Stone Body', '+3 DEF, −2 SPD.', { stats: { def: 3, spd: -2 } }),
     talent('iron-fist/retaliate', 'Retaliate', '25% when hurt: strike the attacker for 100% ATK.', trig(
       on('onHurt', 'Retaliate', [{ kind: 'damage', target: 'triggerSource', amount: { atk: 1 } }], { chance: 0.25 }),
     )),

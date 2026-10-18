@@ -117,7 +117,8 @@ function applyEffect(
     }
     case 'cooldown': {
       for (const target of selectTargets(state, source, effect.target, ctx)) {
-        target.cooldown = Math.max(1, target.cooldown + effect.turns);
+        const floor = effect.turns < 0 ? Math.max(1, effect.min ?? 1) : 1;
+        target.cooldown = Math.max(Math.min(floor, target.cooldown), target.cooldown + effect.turns);
         emit(state, {
           tick: state.tick,
           type: 'cooldown',

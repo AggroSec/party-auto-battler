@@ -2,8 +2,8 @@ import type { ClassDef } from '../class-types.ts';
 import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const bardTalents = [
-  talent('bard/allegro', 'Allegro', 'Start of combat: all allies gain +1 more SPD.', trig(
-    on('startOfCombat', 'Allegro', [{ kind: 'buff', target: 'allAllies', stat: 'spd', amount: { flat: 1 } }]),
+  talent('bard/allegro', 'Allegro', 'Start of combat: gain +3 SPD.', trig(
+    on('startOfCombat', 'Allegro', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 3 } }]),
   )),
   talent('bard/dirge', 'Dirge', 'After your ability, the enemy front row loses 1 ATK.', trig(
     on('onAbility', 'Dirge', [{ kind: 'debuff', target: 'enemyFrontRow', stat: 'atk', amount: { flat: 1 } }]),
@@ -59,8 +59,8 @@ export const trickster = advanced({
   ability: {
     id: 'discord',
     name: 'Discord',
-    description: "Every 3rd turn: every enemy's ability comes 1 turn later, and the strongest enemy loses 2 ATK.",
-    cooldown: 3,
+    description: "Every 4th turn: every enemy's ability comes 1 turn later, and the strongest enemy loses 2 ATK.",
+    cooldown: 4,
     effects: [
       { kind: 'cooldown', target: 'allEnemies', turns: 1 },
       { kind: 'debuff', target: 'highestAtk', stat: 'atk', amount: { flat: 2 } },
@@ -78,8 +78,8 @@ export const trickster = advanced({
     talent('trickster/vanish', 'Vanish', 'When bloodied, shield yourself for 30% of max HP.', trig(
       on('onBloodied', 'Vanish', [{ kind: 'shield', target: 'self', amount: { maxHp: 0.3 } }]),
     )),
-    talent('trickster/cacophony', 'Cacophony', 'Discord also deals 50% ATK to every enemy.', trig(
-      on('onAbility', 'Cacophony', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.5 } }]),
+    talent('trickster/cacophony', 'Cacophony', 'Discord also deals 40% ATK to every enemy.', trig(
+      on('onAbility', 'Cacophony', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.4 } }]),
     )),
     talent('trickster/backfire', 'Backfire', "30% when hurt: the attacker's ability comes 1 turn later.", trig(
       on('onHurt', 'Backfire', [{ kind: 'cooldown', target: 'triggerSource', turns: 1 }], { chance: 0.3 }),
