@@ -1,5 +1,5 @@
 import { applyEffects, dealDamage, fireTriggers } from './effects.ts';
-import type { CombatResult, Winner } from './events.ts';
+import type { CombatResult, UnitId, Winner } from './events.ts';
 import type { Rng } from './rng.ts';
 import {
   createCombatUnits,
@@ -59,7 +59,6 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
     }
     for (const unit of readyUnits(state)) {
       if (!unit.alive) continue;
-      unit.gauge -= ACTION_THRESHOLD;
       takeTurn(state, unit);
       winner = checkWinner(state);
       if (winner !== null) break;
@@ -125,7 +124,10 @@ export function readyUnits(state: CombatState): CombatUnit[] {
 }
 
 function takeTurn(state: CombatState, unit: CombatUnit): void {
-  emit(state, { tick: state.tick, type: 'turn', source: unit.id });
+  const gauges: Record<UnitId, number> = {};
+  for (const u of state.units) if (u.alive) gauges[u.id] = u.gauge;
+  emit(state, { tick: state.tick, type: 'turn', source: unit.id, gauges });
+  unit.gauge -= ACTION_THRESHOLD;
   if (unit.taunt > 0) unit.taunt -= 1;
   fireTriggers(state, unit, 'onTurnStart', {}, 0);
   if (!unit.alive || checkWinner(state) !== null) return;
