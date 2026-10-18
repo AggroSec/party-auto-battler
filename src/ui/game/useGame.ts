@@ -90,7 +90,7 @@ export function useGame() {
       const r = applyShopAction(run, action, ctx);
       logPlay(r.ok ? { type: 'action', run: runId, action } : { type: 'action', run: runId, action, error: r.error });
       if (r.ok) {
-        const gained = levelUps(run.board, r.state.board);
+        const gained = levelUps(run.board, r.state.board, ctx.config.progression);
         if (gained.length > 0) setRecentLevelUps((l) => mergeLevelUps(l, gained));
         setRun(r.state);
         setError(null);
@@ -108,7 +108,7 @@ export function useGame() {
     logPlay({ type: 'fight', run: runId, round: run.round, winner: r.combat.winner });
     const { progression } = ctx.config;
     const xp = { player: progression.xpPerWin, enemy: progression.xpPerLoss, draw: progression.xpPerDraw }[r.combat.winner];
-    const gained = levelUps(run.board, r.state.board);
+    const gained = levelUps(run.board, r.state.board, ctx.config.progression);
     setLastFight({ round: run.round, combat: r.combat, board: run.board, enemy: r.enemyBuilds, income: r.income, xp, levelUps: gained });
     setRecentLevelUps(gained);
     setStats((s) => addFightStats(s, run.board, r.combat));

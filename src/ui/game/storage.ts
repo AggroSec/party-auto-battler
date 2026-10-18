@@ -4,8 +4,8 @@
 
 const PREFIX = 'pab:';
 
-/** Bump when the saved shape changes incompatibly; older saves are ignored. */
-export const SAVE_VERSION = 1;
+/** Bump when the saved shape changes incompatibly; older saves are ignored. v2 (M5): stat points replace growth rolls. */
+export const SAVE_VERSION = 2;
 
 interface Envelope<T> {
   v: number;

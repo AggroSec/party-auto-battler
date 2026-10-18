@@ -51,6 +51,11 @@ export function UnitCard({
             🎒
           </span>
         ))}
+        {unit.statPoints > 0 && (
+          <span className="badge points" title={`${unit.statPoints} stat points to spend (click the unit)`}>
+            +{unit.statPoints}
+          </span>
+        )}
         {pendingChoice && (
           <span className="badge star" title="Level-up choice waiting">
             ⭐

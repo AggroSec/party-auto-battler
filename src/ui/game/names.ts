@@ -1,8 +1,8 @@
-import type { RunContent, ShopOffer } from '../../engine/run/index.ts';
+import { spentPoints, STATS, type OwnedUnit, type RunContent, type RunContext, type ShopOffer } from '../../engine/run/index.ts';
 
-/** Display name for a base or advanced class id. */
+/** Display name for a base or advanced class id (summons show as "Summon"). */
 export function className(content: RunContent, id: string): string {
-  return content.classes[id]?.name ?? content.advancedClasses[id]?.name ?? id;
+  return content.classes[id]?.name ?? content.advancedClasses[id]?.name ?? 'Summon';
 }
 
 export function offerLabel(content: RunContent, offer: ShopOffer): { title: string; detail: string } {
@@ -17,4 +17,12 @@ export function offerLabel(content: RunContent, offer: ShopOffer): { title: stri
     case 'training':
       return { title: `${className(content, offer.classId)} Training`, detail: `+${offer.xp} XP to one ${className(content, offer.classId)}.` };
   }
+}
+
+/** "HP 4 · ATK 6 · SPD 3": points spent so far, for the inspector. */
+export function spentSummary(unit: OwnedUnit, ctx: RunContext): string {
+  const spent = spentPoints(unit, ctx.config.progression);
+  return STATS.filter((k) => spent[k] > 0)
+    .map((k) => `${k.toUpperCase()} ${spent[k]}`)
+    .join(' · ');
 }

@@ -1,8 +1,9 @@
 import type { UnitSetup } from '../../engine/index.ts';
-import { maxLevel, type OwnedUnit, type RunContext, type SlotRef } from '../../engine/run/index.ts';
+import { maxLevel, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
-import { className } from './names.ts';
+import { className, spentSummary } from './names.ts';
+import { StatPanel } from './StatPanel.tsx';
 
 function ItemRow({
   unit,
@@ -59,6 +60,7 @@ export function Inspector({
   onSellItem,
   onMoveUnit,
   onSell,
+  onAllocate,
   onClose,
 }: {
   unit: OwnedUnit;
@@ -71,6 +73,7 @@ export function Inspector({
   onSellItem: (index: number) => void;
   onMoveUnit: () => void;
   onSell: () => void;
+  onAllocate: (points: StatPoints) => void;
   onClose: () => void;
 }) {
   const { content, config } = ctx;
@@ -96,7 +99,12 @@ export function Inspector({
           ✕
         </button>
       </header>
-      <p className="muted">XP {unit.xp}{next !== undefined ? ` / ${next} for level ${unit.level + 1}` : ' (max level)'}</p>
+      <p className="muted">
+        XP {unit.xp}
+        {next !== undefined ? ` / ${next} for level ${unit.level + 1}` : ' (max level: no more XP)'}
+        {spentSummary(unit, ctx) && ` · Points: ${spentSummary(unit, ctx)}`}
+      </p>
+      {unit.statPoints > 0 && <StatPanel key={`${unit.uid}:${unit.statPoints}`} unit={unit} ctx={ctx} onConfirm={onAllocate} />}
       {setup && (
         <p className="stats-line">
           ❤️ {setup.stats.hp} ⚔️ {setup.stats.atk} 🛡️ {setup.stats.def} 💨 {setup.stats.spd}

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { CombatResult } from '../../engine/index.ts';
-import type { RunContent } from '../../engine/run/index.ts';
+import { boardUnits, isMaxLevel, type RunContent } from '../../engine/run/index.ts';
 import { combatUnits, describeEvent } from '../format.ts';
 import { Arena } from './Arena.tsx';
 import { LevelUpGains } from './ChoicePanel.tsx';
@@ -44,6 +44,7 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
           <thead>
             <tr>
               <th>Unit</th>
+              <th title="Turns taken: basic attacks plus ability casts (✨)">Actions</th>
               <th>Dealt</th>
               <th>Taken</th>
               <th>Healed + shielded</th>
@@ -53,10 +54,15 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
             {combat.summary
               .filter((s) => s.side === side)
               .map((s) => (
-                <tr key={s.id} className={s.survived ? '' : 'dead'}>
+                <tr key={s.id} className={`${s.survived ? '' : 'dead'}${s.summonedBy ? ' summon-row' : ''}`}>
                   <td>
                     {classStyle(content, classOf.get(s.id) ?? '').glyph} {s.name}
+                    {s.summonedBy && <span className="muted"> (summon)</span>}
                     {s.kills > 0 && <span className="muted"> · {s.kills}💀</span>}
+                  </td>
+                  <td className="actions-cell">
+                    {s.attacks + s.abilities}
+                    {s.abilities > 0 && <span className="muted"> ({s.abilities}✨)</span>}
                   </td>
                   {[s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone].map((v, i) => (
                     <td key={i}>
@@ -99,7 +105,10 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
       <h2>{outcome.title}</h2>
       <p className="result-line">
         {fight.combat.winner === 'enemy' && <span>💔 −1 life ({game.run.lives} left) · </span>}
-        <span>⭐ +{fight.xp} XP to every unit</span>
+        <span>
+          ⭐ +{fight.xp} XP{' '}
+          {boardUnits(fight.board).some((u) => isMaxLevel(u, game.ctx.config.progression)) ? 'to every unit below max level' : 'to every unit'}
+        </span>
         {fight.income && (
           <span>
             {' '}

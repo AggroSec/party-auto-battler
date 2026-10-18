@@ -1,28 +1,25 @@
-// Which units levelled up between two boards, and the stats each gained.
-import type { Stats } from '../../engine/index.ts';
-import { boardUnits, type Board } from '../../engine/run/index.ts';
+// Which units levelled up between two boards, and the stat points that earned them.
+import { boardUnits, type Board, type ProgressionConfig } from '../../engine/run/index.ts';
 
 export interface LevelUp {
   uid: number;
   name: string;
   from: number;
   to: number;
-  /** Stats rolled from class growth across those levels. */
-  gained: Stats;
+  /** Stat points granted across those levels. */
+  points: number;
 }
 
-const STAT_KEYS = ['hp', 'atk', 'def', 'spd'] as const;
-
 /** Level-ups from `before` to `after`, matched by uid (a sold unit can't level up). */
-export function levelUps(before: Board, after: Board): LevelUp[] {
+export function levelUps(before: Board, after: Board, cfg: ProgressionConfig): LevelUp[] {
   const prev = new Map(boardUnits(before).map((u) => [u.uid, u]));
   const out: LevelUp[] = [];
   for (const u of boardUnits(after)) {
     const old = prev.get(u.uid);
     if (!old || u.level <= old.level) continue;
-    const gained = { hp: 0, atk: 0, def: 0, spd: 0 };
-    for (const k of STAT_KEYS) gained[k] = u.growth[k] - old.growth[k];
-    out.push({ uid: u.uid, name: u.name, from: old.level, to: u.level, gained });
+    let points = 0;
+    for (let level = old.level + 1; level <= u.level; level++) points += cfg.statPointsByLevel[level - 1] ?? 0;
+    out.push({ uid: u.uid, name: u.name, from: old.level, to: u.level, points });
   }
   return out;
 }
