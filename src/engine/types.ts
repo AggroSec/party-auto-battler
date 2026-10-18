@@ -95,6 +95,12 @@ export type Effect =
    */
   | { kind: 'taunt'; target: TargetSelector; turns: number }
   /**
+   * The source loses HP as a cost (true damage, not scaled by ability power).
+   * It credits no attacker, so it never feeds lifesteal or "when hurt by X"
+   * effects aimed at the attacker. It can make the source bloodied, or kill it.
+   */
+  | { kind: 'payHp'; amount: Amount }
+  /**
    * Put a new unit on the source's side in an empty slot (preferred row
    * first). Its HP and ATK scale with the summoner (and ability power). With
    * no empty slot, `fallback` effects are applied instead.

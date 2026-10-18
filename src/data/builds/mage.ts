@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const mageTalents = [
   talent('mage/focus', 'Arcane Focus', '+30% ability power.', { abilityPower: 0.3 }),
@@ -77,3 +78,27 @@ export const chronomancer = advanced({
     )),
   ],
 });
+
+export const mageClass: ClassDef = {
+  id: 'mage',
+  name: 'Mage',
+  role: 'caster',
+  tags: ['arcane'],
+  unlockable: false,
+  description: 'Fragile caster whose Fireball splashes across a row.',
+  baseStats: { hp: 24, atk: 7, def: 0, spd: 9 },
+  range: 'ranged',
+  placement: 4,
+  statWeights: { hp: 2, atk: 4, def: 0, spd: 1 },
+  talents: talentIds(mageTalents),
+  advancedClasses: ['pyromancer', 'chronomancer'],
+  attackTarget: 'nearest',
+  ability: {
+    id: 'fireball',
+    name: 'Fireball',
+    description: 'Every 3rd turn: deal 200% ATK to the weakest enemy and 50% of that to its row neighbours.',
+    cooldown: 3,
+    effects: [{ kind: 'damage', target: 'lowestHp', amount: { atk: 2 }, splash: 0.5 }],
+  },
+  triggers: [],
+};

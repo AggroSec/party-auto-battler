@@ -4,7 +4,7 @@ import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, unitCount } f
 import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from './build.ts';
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
-import { applyChoice, grantXp, talentOptions } from './progression.ts';
+import { allocatePoints, applyChoice, grantXp, isMaxLevel, recommendedAllocation, talentOptions } from './progression.ts';
 import { rollShop } from './shop.ts';
 import type { ActionResult, FightResult, OwnedUnit, RunContext, RunError, RunState, ShopAction } from './types.ts';
 
@@ -85,6 +85,7 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
           unit.items.push(offer.itemId);
         } else {
           if (unit.classId !== offer.classId) return fail('wrongClass');
+          if (isMaxLevel(unit, progression)) return fail('maxLevel');
           addXp(next, unit, offer.xp, ctx);
         }
       }
@@ -156,6 +157,23 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
       }
       return { ok: true, state: next };
     }
+    case 'allocate': {
+      if (!isValidSlot(action.at)) return fail('invalidSlot');
+      const unit = getSlot(next.board, action.at);
+      if (!unit) return fail('emptySlot');
+      const total = Object.values(action.points).reduce((s, n) => s + (n ?? 0), 0);
+      if (total > unit.statPoints) return fail('notEnoughPoints');
+      if (!allocatePoints(unit, action.points, progression)) return fail('invalidAllocation');
+      return { ok: true, state: next };
+    }
+  }
+}
+
+/** Spend every unit's leftover stat points on its recommended spread. */
+export function autoAllocate(state: RunState, ctx: RunContext): void {
+  const { progression } = ctx.config;
+  for (const unit of boardUnits(state.board)) {
+    if (unit.statPoints > 0) allocatePoints(unit, recommendedAllocation(unit, ctx.content, progression), progression);
   }
 }
 
@@ -169,6 +187,7 @@ export function fight(state: RunState, ctx: RunContext): FightResult {
   if (state.pending.length > 0) return fail('pendingChoice');
 
   const next = structuredClone(state);
+  autoAllocate(next, ctx);
   const playerParty = resolveBoard(next.board, ctx.content);
   const enemy = generateEnemy(next.seed, next.round, ctx);
   const combat = simulateCombat({

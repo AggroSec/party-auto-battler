@@ -200,7 +200,6 @@ export function buildTimeline(result: CombatResult): Frame[] {
   const open = (kind: FrameKind, tick: number) => {
     const prev = current ?? frames[0]!;
     current = emptyFrame(kind, tick, cloneUnits(prev.units));
-    current.gap = tick - prev.tick;
     frames.push(current);
     return current;
   };
@@ -211,8 +210,11 @@ export function buildTimeline(result: CombatResult): Frame[] {
     else if (e.type === 'combatEnd') frame = open('end', e.tick);
     apply(frame, e);
   }
-  // Drop an empty start-of-combat frame (no triggers fired before the first turn).
-  return frames.filter((f, i) => i === 0 || f.kind !== 'start' || f.fx.length > 0);
+  // Drop an empty start-of-combat frame (no triggers fired before the first turn),
+  // then measure each frame's gap from the frame actually shown before it.
+  const shown = frames.filter((f, i) => i === 0 || f.kind !== 'start' || f.fx.length > 0);
+  shown.forEach((f, i) => (f.gap = i === 0 ? 0 : f.tick - shown[i - 1]!.tick));
+  return shown;
 }
 
 /** Living units on a side at a frame. */

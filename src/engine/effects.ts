@@ -136,6 +136,11 @@ function applyEffect(
       }
       return;
     }
+    case 'payHp': {
+      const value = Math.max(0, Math.round(resolveAmount(effect.amount, source)));
+      if (value > 0) dealDamage(state, null, source, value, { true: true, by: source.id }, depth);
+      return;
+    }
     case 'summon': {
       if (!summonUnit(state, source, effect.summon, power) && effect.fallback) {
         applyEffects(state, source, effect.fallback, ctx, depth, power);

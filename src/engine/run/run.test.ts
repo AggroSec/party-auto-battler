@@ -204,6 +204,46 @@ describe('fight', () => {
   });
 });
 
+describe('stat points, level cap and full-party shop', () => {
+  const ctx = makeCtx({ enemies: [ARCHETYPES.titan!] });
+  const at = { row: 'front', col: 0 } as const;
+
+  it('allocate spends points on the unit in a slot', () => {
+    const s = runWith('archer', ctx);
+    s.board.front[0]!.statPoints = 3;
+    const next = act(s, { type: 'allocate', at, points: { atk: 2, spd: 1 } }, ctx);
+    expect(next.board.front[0]).toMatchObject({ statPoints: 0, growth: { hp: 0, atk: 2, def: 0, spd: 1 } });
+    expect(applyShopAction(s, { type: 'allocate', at, points: { atk: 4 } }, ctx)).toEqual({ ok: false, error: 'notEnoughPoints' });
+    expect(applyShopAction(s, { type: 'allocate', at, points: { atk: -1 } }, ctx)).toEqual({ ok: false, error: 'invalidAllocation' });
+    expect(applyShopAction(s, { type: 'allocate', at: { row: 'back', col: 0 }, points: { atk: 1 } }, ctx)).toEqual({ ok: false, error: 'emptySlot' });
+  });
+
+  it('fighting spends leftover points on the recommended spread', () => {
+    const s = runWith('archer', ctx);
+    s.board.front[0]!.statPoints = 4;
+    const r = mustFight(s, ctx);
+    expect(r.state.board.front[0]).toMatchObject({ statPoints: expect.any(Number), growth: { hp: 3, atk: 2, def: 0, spd: 1 } });
+    expect(r.playerParty.front[0]?.stats.atk).toBe(TEST_CONFIG.progression.statPointValue.atk * 2 + 6);
+  });
+
+  it('max-level units refuse training, and the shop stops offering it for them', () => {
+    const c = makeCtx({ config: { shop: { unitSlots: 0, extraSlots: 30, trainingChance: 1, fullPartyUnitSlots: 0 } } });
+    const s = runWith('archer', c);
+    s.board.front[0]!.level = 5;
+    s.shop = [{ kind: 'training', classId: 'archer', xp: 2, cost: 3 }];
+    expect(applyShopAction(s, { type: 'buy', offer: 0, to: at }, c)).toEqual({ ok: false, error: 'maxLevel' });
+    expect(act(s, { type: 'reroll' }, c).shop.every((o) => o?.kind === 'item')).toBe(true);
+  });
+
+  it('a full board gets fewer recruit offers and more items', () => {
+    const c = makeCtx({ config: { shop: { unitSlots: 4, extraSlots: 2, trainingChance: 0, fullPartyUnitSlots: 2 } } });
+    let s = createRun('full', c);
+    for (const [row, col] of [['front', 0], ['front', 1], ['front', 2], ['back', 0], ['back', 1]] as const) s.board[row][col] = newUnit(10 + col + (row === 'back' ? 3 : 0), 'tank', `U${row}${col}`);
+    s = act(s, { type: 'reroll' }, c);
+    expect(s.shop.map((o) => o?.kind)).toEqual(['unit', 'unit', 'item', 'item', 'item', 'item']);
+  });
+});
+
 describe('determinism and saves', () => {
   const ctx = makeCtx({ config: { startingGold: 20 } });
   const script = (s: RunState): RunState => {

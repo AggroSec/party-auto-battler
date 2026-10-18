@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const rangerTalents = [
   talent('ranger/keen-eye', 'Keen Eye', '+1 ATK.', { stats: { atk: 1 } }),
@@ -70,3 +71,34 @@ export const beastmaster = advanced({
     )),
   ],
 });
+
+export const rangerClass: ClassDef = {
+  id: 'ranger',
+  name: 'Ranger',
+  role: 'striker',
+  tags: ['martial', 'wild'],
+  unlockable: false,
+  description: 'Ranged attacker who picks off the weakest enemy.',
+  baseStats: { hp: 26, atk: 5, def: 1, spd: 11 },
+  range: 'ranged',
+  placement: 3,
+  statWeights: { hp: 2, atk: 3, def: 1, spd: 3 },
+  talents: talentIds(rangerTalents),
+  advancedClasses: ['sharpshooter', 'beastmaster'],
+  attackTarget: 'lowestHp',
+  ability: {
+    id: 'volley',
+    name: 'Volley',
+    description: 'Every 3rd turn: fire 3 arrows at random enemies for 80% ATK each.',
+    cooldown: 3,
+    effects: [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.8 }, hits: 3 }],
+  },
+  triggers: [
+    {
+      label: 'Quick Shot',
+      on: 'onAttack',
+      chance: 0.25,
+      effects: [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 0.5 }, pierce: true }],
+    },
+  ],
+};

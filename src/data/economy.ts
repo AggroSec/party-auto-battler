@@ -20,6 +20,8 @@ export const RUN_CONFIG: RunConfig = {
     // Items and training (issue #5: training appears randomly, so rerolling chases it).
     extraSlots: 2,
     trainingChance: 0.35,
+    // Brandon (M5): once the party is full, offer mostly items and training.
+    fullPartyUnitSlots: 2,
   },
   progression: {
     // Levels 1-5. A unit bought in round 1 reaches level 3 around round 4.
@@ -28,6 +30,9 @@ export const RUN_CONFIG: RunConfig = {
     xpPerLoss: 1,
     xpPerDraw: 1,
     advanceLevel: 3,
+    // Brandon (M5): players spend stat points freely, with a bump at levels 3 and 5.
+    statPointsByLevel: [0, 3, 5, 3, 5],
+    statPointValue: { hp: 3, atk: 1, def: 1, spd: 1 },
     talentChoices: 3,
     trainingXp: 2,
     trainingCost: 3,

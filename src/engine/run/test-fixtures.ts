@@ -1,9 +1,9 @@
 // Synthetic content for run-layer tests, independent of real class balance.
 import { NEVER_CAST } from '../test-helpers.ts';
-import type { AdvancedClassDef, ClassTemplate, GrowthTable, ItemDef, SynergyDef, TalentDef } from './content-types.ts';
+import type { AdvancedClassDef, ClassTemplate, ItemDef, StatWeights, SynergyDef, TalentDef } from './content-types.ts';
 import type { EnemyArchetype, RunConfig, RunContext, RunContent } from './types.ts';
 
-const FLAT: GrowthTable = { hp: [2, 2], atk: [1, 1], def: [0, 0], spd: [0, 0] };
+const BALANCED: StatWeights = { hp: 1, atk: 1, def: 0, spd: 0 };
 
 const template = (id: string, over: Partial<ClassTemplate> & Pick<ClassTemplate, 'baseStats'>): ClassTemplate => ({
   id,
@@ -14,7 +14,7 @@ const template = (id: string, over: Partial<ClassTemplate> & Pick<ClassTemplate,
   triggers: [],
   placement: 0,
   tags: [],
-  growth: FLAT,
+  statWeights: BALANCED,
   talents: [],
   advancedClasses: [],
   ...over,
@@ -34,7 +34,7 @@ export const TEMPLATES = {
     attackTarget: 'lowestHp',
     placement: 3,
     tags: ['wild'],
-    growth: { hp: [1, 3], atk: [0, 2], def: [0, 1], spd: [1, 4] },
+    statWeights: { hp: 1, atk: 2, def: 0, spd: 1 },
   }),
   /** Wins any fight against the fixtures. */
   titan: template('titan', { baseStats: { hp: 999, atk: 999, def: 0, spd: 50 } }),
@@ -116,13 +116,15 @@ export const TEST_CONFIG: RunConfig = {
   unitCost: 3,
   sellRefund: 1,
   rerollCost: 1,
-  shop: { unitSlots: 4, extraSlots: 0, trainingChance: 0.5 },
+  shop: { unitSlots: 4, extraSlots: 0, trainingChance: 0.5, fullPartyUnitSlots: 4 },
   progression: {
     xpForLevel: [0, 2, 5, 9, 14],
     xpPerWin: 2,
     xpPerLoss: 1,
     xpPerDraw: 1,
     advanceLevel: 3,
+    statPointsByLevel: [0, 3, 5, 3, 5],
+    statPointValue: { hp: 3, atk: 1, def: 1, spd: 1 },
     talentChoices: 3,
     trainingXp: 2,
     trainingCost: 3,

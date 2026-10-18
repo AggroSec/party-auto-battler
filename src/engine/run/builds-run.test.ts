@@ -26,7 +26,7 @@ function setup(offers: ShopOffer[]): RunState {
 
 describe('shop extras', () => {
   it('rolls training only for classes on the board, items otherwise', () => {
-    const c = makeCtx({ config: { shop: { unitSlots: 0, extraSlots: 30, trainingChance: 0.5 } } });
+    const c = makeCtx({ config: { shop: { unitSlots: 0, extraSlots: 30, trainingChance: 0.5, fullPartyUnitSlots: 0 } } });
     expect(createRun('x', c).shop.every((o) => o?.kind === 'item')).toBe(true);
     let s = createRun('x', c);
     s.board.back[0] = newUnit(1, 'archer', 'A');

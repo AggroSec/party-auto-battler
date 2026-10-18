@@ -26,6 +26,8 @@ export interface DamageOptions {
   pierce?: boolean;
   /** True damage: ignore DEF and shields (sudden death). */
   true?: boolean;
+  /** For source-less damage: who the event log names as the source (default: sudden death). */
+  by?: string;
 }
 
 /** Restore HP to `target`, capped at max HP. Returns the amount actually healed. */
@@ -62,7 +64,7 @@ export function dealDamage(
   emit(state, {
     tick: state.tick,
     type: 'damage',
-    source: source?.id ?? OVERTIME_SOURCE,
+    source: source?.id ?? opts.by ?? OVERTIME_SOURCE,
     target: target.id,
     value: hpLost,
     absorbed: toShield,
@@ -75,7 +77,7 @@ export function dealDamage(
   }
 
   if (target.hp <= 0) {
-    kill(state, target, source, depth);
+    kill(state, target, source, depth, opts.by);
     return;
   }
   if (damage > 0) {
@@ -87,9 +89,9 @@ export function dealDamage(
   }
 }
 
-function kill(state: CombatState, target: CombatUnit, killer: CombatUnit | null, depth: number): void {
+function kill(state: CombatState, target: CombatUnit, killer: CombatUnit | null, depth: number, by?: string): void {
   target.alive = false;
-  emit(state, { tick: state.tick, type: 'death', target: target.id, source: killer?.id ?? OVERTIME_SOURCE });
+  emit(state, { tick: state.tick, type: 'death', target: target.id, source: killer?.id ?? by ?? OVERTIME_SOURCE });
   if (killer) {
     if (killer !== target && killer.side !== target.side) killer.stats.kills += 1;
     fireTriggers(state, killer, 'onKill', { triggerTarget: target }, depth);

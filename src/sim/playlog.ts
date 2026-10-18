@@ -68,6 +68,10 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       return `moved an item from ${unitAt(action.from)} to ${unitAt(action.to)}`;
     case 'reroll':
       return 'rerolled';
+    case 'allocate': {
+      const spent = Object.entries(action.points).filter(([, n]) => n).map(([k, n]) => `+${n} ${k.toUpperCase()}`);
+      return `${unitAt(action.at)} spent points: ${spent.join(', ') || 'none'}`;
+    }
     case 'choose': {
       const p = state.pending[0];
       const pick = p?.options[action.option];

@@ -73,3 +73,16 @@ describe('action counts', () => {
     expect(r.summary.find((x) => x.id === 'p0')).toMatchObject({ attacks: 6, abilities: 3 });
   });
 });
+
+describe('payHp', () => {
+  it('costs the source HP without crediting an attacker or feeding lifesteal', () => {
+    const thorns = { label: 'Thorns', on: 'onHurt' as const, effects: [{ kind: 'damage' as const, target: 'triggerSource' as const, amount: { flat: 5 } }] };
+    const s = makeState(party([{ ...unit({ stats: { hp: 50 } }), lifesteal: 1, triggers: [thorns] }]), party([unit()]));
+    const p0 = byId(s, 'p0');
+    applyEffects(s, p0, [{ kind: 'payHp', amount: { maxHp: 0.1 } }], {}, 0, 2);
+    expect(p0.hp).toBe(45);
+    expect(p0.stats.damageDealt).toBe(0);
+    expect(ofType(s.events, 'heal')).toHaveLength(0);
+    expect(ofType(s.events, 'damage')).toEqual([expect.objectContaining({ source: 'p0', target: 'p0', value: 5 })]);
+  });
+});

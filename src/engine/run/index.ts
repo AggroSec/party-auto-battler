@@ -1,4 +1,4 @@
-export { applyShopAction, createRun, fight } from './run.ts';
+export { applyShopAction, autoAllocate, createRun, fight } from './run.ts';
 export {
   allSlots,
   autoPlaceSlot,
@@ -24,7 +24,19 @@ export {
 } from './build.ts';
 export { interestFor, roundIncome, streakBonusFor } from './economy.ts';
 export { enemyCount, generateEnemy, roundScaling, type EnemyParty } from './enemies.ts';
-export { grantXp, maxLevel, rollGrowth, sample, talentOptions } from './progression.ts';
+export {
+  allocatePoints,
+  grantXp,
+  isMaxLevel,
+  maxLevel,
+  recommendedAllocation,
+  sample,
+  spentPoints,
+  statWeights,
+  STATS,
+  talentOptions,
+  type StatPoints,
+} from './progression.ts';
 export { rollShop } from './shop.ts';
 export type * from './types.ts';
 export type { PlayLogEntry } from './log.ts';

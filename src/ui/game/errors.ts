@@ -16,4 +16,7 @@ export const ERROR_TEXT: Record<RunError, string> = {
   pendingChoice: 'Choose your level-up rewards before fighting.',
   noPendingChoice: 'Nothing to choose.',
   invalidChoice: 'Invalid choice.',
+  maxLevel: 'That unit is already max level.',
+  invalidAllocation: 'Invalid stat points.',
+  notEnoughPoints: 'Not enough stat points.',
 };

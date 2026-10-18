@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const clericTalents = [
   talent('cleric/devotion', 'Devotion', '+30% ability power.', { abilityPower: 0.3 }),
@@ -76,3 +77,33 @@ export const inquisitor = advanced({
     talent('inquisitor/sanctified', 'Sanctified Blade', '+20% lifesteal.', { lifesteal: 0.2 }),
   ],
 });
+
+export const clericClass: ClassDef = {
+  id: 'cleric',
+  name: 'Cleric',
+  role: 'support',
+  tags: ['divine'],
+  unlockable: false,
+  description: 'Healer who shields the party at the start of combat.',
+  baseStats: { hp: 30, atk: 4, def: 2, spd: 9 },
+  range: 'ranged',
+  placement: 2,
+  statWeights: { hp: 3, atk: 2, def: 2, spd: 1 },
+  talents: talentIds(clericTalents),
+  advancedClasses: ['priest', 'inquisitor'],
+  attackTarget: 'nearest',
+  ability: {
+    id: 'mend',
+    name: 'Mend',
+    description: 'Every 2nd turn: heal the most injured ally for 250% ATK.',
+    cooldown: 2,
+    effects: [{ kind: 'heal', target: 'lowestHpAlly', amount: { atk: 2.5 } }],
+  },
+  triggers: [
+    {
+      label: 'Blessing',
+      on: 'startOfCombat',
+      effects: [{ kind: 'shield', target: 'allAllies', amount: { atk: 1 } }],
+    },
+  ],
+};

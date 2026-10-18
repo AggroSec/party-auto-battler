@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const warriorTalents = [
   talent('warrior/intimidate', 'Intimidating Cleave', 'After Cleave, the enemy front row loses 1 ATK.', trig(
@@ -74,3 +75,34 @@ export const berserker = advanced({
     )),
   ],
 });
+
+export const warriorClass: ClassDef = {
+  id: 'warrior',
+  name: 'Warrior',
+  role: 'frontline',
+  tags: ['martial', 'guardian'],
+  unlockable: false,
+  description: 'Durable front-liner who hits the whole enemy front row.',
+  baseStats: { hp: 42, atk: 6, def: 3, spd: 8 },
+  range: 'melee',
+  placement: 0,
+  statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
+  talents: talentIds(warriorTalents),
+  advancedClasses: ['knight', 'berserker'],
+  attackTarget: 'nearest',
+  ability: {
+    id: 'cleave',
+    name: 'Cleave',
+    description: 'Every 3rd turn: deal 80% ATK to each enemy in the front row.',
+    cooldown: 3,
+    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 0.8 } }],
+  },
+  triggers: [
+    {
+      label: 'Battle Hardened',
+      on: 'onHurt',
+      limit: 3,
+      effects: [{ kind: 'buff', target: 'self', stat: 'def', amount: { flat: 1 } }],
+    },
+  ],
+};

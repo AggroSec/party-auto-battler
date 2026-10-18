@@ -2,7 +2,7 @@ import { Rng } from '../rng.ts';
 import { BACK_SLOTS, FRONT_SLOTS, type Party, type Stats } from '../types.ts';
 import { autoPlaceSlot, emptyBoard, setSlot } from './board.ts';
 import { classFor, newUnit, resolveBoard } from './build.ts';
-import { applyChoice, grantXp, talentOptions } from './progression.ts';
+import { allocatePoints, applyChoice, grantXp, recommendedAllocation, talentOptions } from './progression.ts';
 import type { Board, OwnedUnit, RunContent, RunContext } from './types.ts';
 
 const tableAt = (table: readonly number[], round: number): number => {
@@ -39,6 +39,7 @@ function developEnemy(unit: OwnedUnit, round: number, ctx: RunContext, rng: Rng)
     const options = choice.options.length > 0 ? choice.options : (talentOptions(unit, choice.level, ctx.content, cfg, rng) ?? []);
     if (options.length > 0) applyChoice(unit, { ...choice, options }, rng.int(options.length));
   }
+  allocatePoints(unit, recommendedAllocation(unit, ctx.content, cfg), cfg);
   const items = stochasticRound(tableAt(ctx.content.enemyProgression.itemsByRound, round), rng);
   for (let i = 0; i < Math.min(items, cfg.maxItemsPerUnit) && ctx.content.itemPool.length > 0; i++) {
     unit.items.push(rng.pick(ctx.content.itemPool));
