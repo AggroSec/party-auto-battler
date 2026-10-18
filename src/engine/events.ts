@@ -23,7 +23,8 @@ export interface UnitSnapshot {
  */
 export type CombatEvent =
   | { tick: number; type: 'combatStart'; units: UnitSnapshot[] }
-  | { tick: number; type: 'turn'; source: UnitId }
+  /** `gauges`: every living unit's action gauge as the turn starts (the actor's is still full). */
+  | { tick: number; type: 'turn'; source: UnitId; gauges: Record<UnitId, number> }
   | { tick: number; type: 'attack'; source: UnitId; target: UnitId }
   | { tick: number; type: 'ability'; source: UnitId; abilityId: string; name: string }
   | { tick: number; type: 'trigger'; source: UnitId; label: string; on: TriggerEvent }

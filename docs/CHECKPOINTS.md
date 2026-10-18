@@ -2,6 +2,75 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 4 — Playable UI (2026-10-17)
+
+### What was built
+
+The debug view is gone; the game now has real screens.
+
+- **Title screen:** continue your saved run, start a new one (optionally with a custom seed), see your best run and a short how-to. The combat lab is linked at the bottom.
+- **Shop screen:**
+  - A HUD with round, gold, lives as hearts, a wins bar and streaks.
+  - The six offers as cards: a recruit card shows the class's stats, ability and tags; item cards show the class bonus.
+  - **The party board with drag and drop:**
+    - Drag a recruit into a slot to buy it there.
+    - Drag an item or training card onto a unit to give it to that unit.
+    - Drag units to reposition or swap them.
+    - Drag a unit or an item to the sell zone that appears at the bottom.
+    - Everything also works by clicking.
+  - **A unit inspector** with the full build: final stats, ability, talents, items with their own Move/Sell buttons, and draggable item chips.
+  - **Synergy progress,** e.g. "1/2 guardian → Shield Wall", so you can plan toward a tier.
+  - Warning badges for melee units in the back row without reach, and ⭐ on units with a level-up waiting.
+- **Combat screen:**
+  - The fight plays back turn by turn from the engine's event log. The acting unit lunges, hit units shake, and floating numbers show damage, healing, shields and stat changes.
+  - Ability and trigger names pop up, HP bars drain, taunts show 🎯, and sudden death is announced.
+  - **Action gauges** (review feedback): each unit has a bar under its HP that fills by its SPD and turns gold when it acts, with the SPD shown beside it. Time between turns now scales with how many ticks passed, so faster units visibly act more often.
+  - Controls: pause, 1x, 2x, skip and replay.
+  - **End-of-fight panel:** victory/defeat, lives, XP and income, **every level-up with the stats it rolled** (review feedback; also shown on the level-up choice panel, including level-ups from training), a per-unit dealt/taken/healed table for both sides, and the full combat log on request.
+- **Run summary:** every round's result and enemy classes, the final party with each unit's run totals, and an MVP.
+- **Saving:** the run is saved to localStorage after every action, so a refresh doesn't lose it. Best run and playback speed are remembered. Every storage access is guarded.
+- **Works on phones:** drag uses pointer events, so touch works, and the page auto-scrolls while you drag near the screen edge. The layout goes down to phone width with no sideways scrolling.
+- **Small fix:** recruit names are unique within your party and the shop. Two units called "Lark" in one party made fights confusing.
+
+**Tests:** 205, up from 180. New tests cover:
+- Turn events record every living unit's gauge; the playback shows the actor full and never drains a gauge except when its unit acts.
+- Level-up stat gains between two boards.
+- The playback timeline: frame per turn, every event replayed once, final HP and survivors match the engine.
+- Drag-and-drop rules and their encoding.
+- Merged floating text.
+- Storage: round-trip, corrupt/old/invalid data, and blocked or missing storage never throwing.
+- Saved-run validation, run stats, best-run ordering, unique recruit names, and play-log resume.
+
+**Verified in a real browser** (headless Chrome, scripted):
+- Mouse drag-buy into a slot, click-buy, drag-move, drag an item onto a unit, and drag an item to the sell zone.
+- Touch drag from the shop to the board on a 390px-wide screen, with auto-scroll.
+- Fight → playback → skip → result → continue, reload → Continue run, and a full run through to the summary.
+- No console errors, no horizontal overflow.
+
+### What to playtest (and how)
+
+1. `npm run dev`, then open the printed URL. On a phone on the same network, `npm run dev -- --host` also works.
+2. **Feel of the shop:** does dragging feel natural? Try buying straight into a back-row slot, giving an item to a unit by dropping it on them, and swapping two units.
+3. **Combat readability:** at 1x, can you follow who hits whom and why units die? Is 2x the right "fast" speed? Watch a Knight taunt (🎯) and a sudden-death fight.
+4. **The result panel:** is the damage table useful? Is the combat log worth keeping?
+5. **Refresh mid-run** and use Continue. Try a custom seed twice to see the same run.
+6. Your play is logged in dev; afterwards, tell me and I'll read it with `npm run playlog` and send pointers.
+
+### Known issues
+
+- **Placeholder art:** emoji glyphs stand in for icons. The game-icons.net set and the credits screen come in M5, as the brief schedules them, along with sound.
+- **Phone combat view is tight:** on a 390px screen, unit names truncate and the floating numbers overlap the name. It's readable, but I'd polish it in M5.
+- **Balance is unchanged from M3:** the late-game wall (about 19% at round 11) is still the top M5 item. The simulator re-run gives identical numbers, since the name fix uses the same random draws.
+- **The bots don't sell items,** so the simulator doesn't exercise item selling.
+
+### Open question for you
+
+- **Should you see the next enemy before the fight?** Right now you find out when combat starts. Showing it (or part of it, e.g. its classes) during the shop would make positioning and item choices more deliberate, but it's a design change, so it's your call. It would be an easy add in M5.
+
+### Simulator balance numbers
+
+No rule or content changes in M4, and the re-run matches M3's follow-up report exactly: completion is sensible 24.3%, greedy 21.1%, synergy 16.4%, random 5.9%; 0 tick-cap hits, 0 stuck runs. Full tables are in [BALANCE.md](BALANCE.md).
+
 ## Milestone 3 — Builds (2026-10-17)
 
 ### What was built

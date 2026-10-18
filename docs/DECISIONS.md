@@ -2,6 +2,39 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-17 — Milestone 4
+
+All decided autonomously. The UI is in scope for this milestone, and none of these choices changes a game rule.
+
+### Rendering and architecture
+- **Combat is rendered with DOM and CSS animations, not canvas** (the brief left this to me). The battlefield is at most 10 cards. DOM gives free text layout, accessibility (buttons, ARIA meters for HP) and responsive CSS, and needs no extra dependencies.
+- **Playback is a pure function of the event log.** `buildTimeline` turns the log into frames: one for start-of-combat effects, one per turn, one per sudden-death pulse, and a final one. The UI only steps through them. Tests check that the last frame's HP and survivors match the engine exactly, so the playback can't drift from the real result.
+- **A frame is a whole turn,** not a single event, so an attack and its knock-on triggers animate together. At 1x a basic attack shows for 0.65s, an ability for 0.95s and sudden death for 1s; 2x halves these. Skip jumps to the final frame, and Replay restarts from the beginning. The chosen speed is remembered.
+- **Floating text is merged per unit per frame** (total damage, total healing, net stat change), with trigger names shown as a callout. Start-of-combat frames with many synergy and talent effects were unreadable as separate pop-ups.
+- **`useGame` owns the screen state and calls the engine**; components stay presentational. Pure helpers (drop rules, run records, storage, synergy progress, timeline) are separate, tested modules.
+- **The debug run view was removed.** Everything it did is in the real screens. The combat lab stays, linked from the title screen, because it's useful for playtesting matchups.
+
+### Drag and drop
+- **A small custom pointer-events implementation,** not the HTML5 drag API (which doesn't fire on touch screens) and not a library (that would be a new dependency). It's about 170 lines: a press that moves more than 6px becomes a drag, otherwise it's a click, so every draggable is also clickable. A ghost card follows the pointer; Escape cancels; the page scrolls while the pointer rests near the top or bottom edge.
+- **Every drag has a click alternative** (see DESIGN.md → UI), for keyboard users and for precision.
+- **The sell zone appears only while you drag a unit or an item,** fixed at the bottom of the screen and showing the refund, so it's always reachable and never clutters the shop.
+
+### Persistence
+- **The run is saved after every action and fight** (localStorage, versioned envelope, every access in try/catch). Refreshing the page offers "Continue run". Saves that fail validation (wrong version, a class that no longer exists) are ignored. The best run (most wins, then fewest rounds) and the playback speed are saved too. Finished runs are cleared.
+- **New runs get a random seed by default;** the title screen offers a custom seed for reproducible runs and bug reports. The dev play log records resumed runs with their saved state, so `npm run playlog` still replays them.
+
+### Review follow-ups (2026-10-18)
+- **The engine's `turn` event now carries every living unit's gauge** (the actor's still full, before it pays 100). The playback shows gauges from the log instead of re-implementing the fill rules in the UI, so it can't drift from the engine. Outcomes are unchanged; the simulator numbers are identical.
+- **Turn pacing includes gauge time:** each frame waits an extra 40ms per tick since the previous frame (capped at 10 ticks), so the gauges fill visibly and units that share a tick act back to back.
+- **HP and gauge bars animate from the previous frame's value** via a CSS keyframe. The unit card is re-mounted every frame to replay its animations, which had silently disabled the HP bar's transition.
+- **Level-up stat gains are worked out in the UI by diffing the board before and after** a fight or a training purchase (growth is cumulative in the run state). They're kept in memory only, so after a page reload the choice panel shows the choice without the gains.
+
+### Small rule-adjacent fix
+- **Recruit names are unique within your party and the current shop.** Two units called Lark in one party made combat and summaries ambiguous. It still uses one RNG draw per name, so seeds and simulator results are unchanged.
+
+### Look
+- **One colour per base class, plus an emoji placeholder glyph.** Advanced classes keep their base class's look, so the party reads by role at a glance. Real icons from game-icons.net, with the credits screen, are M5 work as the brief schedules them.
+
 ## 2026-10-17 — Milestone 3 review follow-ups
 
 Brandon's playtest asked for: selling items, a taunt for Warrior or at least Knight ("doesn't need to be 100% uptime unless they invest in lowering the cooldown"), and a dev play log. The details below were decided autonomously.

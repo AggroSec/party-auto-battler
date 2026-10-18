@@ -82,11 +82,16 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
 export function replayLog(entries: PlayLogEntry[], ctx: RunContext): RunReplay[] {
   const runs = new Map<string, RunReplay & { state: RunState; pending: Omit<RoundReplay, 'shopped' | 'result' | 'round'> }>();
   for (const e of entries) {
-    if (e.type === 'start') {
+    if (e.type === 'start' || e.type === 'resume') {
+      const existing = runs.get(e.run);
+      if (e.type === 'resume' && existing) {
+        existing.state = e.state;
+        continue;
+      }
       // React StrictMode can log a start twice; keep the first.
-      if (runs.has(e.run)) continue;
-      const state = createRun(e.seed, ctx);
-      runs.set(e.run, { run: e.run, seed: e.seed, startedAt: e.at, rounds: [], final: state, state, pending: fresh() });
+      if (existing) continue;
+      const state = e.type === 'start' ? createRun(e.seed, ctx) : e.state;
+      runs.set(e.run, { run: e.run, seed: state.seed, startedAt: e.at, rounds: [], final: state, state, pending: fresh() });
       continue;
     }
     const r = runs.get(e.run);

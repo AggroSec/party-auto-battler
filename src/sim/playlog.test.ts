@@ -39,6 +39,12 @@ describe('play log replay', () => {
     expect(replayLog(log, ctx)[0]?.rounds[0]?.mismatch).toBeDefined();
   });
 
+  it('continues a resumed run from its saved state', () => {
+    const s = createRun('resumed', ctx);
+    const [run] = replayLog([{ type: 'resume', run: 'r2', at, state: { ...s, gold: 99 } }], ctx);
+    expect(run?.final.gold).toBe(99);
+  });
+
   it('ignores entries for runs it never saw start', () => {
     expect(replayLog([{ type: 'action', run: 'x', at, action: { type: 'reroll' } }], ctx)).toEqual([]);
   });

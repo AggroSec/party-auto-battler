@@ -18,6 +18,15 @@ describe('timeline', () => {
     expect(turns.filter((t) => t.source === 'e0')).toHaveLength(10);
   });
 
+  it('records every living gauge on each turn, the actor still full', () => {
+    const r = fight(party([pacifist(20)]), party([pacifist(10)]), 1, 30);
+    const turns = ofType(r.events, 'turn');
+    expect(turns[0]).toMatchObject({ tick: 5, source: 'p0', gauges: { p0: 100, e0: 50 } });
+    expect(turns[1]).toMatchObject({ tick: 10, source: 'p0', gauges: { p0: 100, e0: 100 } });
+    expect(turns[2]).toMatchObject({ tick: 10, source: 'e0', gauges: { p0: 0, e0: 100 } });
+    for (const t of turns) expect(t.gauges[t.source]).toBeGreaterThanOrEqual(100);
+  });
+
   it('lets the fuller gauge act first when units are ready on the same tick', () => {
     const r = fight(party([pacifist(10)]), party([pacifist(11)]), 1, 10);
     const turns = ofType(r.events, 'turn');
