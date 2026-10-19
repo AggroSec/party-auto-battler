@@ -4,6 +4,10 @@ A browser-playable party auto-battler with RPG classes and builds. You draft a p
 
 > 🚧 In development. Milestones 1–5 are done: the combat engine, run loop, builds (levels, stat points, talents, advanced classes, items, synergies), a playable UI with drag-to-position and animated combat playback, and 11 classes including summoners. Next: level cap 10 with tertiary classes (Milestone 6), then meta progression, juice and shipping. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
 
+## Play
+
+**[Play in your browser](https://aggrosec.github.io/party-auto-battler/)**. It works on phones too. The site redeploys on every merge to `main`, so it always shows the latest reviewed build.
+
 ## Running locally
 
 Requires Node 22.12+ (Node 24 LTS recommended, matching CI).

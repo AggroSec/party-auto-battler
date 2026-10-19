@@ -2,40 +2,7 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
-## 2026-10-18 — Milestone 5
 
-Brandon decided the direction (in conversation after M4): stat points the player allocates, with recommended spreads; no XP at max level; fewer recruits once the party is full; an actions column; five new classes (Monk, Bard, Druid, Warlock, Engineer) added now so they can be balanced; speed items first for #9; simulations for #10; and the new milestone plan in CLAUDE.md. Everything below was decided autonomously within that direction.
-
-### Stat points
-- **Numbers:** 3 points per level, 5 at levels 3 and 5 (Brandon asked for a bump at 3 and 5), so 16 by level 5. One point = +3 HP or +1 ATK/DEF/SPD. That's a little more than the old random rolls averaged (about 13 point-equivalents), and the enemy curve was retuned to match.
-- **Unspent points are auto-spent on the recommended spread when you fight,** instead of blocking the fight the way talent choices do. With five units levelling, a blocking prompt every round would nag, and players who don't want to min-max never have to touch it.
-- **The recommended spread is relative weights per class** (some advanced classes override it). Points go one at a time to the stat furthest below its weighted share of everything spent so far, so a unit you customised early drifts back toward its spread instead of doubling down. It's deterministic. Enemies use the same spread.
-- **Spending is a single `allocate` action per confirm;** the UI keeps a draft (+/−, Recommended, Reset) until Confirm. There is no respec.
-- **Save version bumped to 2:** old saves used random growth and lack unspent points, so they're ignored. This also resets the saved best run and playback speed.
-
-### New classes and mechanics
-- **Summons are a new engine effect.** Grove Warden's treants, the Engineer's turrets and the Demonologist's imps needed real units on the board. A summon takes the first empty slot (preferred row first, including a fallen unit's slot). It scales from the summoner's HP and ATK times ability power, and fights on the gauge. When the board is full, a **fallback** effect fires instead. That keeps summoners viable in a full party while rewarding the choice to leave slots open. It's a soft trade-off, per the build-variety principle.
-- **`payHp` effect** for the Warlock's blood cost. As ordinary self-damage it would have fed the Warlock's own lifesteal and set off "when hurt, hit the attacker" effects on itself.
-- **Tags:** new `spirit` (Monk, Bard), `nature` (Druid), `occult` (Warlock) and `tech` (Engineer) tags, each with a synergy. Druid also carries `wild` and Bard `arcane`, so the new classes plug into existing synergies too. Necromancer's tags are unchanged.
-- **Each class lives in one file** (`src/data/builds/<class>.ts`): the base class, its talents and its advanced classes. `classes.ts` had hit the size limit with 6 classes.
-- **New enemy archetypes** for every new class, appearing from rounds 2–4.
-- **Summoned units get their own colours and glyphs** (the summoner's colour) and a dashed border in combat. Their damage is credited to the summon in the summary, labelled "(summon)".
-
-### Balance
-- **#10 (Knight + Priest + Chronomancer):**
-  - **Time Warp hastened the Chronomancer itself.** That turned "every 3rd turn" into every 2nd turn, and the description didn't match. It now hastes only other allies, never brings an ability closer than 2 turns away (a new `min` floor on haste), casts every 2nd turn on purpose, and hits for 150% ATK instead of 100% to make up for the lost haste power.
-  - **Knight + Chronomancer:** taunt uptime went from 49% to 36% of the Knight's turns (28% without a Chronomancer).
-  - **Knight itself was the bigger outlier** (+12.5 lift on its own). Holy Bulwark's shield went from 2 + 100% DEF to 2 + 60% DEF (players can now pour points into DEF), and Stalwart's chance went from 25% to 20%.
-- **#9 (speed):** four new speed items plus Prayer Beads (Monk). Class SPD was left alone for now, as Brandon asked. The new classes widen the spread a little: Monk has 14 base SPD and builds more.
-- **Difficulty:** stat points made the bots stronger (greedy completion jumped from 21% to 45%), and Brandon went 10–0 twice in M4.
-  - **New curve:** enemies start at full strength and grow 8% HP / 5% ATK per round. They reach level 3 by round 7, more gradually than before, and plateau after round 10, so the late game is hard without being a wall.
-  - **Result:** sensible 15.8%, greedy 22.1%, synergy 8.6%.
-  - **Harder runs will come from the difficulty ladder** (Milestone 7), not from the base game.
-- **Class tuning:** several passes, all in BALANCE.md. Druid, Grove Warden, Machinist, Windwalker, Assassin and Warlock were buffed; Trickster, Iron Fist, Pyromancer, Inquisitor, Knight and Arcane Circle tier 2 were nerfed.
-
-### Simulator
-- **Bots spend stat points:** random spends randomly; greedy point by point, by its party-power estimate; sensible and synergy leave them to the fight's auto-spend (the recommended spread). The greedy bot's power estimate accounts for unspent points.
-- **The dev play log records `allocate` actions.** Replaying pre-M5 logs runs them under the new rules, so old runs diverge (expected: logs are tied to the rules they were played under).
 
 ## 2026-10-17 — Milestone 4
 
