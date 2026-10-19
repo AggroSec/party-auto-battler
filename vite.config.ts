@@ -43,6 +43,8 @@ function playLog(): Plugin {
 }
 
 export default defineConfig({
+  // GitHub Pages serves the site from /party-auto-battler/; dev stays at /.
+  base: process.env.GITHUB_PAGES ? '/party-auto-battler/' : '/',
   plugins: [react(), playLog()],
   test: {
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
