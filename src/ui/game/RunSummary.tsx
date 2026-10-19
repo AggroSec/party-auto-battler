@@ -1,5 +1,6 @@
 import { boardUnits } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
+import { PlayLogExport } from './PlayLogExport.tsx';
 import { className } from './names.ts';
 import type { Game } from './useGame.ts';
 
@@ -74,6 +75,7 @@ export function RunSummary({ game }: { game: Game }) {
         <button type="button" onClick={game.toTitle}>
           Title screen
         </button>
+        <PlayLogExport />
       </div>
     </div>
   );

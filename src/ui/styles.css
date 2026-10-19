@@ -359,7 +359,8 @@ button.fight:hover:not(:disabled) { background: linear-gradient(180deg, #3460b8,
 .best { color: var(--gold); margin: 0; }
 .how-to { max-width: 34em; text-align: left; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; }
 .how-to ul { margin: 0; padding-left: 1.2em; color: var(--muted); font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
-.title-footer { margin-top: 8px; }
+.title-footer { margin-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.playlog-export { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: center; }
 .lab-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 8px; }
 .lab-head h1 { margin: 0; font-size: 1.4rem; }
 

@@ -6,7 +6,7 @@ A browser-playable party auto-battler with RPG classes and builds. You draft a p
 
 ## Play
 
-**[Play in your browser](https://aggrosec.github.io/party-auto-battler/)**. It works on phones too. The site redeploys on every merge to `main`, so it always shows the latest reviewed build.
+**[Play in your browser](https://aggrosec.github.io/party-auto-battler/)**. It works on phones too. The site redeploys on every merge to `main`, so it always shows the latest reviewed build. **Export play log** on the title screen saves your recent runs as a file that `npm run playlog -- <file>` can replay.
 
 ## Running locally
 
