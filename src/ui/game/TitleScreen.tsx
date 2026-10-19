@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PlayLogExport } from './PlayLogExport.tsx';
 import type { Game } from './useGame.ts';
 
 export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => void }) {
@@ -49,6 +50,7 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
         <button type="button" className="link" onClick={onOpenLab}>
           Combat lab
         </button>
+        <PlayLogExport />
       </footer>
     </div>
   );

@@ -1,5 +1,6 @@
 // Usage: npm run playlog -- [file.jsonl] [--out report.md]
-// Defaults to the newest file in playlogs/.
+// Defaults to the newest file in playlogs/. Files from the game's
+// "Export play log" button work too.
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { buildRunContext } from '../data/content.ts';
