@@ -61,6 +61,7 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
     while (state.phase === 'shop' && rounds < MAX_ROUNDS) {
       let shopped = resolvePending(bot, state, ctx, botRng);
       shopped = resolvePending(bot, bot.shop(shopped, ctx, botRng), ctx, botRng);
+      if (bot.allocate) shopped = bot.allocate(shopped, ctx, botRng);
       const r = fight(shopped, ctx);
       if (!r.ok) {
         stuck++;

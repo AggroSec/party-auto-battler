@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const warriorTalents = [
   talent('warrior/intimidate', 'Intimidating Cleave', 'After Cleave, the enemy front row loses 1 ATK.', trig(
@@ -22,16 +23,16 @@ export const knight = advanced({
   ability: {
     id: 'holy-bulwark',
     name: 'Holy Bulwark',
-    description: 'Every 3rd turn: shield all allies for 2 + 100% DEF and taunt for 1 turn.',
+    description: 'Every 3rd turn: shield all allies for 2 + 60% DEF and taunt for 1 turn.',
     cooldown: 3,
     effects: [
-      { kind: 'shield', target: 'allAllies', amount: { flat: 2, def: 1 } },
+      { kind: 'shield', target: 'allAllies', amount: { flat: 2, def: 0.6 } },
       { kind: 'taunt', target: 'self', turns: 1 },
     ],
   },
   modifier: {
     stats: { hp: 8, def: 2 },
-    triggers: [on('onHurt', 'Stalwart', [{ kind: 'shield', target: 'self', amount: { flat: 3 } }], { chance: 0.25 })],
+    triggers: [on('onHurt', 'Stalwart', [{ kind: 'shield', target: 'self', amount: { flat: 3 } }], { chance: 0.2 })],
   },
   talents: [
     talent('knight/aegis', 'Aegis', 'Start of combat: shield all allies for 5.', trig(
@@ -74,3 +75,34 @@ export const berserker = advanced({
     )),
   ],
 });
+
+export const warriorClass: ClassDef = {
+  id: 'warrior',
+  name: 'Warrior',
+  role: 'frontline',
+  tags: ['martial', 'guardian'],
+  unlockable: false,
+  description: 'Durable front-liner who hits the whole enemy front row.',
+  baseStats: { hp: 42, atk: 6, def: 3, spd: 8 },
+  range: 'melee',
+  placement: 0,
+  statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
+  talents: talentIds(warriorTalents),
+  advancedClasses: ['knight', 'berserker'],
+  attackTarget: 'nearest',
+  ability: {
+    id: 'cleave',
+    name: 'Cleave',
+    description: 'Every 3rd turn: deal 80% ATK to each enemy in the front row.',
+    cooldown: 3,
+    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 0.8 } }],
+  },
+  triggers: [
+    {
+      label: 'Battle Hardened',
+      on: 'onHurt',
+      limit: 3,
+      effects: [{ kind: 'buff', target: 'self', stat: 'def', amount: { flat: 1 } }],
+    },
+  ],
+};

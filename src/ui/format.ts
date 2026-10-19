@@ -1,5 +1,15 @@
 import { OVERTIME_SOURCE, type CombatEvent, type UnitSnapshot } from '../engine/index.ts';
 
+/** Every unit that took part in a fight: the starting line-up plus anything summoned. */
+export function combatUnits(events: readonly CombatEvent[]): Map<string, UnitSnapshot> {
+  const units = new Map<string, UnitSnapshot>();
+  for (const e of events) {
+    if (e.type === 'combatStart') for (const u of e.units) units.set(u.id, u);
+    else if (e.type === 'summon') units.set(e.unit.id, e.unit);
+  }
+  return units;
+}
+
 /** Human-readable line for one combat event. Returns null for events not worth showing. */
 export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>): string | null {
   const n = (id: string) => {
@@ -34,6 +44,8 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
       return `⏳ Sudden death! Everyone loses ${Math.round(e.percent * 100)}% max HP.`;
     case 'death':
       return `💀 ${n(e.target)} falls.`;
+    case 'summon':
+      return `${n(e.source)} summons ${n(e.unit.id)}!`;
     case 'combatEnd':
       return e.winner === 'draw'
         ? `Draw (${e.reason === 'tickCap' ? 'time ran out' : 'mutual destruction'}).`

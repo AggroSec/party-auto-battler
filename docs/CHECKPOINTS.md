@@ -2,6 +2,96 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 5 — Progression, balance and new classes (2026-10-18)
+
+### What was built
+
+**Your notes**
+- **Stat points you spend yourself.**
+  - Every level-up gives 3 points, or 5 at levels 3 and 5. A point buys +3 HP, or +1 ATK, DEF or SPD.
+  - Click a unit with a gold **+N** badge to open the stat panel. It has +/− per stat, a **Recommended** button that fills in the class's spread (shown as dots), Reset, and Confirm.
+  - Points you leave unspent go on the recommended spread when you fight. You never have to min-max, but a Berserker that skips HP for ATK and SPD is now possible.
+- **No XP at max level.** Training is no longer offered for classes whose units are all level 5, and a max-level unit can't take it.
+- **Fewer recruits once the party is full:** 2 recruit offers and 4 item/training offers.
+- **Actions column** in the end-of-fight summary: attacks plus ability casts, e.g. "8 (2✨)".
+
+**Five new classes**, each with 4 talents and two advanced classes (4 talents each):
+
+| Class | Plays as | Advanced classes |
+|---|---|---|
+| **Monk** | Fast melee striker, 14 SPD, speeds up as it attacks | **Windwalker** (multi-hit speedster), **Iron Fist** (counter-attacking tank who taunts) |
+| **Bard** | Back-row support: party SPD at the start, ATK every song | **Skald** (war chants: big party ATK buffs), **Trickster** (delays enemy abilities, saps ATK) |
+| **Druid** | Slows the enemy front line | **Shapeshifter** (bear tank who taunts), **Grove Warden** (heals, summons Treants) |
+| **Warlock** | Huge single-target bolts that cost its own HP | **Hexer** (curses the whole enemy party), **Demonologist** (summons Imps) |
+| **Engineer** | Builds turrets in empty slots | **Machinist** (sentries every 3 turns), **Demolitionist** (cluster bombs) |
+
+- **Summons are a new mechanic.**
+  - Turrets, Sentries, Treants and Imps appear in an **empty slot** on your side, fight on their own gauge, and vanish after the fight.
+  - **If your board is full, the summoner does something else instead** (a rocket, a party heal, a bolt). Running four units plus summons is a real choice, but summoners still work in a full party.
+- **Four new synergies:** Inner Harmony (spirit: Monk, Bard), Nature's Bond (nature: Druid), Dark Covenant (occult: Warlock) and Workshop (tech: Engineer).
+- **New enemy archetypes** for every new class, from rounds 2–4.
+- **New items:** a class-tied item for each new class, plus four speed items for #9 (Quicksilver Rapier, Featherweight Charm, Winged Sandals, Adrenaline Vial).
+
+**Balance**
+- **#10, Knight + Priest + Chronomancer.**
+  - Time Warp was hasting the Chronomancer itself, so it really cast every 2nd turn, not every 3rd as described.
+  - It now speeds up only *other* allies, never brings an ability closer than 2 turns away, casts every 2nd turn on purpose, and hits harder to compensate.
+  - The Knight's shield was trimmed, because players can now pour stat points into DEF.
+  - **Results:**
+    - Knight taunt uptime with a Chronomancer fell from 49% to 36% of its turns (28% without one).
+    - Of 185 advanced-class pairs, Knight + Chronomancer now ranks 18th. The strongest pairs are other tank + support combos.
+- **Difficulty.** You went 10–0 twice, and stat points made the bots stronger too, so the enemy curve was rebuilt.
+  - **Rounds 6–10 are noticeably harder.**
+  - **No more late-game wall:** enemy growth stops after round 10, so rounds 11+ hold at about 25% for the bots instead of dropping to single digits.
+  - Bigger challenges are meant to come from the difficulty ladder (Milestone 7).
+- **Class tuning:** several simulator passes; details in BALANCE.md and DECISIONS.md.
+
+**Process:** CLAUDE.md now has the new milestone plan (6: level cap 10, 7: meta progression, 8: juice, 9: ship) and the updated meta-progression direction.
+
+**Tests:** 226, up from 205. New tests cover:
+- Summons: slot choice, scaling, fallback, a fallen unit's slot, fighting on the gauge.
+- `payHp`, attack/ability counts, haste floors and the `otherAllies` selector.
+- Stat points: grants, the allocate action, recommended spreads, auto-spend at fight time.
+- The XP cap, max-level training, the full-party shop and the enemy growth cap.
+
+**Verified in a real browser** (headless Chrome):
+- A saved run with an Engineer and unspent points.
+- The +N badges and the Fight-bar reminder.
+- Recommended → Confirm updates stats.
+- A Sentry appears in combat and is listed as a summon with its actions.
+- The level-up line shows the points earned.
+- The stat panel at 390px width, with no overflow and no console errors.
+
+### What to playtest (and how)
+
+1. `npm run dev` (or `npm run dev -- --host` for your phone). **Old saves are ignored** (stat points changed the save format), so start a new run. This also resets your saved best run.
+2. **Stat points:** level a unit, click it and try both a custom spread and Recommended. Does 3 per level (5 at levels 3 and 5) feel right? Is +3 HP per point worth it next to +1 ATK, DEF or SPD?
+3. **Difficulty:** rounds 6–10 should now push back. Is it a fair challenge, or too much?
+4. **New classes:** try a summoner with an empty slot or two (Engineer → Machinist, or Druid → Grove Warden). Try a Monk speed build (Prayer Beads, Featherweight Charm, a second spirit unit). Try a Warlock paying HP for damage.
+5. **Full party:** once you have 5 units, the shop should lean toward items and training.
+6. Your play is logged in dev as always; tell me and I'll read it with `npm run playlog`.
+
+### Known issues
+
+- **The bots never leave slots empty,** so the simulator under-rates summoners (Engineer −2.8, Machinist −3.8 lift). Your playtest is the real test for them.
+- **#9 is only partly answered.** The speed items barely widen the speed gap in bot play: the fastest unit is 1.82× the slowest, against 1.80× without the items. Stat points and the Monk already widened it from M4's 1.6×. If speed should matter more for everyone, widening class base SPD is the next step. Your call.
+- **Watch list:** Knight (+9.9 lift) and Inquisitor's Zeal talent (+15.9) are the strongest picks; tank + support pairs lead overall.
+- **Replaying pre-M5 play logs** runs them under the new rules, so they diverge from what you played. That's expected.
+- **Placeholder art:** emoji glyphs remain until the Juice milestone.
+
+### Simulator balance numbers
+
+Seed `m3`, 2,000 runs per bot:
+
+| Bot | Completed | Fight win rate | Avg rounds |
+|---|---:|---:|---:|
+| random | 4.9% | 35.6% | 7.5 |
+| sensible | 20.7% | 61.3% | 11.1 |
+| greedy | 29.1% | 65.4% | 11.5 |
+| synergy | 11.3% | 52.2% | 9.7 |
+
+Lift spreads: base classes −2.8 to +6.0, advanced classes −3.8 to +9.9, synergies −4.3 to +11.3, items −6.6 to +2.8. 0 tick-cap hits, 0 stuck runs. Full report in [BALANCE.md](BALANCE.md).
+
 ## Milestone 4 — Playable UI (2026-10-17)
 
 ### What was built

@@ -3,6 +3,7 @@
 import { resolveAmount } from './damage.ts';
 import { applyHeal, dealDamage } from './hits.ts';
 import { emit, type CombatState, type CombatUnit } from './state.ts';
+import { summonUnit } from './summon.ts';
 import { rowNeighbours, selectTargets, type TargetContext } from './targeting.ts';
 import type { Effect, TriggerEvent } from './types.ts';
 
@@ -116,7 +117,8 @@ function applyEffect(
     }
     case 'cooldown': {
       for (const target of selectTargets(state, source, effect.target, ctx)) {
-        target.cooldown = Math.max(1, target.cooldown + effect.turns);
+        const floor = effect.turns < 0 ? Math.max(1, effect.min ?? 1) : 1;
+        target.cooldown = Math.max(Math.min(floor, target.cooldown), target.cooldown + effect.turns);
         emit(state, {
           tick: state.tick,
           type: 'cooldown',
@@ -132,6 +134,17 @@ function applyEffect(
       for (const target of selectTargets(state, source, effect.target, ctx)) {
         target.taunt = Math.max(target.taunt, effect.turns);
         emit(state, { tick: state.tick, type: 'taunt', source: source.id, target: target.id, turns: target.taunt });
+      }
+      return;
+    }
+    case 'payHp': {
+      const value = Math.max(0, Math.round(resolveAmount(effect.amount, source)));
+      if (value > 0) dealDamage(state, null, source, value, { true: true, by: source.id }, depth);
+      return;
+    }
+    case 'summon': {
+      if (!summonUnit(state, source, effect.summon, power) && effect.fallback) {
+        applyEffects(state, source, effect.fallback, ctx, depth, power);
       }
       return;
     }

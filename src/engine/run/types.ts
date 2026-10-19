@@ -1,5 +1,5 @@
 import type { CombatResult, Winner } from '../events.ts';
-import type { BoardPos, Party, Stats } from '../types.ts';
+import type { BoardPos, Party, StatKey, Stats } from '../types.ts';
 import type {
   AdvancedClassDef,
   ClassTemplate,
@@ -54,6 +54,8 @@ export interface EnemyScaling {
   /** HP and ATK grow by this fraction per round after the first. */
   hpGrowthPerRound: number;
   atkGrowthPerRound: number;
+  /** Growth stops after this round (later rounds stay at its multiplier). Omit for no cap. */
+  growthUntilRound?: number;
 }
 
 /** Content the run layer needs. Built from src/data; synthetic in tests. */
@@ -90,8 +92,10 @@ export interface OwnedUnit {
   advancedClassId: string | null;
   talents: string[];
   items: string[];
-  /** Stats gained from level-up rolls. */
+  /** Stats bought with stat points (in stat units, e.g. +6 HP). */
   growth: Stats;
+  /** Stat points not yet spent. Any left at fight time are spent on the recommended spread. */
+  statPoints: number;
 }
 
 export interface Board {
@@ -171,7 +175,9 @@ export type ShopAction =
   | { type: 'sellItem'; from: SlotRef; item: number }
   | { type: 'reroll' }
   /** Resolve the first pending choice by option index. */
-  | { type: 'choose'; option: number };
+  | { type: 'choose'; option: number }
+  /** Spend stat points on the unit at `at` (points per stat, not stat units). */
+  | { type: 'allocate'; at: SlotRef; points: Partial<Record<StatKey, number>> };
 
 export type RunError =
   | 'notShopPhase'
@@ -188,7 +194,10 @@ export type RunError =
   | 'noSuchItem'
   | 'pendingChoice'
   | 'noPendingChoice'
-  | 'invalidChoice';
+  | 'invalidChoice'
+  | 'maxLevel'
+  | 'invalidAllocation'
+  | 'notEnoughPoints';
 
 export type ActionResult = { ok: true; state: RunState } | { ok: false; error: RunError };
 

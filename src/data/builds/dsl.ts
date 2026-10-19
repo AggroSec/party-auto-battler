@@ -26,3 +26,5 @@ export type AdvancedClassInput = Omit<AdvancedClassDef, 'talents'> & { talents: 
 export function advanced(input: AdvancedClassInput): { cls: AdvancedClassDef; talents: TalentDef[] } {
   return { cls: { ...input, talents: input.talents.map((t) => t.id) }, talents: input.talents };
 }
+
+export const talentIds = (talents: readonly TalentDef[]) => talents.map((t) => t.id);

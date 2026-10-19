@@ -4,7 +4,9 @@ import { on } from './builds/dsl.ts';
 /**
  * Party synergies from class tags. Base tags:
  *   Warrior martial+guardian, Rogue martial+shadow, Mage arcane,
- *   Cleric divine, Ranger martial+wild, Necromancer arcane+shadow.
+ *   Cleric divine, Ranger martial+wild, Necromancer arcane+shadow,
+ *   Monk martial+spirit, Bard arcane+spirit, Druid wild+nature,
+ *   Warlock shadow+occult, Engineer tech.
  * Advanced classes replace their tags (e.g. Knight adds divine), so
  * advancing can open or close synergies.
  */
@@ -22,7 +24,7 @@ export const SYNERGIES: SynergyDef[] = [
     name: 'Arcane Circle',
     tiers: [
       { requires: [{ kind: 'tag', tag: 'arcane', count: 2 }], description: 'Arcane units +30% ability power and +8 HP.', modifier: { abilityPower: 0.3, stats: { hp: 8 } }, appliesTo: { tag: 'arcane' } },
-      { requires: [{ kind: 'tag', tag: 'arcane', count: 3 }], description: 'Arcane units +50% ability power and +12 HP.', modifier: { abilityPower: 0.5, stats: { hp: 12 } }, appliesTo: { tag: 'arcane' } },
+      { requires: [{ kind: 'tag', tag: 'arcane', count: 3 }], description: 'Arcane units +40% ability power and +10 HP.', modifier: { abilityPower: 0.4, stats: { hp: 10 } }, appliesTo: { tag: 'arcane' } },
     ],
   },
   {
@@ -66,7 +68,51 @@ export const SYNERGIES: SynergyDef[] = [
     id: 'wild',
     name: 'Call of the Wild',
     tiers: [
-      { requires: [{ kind: 'tag', tag: 'wild', count: 2 }], description: 'Wild units +1 SPD.', modifier: { stats: { spd: 1 } }, appliesTo: { tag: 'wild' } },
+      { requires: [{ kind: 'tag', tag: 'wild', count: 2 }], description: 'Wild units +2 SPD.', modifier: { stats: { spd: 2 } }, appliesTo: { tag: 'wild' } },
+    ],
+  },
+  {
+    id: 'spirit',
+    name: 'Inner Harmony',
+    tiers: [
+      { requires: [{ kind: 'tag', tag: 'spirit', count: 2 }], description: 'Spirit units +2 SPD.', modifier: { stats: { spd: 2 } }, appliesTo: { tag: 'spirit' } },
+      { requires: [{ kind: 'tag', tag: 'spirit', count: 3 }], description: 'Spirit units +2 SPD and +6 HP.', modifier: { stats: { spd: 2, hp: 6 } }, appliesTo: { tag: 'spirit' } },
+    ],
+  },
+  {
+    id: 'nature',
+    name: "Nature's Bond",
+    tiers: [
+      {
+        requires: [{ kind: 'tag', tag: 'nature', count: 2 }],
+        description: 'Every ally +8 HP and +1 DEF.',
+        modifier: { stats: { hp: 8, def: 1 } },
+        appliesTo: 'all',
+      },
+    ],
+  },
+  {
+    id: 'occult',
+    name: 'Dark Covenant',
+    tiers: [
+      {
+        requires: [{ kind: 'tag', tag: 'occult', count: 2 }],
+        description: 'Occult units +4 ATK and −6 HP.',
+        modifier: { stats: { atk: 4, hp: -6 } },
+        appliesTo: { tag: 'occult' },
+      },
+    ],
+  },
+  {
+    id: 'tech',
+    name: 'Workshop',
+    tiers: [
+      {
+        requires: [{ kind: 'tag', tag: 'tech', count: 2 }],
+        description: 'Tech units +40% ability power (stronger turrets and bombs) and +2 DEF.',
+        modifier: { abilityPower: 0.4, stats: { def: 2 } },
+        appliesTo: { tag: 'tech' },
+      },
     ],
   },
   {

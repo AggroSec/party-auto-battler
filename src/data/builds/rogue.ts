@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const rogueTalents = [
   talent('rogue/poison', 'Poisoned Blades', 'Basic attacks strip 1 DEF from the target.', trig(
@@ -27,8 +28,8 @@ export const assassin = advanced({
     effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 3.2 } }],
   },
   modifier: {
-    stats: { atk: 3 },
-    triggers: [on('onKill', 'Vanish', [{ kind: 'shield', target: 'self', amount: { flat: 6 } }])],
+    stats: { atk: 3, hp: 4, spd: 1 },
+    triggers: [on('onKill', 'Vanish', [{ kind: 'shield', target: 'self', amount: { flat: 8 } }])],
   },
   talents: [
     talent('assassin/execute', 'Execute', '+50% ability power.', { abilityPower: 0.5 }),
@@ -78,3 +79,33 @@ export const duelist = advanced({
     )),
   ],
 });
+
+export const rogueClass: ClassDef = {
+  id: 'rogue',
+  name: 'Rogue',
+  role: 'striker',
+  tags: ['martial', 'shadow'],
+  unlockable: false,
+  description: 'Fast striker who slips past the front line to finish off the back row.',
+  baseStats: { hp: 24, atk: 6, def: 1, spd: 13 },
+  range: 'melee',
+  placement: 1,
+  statWeights: { hp: 1, atk: 3, def: 1, spd: 4 },
+  talents: talentIds(rogueTalents),
+  advancedClasses: ['assassin', 'duelist'],
+  attackTarget: 'nearest',
+  ability: {
+    id: 'backstab',
+    name: 'Backstab',
+    description: 'Every 3rd turn: deal 200% ATK to the weakest back-row enemy.',
+    cooldown: 3,
+    effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 2 } }],
+  },
+  triggers: [
+    {
+      label: 'Bloodlust',
+      on: 'onKill',
+      effects: [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 2 } }],
+    },
+  ],
+};

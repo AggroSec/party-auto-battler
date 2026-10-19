@@ -72,21 +72,15 @@ export function ChoicePanel({
   );
 }
 
-/** "Level 2 → 3: ❤️+4 ⚔️+1" with each stat popping in. */
+/** "Lv 2 → 3: ⭐ +5 stat points". */
 export function LevelUpGains({ levelUp, showName = false }: { levelUp: LevelUp; showName?: boolean }) {
-  const stats = (Object.keys(STAT_ICON) as (keyof typeof STAT_ICON)[]).filter((k) => levelUp.gained[k] !== 0);
   return (
     <p className="level-gains">
       {showName && <strong>{levelUp.name} </strong>}
       <span className="muted">
         Lv {levelUp.from} → {levelUp.to}:{' '}
       </span>
-      {stats.length === 0 && <span className="muted">no stat gains this time</span>}
-      {stats.map((k, i) => (
-        <span key={k} className={`gain ${k}`} style={{ animationDelay: `${i * 120}ms` }}>
-          {STAT_ICON[k]} +{levelUp.gained[k]} {k.toUpperCase()}
-        </span>
-      ))}
+      <span className="gain">⭐ +{levelUp.points} stat points</span>
     </p>
   );
 }

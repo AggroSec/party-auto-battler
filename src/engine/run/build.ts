@@ -1,4 +1,4 @@
-// Resolve a unit's build (class + growth + advanced class + talents + items +
+// Resolve a unit's build (class + stat points + advanced class + talents + items +
 // synergies) into the UnitSetup the combat engine consumes.
 import type { Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
 import type { ClassTemplate, SynergyDef, SynergyTier, UnitModifier } from './content-types.ts';
@@ -128,5 +128,5 @@ export function resolveBoard(board: Board, content: RunContent): Party {
 
 /** A fresh level-1 unit. */
 export function newUnit(uid: number, classId: string, name: string): OwnedUnit {
-  return { uid, classId, name, level: 1, xp: 0, advancedClassId: null, talents: [], items: [], growth: { ...ZERO_STATS } };
+  return { uid, classId, name, level: 1, xp: 0, advancedClassId: null, talents: [], items: [], growth: { ...ZERO_STATS }, statPoints: 0 };
 }

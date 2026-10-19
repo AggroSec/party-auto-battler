@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import type { CombatResult, UnitSnapshot } from '../../engine/index.ts';
-import type { RunContent } from '../../engine/run/index.ts';
-import { describeEvent } from '../format.ts';
+import type { CombatResult } from '../../engine/index.ts';
+import { boardUnits, isMaxLevel, type RunContent } from '../../engine/run/index.ts';
+import { combatUnits, describeEvent } from '../format.ts';
 import { Arena } from './Arena.tsx';
 import { LevelUpGains } from './ChoicePanel.tsx';
 import { classStyle } from './classStyle.ts';
@@ -34,8 +34,7 @@ function caption(frame: Frame | undefined): string {
 }
 
 function FightSummary({ combat, content }: { combat: CombatResult; content: RunContent }) {
-  const start = combat.events[0];
-  const classOf = new Map(start?.type === 'combatStart' ? start.units.map((u) => [u.id, u.classId]) : []);
+  const classOf = new Map([...combatUnits(combat.events).values()].map((u) => [u.id, u.classId]));
   const max = Math.max(1, ...combat.summary.map((s) => Math.max(s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone)));
   return (
     <div className="fight-summary">
@@ -45,6 +44,7 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
           <thead>
             <tr>
               <th>Unit</th>
+              <th title="Turns taken: basic attacks plus ability casts (✨)">Actions</th>
               <th>Dealt</th>
               <th>Taken</th>
               <th>Healed + shielded</th>
@@ -54,10 +54,15 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
             {combat.summary
               .filter((s) => s.side === side)
               .map((s) => (
-                <tr key={s.id} className={s.survived ? '' : 'dead'}>
+                <tr key={s.id} className={`${s.survived ? '' : 'dead'}${s.summonedBy ? ' summon-row' : ''}`}>
                   <td>
                     {classStyle(content, classOf.get(s.id) ?? '').glyph} {s.name}
+                    {s.summonedBy && <span className="muted"> (summon)</span>}
                     {s.kills > 0 && <span className="muted"> · {s.kills}💀</span>}
+                  </td>
+                  <td className="actions-cell">
+                    {s.attacks + s.abilities}
+                    {s.abilities > 0 && <span className="muted"> ({s.abilities}✨)</span>}
                   </td>
                   {[s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone].map((v, i) => (
                     <td key={i}>
@@ -75,8 +80,7 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
 }
 
 function CombatLog({ combat }: { combat: CombatResult }) {
-  const start = combat.events[0];
-  const units = new Map<string, UnitSnapshot>(start?.type === 'combatStart' ? start.units.map((u) => [u.id, u]) : []);
+  const units = combatUnits(combat.events);
   return (
     <ol className="log">
       {combat.events.map((e, i) => {
@@ -101,7 +105,10 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
       <h2>{outcome.title}</h2>
       <p className="result-line">
         {fight.combat.winner === 'enemy' && <span>💔 −1 life ({game.run.lives} left) · </span>}
-        <span>⭐ +{fight.xp} XP to every unit</span>
+        <span>
+          ⭐ +{fight.xp} XP{' '}
+          {boardUnits(fight.board).some((u) => isMaxLevel(u, game.ctx.config.progression)) ? 'to every unit below max level' : 'to every unit'}
+        </span>
         {fight.income && (
           <span>
             {' '}

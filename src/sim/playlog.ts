@@ -68,6 +68,10 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       return `moved an item from ${unitAt(action.from)} to ${unitAt(action.to)}`;
     case 'reroll':
       return 'rerolled';
+    case 'allocate': {
+      const spent = Object.entries(action.points).filter(([, n]) => n).map(([k, n]) => `+${n} ${k.toUpperCase()}`);
+      return `${unitAt(action.at)} spent points: ${spent.join(', ') || 'none'}`;
+    }
     case 'choose': {
       const p = state.pending[0];
       const pick = p?.options[action.option];
@@ -168,7 +172,10 @@ export function roundNotes(r: RoundReplay, ctx: RunContext): string[] {
 function deathLine(events: CombatEvent[]): string {
   const start = events[0];
   if (start?.type !== 'combatStart') return '';
-  const names = new Map(start.units.map((u) => [u.id, `${u.side === 'player' ? '' : 'enemy '}${u.name}${u.pos.row === 'back' ? ' (back)' : ''}`]));
+  const summoned = events.flatMap((e) => (e.type === 'summon' ? [e.unit] : []));
+  const names = new Map(
+    [...start.units, ...summoned].map((u) => [u.id, `${u.side === 'player' ? '' : 'enemy '}${u.name}${u.pos.row === 'back' ? ' (back)' : ''}`]),
+  );
   return events
     .filter((e) => e.type === 'death')
     .map((e) => `${names.get(e.target)} @${e.tick}`)

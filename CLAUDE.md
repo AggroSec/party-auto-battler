@@ -43,7 +43,7 @@ This is an **AI-directed project**. Brandon (the owner) sets direction, design a
 
 **CI/CD (set up in Milestone 1)**
 - `.github/workflows/ci.yml`: on every pull request and push to `main`, use the current Node LTS and run `npm ci`, `npm run check` and `npm run build`. CI must stay green.
-- `.github/workflows/deploy.yml` (added in Milestone 6): deploy to GitHub Pages on push to `main` only.
+- `.github/workflows/deploy.yml` (added in the Ship milestone): deploy to GitHub Pages on push to `main` only.
 - `.github/pull_request_template.md` with sections matching the checkpoint summary.
 
 **Never commit**
@@ -94,9 +94,10 @@ docs/
 - Party size is 5, in a **front row (3) and back row (2)**. Melee targets the front row first; position matters.
 
 **Units, classes and builds (the core fantasy)**
-- Starting classes: Warrior, Rogue, Mage, Cleric, Ranger, plus 1 unlockable (e.g. Necromancer).
+- Classes: Warrior, Rogue, Mage, Cleric, Ranger, Monk, Bard, Druid, Warlock and Engineer, plus Necromancer (the first unlock). More classes come after the core project ships, with Brandon choosing them.
 - Stats: HP, ATK, DEF, SPD, plus a class ability on a cooldown or resource.
 - Units gain XP from combat. **Every level-up offers a choice of 2–3 talents** from that class's talent pool. Meaningful choices, not flat stat bumps.
+- **Every level-up also grants stat points the player distributes freely** (more at levels 3 and 5), with a recommended spread per class for players who don't want to min-max.
 - At level 3, a unit **advances into one of two advanced classes** (e.g. Warrior → Knight or Berserker; Mage → Pyromancer or Chronomancer). Each advanced class changes its ability and talent pool.
 - **Party synergies:** bonuses for class combinations (e.g. 2+ casters, frontline + healer). Build variety across runs is the goal.
 - **Items:** up to 2 per unit. Some items are tied to a class, so there are build-defining combos to find.
@@ -105,8 +106,11 @@ docs/
 - Tick-based timeline driven by SPD. Fully automatic.
 - The UI shows a readable playback with speed controls (1x/2x/skip) and an end-of-fight summary (damage dealt/taken per unit).
 
-**Meta progression (light)**
-- Unlock the extra class and some advanced classes by hitting run milestones. Meta progression should add variety, not power.
+**Meta progression**
+- A **difficulty ladder**: winning a run unlocks the next, harder tier; each tier adds a modifier (and later tiers can add new enemies).
+- **Achievements** unlock classes, items, synergies and starting perks. Unlocks mostly add variety, but some may help a little (Vampire Survivors-style), and the ladder's difficulty outpaces that help. Unlocked content joins the enemy pool too.
+- A **daily seed** run (derived from the date, no backend).
+- Planned later: level cap 10 with a tertiary class at level 7, and talents that grant new abilities.
 
 ## Art and assets
 
@@ -139,8 +143,11 @@ docs/
 2. **Run loop:** shop, gold, party positioning, rounds, lives, enemy generation, tests.
 3. **Builds:** XP, talent choices, advanced classes, items, synergies, and the simulator with bots.
 4. **Playable UI:** shop screen, party board with drag-to-position, combat playback, run summary.
-5. **Balance and juice:** simulator-driven balance pass, animations, sound toggle, credits screen, meta unlocks.
-6. **Ship:** GitHub Pages deploy, README with screenshots/GIF, and a "How this was built" section.
+5. **Progression, balance and new classes:** stat-point allocation, max-level and full-party shop fixes, new classes (Monk, Bard, Druid, Warlock, Engineer), speed items, simulator-driven balance pass.
+6. **Level cap 10:** tertiary classes at level 7, talents for levels 6–10, talents that grant abilities.
+7. **Meta progression:** difficulty ladder, achievements, unlocks screen, starting perks, daily seed.
+8. **Juice:** icons, animations, sound toggle, credits screen.
+9. **Ship:** GitHub Pages deploy, README with screenshots/GIF, and a "How this was built" section.
 
 ## README requirements
 

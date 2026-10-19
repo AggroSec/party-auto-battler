@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const mageTalents = [
   talent('mage/focus', 'Arcane Focus', '+30% ability power.', { abilityPower: 0.3 }),
@@ -20,9 +21,9 @@ export const pyromancer = advanced({
   ability: {
     id: 'meteor',
     name: 'Meteor',
-    description: 'Every 2nd turn: deal 160% ATK to each enemy in the front row.',
+    description: 'Every 2nd turn: deal 140% ATK to each enemy in the front row.',
     cooldown: 2,
-    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.6 } }],
+    effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.4 } }],
   },
   modifier: {
     stats: { atk: 3, hp: 6 },
@@ -51,11 +52,11 @@ export const chronomancer = advanced({
   ability: {
     id: 'time-warp',
     name: 'Time Warp',
-    description: 'Every 3rd turn: allies’ abilities come 1 turn sooner; deal 100% ATK to the nearest enemy.',
-    cooldown: 3,
+    description: 'Every 2nd turn: other allies’ abilities come 1 turn sooner (but not sooner than 2 turns away); deal 150% ATK to the nearest enemy.',
+    cooldown: 2,
     effects: [
-      { kind: 'cooldown', target: 'allAllies', turns: -1 },
-      { kind: 'damage', target: 'nearest', amount: { atk: 1 } },
+      { kind: 'cooldown', target: 'otherAllies', turns: -1, min: 2 },
+      { kind: 'damage', target: 'nearest', amount: { atk: 1.5 } },
     ],
   },
   modifier: {
@@ -77,3 +78,27 @@ export const chronomancer = advanced({
     )),
   ],
 });
+
+export const mageClass: ClassDef = {
+  id: 'mage',
+  name: 'Mage',
+  role: 'caster',
+  tags: ['arcane'],
+  unlockable: false,
+  description: 'Fragile caster whose Fireball splashes across a row.',
+  baseStats: { hp: 24, atk: 7, def: 0, spd: 9 },
+  range: 'ranged',
+  placement: 4,
+  statWeights: { hp: 2, atk: 4, def: 0, spd: 1 },
+  talents: talentIds(mageTalents),
+  advancedClasses: ['pyromancer', 'chronomancer'],
+  attackTarget: 'nearest',
+  ability: {
+    id: 'fireball',
+    name: 'Fireball',
+    description: 'Every 3rd turn: deal 200% ATK to the weakest enemy and 50% of that to its row neighbours.',
+    cooldown: 3,
+    effects: [{ kind: 'damage', target: 'lowestHp', amount: { atk: 2 }, splash: 0.5 }],
+  },
+  triggers: [],
+};

@@ -123,3 +123,23 @@ describe('taunt', () => {
     expect(byId(s, 'p0').taunt).toBe(2);
   });
 });
+
+describe('cooldown floors and otherAllies', () => {
+  it('haste stops at its floor, and otherAllies skips the source', () => {
+    const caster = { ...unit(), ability: { ...zap(5) } };
+    const s = makeState(party([caster, { ...unit(), ability: zap(5) }]), party([tough()]));
+    const [p0, p1] = [byId(s, 'p0'), byId(s, 'p1')];
+    p0.cooldown = 3;
+    p1.cooldown = 3;
+    const warp = [{ kind: 'cooldown' as const, target: 'otherAllies' as const, turns: -1, min: 2 }];
+    applyEffects(s, p0, warp, {}, 0);
+    expect([p0.cooldown, p1.cooldown]).toEqual([3, 2]);
+    applyEffects(s, p0, warp, {}, 0);
+    expect(p1.cooldown).toBe(2);
+    p1.cooldown = 1;
+    applyEffects(s, p0, warp, {}, 0);
+    expect(p1.cooldown).toBe(1);
+    applyEffects(s, p0, [{ kind: 'cooldown', target: 'otherAllies', turns: 2 }], {}, 0);
+    expect(p1.cooldown).toBe(3);
+  });
+});

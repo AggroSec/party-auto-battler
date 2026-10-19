@@ -43,15 +43,20 @@ export interface AdvancedClassDef {
   modifier: UnitModifier;
   /** Talent ids offered at levels 4 and 5. */
   talents: readonly string[];
+  /** Replaces the base class's recommended stat spread. */
+  statWeights?: StatWeights;
 }
 
-/** Per-level stat growth: each level-up rolls an integer in [min, max] per stat. */
-export type GrowthTable = Readonly<Record<StatKey, readonly [number, number]>>;
+/**
+ * Relative weights for the recommended stat-point spread (e.g. a Warrior
+ * leans HP and DEF). Players may ignore it; enemies and "Recommended" use it.
+ */
+export type StatWeights = Readonly<Record<StatKey, number>>;
 
 /** A playable class as the run layer sees it. */
 export interface ClassTemplate extends UnitTemplate {
   tags: readonly string[];
-  growth: GrowthTable;
+  statWeights: StatWeights;
   /** Talent ids offered at level 2. */
   talents: readonly string[];
   /** The two advanced classes offered at level 3. */
@@ -101,6 +106,10 @@ export interface ProgressionConfig {
   xpPerDraw: number;
   /** Level at which a unit chooses its advanced class. */
   advanceLevel: number;
+  /** Stat points granted on reaching each level: index 0 = level 1 (always 0). */
+  statPointsByLevel: readonly number[];
+  /** What one stat point buys in each stat. */
+  statPointValue: Readonly<Stats>;
   /** Talent options offered per level-up. */
   talentChoices: number;
   trainingXp: number;
@@ -116,6 +125,8 @@ export interface ShopLayout {
   extraSlots: number;
   /** Chance an extra slot rolls training (if you own a unit) instead of an item. */
   trainingChance: number;
+  /** Recruit slots once the board is full; the rest go to items and training. */
+  fullPartyUnitSlots: number;
 }
 
 /**

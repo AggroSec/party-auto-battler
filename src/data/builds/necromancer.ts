@@ -1,4 +1,5 @@
-import { advanced, on, talent, trig } from './dsl.ts';
+import type { ClassDef } from '../class-types.ts';
+import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const necromancerTalents = [
   talent('necromancer/siphon', 'Soul Siphon', '+20% lifesteal.', { lifesteal: 0.2 }),
@@ -79,3 +80,36 @@ export const plaguelord = advanced({
     )),
   ],
 });
+
+export const necromancerClass: ClassDef = {
+  id: 'necromancer',
+  name: 'Necromancer',
+  role: 'caster',
+  tags: ['arcane', 'shadow'],
+  unlockable: true,
+  description: 'Drains life from enemies and grows stronger as allies fall.',
+  baseStats: { hp: 24, atk: 5, def: 1, spd: 9 },
+  range: 'ranged',
+  placement: 3,
+  statWeights: { hp: 2, atk: 4, def: 1, spd: 1 },
+  talents: talentIds(necromancerTalents),
+  advancedClasses: ['lich', 'plaguelord'],
+  attackTarget: 'lowestHp',
+  ability: {
+    id: 'drain',
+    name: 'Drain Life',
+    description: 'Every 3rd turn: deal 150% ATK to the weakest enemy and heal self for 100% ATK.',
+    cooldown: 3,
+    effects: [
+      { kind: 'damage', target: 'lowestHp', amount: { atk: 1.5 } },
+      { kind: 'heal', target: 'self', amount: { atk: 1 } },
+    ],
+  },
+  triggers: [
+    {
+      label: 'Dark Harvest',
+      on: 'onAllyDeath',
+      effects: [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 2 } }],
+    },
+  ],
+};

@@ -70,7 +70,12 @@ export function ShopScreen({ game }: { game: Game }) {
     return u ? ctx.config.sellRefund + u.items.length * progression.itemSellRefund : null;
   };
 
-  const message = hint ?? (error ? ERROR_TEXT[error] : null);
+  const withPoints = units.filter((u) => u.statPoints > 0);
+  const pointsHint =
+    withPoints.length > 0
+      ? `⭐ ${withPoints.map((u) => u.name).join(', ')} ${withPoints.length === 1 ? 'has' : 'have'} stat points: click to spend them, or fight to use the recommended spread.`
+      : null;
+  const message = hint ?? (error ? ERROR_TEXT[error] : pointsHint);
   const modeHint =
     mode.kind === 'moveUnit'
       ? 'Click a slot to move the unit there (swaps if occupied).'
@@ -105,7 +110,7 @@ export function ShopScreen({ game }: { game: Game }) {
             <Board run={run} party={party} ctx={ctx} selected={selected} onSelect={onSlotSelect} />
             <SellZone refundFor={refundFor} />
             <div className="fight-bar">
-              <p className="message" role="status">
+              <p className={`message${!hint && !error && pointsHint ? ' info' : ''}`} role="status">
                 {message}
               </p>
               <button type="button" className="fight" disabled={!!pending || units.length === 0} onClick={game.fight}>
@@ -123,6 +128,7 @@ export function ShopScreen({ game }: { game: Game }) {
                 movingItem={mode.kind === 'moveItem' ? mode.index : null}
                 movingUnit={mode.kind === 'moveUnit'}
                 onMoveItem={(index) => setMode(index === null ? { kind: 'select' } : { kind: 'moveItem', index })}
+                onAllocate={(points) => act({ type: 'allocate', at: selected, points })}
                 onSellItem={(item) => {
                   act({ type: 'sellItem', from: selected, item });
                   setMode({ kind: 'select' });

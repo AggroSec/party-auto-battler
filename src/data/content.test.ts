@@ -36,22 +36,24 @@ describe('build content integrity', () => {
         expect(ADVANCED_CLASSES[a]?.talents).toHaveLength(4);
       }
     }
-    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(12);
+    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(22);
   });
 
   it('every talent belongs to exactly one pool', () => {
     const pools = [...CLASS_IDS.map((id) => CLASSES[id].talents), ...Object.values(ADVANCED_CLASSES).map((a) => a.talents)].flat();
-    expect(pools).toHaveLength(72);
-    expect(new Set(pools).size).toBe(72);
+    expect(pools).toHaveLength(132);
+    expect(new Set(pools).size).toBe(132);
     expect(Object.keys(TALENTS).sort()).toEqual([...pools].sort());
   });
 
-  it('growth ranges are valid and lean toward class identity', () => {
-    for (const id of CLASS_IDS) {
-      for (const [min, max] of Object.values(CLASSES[id].growth)) expect(min).toBeLessThanOrEqual(max);
+  it('recommended stat spreads are valid and lean toward class identity', () => {
+    const spreads = [...CLASS_IDS.map((id) => CLASSES[id].statWeights), ...Object.values(ADVANCED_CLASSES).flatMap((a) => (a.statWeights ? [a.statWeights] : []))];
+    for (const w of spreads) {
+      expect(Object.values(w).every((n) => Number.isInteger(n) && n >= 0)).toBe(true);
+      expect(Object.values(w).reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
     }
-    expect(CLASSES.rogue.growth.spd[1]).toBeGreaterThan(CLASSES.warrior.growth.spd[1]);
-    expect(CLASSES.warrior.growth.hp[0]).toBeGreaterThanOrEqual(CLASSES.rogue.growth.hp[1]);
+    expect(CLASSES.rogue.statWeights.spd).toBeGreaterThan(CLASSES.warrior.statWeights.spd);
+    expect(CLASSES.warrior.statWeights.hp).toBeGreaterThan(CLASSES.rogue.statWeights.hp);
   });
 
   it('item class bonuses name real classes', () => {

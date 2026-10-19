@@ -34,7 +34,9 @@ export interface CombatUnit {
   bloodied: boolean;
   /** Fire counts per trigger, for TriggeredEffect.limit. */
   triggerFires: Map<TriggeredEffect, number>;
-  stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived'>;
+  stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived' | 'summonedBy'>;
+  /** Set on summoned units. */
+  summonedBy?: UnitId;
 }
 
 export interface CombatState {
@@ -42,6 +44,8 @@ export interface CombatState {
   units: CombatUnit[];
   events: CombatEvent[];
   rng: Rng;
+  /** Summons so far, for unique ids ("ps0", "es1", ...). */
+  summons: number;
 }
 
 export function emit(state: CombatState, event: CombatEvent): void {
@@ -68,30 +72,31 @@ export function boardOrder(pos: BoardPos): number {
 
 export function createCombatUnits(party: Party, side: Side): CombatUnit[] {
   const prefix = side === 'player' ? 'p' : 'e';
-  return boardSlots(party).map(({ setup, pos }) => {
-    const order = boardOrder(pos);
-    const s: Stats = setup.stats;
-    return {
-      id: `${prefix}${order}`,
-      side,
-      pos,
-      order,
-      setup,
-      maxHp: s.hp,
-      hp: s.hp,
-      atk: s.atk,
-      def: s.def,
-      spd: s.spd,
-      shield: 0,
-      gauge: 0,
-      cooldown: setup.ability.initialCooldown ?? setup.ability.cooldown,
-      taunt: 0,
-      alive: true,
-      bloodied: false,
-      triggerFires: new Map(),
-      stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0 },
-    };
-  });
+  return boardSlots(party).map(({ setup, pos }) => makeCombatUnit(setup, side, pos, `${prefix}${boardOrder(pos)}`));
+}
+
+export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: UnitId): CombatUnit {
+  const s: Stats = setup.stats;
+  return {
+    id,
+    side,
+    pos,
+    order: boardOrder(pos),
+    setup,
+    maxHp: s.hp,
+    hp: s.hp,
+    atk: s.atk,
+    def: s.def,
+    spd: s.spd,
+    shield: 0,
+    gauge: 0,
+    cooldown: setup.ability.initialCooldown ?? setup.ability.cooldown,
+    taunt: 0,
+    alive: true,
+    bloodied: false,
+    triggerFires: new Map(),
+    stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0 },
+  };
 }
 
 export function snapshot(unit: CombatUnit): UnitSnapshot {

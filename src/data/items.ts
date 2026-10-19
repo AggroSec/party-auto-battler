@@ -7,6 +7,11 @@ const MAGES = ['mage', 'pyromancer', 'chronomancer'];
 const CLERICS = ['cleric', 'priest', 'inquisitor'];
 const RANGERS = ['ranger', 'sharpshooter', 'beastmaster'];
 const NECROS = ['necromancer', 'lich', 'plaguelord'];
+const MONKS = ['monk', 'windwalker', 'iron-fist'];
+const BARDS = ['bard', 'skald', 'trickster'];
+const DRUIDS = ['druid', 'shapeshifter', 'grove-warden'];
+const WARLOCKS = ['warlock', 'hexer', 'demonologist'];
+const ENGINEERS = ['engineer', 'machinist', 'demolitionist'];
 
 /**
  * Up to 2 per unit. Anyone can equip anything; class-tied items give their
@@ -18,6 +23,30 @@ const ITEM_LIST: ItemDef[] = [
   { id: 'chainmail', name: 'Chainmail', description: '+2 DEF, +4 HP.', cost: 3, modifier: { stats: { def: 2, hp: 4 } } },
   { id: 'swift-boots', name: 'Swift Boots', description: '+2 SPD.', cost: 3, modifier: { stats: { spd: 2 } } },
   { id: 'giants-belt', name: "Giant's Belt", description: '+12 HP.', cost: 3, modifier: { stats: { hp: 12 } } },
+
+  // Speed items (issue #9: give SPD builds more room before touching class SPD).
+  {
+    id: 'quicksilver-rapier',
+    name: 'Quicksilver Rapier',
+    description: '+2 ATK, +2 SPD.',
+    cost: 5,
+    modifier: { stats: { atk: 2, spd: 2 } },
+  },
+  { id: 'featherweight-charm', name: 'Featherweight Charm', description: '+4 SPD, −6 HP.', cost: 3, modifier: { stats: { spd: 4, hp: -6 } } },
+  {
+    id: 'winged-sandals',
+    name: 'Winged Sandals',
+    description: 'Start of combat: all allies +1 SPD.',
+    cost: 5,
+    modifier: { triggers: [on('startOfCombat', 'Winged Sandals', [{ kind: 'buff', target: 'allAllies', stat: 'spd', amount: { flat: 1 } }])] },
+  },
+  {
+    id: 'adrenaline-vial',
+    name: 'Adrenaline Vial',
+    description: 'When bloodied, gain +5 SPD.',
+    cost: 3,
+    modifier: { triggers: [on('onBloodied', 'Adrenaline', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 5 } }])] },
+  },
 
   // Effect items.
   { id: 'vampiric-fang', name: 'Vampiric Fang', description: '+20% lifesteal.', cost: 4, modifier: { lifesteal: 0.2 } },
@@ -135,6 +164,58 @@ const ITEM_LIST: ItemDef[] = [
       description: "Mages: start of combat, every enemy's ability comes a turn later.",
       modifier: { triggers: [on('startOfCombat', 'Stasis', [{ kind: 'cooldown', target: 'allEnemies', turns: 1 }])] },
     },
+  },
+  {
+    id: 'prayer-beads',
+    name: 'Prayer Beads',
+    description: '+2 SPD.',
+    cost: 3,
+    modifier: { stats: { spd: 2 } },
+    classBonus: {
+      classIds: MONKS,
+      description: 'Monks: each basic attack grants +1 SPD (max 4).',
+      modifier: { triggers: [on('onAttack', 'Prayer Beads', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 1 } }], { limit: 4 })] },
+    },
+  },
+  {
+    id: 'enchanted-lute',
+    name: 'Enchanted Lute',
+    description: '+20% ability power.',
+    cost: 4,
+    modifier: { abilityPower: 0.2 },
+    classBonus: {
+      classIds: BARDS,
+      description: 'Bards: start of combat, all allies +1 ATK.',
+      modifier: { triggers: [on('startOfCombat', 'Opening Chord', [{ kind: 'buff', target: 'allAllies', stat: 'atk', amount: { flat: 1 } }])] },
+    },
+  },
+  {
+    id: 'oak-heart',
+    name: 'Oak Heart',
+    description: '+10 HP.',
+    cost: 3,
+    modifier: { stats: { hp: 10 } },
+    classBonus: {
+      classIds: DRUIDS,
+      description: 'Druids: 25% when hurt, shield yourself for 4.',
+      modifier: { triggers: [on('onHurt', 'Oak Heart', [{ kind: 'shield', target: 'self', amount: { flat: 4 } }], { chance: 0.25 })] },
+    },
+  },
+  {
+    id: 'cursed-tome',
+    name: 'Cursed Tome',
+    description: '+3 ATK, −4 HP.',
+    cost: 3,
+    modifier: { stats: { atk: 3, hp: -4 } },
+    classBonus: { classIds: WARLOCKS, description: 'Warlocks: +15% lifesteal.', modifier: { lifesteal: 0.15 } },
+  },
+  {
+    id: 'gearbox',
+    name: 'Gearbox',
+    description: '+2 DEF, +1 SPD.',
+    cost: 3,
+    modifier: { stats: { def: 2, spd: 1 } },
+    classBonus: { classIds: ENGINEERS, description: 'Engineers: +40% ability power (stronger turrets).', modifier: { abilityPower: 0.4 } },
   },
 ];
 

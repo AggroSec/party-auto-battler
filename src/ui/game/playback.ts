@@ -1,6 +1,6 @@
 // Turns a combat event log into animation frames. Pure: the UI only steps
 // through frames; it never computes combat outcomes itself.
-import type { BoardPos, BuffableStat, CombatEvent, CombatResult, Side, UnitId, Winner } from '../../engine/index.ts';
+import type { BoardPos, BuffableStat, CombatEvent, CombatResult, Side, UnitId, UnitSnapshot, Winner } from '../../engine/index.ts';
 
 export interface UnitView {
   id: UnitId;
@@ -21,6 +21,10 @@ export interface UnitView {
   taunt: number;
   /** Action gauge (acts at 100), as of the last turn event. */
   gauge: number;
+  /** Set on summoned units. */
+  summoned: boolean;
+  /** A dead unit whose slot a summon has taken; no longer drawn. */
+  replaced: boolean;
   /** Where the gauge animates from this frame: the previous value, or the new one when it dropped (a spent turn snaps down). */
   gaugeFrom: number;
 }
@@ -34,6 +38,7 @@ export type Fx =
   | { kind: 'cooldown'; target: UnitId; turns: number }
   | { kind: 'taunt'; target: UnitId }
   | { kind: 'death'; target: UnitId }
+  | { kind: 'summon'; target: UnitId }
   | { kind: 'trigger'; target: UnitId; label: string };
 
 export type FrameKind = 'start' | 'turn' | 'overtime' | 'end';
@@ -138,6 +143,14 @@ function apply(frame: Frame, e: CombatEvent): void {
       frame.fx.push({ kind: 'death', target: e.target });
       return;
     }
+    case 'summon': {
+      for (const other of Object.values(u)) {
+        if (!other.alive && other.side === e.unit.side && other.pos.row === e.unit.pos.row && other.pos.col === e.unit.pos.col) other.replaced = true;
+      }
+      u[e.unit.id] = unitView(e.unit, true);
+      frame.fx.push({ kind: 'summon', target: e.unit.id });
+      return;
+    }
     case 'overtime':
       frame.overtime = { stage: e.stage, percent: e.percent };
       return;
@@ -149,6 +162,29 @@ function apply(frame: Frame, e: CombatEvent): void {
   }
 }
 
+function unitView(s: UnitSnapshot, summoned: boolean): UnitView {
+  return {
+    id: s.id,
+    name: s.name,
+    classId: s.classId,
+    side: s.side,
+    pos: s.pos,
+    maxHp: s.stats.hp,
+    hp: s.stats.hp,
+    hpFrom: s.stats.hp,
+    shield: 0,
+    atk: s.stats.atk,
+    def: s.stats.def,
+    spd: s.stats.spd,
+    alive: true,
+    taunt: 0,
+    gauge: 0,
+    gaugeFrom: 0,
+    summoned,
+    replaced: false,
+  };
+}
+
 /**
  * Frame 0 is the starting line-up. Start-of-combat effects form one frame,
  * then each unit turn and each sudden-death pulse is a frame, and the last
@@ -158,32 +194,12 @@ export function buildTimeline(result: CombatResult): Frame[] {
   const [start, ...rest] = result.events;
   if (start?.type !== 'combatStart') return [];
   const units: Record<UnitId, UnitView> = {};
-  for (const s of start.units) {
-    units[s.id] = {
-      id: s.id,
-      name: s.name,
-      classId: s.classId,
-      side: s.side,
-      pos: s.pos,
-      maxHp: s.stats.hp,
-      hp: s.stats.hp,
-      hpFrom: s.stats.hp,
-      shield: 0,
-      atk: s.stats.atk,
-      def: s.stats.def,
-      spd: s.stats.spd,
-      alive: true,
-      taunt: 0,
-      gauge: 0,
-      gaugeFrom: 0,
-    };
-  }
+  for (const s of start.units) units[s.id] = unitView(s, false);
   const frames: Frame[] = [emptyFrame('start', 0, units)];
   let current: Frame | null = null;
   const open = (kind: FrameKind, tick: number) => {
     const prev = current ?? frames[0]!;
     current = emptyFrame(kind, tick, cloneUnits(prev.units));
-    current.gap = tick - prev.tick;
     frames.push(current);
     return current;
   };
@@ -194,8 +210,11 @@ export function buildTimeline(result: CombatResult): Frame[] {
     else if (e.type === 'combatEnd') frame = open('end', e.tick);
     apply(frame, e);
   }
-  // Drop an empty start-of-combat frame (no triggers fired before the first turn).
-  return frames.filter((f, i) => i === 0 || f.kind !== 'start' || f.fx.length > 0);
+  // Drop an empty start-of-combat frame (no triggers fired before the first turn),
+  // then measure each frame's gap from the frame actually shown before it.
+  const shown = frames.filter((f, i) => i === 0 || f.kind !== 'start' || f.fx.length > 0);
+  shown.forEach((f, i) => (f.gap = i === 0 ? 0 : f.tick - shown[i - 1]!.tick));
+  return shown;
 }
 
 /** Living units on a side at a frame. */

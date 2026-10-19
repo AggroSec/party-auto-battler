@@ -51,6 +51,8 @@ export type TargetSelector =
   | 'self'
   | 'lowestHpAlly'
   | 'allAllies'
+  /** Every living ally except the source. */
+  | 'otherAllies'
   | 'triggerSource'
   | 'triggerTarget';
 
@@ -85,15 +87,45 @@ export type Effect =
   | { kind: 'debuff'; target: TargetSelector; stat: BuffableStat; amount: Amount }
   /**
    * Shifts the target's ability cooldown by `turns`: negative = cast sooner
-   * (haste), positive = delay. A hasted ability casts no sooner than next turn.
+   * (haste), positive = delay. Haste never takes a cooldown below `min`
+   * (default 1: casts no sooner than next turn).
    */
-  | { kind: 'cooldown'; target: TargetSelector; turns: number }
+  | { kind: 'cooldown'; target: TargetSelector; turns: number; min?: number }
   /**
    * The target draws fire: enemies' single-target attacks and abilities must
    * pick a taunting unit while one is alive. Area effects are unaffected.
    * Lasts for the target's next `turns` turns; reapplying refreshes, not stacks.
    */
-  | { kind: 'taunt'; target: TargetSelector; turns: number };
+  | { kind: 'taunt'; target: TargetSelector; turns: number }
+  /**
+   * The source loses HP as a cost (true damage, not scaled by ability power).
+   * It credits no attacker, so it never feeds lifesteal or "when hurt by X"
+   * effects aimed at the attacker. It can make the source bloodied, or kill it.
+   */
+  | { kind: 'payHp'; amount: Amount }
+  /**
+   * Put a new unit on the source's side in an empty slot (preferred row
+   * first). Its HP and ATK scale with the summoner (and ability power). With
+   * no empty slot, `fallback` effects are applied instead.
+   */
+  | { kind: 'summon'; summon: SummonDef; fallback?: Effect[] };
+
+/** A combat-only unit created by a summon effect. It never joins the run's board. */
+export interface SummonDef {
+  name: string;
+  /** Display id for the UI (e.g. 'turret'); not a class in the run's content. */
+  classId: string;
+  /** Scaled from the summoner, e.g. { maxHp: 0.5 }. Ability power multiplies HP and ATK. */
+  hp: Amount;
+  atk: Amount;
+  def: number;
+  spd: number;
+  range: Range;
+  attackTarget: TargetSelector;
+  row: Row;
+  ability?: AbilityDef;
+  triggers?: readonly TriggeredEffect[];
+}
 
 export type TriggerEvent =
   | 'startOfCombat'

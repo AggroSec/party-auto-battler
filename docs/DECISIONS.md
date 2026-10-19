@@ -2,13 +2,7 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
-## 2026-10-19 — GitHub Pages deploy (moved up from Milestone 9)
 
-Brandon asked for the deploy early, so he can play on his phone and share a link.
-- **The repo is public, at Brandon's request.** GitHub Pages on a free account only works for public repos, and even paid private-repo Pages sites are public to anyone with the link. Before switching, I checked the full git history for secrets and for files that should be ignored; there were none.
-- **`deploy.yml` builds and deploys on every push to `main`,** and can be run by hand (`workflow_dispatch`). It uses the official Pages actions (`upload-pages-artifact`, `deploy-pages`), so there is no `gh-pages` branch to maintain.
-- **The Vite `base` is `/party-auto-battler/` only when `GITHUB_PAGES` is set.** The dev server and local builds keep `/`, so nothing changes for local play.
-- **Play logs stay dev-only.** The deployed site doesn't record them, since there's no server to send them to.
 
 ## 2026-10-17 — Milestone 4
 
