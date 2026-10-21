@@ -1,7 +1,7 @@
 // XP, level-ups, stat points and level-up choices.
 import type { Rng } from '../rng.ts';
 import type { StatKey } from '../types.ts';
-import { classFor } from './build.ts';
+import { classFor, classTiers } from './build.ts';
 import type { ProgressionConfig, StatWeights } from './content-types.ts';
 import type { OwnedUnit, PendingChoice, RunContent } from './types.ts';
 
@@ -25,10 +25,10 @@ export function isMaxLevel(unit: OwnedUnit, cfg: ProgressionConfig): boolean {
   return unit.level >= maxLevel(cfg);
 }
 
-/** The recommended spread for a unit: its advanced class's, else its base class's. */
+/** The recommended spread for a unit: its most advanced class's that sets one, else its base class's. */
 export function statWeights(unit: OwnedUnit, content: RunContent): StatWeights {
-  const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
-  return adv?.statWeights ?? classFor(content, unit.classId).statWeights;
+  const { adv, tert } = classTiers(unit, content);
+  return tert?.statWeights ?? adv?.statWeights ?? classFor(content, unit.classId).statWeights;
 }
 
 /** Points already spent per stat. */
@@ -81,7 +81,13 @@ export function allocatePoints(unit: OwnedUnit, points: Partial<StatPoints>, cfg
   return true;
 }
 
-/** Talent options for a level-up, or null if the pool is exhausted or the advanced class is still undecided. */
+/**
+ * Talent options for a level-up, or null if the class tier the level draws
+ * from is still undecided. Levels below the advance level draw from the base
+ * class's pool, then the advanced class's, then (from the ascend level) the
+ * tertiary class's. When the current pool has fewer unpicked talents than a
+ * full offer, it's topped up with unpicked talents from earlier tiers.
+ */
 export function talentOptions(
   unit: OwnedUnit,
   level: number,
@@ -89,15 +95,35 @@ export function talentOptions(
   cfg: ProgressionConfig,
   rng: Rng,
 ): string[] | null {
-  let pool: readonly string[];
-  if (level < cfg.advanceLevel) {
-    pool = classFor(content, unit.classId).talents;
-  } else {
-    if (!unit.advancedClassId) return null;
-    pool = content.advancedClasses[unit.advancedClassId]?.talents ?? [];
+  const { adv, tert } = classTiers(unit, content);
+  const tiers: (readonly string[])[] = [classFor(content, unit.classId).talents];
+  if (level > cfg.advanceLevel) {
+    if (!adv) return null;
+    tiers.unshift(adv.talents);
   }
-  const fresh = pool.filter((id) => !unit.talents.includes(id) && content.talents[id]);
-  return fresh.length > 0 ? sample(rng, fresh, cfg.talentChoices) : [];
+  // A tier with no classes to pick (none defined) is skipped rather than waited on.
+  if (level > cfg.ascendLevel && (classOptions(unit, 'ascend', content)?.length ?? 0) > 0) {
+    if (!tert) return null;
+    tiers.unshift(tert.talents);
+  }
+  const fresh = (pool: readonly string[]) => pool.filter((id) => !unit.talents.includes(id) && content.talents[id]);
+  const options = sample(rng, fresh(tiers[0]!), cfg.talentChoices);
+  const leftovers = tiers.slice(1).flatMap(fresh);
+  return [...options, ...sample(rng, leftovers, cfg.talentChoices - options.length)];
+}
+
+/** Class options for an advance (level 3) or ascend (level 7) choice; null if the previous tier is undecided. */
+export function classOptions(unit: OwnedUnit, kind: 'advance' | 'ascend', content: RunContent): string[] | null {
+  if (kind === 'advance') return classFor(content, unit.classId).advancedClasses.filter((id) => content.advancedClasses[id]);
+  const { adv } = classTiers(unit, content);
+  if (!adv) return null;
+  return (adv.tertiaryClasses ?? []).filter((id) => content.tertiaryClasses[id]);
+}
+
+/** Options for a pending choice, rolling them if it was queued before an earlier class choice was made. */
+export function choiceOptions(unit: OwnedUnit, choice: PendingChoice, content: RunContent, cfg: ProgressionConfig, rng: Rng): string[] | null {
+  if (choice.options.length > 0) return choice.options;
+  return choice.kind === 'talent' ? talentOptions(unit, choice.level, content, cfg, rng) : classOptions(unit, choice.kind, content);
 }
 
 /**
@@ -118,16 +144,10 @@ export function grantXp(
   while (unit.level < maxLevel(cfg) && unit.xp >= cfg.xpForLevel[unit.level]!) {
     unit.level += 1;
     unit.statPoints += cfg.statPointsByLevel[unit.level - 1] ?? 0;
-    if (unit.level === cfg.advanceLevel) {
-      const options = classFor(content, unit.classId).advancedClasses.filter((id) => content.advancedClasses[id]);
-      if (options.length > 0) choices.push({ uid: unit.uid, level: unit.level, kind: 'advance', options: [...options] });
-    } else {
-      // Options for post-advance levels are rolled once the advanced class is chosen (null = placeholder).
-      const options = talentOptions(unit, unit.level, content, cfg, rng);
-      if (options === null || options.length > 0) {
-        choices.push({ uid: unit.uid, level: unit.level, kind: 'talent', options: options ?? [] });
-      }
-    }
+    // Options that depend on a class choice not yet made are rolled once it is (null → empty placeholder).
+    const kind = unit.level === cfg.advanceLevel ? 'advance' : unit.level === cfg.ascendLevel ? 'ascend' : 'talent';
+    const options = kind === 'talent' ? talentOptions(unit, unit.level, content, cfg, rng) : classOptions(unit, kind, content);
+    if (options === null || options.length > 0) choices.push({ uid: unit.uid, level: unit.level, kind, options: options ?? [] });
   }
   return choices;
 }
@@ -137,6 +157,7 @@ export function applyChoice(unit: OwnedUnit, choice: PendingChoice, option: numb
   const pick = choice.options[option];
   if (pick === undefined) return false;
   if (choice.kind === 'advance') unit.advancedClassId = pick;
+  else if (choice.kind === 'ascend') unit.tertiaryClassId = pick;
   else unit.talents.push(pick);
   return true;
 }

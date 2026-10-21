@@ -15,6 +15,7 @@ export {
   buildModifiers,
   buildSources,
   classFor,
+  classTiers,
   effectiveClassId,
   newUnit,
   resolveBoard,
@@ -30,6 +31,8 @@ export { interestFor, roundIncome, streakBonusFor } from './economy.ts';
 export { enemyCount, generateEnemy, roundScaling, type EnemyParty } from './enemies.ts';
 export {
   allocatePoints,
+  choiceOptions,
+  classOptions,
   grantXp,
   isMaxLevel,
   maxLevel,

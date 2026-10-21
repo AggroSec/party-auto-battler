@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { Rng } from '../rng.ts';
-import { newUnit } from './build.ts';
-import { allocatePoints, applyChoice, grantXp, recommendedAllocation, sample, talentOptions } from './progression.ts';
-import { TEST_CONFIG, makeCtx } from './test-fixtures.ts';
+import { effectiveClassId, newUnit, resolveUnit, unitTags } from './build.ts';
+import { allocatePoints, applyChoice, choiceOptions, grantXp, recommendedAllocation, sample, talentOptions } from './progression.ts';
+import { LONG_PROGRESSION, TEMPLATES, TEST_CONFIG, makeCtx } from './test-fixtures.ts';
 
 const { content } = makeCtx();
 const cfg = TEST_CONFIG.progression;
@@ -76,7 +76,9 @@ describe('progression', () => {
       [4, 'talent', 0],
     ]);
     applyChoice(u, choices[1]!, 0);
-    expect(talentOptions(u, 4, content, cfg, new Rng(1))?.sort()).toEqual(['holy1', 'holy2']);
+    const options = talentOptions(u, 4, content, cfg, new Rng(1))!;
+    expect(options.slice(0, 2).sort()).toEqual(['holy1', 'holy2']);
+    expect(TEMPLATES.tank.talents).toContain(options[2]);
   });
 
   it('skips talent choices when the pool is exhausted, and never re-offers owned talents', () => {
@@ -93,5 +95,47 @@ describe('progression', () => {
     const picks = sample(new Rng(4), [1, 2, 3, 4, 5], 3);
     expect(new Set(picks).size).toBe(3);
     expect(sample(new Rng(4), [1, 2], 5)).toHaveLength(2);
+  });
+});
+
+describe('tertiary classes and granted abilities (M6)', () => {
+  const { content } = makeCtx();
+  const long = { ...TEST_CONFIG.progression, ...LONG_PROGRESSION };
+
+  it('offers the tertiary choice at the ascend level, then draws from its pool', () => {
+    const u = newUnit(1, 'tank', 'T');
+    const rng = new Rng(3);
+    for (const c of grantXp(u, 25, content, long, rng)) {
+      const options = choiceOptions(u, c, content, long, rng)!;
+      if (c.kind === 'ascend') expect(options).toEqual(['templar', 'crusader']);
+      applyChoice(u, { ...c, options }, c.kind === 'advance' ? options.indexOf('paladin') : 0);
+    }
+    expect(u.level).toBe(7);
+    expect(u.tertiaryClassId).toBe('templar');
+    expect(effectiveClassId(u)).toBe('templar');
+    expect(unitTags(u, content)).toEqual(['holy']);
+    const options = talentOptions(u, 8, content, long, rng)!;
+    expect(options.slice(0, 2).sort()).toEqual(['prayer', 'zeal1']);
+    expect(options).toHaveLength(3);
+  });
+
+  it('defers the tertiary choice when the advanced class is still undecided', () => {
+    const u = newUnit(1, 'tank', 'T');
+    const choices = grantXp(u, 25, content, long, new Rng(1));
+    expect(choices.map((c) => [c.level, c.kind, c.options.length])).toContainEqual([7, 'ascend', 0]);
+  });
+
+  it('skips the tertiary tier for an advanced class without tertiary classes', () => {
+    const u = { ...newUnit(1, 'tank', 'T'), level: 7, advancedClassId: 'brute' };
+    expect(talentOptions(u, 8, content, long, new Rng(1))).not.toBeNull();
+  });
+
+  it('resolves the tertiary ability and stats, and talent-granted abilities with cooldown changes', () => {
+    const u = { ...newUnit(1, 'tank', 'T'), advancedClassId: 'paladin', tertiaryClassId: 'templar', talents: ['prayer', 'quick'] };
+    const setup = resolveUnit(u, content);
+    expect(setup.classId).toBe('templar');
+    expect(setup.ability).toMatchObject({ id: 'judgement', cooldown: 2 });
+    expect(setup.extraAbilities?.map((a) => [a.id, a.cooldown])).toEqual([['prayer', 4]]);
+    expect(setup.stats.hp).toBe(TEMPLATES.tank.baseStats.hp + 10);
   });
 });

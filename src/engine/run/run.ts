@@ -4,9 +4,9 @@ import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, unitCount } f
 import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from './build.ts';
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
-import { allocatePoints, applyChoice, grantXp, isMaxLevel, recommendedAllocation, talentOptions } from './progression.ts';
+import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation } from './progression.ts';
 import { rollShop } from './shop.ts';
-import type { ActionResult, FightResult, OwnedUnit, RunContext, RunError, RunState, ShopAction } from './types.ts';
+import type { ActionResult, FightResult, OwnedUnit, PendingChoice, RunContext, RunError, RunState, ShopAction } from './types.ts';
 
 /** Start a run. Round 1 opens with starting gold and a free shop. */
 export function createRun(seed: string, ctx: RunContext): RunState {
@@ -145,15 +145,18 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
       const unit = findUnit(next, choice.uid);
       if (!unit || !applyChoice(unit, choice, action.option)) return fail('invalidChoice');
       next.pending.shift();
-      if (choice.kind === 'advance') {
-        // Post-advance talent choices wait for the advanced class; roll them now.
+      if (choice.kind !== 'talent') {
+        // Choices queued behind this class choice can roll their options now;
+        // drop any whose pool turns out empty (null = still waiting on another class choice).
+        const empty = new Set<PendingChoice>();
         for (const p of next.pending) {
-          if (p.uid === unit.uid && p.kind === 'talent' && p.options.length === 0) {
-            p.options = withRng(next, (rng) => talentOptions(unit, p.level, ctx.content, progression, rng)) ?? [];
-          }
+          if (p.uid !== unit.uid || p.options.length > 0) continue;
+          const options = withRng(next, (rng) => choiceOptions(unit, p, ctx.content, progression, rng));
+          if (options === null) continue;
+          if (options.length === 0) empty.add(p);
+          p.options = options;
         }
-        // Drop any whose advanced talent pool turned out to be empty.
-        next.pending = next.pending.filter((p) => !(p.uid === unit.uid && p.kind === 'talent' && p.options.length === 0));
+        next.pending = next.pending.filter((p) => !empty.has(p));
       }
       return { ok: true, state: next };
     }

@@ -4,7 +4,8 @@ import type { RunConfig } from '../engine/run/types.ts';
 export const RUN_CONFIG: RunConfig = {
   startingGold: 10,
   startingLives: 5,
-  winsToComplete: 10,
+  // Brandon (M6): longer runs so levels 6–10 get played out.
+  winsToComplete: 15,
   baseIncome: 5,
   interestPer: 5,
   maxInterest: 2,
@@ -24,14 +25,17 @@ export const RUN_CONFIG: RunConfig = {
     fullPartyUnitSlots: 2,
   },
   progression: {
-    // Levels 1-5. A unit bought in round 1 reaches level 3 around round 4.
-    xpForLevel: [0, 2, 5, 9, 14],
+    // Levels 1-10. A unit bought in round 1 reaches level 3 around round 4 and
+    // level 7 around round 12; training gets it there sooner.
+    xpForLevel: [0, 2, 5, 9, 14, 19, 25, 31, 38, 46],
     xpPerWin: 2,
     xpPerLoss: 1,
     xpPerDraw: 1,
     advanceLevel: 3,
-    // Brandon (M5): players spend stat points freely, with a bump at levels 3 and 5.
-    statPointsByLevel: [0, 3, 5, 3, 5],
+    ascendLevel: 7,
+    // Brandon (M5): players spend stat points freely, with a bump at levels 3 and 5
+    // (M6: and at the tertiary class at 7, and at the cap).
+    statPointsByLevel: [0, 3, 5, 3, 5, 3, 5, 3, 3, 5],
     statPointValue: { hp: 3, atk: 1, def: 1, spd: 1 },
     talentChoices: 3,
     trainingXp: 2,

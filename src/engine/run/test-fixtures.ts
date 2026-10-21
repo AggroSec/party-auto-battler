@@ -1,6 +1,6 @@
 // Synthetic content for run-layer tests, independent of real class balance.
 import { NEVER_CAST } from '../test-helpers.ts';
-import type { AdvancedClassDef, ClassTemplate, ItemDef, StatWeights, SynergyDef, TalentDef } from './content-types.ts';
+import type { AdvancedClassDef, ClassTemplate, ItemDef, StatWeights, SynergyDef, TalentDef, TertiaryClassDef } from './content-types.ts';
 import type { EnemyArchetype, RunConfig, RunContext, RunContent } from './types.ts';
 
 const BALANCED: StatWeights = { hp: 1, atk: 1, def: 0, spd: 0 };
@@ -49,6 +49,13 @@ export const TALENTS: Record<string, TalentDef> = {
   sturdy: { id: 'sturdy', name: 'Sturdy', description: '+1 DEF', stats: { def: 1 } },
   holy1: { id: 'holy1', name: 'Holy 1', description: '+5 HP', stats: { hp: 5 } },
   holy2: { id: 'holy2', name: 'Holy 2', description: '+5 HP', stats: { hp: 5 } },
+  zeal1: { id: 'zeal1', name: 'Zeal 1', description: '+1 ATK', stats: { atk: 1 } },
+  prayer: {
+    id: 'prayer',
+    name: 'Prayer',
+    description: 'Grants Prayer',
+    grantAbility: { ...NEVER_CAST, id: 'prayer', name: 'Prayer', cooldown: 5 },
+  },
 };
 
 export const ADVANCED: Record<string, AdvancedClassDef> = {
@@ -61,6 +68,7 @@ export const ADVANCED: Record<string, AdvancedClassDef> = {
     ability: { ...NEVER_CAST, id: 'smite', name: 'Smite', cooldown: 4 },
     modifier: { stats: { def: 2 } },
     talents: ['holy1', 'holy2'],
+    tertiaryClasses: ['templar', 'crusader'],
   },
   brute: {
     id: 'brute',
@@ -72,6 +80,37 @@ export const ADVANCED: Record<string, AdvancedClassDef> = {
     modifier: { stats: { atk: 3 }, lifesteal: 0.2 },
     talents: [],
   },
+};
+
+export const TERTIARY: Record<string, TertiaryClassDef> = {
+  templar: {
+    id: 'templar',
+    name: 'Templar',
+    baseClassId: 'tank',
+    advancedClassId: 'paladin',
+    description: 'Holy warrior',
+    tags: ['holy'],
+    ability: { ...NEVER_CAST, id: 'judgement', name: 'Judgement', cooldown: 3 },
+    modifier: { stats: { hp: 10 } },
+    talents: ['zeal1', 'prayer'],
+  },
+  crusader: {
+    id: 'crusader',
+    name: 'Crusader',
+    baseClassId: 'tank',
+    advancedClassId: 'paladin',
+    description: 'Charges in',
+    tags: ['guard'],
+    ability: NEVER_CAST,
+    modifier: { stats: { atk: 4 } },
+    talents: [],
+  },
+};
+
+/** Levels 1–8 with the tertiary choice at 7, for tests that need it. */
+export const LONG_PROGRESSION = {
+  xpForLevel: [0, 2, 5, 9, 14, 19, 25, 31],
+  statPointsByLevel: [0, 3, 5, 3, 5, 3, 5, 3],
 };
 
 export const ITEMS: Record<string, ItemDef> = {
@@ -123,6 +162,7 @@ export const TEST_CONFIG: RunConfig = {
     xpPerLoss: 1,
     xpPerDraw: 1,
     advanceLevel: 3,
+    ascendLevel: 7,
     statPointsByLevel: [0, 3, 5, 3, 5],
     statPointValue: { hp: 3, atk: 1, def: 1, spd: 1 },
     talentChoices: 3,
@@ -153,6 +193,7 @@ export function makeCtx(
     content: {
       classes: TEMPLATES,
       advancedClasses: ADVANCED,
+      tertiaryClasses: TERTIARY,
       talents: TALENTS,
       items: ITEMS,
       synergies: SYNERGIES,

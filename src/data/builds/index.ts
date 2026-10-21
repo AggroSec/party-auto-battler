@@ -1,4 +1,4 @@
-import type { AdvancedClassDef, TalentDef } from '../../engine/run/content-types.ts';
+import type { AdvancedClassDef, TalentDef, TertiaryClassDef } from '../../engine/run/content-types.ts';
 import type { ClassDef, ClassId } from '../class-types.ts';
 import { bardClass, bardTalents, skald, trickster } from './bard.ts';
 import { clericClass, clericTalents, inquisitor, priest } from './cleric.ts';
@@ -49,6 +49,10 @@ const ADVANCED = [
 
 export const ADVANCED_CLASSES: Record<string, AdvancedClassDef> = Object.fromEntries(ADVANCED.map((a) => [a.cls.id, a.cls]));
 
+const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [];
+
+export const TERTIARY_CLASSES: Record<string, TertiaryClassDef> = Object.fromEntries(TERTIARY.map((t) => [t.cls.id, t.cls]));
+
 export const TALENTS: Record<string, TalentDef> = Object.fromEntries(
-  [...Object.values(BASE_TALENTS).flat(), ...ADVANCED.flatMap((a) => a.talents)].map((t) => [t.id, t]),
+  [...Object.values(BASE_TALENTS).flat(), ...ADVANCED.flatMap((a) => a.talents), ...TERTIARY.flatMap((t) => t.talents)].map((t) => [t.id, t]),
 );

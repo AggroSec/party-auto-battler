@@ -2,7 +2,7 @@ import { Rng } from '../rng.ts';
 import { BACK_SLOTS, FRONT_SLOTS, type Party, type Stats } from '../types.ts';
 import { autoPlaceSlot, emptyBoard, setSlot } from './board.ts';
 import { classFor, newUnit, resolveBoard } from './build.ts';
-import { allocatePoints, applyChoice, grantXp, recommendedAllocation, talentOptions } from './progression.ts';
+import { allocatePoints, applyChoice, choiceOptions, grantXp, recommendedAllocation } from './progression.ts';
 import type { Board, OwnedUnit, RunContent, RunContext } from './types.ts';
 
 const tableAt = (table: readonly number[], round: number): number => {
@@ -36,7 +36,7 @@ function developEnemy(unit: OwnedUnit, round: number, ctx: RunContext, rng: Rng)
   const target = cfg.xpForLevel[Math.min(level, cfg.xpForLevel.length) - 1] ?? 0;
   const queue = grantXp(unit, target, ctx.content, cfg, rng);
   for (const choice of queue) {
-    const options = choice.options.length > 0 ? choice.options : (talentOptions(unit, choice.level, ctx.content, cfg, rng) ?? []);
+    const options = choiceOptions(unit, choice, ctx.content, cfg, rng) ?? [];
     if (options.length > 0) applyChoice(unit, { ...choice, options }, rng.int(options.length));
   }
   allocatePoints(unit, recommendedAllocation(unit, ctx.content, cfg), cfg);

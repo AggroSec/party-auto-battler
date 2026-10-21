@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { newUnit } from './build.ts';
 import { generateEnemy } from './enemies.ts';
 import { applyShopAction, createRun, fight } from './run.ts';
-import { ARCHETYPES, TEST_CONFIG, makeCtx } from './test-fixtures.ts';
+import { ARCHETYPES, TEMPLATES, TEST_CONFIG, makeCtx } from './test-fixtures.ts';
 import type { RunContext, RunState, ShopAction, ShopOffer } from './types.ts';
 
 function act(state: RunState, action: ShopAction, ctx: RunContext): RunState {
@@ -123,15 +123,21 @@ describe('level-up choices', () => {
       ['talent', 0],
     ]);
     s = act(s, { type: 'choose', option: 0 }, ctx);
+    const taken = s.board.front[0]!.talents[0]!;
     s = act(s, { type: 'choose', option: 0 }, ctx); // paladin
-    expect(s.pending[0]?.options.sort()).toEqual(['holy1', 'holy2']);
+    // The paladin's two talents, topped up with an unpicked tank talent.
+    const options = s.pending[0]!.options;
+    expect(options.slice(0, 2).sort()).toEqual(['holy1', 'holy2']);
+    expect(['tough', 'strong', 'quick', 'sturdy'].filter((t) => t !== taken)).toContain(options[2]);
   });
 
-  it('drops a deferred choice whose advanced pool is empty', () => {
-    let s = act(setup([{ kind: 'training', classId: 'tank', xp: 9, cost: 3 }]), { type: 'buy', offer: 0, to: front0 }, ctx);
-    s = act(s, { type: 'choose', option: 0 }, ctx);
-    s = act(s, { type: 'choose', option: 1 }, ctx); // brute: no talents
-    expect(s.pending).toEqual([]);
+  it('drops a deferred choice when no talents are left anywhere', () => {
+    const bare = makeCtx({ content: { classes: { ...TEMPLATES, tank: { ...TEMPLATES.tank, talents: [] } } } });
+    const s = applyShopAction(setup([{ kind: 'training', classId: 'tank', xp: 9, cost: 3 }]), { type: 'buy', offer: 0, to: front0 }, bare);
+    if (!s.ok) throw new Error(s.error);
+    expect(s.state.pending.map((p) => p.kind)).toEqual(['advance', 'talent']);
+    const r = applyShopAction(s.state, { type: 'choose', option: 1 }, bare); // brute: no talents either
+    expect(r.ok && r.state.pending).toEqual([]);
   });
 });
 

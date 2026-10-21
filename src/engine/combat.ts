@@ -125,6 +125,23 @@ export function readyUnits(state: CombatState): CombatUnit[] {
   );
 }
 
+/**
+ * Index of the ability to cast this turn, or null. Of the ready ones, the one
+ * that has waited longest (lowest cooldown) goes first; ties go to the rarer
+ * ability (longer cooldown), then the class ability, then talent order. So an
+ * every-turn class ability can't starve a granted one.
+ */
+function readyAbility(unit: CombatUnit): number | null {
+  const abilities = [unit.setup.ability, ...(unit.setup.extraAbilities ?? [])];
+  let best: number | null = null;
+  unit.cooldowns.forEach((cd, i) => {
+    if (cd > 0) return;
+    const b = best === null ? null : unit.cooldowns[best]!;
+    if (b === null || cd < b || (cd === b && abilities[i]!.cooldown > abilities[best!]!.cooldown)) best = i;
+  });
+  return best;
+}
+
 function takeTurn(state: CombatState, unit: CombatUnit): void {
   const gauges: Record<UnitId, number> = {};
   for (const u of state.units) if (u.alive) gauges[u.id] = u.gauge;
@@ -134,10 +151,11 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
   fireTriggers(state, unit, 'onTurnStart', {}, 0);
   if (!unit.alive || checkWinner(state) !== null) return;
 
-  unit.cooldown -= 1;
-  if (unit.cooldown <= 0) {
-    const { ability } = unit.setup;
-    unit.cooldown = ability.cooldown;
+  unit.cooldowns = unit.cooldowns.map((cd) => cd - 1);
+  const ready = readyAbility(unit);
+  if (ready !== null) {
+    const ability = ready === 0 ? unit.setup.ability : unit.setup.extraAbilities![ready - 1]!;
+    unit.cooldowns[ready] = ability.cooldown;
     unit.stats.abilities += 1;
     emit(state, { tick: state.tick, type: 'ability', source: unit.id, abilityId: ability.id, name: ability.name });
     applyEffects(state, unit, ability.effects, {}, 0, unit.setup.abilityPower ?? 1);

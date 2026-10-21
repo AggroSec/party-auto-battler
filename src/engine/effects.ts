@@ -117,15 +117,16 @@ function applyEffect(
     }
     case 'cooldown': {
       for (const target of selectTargets(state, source, effect.target, ctx)) {
+        // Shifts every ability the target has; haste never pulls one closer than the floor.
         const floor = effect.turns < 0 ? Math.max(1, effect.min ?? 1) : 1;
-        target.cooldown = Math.max(Math.min(floor, target.cooldown), target.cooldown + effect.turns);
+        target.cooldowns = target.cooldowns.map((cd) => Math.max(Math.min(floor, cd), cd + effect.turns));
         emit(state, {
           tick: state.tick,
           type: 'cooldown',
           source: source.id,
           target: target.id,
           turns: effect.turns,
-          cooldownAfter: target.cooldown,
+          cooldownAfter: target.cooldowns[0]!,
         });
       }
       return;

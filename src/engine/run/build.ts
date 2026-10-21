@@ -1,6 +1,6 @@
 // Resolve a unit's build (class + stat points + advanced class + talents + items +
 // synergies) into the UnitSetup the combat engine consumes.
-import type { Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
+import type { AbilityDef, Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
 import type { ClassTemplate, SynergyDef, SynergyTier, UnitModifier } from './content-types.ts';
 import type { Board, OwnedUnit, RunContent } from './types.ts';
 
@@ -12,28 +12,37 @@ export function classFor(content: RunContent, classId: string): ClassTemplate {
   return c;
 }
 
-/** The class id a unit fights as: its advanced class if it has one. */
+/** The class id a unit fights as: its tertiary class, else its advanced class, else its base class. */
 export function effectiveClassId(unit: OwnedUnit): string {
-  return unit.advancedClassId ?? unit.classId;
+  return unit.tertiaryClassId ?? unit.advancedClassId ?? unit.classId;
+}
+
+/** The unit's advanced and tertiary class definitions, if chosen. */
+export function classTiers(unit: OwnedUnit, content: RunContent) {
+  return {
+    adv: unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined,
+    tert: unit.tertiaryClassId ? content.tertiaryClasses[unit.tertiaryClassId] : undefined,
+  };
 }
 
 export function unitTags(unit: OwnedUnit, content: RunContent): readonly string[] {
-  const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
-  return adv?.tags ?? classFor(content, unit.classId).tags;
+  const { adv, tert } = classTiers(unit, content);
+  return tert?.tags ?? adv?.tags ?? classFor(content, unit.classId).tags;
 }
 
 /** A modifier and where it came from, for explaining a build in the UI. */
 export interface ModifierSource {
-  kind: 'advanced' | 'talent' | 'item' | 'classBonus' | 'synergy';
+  kind: 'advanced' | 'tertiary' | 'talent' | 'item' | 'classBonus' | 'synergy';
   name: string;
   modifier: UnitModifier;
 }
 
-/** The unit's own build, labelled: advanced class, talents and items. */
+/** The unit's own build, labelled: advanced and tertiary classes, talents and items. */
 export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSource[] {
   const sources: ModifierSource[] = [];
-  const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
+  const { adv, tert } = classTiers(unit, content);
   if (adv) sources.push({ kind: 'advanced', name: adv.name, modifier: adv.modifier });
+  if (tert) sources.push({ kind: 'tertiary', name: tert.name, modifier: tert.modifier });
   for (const id of unit.talents) {
     const t = content.talents[id];
     if (t) sources.push({ kind: 'talent', name: t.name, modifier: t });
@@ -94,16 +103,27 @@ export function synergyModifiersFor(unit: OwnedUnit, active: ActiveSynergy[], co
   return synergySources(unit, active, content).map((s) => s.modifier);
 }
 
+/** An ability with cooldown changes applied (never below 1 turn). */
+function withCooldownDelta(ability: AbilityDef, delta: number): AbilityDef {
+  if (delta === 0) return ability;
+  return {
+    ...ability,
+    cooldown: Math.max(1, ability.cooldown + delta),
+    ...(ability.initialCooldown !== undefined ? { initialCooldown: Math.max(1, ability.initialCooldown + delta) } : {}),
+  };
+}
+
 /** Resolve one unit, given any extra modifiers (synergies). */
 export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitModifier[] = []): UnitSetup {
   const base = classFor(content, unit.classId);
-  const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
+  const { adv, tert } = classTiers(unit, content);
   const mods = [...buildModifiers(unit, content), ...extra];
 
   const stat = (k: keyof Stats) =>
     Math.max(k === 'hp' || k === 'spd' ? 1 : 0, base.baseStats[k] + unit.growth[k] + mods.reduce((s, m) => s + (m.stats?.[k] ?? 0), 0));
   const triggers: TriggeredEffect[] = [...base.triggers, ...mods.flatMap((m) => m.triggers ?? [])];
-  const ability = adv?.ability ?? base.ability;
+  const ability = tert?.ability ?? adv?.ability ?? base.ability;
+  const granted = mods.flatMap((m) => (m.grantAbility ? [m.grantAbility] : []));
   const cdDelta = mods.reduce((s, m) => s + (m.abilityCooldown ?? 0), 0);
   const lifesteal = mods.reduce((s, m) => s + (m.lifesteal ?? 0), 0);
   const abilityPower = 1 + mods.reduce((s, m) => s + (m.abilityPower ?? 0), 0);
@@ -113,19 +133,11 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
     classId: effectiveClassId(unit),
     stats: { hp: stat('hp'), atk: stat('atk'), def: stat('def'), spd: stat('spd') },
     range: base.range,
-    attackTarget: adv?.attackTarget ?? base.attackTarget,
-    ability:
-      cdDelta === 0
-        ? ability
-        : {
-            ...ability,
-            cooldown: Math.max(1, ability.cooldown + cdDelta),
-            ...(ability.initialCooldown !== undefined
-              ? { initialCooldown: Math.max(1, ability.initialCooldown + cdDelta) }
-              : {}),
-          },
+    attackTarget: tert?.attackTarget ?? adv?.attackTarget ?? base.attackTarget,
+    ability: withCooldownDelta(ability, cdDelta),
     triggers,
   };
+  if (granted.length > 0) setup.extraAbilities = granted.map((a) => withCooldownDelta(a, cdDelta));
   if (mods.some((m) => m.reach)) setup.reach = true;
   if (lifesteal > 0) setup.lifesteal = lifesteal;
   if (abilityPower !== 1) setup.abilityPower = Math.max(0, abilityPower);
@@ -145,5 +157,17 @@ export function resolveBoard(board: Board, content: RunContent): Party {
 
 /** A fresh level-1 unit. */
 export function newUnit(uid: number, classId: string, name: string): OwnedUnit {
-  return { uid, classId, name, level: 1, xp: 0, advancedClassId: null, talents: [], items: [], growth: { ...ZERO_STATS }, statPoints: 0 };
+  return {
+    uid,
+    classId,
+    name,
+    level: 1,
+    xp: 0,
+    advancedClassId: null,
+    tertiaryClassId: null,
+    talents: [],
+    items: [],
+    growth: { ...ZERO_STATS },
+    statPoints: 0,
+  };
 }

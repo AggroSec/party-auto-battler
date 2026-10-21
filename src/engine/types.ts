@@ -175,6 +175,12 @@ export interface UnitSetup {
   /** Targeting for basic attacks. Damage is 1x ATK. */
   attackTarget: TargetSelector;
   ability: AbilityDef;
+  /**
+   * Abilities granted by talents, each on its own cadence. When several are
+   * ready on the same turn, the one that has waited longest is cast and the
+   * rest wait (M6).
+   */
+  extraAbilities?: readonly AbilityDef[];
   triggers: readonly TriggeredEffect[];
   /** Ignores the back-row melee penalty. */
   reach?: boolean;
