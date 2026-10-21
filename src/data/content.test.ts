@@ -74,6 +74,18 @@ describe('build content integrity', () => {
     }
   });
 
+  it('every class passive has rules text named after its trigger', () => {
+    for (const c of Object.values(CLASSES)) {
+      expect(Boolean(c.passive), c.id).toBe(c.triggers.length > 0);
+      if (c.passive) expect(c.triggers.map((t) => t.label), c.id).toContain(c.passive.name);
+    }
+    for (const adv of Object.values(ADVANCED_CLASSES)) {
+      const m = adv.modifier;
+      expect(Boolean(adv.passive), adv.id).toBe(Boolean(m.triggers?.length || m.reach || m.lifesteal || m.abilityPower || m.abilityCooldown));
+      if (adv.passive && m.triggers?.length) expect(m.triggers.map((t) => t.label), adv.id).toContain(adv.passive.name);
+    }
+  });
+
   it('every advanced class and every talent resolves into a valid unit', () => {
     const content = buildRunContent();
     for (const adv of Object.values(ADVANCED_CLASSES)) {

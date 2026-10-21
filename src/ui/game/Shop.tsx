@@ -2,6 +2,7 @@ import type { RunContext, ShopOffer } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable, useDropTarget, useIsDragging } from './drag.tsx';
 import { offerLabel } from './names.ts';
+import { Rules } from './Rules.tsx';
 
 const KIND_LABEL = { unit: 'Recruit', item: 'Item', training: 'Training' } as const;
 
@@ -38,8 +39,19 @@ function OfferCard({
         </span>
       )}
       <span className="offer-detail">
-        {offer.kind === 'unit' && cls ? `${cls.ability.name}: ${cls.ability.description}` : detail}
+        {offer.kind === 'unit' && cls ? (
+          <>
+            {cls.ability.name}: <Rules text={cls.ability.description} />
+          </>
+        ) : (
+          <Rules text={detail} />
+        )}
       </span>
+      {offer.kind === 'unit' && cls?.passive && (
+        <span className="offer-detail offer-passive">
+          <span className="kit-tag">Passive</span> {cls.passive.name}: <Rules text={cls.passive.description} />
+        </span>
+      )}
       {offer.kind === 'unit' && cls && <span className="offer-tags">{cls.tags.join(' · ')}</span>}
     </div>
   );

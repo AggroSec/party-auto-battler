@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { PlayLogExport } from './PlayLogExport.tsx';
+import { Glossary } from './Rules.tsx';
 import type { Game } from './useGame.ts';
 
 export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => void }) {
   const [seed, setSeed] = useState('');
   const [custom, setCustom] = useState(false);
+  const [help, setHelp] = useState(false);
   const { run, best, canContinue } = game;
   return (
     <div className="screen title-screen">
@@ -47,11 +49,17 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
         </ul>
       </section>
       <footer className="title-footer">
-        <button type="button" className="link" onClick={onOpenLab}>
-          Combat lab
-        </button>
+        <span className="playlog-export">
+          <button type="button" className="link" onClick={() => setHelp(true)}>
+            Glossary
+          </button>
+          <button type="button" className="link" onClick={onOpenLab}>
+            Combat lab
+          </button>
+        </span>
         <PlayLogExport />
       </footer>
+      {help && <Glossary onClose={() => setHelp(false)} />}
     </div>
   );
 }

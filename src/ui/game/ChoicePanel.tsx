@@ -2,6 +2,7 @@ import type { OwnedUnit, PendingChoice, RunContent } from '../../engine/run/inde
 import { classStyle } from './classStyle.ts';
 import type { LevelUp } from './levelUps.ts';
 import { className } from './names.ts';
+import { Rules } from './Rules.tsx';
 
 const STAT_ICON = { hp: '❤️', atk: '⚔️', def: '🛡️', spd: '💨' } as const;
 
@@ -51,8 +52,13 @@ export function ChoicePanel({
                 </strong>
                 <span>{adv?.description}</span>
                 <span>
-                  <em>{adv?.ability.name}</em>: {adv?.ability.description}
+                  <em>{adv?.ability.name}</em>: <Rules text={adv?.ability.description ?? ''} />
                 </span>
+                {adv?.passive && (
+                  <span>
+                    <span className="kit-tag">Passive</span> <em>{adv.passive.name}</em>: <Rules text={adv.passive.description} />
+                  </span>
+                )}
                 <span className="muted">
                   {statBonus(adv?.modifier.stats)} · {adv?.tags.join(', ')}
                 </span>
@@ -63,7 +69,9 @@ export function ChoicePanel({
           return (
             <button key={id} type="button" className="choice-card" onClick={() => onChoose(i)}>
               <strong className="choice-title">{t?.name ?? id}</strong>
-              <span>{t?.description}</span>
+              <span>
+                <Rules text={t?.description ?? ''} />
+              </span>
             </button>
           );
         })}

@@ -31,6 +31,7 @@ export const hexer = advanced({
     ],
   },
   statWeights: { hp: 2, atk: 4, def: 1, spd: 2 },
+  passive: { name: 'Malice', description: 'On kill, every enemy loses 1 DEF.' },
   modifier: {
     stats: { atk: 2, hp: 6 },
     triggers: [on('onKill', 'Malice', [{ kind: 'debuff', target: 'allEnemies', stat: 'def', amount: { flat: 1 } }])],
@@ -76,6 +77,7 @@ export const demonologist = advanced({
     effects: [{ kind: 'summon', summon: imp, fallback: [{ kind: 'damage', target: 'highestAtk', amount: { atk: 1.8 } }] }],
   },
   statWeights: { hp: 3, atk: 4, def: 1, spd: 1 },
+  passive: { name: 'Infernal Pact', description: 'When an ally dies, gain +2 ATK.' },
   modifier: {
     stats: { hp: 6, atk: 2 },
     triggers: [on('onAllyDeath', 'Infernal Pact', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 2 } }])],
@@ -118,5 +120,6 @@ export const warlockClass: ClassDef = {
       { kind: 'payHp', amount: { maxHp: 0.08 } },
     ],
   },
+  passive: { name: 'Soul Siphon', description: 'On kill, heal 25% of max HP.' },
   triggers: [on('onKill', 'Soul Siphon', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.25 } }])],
 };

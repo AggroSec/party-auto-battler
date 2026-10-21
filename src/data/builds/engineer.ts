@@ -50,6 +50,7 @@ export const machinist = advanced({
     ],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
+  passive: { name: 'Maintenance', description: 'At the start of each of your turns, heal the most wounded ally for 4.' },
   modifier: {
     stats: { hp: 6, def: 1, atk: 2 },
     triggers: [on('onTurnStart', 'Maintenance', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 4 } }])],
@@ -82,6 +83,7 @@ export const demolitionist = advanced({
     effects: [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.5 }, hits: 2 }],
   },
   statWeights: { hp: 2, atk: 4, def: 1, spd: 2 },
+  passive: { name: 'Shrapnel', description: 'On kill, deal 40% ATK to every enemy.' },
   modifier: {
     stats: { atk: 3, hp: 4 },
     triggers: [on('onKill', 'Shrapnel', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.4 } }])],
@@ -120,5 +122,6 @@ export const engineerClass: ClassDef = {
     initialCooldown: 2,
     effects: [{ kind: 'summon', summon: turret, fallback: [{ kind: 'damage', target: 'nearest', amount: { atk: 1.6 } }] }],
   },
+  passive: { name: 'Field Repairs', description: '30% at the start of each of your turns: heal the most wounded ally for 3.' },
   triggers: [on('onTurnStart', 'Field Repairs', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 3 } }], { chance: 0.3 })],
 };

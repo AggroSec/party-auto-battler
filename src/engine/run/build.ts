@@ -22,24 +22,36 @@ export function unitTags(unit: OwnedUnit, content: RunContent): readonly string[
   return adv?.tags ?? classFor(content, unit.classId).tags;
 }
 
-/** Modifiers from the unit's own build: advanced class, talents and items. */
-export function buildModifiers(unit: OwnedUnit, content: RunContent): UnitModifier[] {
-  const mods: UnitModifier[] = [];
+/** A modifier and where it came from, for explaining a build in the UI. */
+export interface ModifierSource {
+  kind: 'advanced' | 'talent' | 'item' | 'classBonus' | 'synergy';
+  name: string;
+  modifier: UnitModifier;
+}
+
+/** The unit's own build, labelled: advanced class, talents and items. */
+export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSource[] {
+  const sources: ModifierSource[] = [];
   const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
-  if (adv) mods.push(adv.modifier);
+  if (adv) sources.push({ kind: 'advanced', name: adv.name, modifier: adv.modifier });
   for (const id of unit.talents) {
     const t = content.talents[id];
-    if (t) mods.push(t);
+    if (t) sources.push({ kind: 'talent', name: t.name, modifier: t });
   }
   for (const id of unit.items) {
     const item = content.items[id];
     if (!item) continue;
-    mods.push(item.modifier);
+    sources.push({ kind: 'item', name: item.name, modifier: item.modifier });
     if (item.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId)) {
-      mods.push(item.classBonus.modifier);
+      sources.push({ kind: 'classBonus', name: item.name, modifier: item.classBonus.modifier });
     }
   }
-  return mods;
+  return sources;
+}
+
+/** Modifiers from the unit's own build: advanced class, talents and items. */
+export function buildModifiers(unit: OwnedUnit, content: RunContent): UnitModifier[] {
+  return buildSources(unit, content).map((s) => s.modifier);
 }
 
 export interface ActiveSynergy {
@@ -69,12 +81,17 @@ export function activeSynergies(units: OwnedUnit[], content: RunContent): Active
   return active;
 }
 
-export function synergyModifiersFor(unit: OwnedUnit, active: ActiveSynergy[], content: RunContent): UnitModifier[] {
-  return active.flatMap(({ synergy, tier }) => {
+/** The synergy bonuses that apply to this unit, labelled. */
+export function synergySources(unit: OwnedUnit, active: ActiveSynergy[], content: RunContent): ModifierSource[] {
+  return active.flatMap(({ synergy, tier }): ModifierSource[] => {
     const t = synergy.tiers[tier]!;
     const applies = t.appliesTo === 'all' || unitTags(unit, content).includes(t.appliesTo.tag);
-    return applies ? [t.modifier] : [];
+    return applies ? [{ kind: 'synergy', name: synergy.name, modifier: t.modifier }] : [];
   });
+}
+
+export function synergyModifiersFor(unit: OwnedUnit, active: ActiveSynergy[], content: RunContent): UnitModifier[] {
+  return synergySources(unit, active, content).map((s) => s.modifier);
 }
 
 /** Resolve one unit, given any extra modifiers (synergies). */

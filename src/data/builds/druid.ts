@@ -34,6 +34,7 @@ export const shapeshifter = advanced({
     ],
   },
   statWeights: { hp: 5, atk: 2, def: 3, spd: 1 },
+  passive: { name: 'Primal Fury', description: 'When bloodied, gain +3 ATK and +2 DEF.' },
   modifier: {
     stats: { hp: 18, def: 2, atk: 2 },
     triggers: [
@@ -84,6 +85,7 @@ export const groveWarden = advanced({
     effects: [{ kind: 'summon', summon: treant, fallback: [{ kind: 'heal', target: 'allAllies', amount: { atk: 1.2 } }] }],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
+  passive: { name: 'Rejuvenate', description: 'At the start of each of your turns, heal the most wounded ally for 3.' },
   modifier: {
     stats: { hp: 10, atk: 2 },
     triggers: [on('onTurnStart', 'Rejuvenate', [{ kind: 'heal', target: 'lowestHpAlly', amount: { flat: 3 } }])],
@@ -126,5 +128,6 @@ export const druidClass: ClassDef = {
       { kind: 'debuff', target: 'enemyFrontRow', stat: 'spd', amount: { flat: 1 } },
     ],
   },
+  passive: { name: 'Thornhide', description: '30% when hurt: deal 2 piercing damage to the attacker.' },
   triggers: [on('onHurt', 'Thornhide', [{ kind: 'damage', target: 'triggerSource', amount: { flat: 2 }, pierce: true }], { chance: 0.3 })],
 };

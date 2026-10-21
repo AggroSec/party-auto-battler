@@ -2,6 +2,17 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-20 — Readability: passives, effective kit, glossary
+
+From Brandon's phone playtest notes. He asked for items 1–3; the details below were decided autonomously.
+- **Passives are display data on the class** (`passive: { name, description }` on classes and advanced classes), not on each trigger. One passive can combine a trigger with a trait (the Berserker's lifesteal plus Rage), and the text stays next to the numbers it describes. A content test fails if a class with a passive has no text, or if the text names a trigger that doesn't exist.
+- **An advanced unit shows both passives,** with the base one labelled by its class (e.g. "Momentum (Monk)"), because base-class triggers stay after advancing.
+- **The ability's cadence is rewritten from the unit's real cooldown.** Every ability description starts with "Every Nth turn (first on turn M):". The UI replaces that part from the resolved ability, and shows the old cadence crossed out when the build changed it. A test checks that every description states its real cooldown and first cast, so the text and the numbers can't drift apart.
+- **The stat breakdown comes from the engine** (`explainUnit`), which lists every source: class base, stat points, advanced class, talents, items, item class bonuses and synergies. A test resolves every advanced class with talents, items and synergies and checks that the breakdown adds up to the resolved unit.
+- **Glossary terms are tappable wherever rules text appears** (unit details, shop cards, talent and advanced-class choices, items, synergies). The popup opens on tap, or on hover with a mouse, and closes on a tap elsewhere, Escape or scroll. It renders into `<body>` so the panels' pop-in animations can't misplace it, and tapping a term on a shop card doesn't buy the card. Very common words (SPD, DEF, stat points) appear only on the glossary screen, so the text isn't covered in underlines.
+- **The glossary screen opens from a "?" in the HUD and from the title screen.** A how-to-play guide and first-run hints stay in Milestone 8.
+- **No global cooldown floor.** I suggested a "never below every 2nd turn" floor after the logs showed every-turn Meteors. Brandon declined: getting an ability to every turn is part of building. If a combo turns out too strong, the fix will be a targeted nerf to that skill after more testing.
+
 ## 2026-10-19 — Export play log
 
 - **Every build now keeps the play log for the last 5 runs in localStorage** (about 500 KB at most), so a run played on the Pages site can be sent to me. Old runs are dropped whole, oldest first, and the current run is always kept, so every exported run replays from its start. A `SAVE_VERSION` bump clears the stored log, which is fine because old logs replay differently under new rules anyway.

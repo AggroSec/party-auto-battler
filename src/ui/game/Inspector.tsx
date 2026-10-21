@@ -1,9 +1,11 @@
 import type { UnitSetup } from '../../engine/index.ts';
-import { maxLevel, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
+import { maxLevel, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
 import { className, spentSummary } from './names.ts';
+import { Rules } from './Rules.tsx';
 import { StatPanel } from './StatPanel.tsx';
+import { UnitKit } from './UnitKit.tsx';
 
 function ItemRow({
   unit,
@@ -33,8 +35,13 @@ function ItemRow({
         {chip}
       </span>
       <span className="item-desc">
-        {item?.description}
-        {bonus && <span className="bonus"> {item?.classBonus?.description}</span>}
+        <Rules text={item?.description ?? ''} />
+        {bonus && (
+          <span className="bonus">
+            {' '}
+            <Rules text={item?.classBonus?.description ?? ''} />
+          </span>
+        )}
       </span>
       <span className="item-actions">
         <button type="button" className={moving ? 'active' : ''} onClick={onMove}>
@@ -53,6 +60,7 @@ export function Inspector({
   unit,
   slot,
   setup,
+  board,
   ctx,
   movingItem,
   movingUnit,
@@ -66,6 +74,7 @@ export function Inspector({
   unit: OwnedUnit;
   slot: SlotRef;
   setup: UnitSetup | null;
+  board: Board;
   ctx: RunContext;
   movingItem: number | null;
   movingUnit: boolean;
@@ -105,25 +114,13 @@ export function Inspector({
         {spentSummary(unit, ctx) && ` · Points: ${spentSummary(unit, ctx)}`}
       </p>
       {unit.statPoints > 0 && <StatPanel key={`${unit.uid}:${unit.statPoints}`} unit={unit} ctx={ctx} onConfirm={onAllocate} />}
-      {setup && (
-        <p className="stats-line">
-          ❤️ {setup.stats.hp} ⚔️ {setup.stats.atk} 🛡️ {setup.stats.def} 💨 {setup.stats.spd}
-          {setup.abilityPower && setup.abilityPower !== 1 ? ` · ✨${Math.round(setup.abilityPower * 100)}% AP` : ''}
-          {setup.lifesteal ? ` · 🩸${Math.round(setup.lifesteal * 100)}% lifesteal` : ''}
-          {setup.reach ? ' · 🏹 reach' : ''}
-        </p>
-      )}
-      {setup && (
-        <p>
-          <strong>{setup.ability.name}</strong> <span className="muted">(every {setup.ability.cooldown} turns)</span>: {setup.ability.description}
-        </p>
-      )}
       {adv && <p className="muted">{adv.description}</p>}
+      {setup && <UnitKit unit={unit} setup={setup} board={board} ctx={ctx} />}
       {unit.talents.length > 0 && (
         <ul className="talent-list">
           {unit.talents.map((id) => (
             <li key={id}>
-              <strong>{content.talents[id]?.name ?? id}</strong>: {content.talents[id]?.description}
+              <strong>{content.talents[id]?.name ?? id}</strong>: <Rules text={content.talents[id]?.description ?? ''} />
             </li>
           ))}
         </ul>

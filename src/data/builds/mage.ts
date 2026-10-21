@@ -25,6 +25,7 @@ export const pyromancer = advanced({
     cooldown: 2,
     effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 1.4 } }],
   },
+  passive: { name: 'Combustion', description: 'On kill, deal 80% ATK to a random enemy.' },
   modifier: {
     stats: { atk: 3, hp: 6 },
     triggers: [on('onKill', 'Combustion', [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.8 } }])],
@@ -59,6 +60,7 @@ export const chronomancer = advanced({
       { kind: 'damage', target: 'nearest', amount: { atk: 1.5 } },
     ],
   },
+  passive: { name: 'Slow Field', description: 'Start of combat: every enemy loses 1 SPD.' },
   modifier: {
     stats: { spd: 2, hp: 4 },
     triggers: [on('startOfCombat', 'Slow Field', [{ kind: 'debuff', target: 'allEnemies', stat: 'spd', amount: { flat: 1 } }])],

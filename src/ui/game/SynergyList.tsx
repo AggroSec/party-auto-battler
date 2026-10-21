@@ -1,4 +1,5 @@
 import type { OwnedUnit, RunContent } from '../../engine/run/index.ts';
+import { Rules } from './Rules.tsx';
 import { synergyProgress } from './synergyProgress.ts';
 
 /** Active synergies and progress toward the next tier. */
@@ -15,10 +16,14 @@ export function SynergyList({ units, content }: { units: OwnedUnit[]; content: R
             <li key={synergy.id} className={activeTier >= 0 ? 'active' : ''}>
               <strong>{synergy.name}</strong>
               {activeTier >= 0 && synergy.tiers.length > 1 && <span className="tier"> {'◆'.repeat(activeTier + 1)}</span>}
-              {current && <span className="syn-desc">{current}</span>}
+              {current && (
+                <span className="syn-desc">
+                  <Rules text={current} />
+                </span>
+              )}
               {next && (
                 <span className="syn-next muted">
-                  {next.have}/{next.need} {next.label} → {next.description}
+                  {next.have}/{next.need} {next.label} → <Rules text={next.description} />
                 </span>
               )}
             </li>

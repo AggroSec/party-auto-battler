@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import type { RunContext, RunState } from '../../engine/run/index.ts';
+import { Glossary } from './Rules.tsx';
 
 /** Round, gold, lives and wins. */
 export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMenu?: () => void }) {
   const { startingLives, winsToComplete } = ctx.config;
+  const [help, setHelp] = useState(false);
   return (
     <header className="hud">
       <span className="hud-round">Round {run.round}</span>
@@ -25,11 +28,15 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
       {(run.winStreak > 1 || run.lossStreak > 1) && (
         <span className="hud-streak">{run.winStreak > 1 ? `🔥 ${run.winStreak} win streak` : `${run.lossStreak} loss streak`}</span>
       )}
+      <button type="button" className="hud-help" onClick={() => setHelp(true)} aria-label="Glossary" title="Glossary">
+        ?
+      </button>
       {onMenu && (
         <button type="button" className="hud-menu" onClick={onMenu}>
           Menu
         </button>
       )}
+      {help && <Glossary onClose={() => setHelp(false)} />}
     </header>
   );
 }

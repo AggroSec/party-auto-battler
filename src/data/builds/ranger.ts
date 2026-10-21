@@ -27,6 +27,7 @@ export const sharpshooter = advanced({
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'highestAtk', amount: { atk: 2.2 }, pierce: true }],
   },
+  passive: { name: 'Reload', description: 'On kill, your next ability comes 2 turns sooner.' },
   modifier: {
     stats: { atk: 2 },
     triggers: [on('onKill', 'Reload', [{ kind: 'cooldown', target: 'self', turns: -2 }])],
@@ -56,6 +57,7 @@ export const beastmaster = advanced({
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.7 }, hits: 4 }],
   },
+  passive: { name: 'Pack Leader', description: 'Start of combat: all allies gain +1 ATK.' },
   modifier: {
     stats: { hp: 6, spd: 1 },
     triggers: [on('startOfCombat', 'Pack Leader', [{ kind: 'buff', target: 'allAllies', stat: 'atk', amount: { flat: 1 } }])],
@@ -93,6 +95,7 @@ export const rangerClass: ClassDef = {
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.8 }, hits: 3 }],
   },
+  passive: { name: 'Quick Shot', description: '25% on attack: fire a piercing extra shot for 50% ATK.' },
   triggers: [
     {
       label: 'Quick Shot',
