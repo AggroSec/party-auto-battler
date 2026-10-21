@@ -25,6 +25,7 @@ export function entityRows(entities: Map<string, EntityStat>, content: RunConten
   const name = (kind: EntityKind, id: string): string => {
     if (kind === 'class') return content.classes[id]?.name ?? id;
     if (kind === 'advanced') return content.advancedClasses[id]?.name ?? id;
+    if (kind === 'tertiary') return content.tertiaryClasses[id]?.name ?? id;
     if (kind === 'item') return content.items[id]?.name ?? id;
     if (kind === 'talent') return content.talents[id]?.name ?? id;
     const [sid, tier] = id.split('#');
@@ -55,7 +56,8 @@ function entityTable(rows: EntityRow[], title: string, limit?: number): string[]
 
 export function formatRunReports(reports: BotRunReport[], bots: readonly Bot[], content: RunContent): string {
   const lines: string[] = [];
-  lines.push('| Bot | Completed (10 wins) | Avg wins | Avg rounds | Fight win rate | Avg unit level | Unspent gold | Draws | Tick-cap | Stuck |');
+  const winsToComplete = (reports[0]?.winsHistogram.length ?? 1) - 1;
+  lines.push(`| Bot | Completed (${winsToComplete} wins) | Avg wins | Avg rounds | Fight win rate | Avg unit level | Unspent gold | Draws | Tick-cap | Stuck |`);
   lines.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|');
   for (const r of reports) {
     lines.push(
@@ -92,6 +94,7 @@ export function formatRunReports(reports: BotRunReport[], bots: readonly Bot[], 
   const of = (k: EntityKind) => rows.filter((r) => r.kind === k);
   lines.push(...entityTable(of('class'), 'Classes'));
   lines.push(...entityTable(of('advanced'), 'Advanced classes'));
+  lines.push(...entityTable(of('tertiary'), 'Tertiary classes'));
   lines.push(...entityTable(of('synergy'), 'Synergies'));
   lines.push(...entityTable(of('item'), 'Items'));
   lines.push(...entityTable(of('talent'), 'Talents (top and bottom 10)', 10));

@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { ADVANCED_CLASSES } from '../../data/builds/index.ts';
+import { ADVANCED_CLASSES, TALENTS, TERTIARY_CLASSES } from '../../data/builds/index.ts';
 import { CLASSES } from '../../data/classes.ts';
 import type { AbilityDef } from '../../engine/index.ts';
 import { abilityText, ordinal, parseCadence } from './abilityText.ts';
 
-const abilities = [...Object.values(CLASSES).map((c) => c.ability), ...Object.values(ADVANCED_CLASSES).map((a) => a.ability)];
+const abilities = [
+  ...Object.values(CLASSES).map((c) => c.ability),
+  ...Object.values(ADVANCED_CLASSES).map((a) => a.ability),
+  ...Object.values(TERTIARY_CLASSES).map((t) => t.ability),
+  ...Object.values(TALENTS).flatMap((t) => (t.grantAbility ? [t.grantAbility] : [])),
+];
 
 describe('ability text', () => {
   it('every ability description states its real cooldown and first cast', () => {

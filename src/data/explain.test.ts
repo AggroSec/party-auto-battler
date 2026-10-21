@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { emptyBoard, explainUnit, newUnit, resolveBoard, STATS, type Contribution } from '../engine/run/index.ts';
-import { ADVANCED_CLASSES } from './builds/index.ts';
+import { ADVANCED_CLASSES, TERTIARY_CLASSES } from './builds/index.ts';
 import { CLASSES } from './classes.ts';
 import { buildRunContent } from './content.ts';
 import { ITEMS } from './items.ts';
@@ -8,13 +8,22 @@ import { ITEMS } from './items.ts';
 const sum = (cs: Contribution[]) => cs.reduce((s, c) => s + c.amount, 0);
 
 describe('explainUnit', () => {
-  it('adds up to the resolved unit for every advanced class, with items and synergies', () => {
+  it('adds up to the resolved unit for every advanced and tertiary class, with items and synergies', () => {
     const content = buildRunContent();
     const itemIds = Object.keys(ITEMS);
-    Object.values(ADVANCED_CLASSES).forEach((adv, i) => {
+    const tiers = [
+      ...Object.values(ADVANCED_CLASSES).map((adv) => ({ adv, tert: undefined })),
+      ...Object.values(TERTIARY_CLASSES).map((tert) => ({ adv: ADVANCED_CLASSES[tert.advancedClassId]!, tert })),
+    ];
+    tiers.forEach(({ adv, tert }, i) => {
       const u = newUnit(1, adv.baseClassId, 'X');
       u.advancedClassId = adv.id;
-      u.talents = [...CLASSES[adv.baseClassId as keyof typeof CLASSES].talents.slice(0, 1), ...adv.talents.slice(i % 3, (i % 3) + 2)];
+      u.tertiaryClassId = tert?.id ?? null;
+      u.talents = [
+        ...CLASSES[adv.baseClassId as keyof typeof CLASSES].talents.slice(0, 1),
+        ...adv.talents.slice(i % 3, (i % 3) + 2),
+        ...(tert?.talents.slice(i % 2, (i % 2) + 3) ?? []),
+      ];
       u.items = [itemIds[i % itemIds.length]!, itemIds[(i * 7 + 3) % itemIds.length]!];
       u.growth = { hp: 6, atk: 2, def: 1, spd: i % 3 };
       const board = emptyBoard();
@@ -25,7 +34,7 @@ describe('explainUnit', () => {
       board.back[1] = newUnit(4, 'cleric', 'C');
       const setup = resolveBoard(board, content).front[0]!;
       const ex = explainUnit(u, board, content);
-      for (const k of STATS) expect(Math.max(k === 'hp' || k === 'spd' ? 1 : 0, sum(ex.stats[k])), `${adv.id} ${k}`).toBe(setup.stats[k]);
+      for (const k of STATS) expect(Math.max(k === 'hp' || k === 'spd' ? 1 : 0, sum(ex.stats[k])), `${tert?.id ?? adv.id} ${k}`).toBe(setup.stats[k]);
       expect(Math.max(1, sum(ex.cooldown)), adv.id).toBe(setup.ability.cooldown);
       expect(1 + sum(ex.abilityPower), adv.id).toBeCloseTo(setup.abilityPower ?? 1);
       expect(sum(ex.lifesteal), adv.id).toBeCloseTo(setup.lifesteal ?? 0);
