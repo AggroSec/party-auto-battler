@@ -27,6 +27,16 @@ describe('saved run validation', () => {
     run.board.front[0]!.classId = 'removed-class';
     expect(valid({ runId: 'r', run, stats: {} })).toBe(false);
   });
+
+  it('checks advanced and tertiary class choices too', () => {
+    const run = runWithParty();
+    Object.assign(run.board.front[0]!, { advancedClassId: 'knight', tertiaryClassId: 'paladin' });
+    expect(valid({ runId: 'r', run, stats: {} })).toBe(true);
+    run.board.front[0]!.tertiaryClassId = 'removed';
+    expect(valid({ runId: 'r', run, stats: {} })).toBe(false);
+    delete (run.board.front[0] as Partial<typeof run.board.front[0]>)!.tertiaryClassId;
+    expect(valid({ runId: 'r', run, stats: {} })).toBe(false);
+  });
 });
 
 describe('run stats', () => {

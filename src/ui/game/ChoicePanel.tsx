@@ -1,4 +1,4 @@
-import type { OwnedUnit, PendingChoice, RunContent } from '../../engine/run/index.ts';
+import { effectiveClassId, type OwnedUnit, type PendingChoice, type RunContent } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import type { LevelUp } from './levelUps.ts';
 import { className } from './names.ts';
@@ -15,6 +15,8 @@ export function statBonus(stats: Partial<Record<keyof typeof STAT_ICON, number>>
 }
 
 /** Level-up decision for the first pending choice. */
+const CHOOSE = { talent: 'choose a talent', advance: 'choose an advanced class', ascend: 'choose a tertiary class' } as const;
+
 export function ChoicePanel({
   choice,
   unit,
@@ -31,20 +33,20 @@ export function ChoicePanel({
   content: RunContent;
   onChoose: (option: number) => void;
 }) {
-  const who = unit ? `${unit.name} the ${className(content, unit.advancedClassId ?? unit.classId)}` : 'A unit';
+  const who = unit ? `${unit.name} the ${className(content, effectiveClassId(unit))}` : 'A unit';
   const style = classStyle(content, unit?.classId ?? '');
   return (
     <section className="choice" style={{ '--class-color': style.color } as React.CSSProperties} aria-live="polite">
       <h2>
         <span aria-hidden>⭐ </span>
-        {who} reached level {choice.level}: {choice.kind === 'advance' ? 'choose an advanced class' : 'choose a talent'}
+        {who} reached level {choice.level}: {CHOOSE[choice.kind]}
         {remaining > 1 && <span className="muted"> ({remaining - 1} more after this)</span>}
       </h2>
       {levelUp && <LevelUpGains levelUp={levelUp} />}
       <div className="choice-options">
         {choice.options.map((id, i) => {
-          if (choice.kind === 'advance') {
-            const adv = content.advancedClasses[id];
+          if (choice.kind !== 'talent') {
+            const adv = choice.kind === 'advance' ? content.advancedClasses[id] : content.tertiaryClasses[id];
             return (
               <button key={id} type="button" className="choice-card" onClick={() => onChoose(i)}>
                 <strong className="choice-title">

@@ -51,10 +51,10 @@ export const oracle = tertiary({
   ability: {
     id: 'prophecy',
     name: 'Prophecy',
-    description: 'Every 3rd turn: shield all allies for 110% ATK and heal them for 60% ATK.',
+    description: 'Every 3rd turn: shield all allies for 90% ATK and heal them for 60% ATK.',
     cooldown: 3,
     effects: [
-      { kind: 'shield', target: 'allAllies', amount: { atk: 1.1 } },
+      { kind: 'shield', target: 'allAllies', amount: { atk: 0.9 } },
       { kind: 'heal', target: 'allAllies', amount: { atk: 0.6 } },
     ],
   },

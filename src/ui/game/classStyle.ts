@@ -21,13 +21,19 @@ const STYLES: Record<string, { color: string; glyph: string }> = {
   imp: { color: '#c0399b', glyph: '👿' },
   turret: { color: '#7aa6c2', glyph: '🔩' },
   sentry: { color: '#7aa6c2', glyph: '🤖' },
+  wolf: { color: '#a3794f', glyph: '🐺' },
+  'mirror-image': { color: '#b07fe0', glyph: '🪞' },
+  ancient: { color: '#6f9a2e', glyph: '🌲' },
+  fiend: { color: '#d0453a', glyph: '👹' },
+  golem: { color: '#8c9aa6', glyph: '🗿' },
+  ghoul: { color: '#7d8c5a', glyph: '🧟' },
 };
 
 const FALLBACK = { color: '#8a90a2', glyph: '❔' };
 
-/** Base class id for a base or advanced class id. */
+/** Base class id for a base, advanced or tertiary class id. */
 export function baseClassOf(content: RunContent, classId: string): string {
-  return content.advancedClasses[classId]?.baseClassId ?? classId;
+  return content.advancedClasses[classId]?.baseClassId ?? content.tertiaryClasses[classId]?.baseClassId ?? classId;
 }
 
 export function classStyle(content: RunContent | null, classId: string): { color: string; glyph: string } {

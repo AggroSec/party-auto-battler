@@ -108,17 +108,17 @@ export const archdruid = tertiary({
   ability: {
     id: 'tranquility',
     name: 'Tranquility',
-    description: 'Every 3rd turn: heal all allies for 180% ATK and they gain +1 DEF.',
+    description: 'Every 3rd turn: heal all allies for 220% ATK and they gain +1 DEF.',
     cooldown: 3,
     effects: [
-      { kind: 'heal', target: 'allAllies', amount: { atk: 1.8 } },
+      { kind: 'heal', target: 'allAllies', amount: { atk: 2.2 } },
       { kind: 'buff', target: 'allAllies', stat: 'def', amount: { flat: 1 } },
     ],
   },
-  passive: { name: 'Lifebloom', description: 'At the start of each of your turns, all allies heal 3.' },
+  passive: { name: 'Lifebloom', description: 'At the start of each of your turns, all allies heal 4.' },
   modifier: {
-    stats: { hp: 12, atk: 2 },
-    triggers: [on('onTurnStart', 'Lifebloom', [{ kind: 'heal', target: 'allAllies', amount: { flat: 3 } }])],
+    stats: { hp: 14, atk: 3 },
+    triggers: [on('onTurnStart', 'Lifebloom', [{ kind: 'heal', target: 'allAllies', amount: { flat: 4 } }])],
   },
   talents: [
     talent('archdruid/wild-growth', 'Overgrowth', '+35% ability power.', { abilityPower: 0.35 }),

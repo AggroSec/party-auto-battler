@@ -1,5 +1,5 @@
 import type { UnitSetup } from '../../engine/index.ts';
-import { maxLevel, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
+import { classTiers, effectiveClassId, maxLevel, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
 import { className, spentSummary } from './names.ts';
@@ -89,8 +89,9 @@ export function Inspector({
   const prog = config.progression;
   const next = unit.level < maxLevel(prog) ? prog.xpForLevel[unit.level] : undefined;
   const base = content.classes[unit.classId];
-  const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
+  const { adv, tert } = classTiers(unit, content);
   const style = classStyle(content, unit.classId);
+  const lineage = [base?.name, tert && adv?.name].filter(Boolean).join(' → ');
   return (
     <section className="inspector" style={{ '--class-color': style.color } as React.CSSProperties} aria-label={`${unit.name} details`}>
       <header className="inspector-head">
@@ -100,8 +101,8 @@ export function Inspector({
         <div>
           <h3>{unit.name}</h3>
           <span className="muted">
-            Lv {unit.level} {className(content, unit.advancedClassId ?? unit.classId)}
-            {adv && ` (${base?.name})`} · {base?.range} · {(adv?.tags ?? base?.tags)?.join(', ')}
+            Lv {unit.level} {className(content, effectiveClassId(unit))}
+            {adv && ` (${lineage})`} · {base?.range} · {unitTags(unit, content).join(', ')}
           </span>
         </div>
         <button type="button" className="close" onClick={onClose} aria-label="Close details">
@@ -114,7 +115,7 @@ export function Inspector({
         {spentSummary(unit, ctx) && ` · Points: ${spentSummary(unit, ctx)}`}
       </p>
       {unit.statPoints > 0 && <StatPanel key={`${unit.uid}:${unit.statPoints}`} unit={unit} ctx={ctx} onConfirm={onAllocate} />}
-      {adv && <p className="muted">{adv.description}</p>}
+      {(tert ?? adv) && <p className="muted">{(tert ?? adv)!.description}</p>}
       {setup && <UnitKit unit={unit} setup={setup} board={board} ctx={ctx} />}
       {unit.talents.length > 0 && (
         <ul className="talent-list">

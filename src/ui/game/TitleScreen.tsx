@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { maxLevel } from '../../engine/run/index.ts';
 import { PlayLogExport } from './PlayLogExport.tsx';
 import { Glossary } from './Rules.tsx';
 import type { Game } from './useGame.ts';
@@ -44,8 +45,13 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
         <ul>
           <li>Each round, spend gold in the shop: recruit units, buy items and training, then fight.</li>
           <li>Drag units to position them. The front row (3) takes the hits; the back row (2) is safer.</li>
-          <li>Units level up from fights. Every level is a choice: talents, and an advanced class at level 3.</li>
-          <li>Classes that share a tag unlock synergies. Win 10 fights before you lose 5 lives.</li>
+          <li>
+            Units level up from fights, up to level {maxLevel(game.ctx.config.progression)}. Every level is a choice: talents, an advanced class at level{' '}
+            {game.ctx.config.progression.advanceLevel} and a tertiary class at level {game.ctx.config.progression.ascendLevel}. Some late talents grant a second ability.
+          </li>
+          <li>
+            Classes that share a tag unlock synergies. Win {game.ctx.config.winsToComplete} fights before you lose {game.ctx.config.startingLives} lives.
+          </li>
         </ul>
       </section>
       <footer className="title-footer">

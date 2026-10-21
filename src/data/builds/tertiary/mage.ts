@@ -59,10 +59,10 @@ export const phoenix = tertiary({
     ],
   },
   statWeights: { hp: 3, atk: 4, def: 1, spd: 1 },
-  passive: { name: 'Rebirth', description: 'When bloodied, heal 60% of max HP.' },
+  passive: { name: 'Rebirth', description: 'When bloodied, heal 45% of max HP.' },
   modifier: {
     stats: { hp: 14, atk: 2 },
-    triggers: [on('onBloodied', 'Rebirth', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.6 } }])],
+    triggers: [on('onBloodied', 'Rebirth', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.45 } }])],
   },
   talents: [
     talent('phoenix/radiance', 'Radiance', '+30% ability power, +8 HP.', { abilityPower: 0.3, stats: { hp: 8 } }),

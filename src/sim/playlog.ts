@@ -43,7 +43,7 @@ export interface RunReplay {
 type Fought = Extract<FightResult, { ok: true }>;
 
 const nameOf = (ctx: RunContext, id: string) =>
-  ctx.content.advancedClasses[id]?.name ?? ctx.content.classes[id]?.name ?? id;
+  ctx.content.tertiaryClasses[id]?.name ?? ctx.content.advancedClasses[id]?.name ?? ctx.content.classes[id]?.name ?? id;
 
 function describe(state: RunState, action: ShopAction, ctx: RunContext): string {
   const unitAt = (slot: { row: 'front' | 'back'; col: number }) => getSlot(state.board, slot)?.name ?? '?';
@@ -76,7 +76,7 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       const p = state.pending[0];
       const pick = p?.options[action.option];
       const unit = boardUnits(state.board).find((u) => u.uid === p?.uid)?.name ?? '?';
-      const label = p?.kind === 'advance' ? nameOf(ctx, pick ?? '') : (ctx.content.talents[pick ?? '']?.name ?? pick);
+      const label = p?.kind === 'talent' ? (ctx.content.talents[pick ?? '']?.name ?? pick) : nameOf(ctx, pick ?? '');
       return `${unit} took ${label}`;
     }
   }
@@ -142,7 +142,7 @@ function unitLine(u: OwnedUnit, ctx: RunContext): string {
   const talents = u.talents.map((t) => ctx.content.talents[t]?.name ?? t);
   const items = u.items.map((i) => ctx.content.items[i]?.name ?? i);
   return [
-    `${u.name} Lv${u.level} ${nameOf(ctx, u.advancedClassId ?? u.classId)}`,
+    `${u.name} Lv${u.level} ${nameOf(ctx, u.tertiaryClassId ?? u.advancedClassId ?? u.classId)}`,
     talents.length ? `[${talents.join(', ')}]` : '',
     items.length ? `{${items.join(', ')}}` : '',
   ]

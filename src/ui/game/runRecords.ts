@@ -33,14 +33,20 @@ export interface SavedRun {
 export const RUN_KEY = 'run';
 export const BEST_KEY = 'best';
 
-/** Shallow shape check of a saved run; every class on the board must still exist. */
+/** Shallow shape check of a saved run; every class (and class choice) on the board must still exist. */
 export function savedRunValidator(ctx: RunContext) {
   return (x: unknown): x is SavedRun => {
     if (!isObject(x) || typeof x.runId !== 'string' || !isObject(x.stats) || !isObject(x.run)) return false;
     const run = x.run as Partial<RunState>;
     if (typeof run.seed !== 'string' || run.phase !== 'shop' || !isObject(run.board) || !Array.isArray(run.shop)) return false;
     try {
-      return boardUnits(run.board as Board).every((u) => !!ctx.content.classes[u.classId]);
+      const { classes, advancedClasses, tertiaryClasses } = ctx.content;
+      return boardUnits(run.board as Board).every(
+        (u) =>
+          !!classes[u.classId] &&
+          (u.advancedClassId === null || !!advancedClasses[u.advancedClassId]) &&
+          (u.tertiaryClassId === null || !!tertiaryClasses[u.tertiaryClassId]),
+      );
     } catch {
       return false;
     }

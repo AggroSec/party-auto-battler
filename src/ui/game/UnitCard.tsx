@@ -1,5 +1,5 @@
 import type { UnitSetup } from '../../engine/index.ts';
-import { maxLevel, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
+import { effectiveClassId, maxLevel, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { className } from './names.ts';
 
@@ -34,7 +34,7 @@ export function UnitCard({
       <div className="unit-text">
         <strong className="unit-name">{unit.name}</strong>
         <span className="unit-class">
-          Lv {unit.level} {className(content, unit.advancedClassId ?? unit.classId)}
+          Lv {unit.level} {className(content, effectiveClassId(unit))}
         </span>
         {setup && (
           <span className="unit-stats" aria-label="HP, attack, defence, speed">
