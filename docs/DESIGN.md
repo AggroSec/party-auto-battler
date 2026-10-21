@@ -11,14 +11,14 @@
 | Builds (XP, talents, advanced classes, items, synergies) | ✅ Milestone 3 |
 | Playable UI (screens, drag-to-position, combat playback, run summary) | ✅ Milestone 4 |
 | Progression, balance and new classes (stat points, Monk/Bard/Druid/Warlock/Engineer, summons) | ✅ Milestone 5 |
-| Level cap 10, tertiary classes at level 7, ability-granting talents | Milestone 6 |
+| Level cap 10, tertiary classes at level 7, ability-granting talents, 15-win runs | ✅ Milestone 6 |
 | Meta progression (difficulty ladder, achievements, unlocks, starting perks, daily seed) | Milestone 7 |
 | Juice (icons, sound, credits) | Milestone 8 |
 | Ship (GitHub Pages, README) | Milestone 9 |
 
 ## Run structure
 
-- A run continues until **10 wins** (run complete) or **0 lives** (run over). You start with **5 lives** and lose 1 per lost fight, so a run takes 10–14 rounds (more if there are draws). *(Decided by Brandon, 2026-10-17.)*
+- A run continues until **15 wins** (run complete) or **0 lives** (run over). You start with **5 lives** and lose 1 per lost fight, so a run takes 15–19 rounds (more if there are draws). *(Brandon, 2026-10-17; raised from 10 wins in M6 so levels 6–10 get played out.)*
 - **Draws** count as neither a win nor a loss: no life is lost, streaks reset, and the round still advances. *(Decided by Brandon, 2026-10-17.)*
 - Each round is a **shop phase** followed by a **combat phase**.
 
@@ -51,9 +51,9 @@ All numbers live in `src/data/economy.ts` and are tuned with the simulator.
 
 - Each round's enemy party is generated from **archetypes** (`src/data/enemies.ts`): Bandit Brute (Warrior), Cutthroat (Rogue), Poacher (Ranger), Hedge Mage (Mage, round 2+), Temple Brawler (Monk, 2+), Cult Acolyte (Cleric, 3+), Wandering Minstrel (Bard, 3+), Grove Keeper (Druid, 3+), Goblin Tinker (Engineer, 4+), Blood Cultist (Warlock, 4+) and Bonecaller (Necromancer, 5+).
 - Party size by round: 2, 3, 4, then 5 from round 4.
-- **Enemies develop like players do.** Each enemy unit is levelled for the round, making random talent and advanced-class choices, spends its stat points on its class's recommended spread, and carries random items. Levels and item counts are fractional averages (e.g. level 2.4 = each unit is level 3 with 40% chance), so enemy power ramps smoothly instead of in steps: level 1 → 3 by round 7, then up to 4.5 by round 14; 0 → 1.6 items over rounds 1–12.
+- **Enemies develop like players do.** Each enemy unit is levelled for the round, making random talent and advanced-class choices, spends its stat points on its class's recommended spread, and carries random items. Levels and item counts are fractional averages (e.g. level 2.4 = each unit is level 3 with 40% chance), so enemy power ramps smoothly instead of in steps: level 1 → 3 by round 7, 5.3 by round 14 and 7.8 by round 21 (tertiary classes appear from about round 16); 0 → 2 items over rounds 1–16.
 - Synergies apply to enemies too.
-- On top of that, HP and ATK start at **100%** and grow **+8% HP / +5% ATK per round**.
+- On top of that, HP and ATK start at **100%** and grow **+8.5% HP / +5% ATK per round through round 16**, then stop, so a long comeback run never hits a wall.
 - The enemy depends only on the run seed and round number, so rerolling or reshuffling your party never changes who you fight.
 
 ## Board
@@ -174,14 +174,18 @@ Some advanced classes override their base spread (e.g. Knight leans HP/DEF, Wind
 ## Progression
 
 - **XP from combat:** every unit on the board gains 2 XP for a win and 1 for a loss or draw. Training adds more.
-- **Levels 1–5** at 0 / 2 / 5 / 9 / 14 cumulative XP. A unit bought in round 1 reaches level 3 around round 4 and level 5 around round 8.
-- **Every level-up grants stat points** that you spend however you like: **3 per level, 5 at levels 3 and 5** (16 by level 5). One point buys **+3 HP, or +1 ATK, +1 DEF or +1 SPD**. Spend them in the unit inspector; "Recommended" fills in the class's spread. Points still unspent when you fight go on the recommended spread automatically, so nobody is forced to min-max. *(Brandon, M5: replaces the random growth rolls, so a Berserker can skip HP entirely and dump ATK and SPD.)*
+- **Levels 1–10** at 0 / 2 / 5 / 9 / 14 / 19 / 25 / 31 / 38 / 46 cumulative XP. A unit bought in round 1 reaches level 3 around round 4, level 5 around round 8 and level 7 around round 12; training gets it there sooner, and level 10 takes a unit you've invested in. *(M6.)*
+- **Every level-up grants stat points** that you spend however you like: **3 per level, 5 at levels 3, 5, 7 and 10** (16 by level 5, 38 by level 10). One point buys **+3 HP, or +1 ATK, +1 DEF or +1 SPD**. Spend them in the unit inspector; "Recommended" fills in the class's spread. Points still unspent when you fight go on the recommended spread automatically, so nobody is forced to min-max. *(Brandon, M5: replaces the random growth rolls, so a Berserker can skip HP entirely and dump ATK and SPD.)*
 - **Max-level units gain no XP.** *(Brandon, M5.)*
 - **Every level-up** also offers a choice (the run blocks the next fight until you pick):
   - **Level 2:** 1 of 3 talents from the base class pool.
   - **Level 3:** advance into 1 of 2 advanced classes. This replaces the ability and tags, and adds stats and a passive.
-  - **Levels 4–5:** 1 of 3 talents from the advanced class pool.
-- Content lives in `src/data/builds/<class>.ts`, one file per class: the base class, its 4 talents, and 2 advanced classes with 4 talents each. That's 11 classes, 22 advanced classes and 132 talents.
+  - **Levels 4–6:** 1 of 3 talents from the advanced class pool.
+  - **Level 7:** ascend into 1 of 2 **tertiary classes** (M6). Same as advancing: new ability, tags and talent pool, plus stats and a passive. Passives from the base and advanced class stay.
+  - **Levels 8–10:** 1 of 3 talents from the tertiary class pool.
+  - When the current pool has fewer than 3 unpicked talents, the offer is topped up with talents skipped at earlier tiers, so every level-up is a choice of 3.
+- **Talent-granted abilities (M6).** Each tertiary pool has one talent that grants a **second ability** with its own cadence (e.g. Paladin's Lay on Hands, every 4th turn). A unit still acts once per turn: if several abilities are ready, the one that has waited longest goes first (ties go to the rarer one), and the rest wait. Cooldown changes and ability power apply to every ability. *(Brandon chose a second ability slot.)*
+- Content lives in `src/data/builds/<class>.ts` (base class, 4 talents, 2 advanced classes with 4 talents each) and `src/data/builds/tertiary/<class>.ts` (4 tertiary classes with 4 talents each). That's 11 classes, 22 advanced classes, 44 tertiary classes and 308 talents.
 
 ## Advanced classes
 
@@ -276,7 +280,8 @@ The highest tier met is active. Synergies apply to enemies too.
 
 - *(M3, 2026-10-17)* Levelling was weighted random: per-class stat ranges rolled each level. **Replaced in M5:** the rolls were too narrow to feel random, and Brandon chose player-allocated stat points instead (see Progression).
 - *(M5, 2026-10-18)* No XP at max level; mostly items and training once the party is full; an actions column in the combat summary; stat points with recommended spreads; five new classes (Monk, Bard, Druid, Warlock, Engineer); speed items before any class SPD change (#9); a look at Knight + Priest + Chronomancer (#10).
-- *(Planned)* Level cap 10 with a tertiary class at level 7 and ability-granting talents (Milestone 6). Meta progression with a difficulty ladder, achievements that unlock classes, items, synergies and starting perks, and a daily seed (Milestone 7). Unlocks mostly add variety but may help a little; the ladder's difficulty outpaces that help, and unlocked content joins the enemy pool. Brandon will pick further classes after the core project ships.
+- *(M6, 2026-10-20)* Two tertiary classes per advanced class (44); longer runs rather than a faster XP curve (15 wins); ability-granting talents use a second ability slot. No global cooldown floor: getting an ability to every turn is part of building; nerf specific skills if needed.
+- *(Planned)* Meta progression with a difficulty ladder, achievements that unlock classes, items, synergies and starting perks, and a daily seed (Milestone 7). Unlocks mostly add variety but may help a little; the ladder's difficulty outpaces that help, and unlocked content joins the enemy pool. Brandon will pick further classes after the core project ships.
 
 ## UI (Milestone 4)
 
@@ -303,11 +308,62 @@ Drag uses pointer events, so mouse, pen and touch all work. While dragging near 
 
 **Look:** dark theme, one colour and a placeholder glyph per class (advanced classes keep their base class's), drawn entirely with CSS. Emoji stand in for icons until the game-icons.net set and credits screen in M5. Animations respect `prefers-reduced-motion`. The layout works from phone width up.
 
+## Tertiary classes (Milestone 6)
+
+Two per advanced class, chosen at level 7 *(Brandon: two per advanced class, so level 7 is a real choice)*. The ability replaces the advanced class's; stats and the passive stack on top. Six of them summon (Packlord, Illusionist, Treelord, Pit Lord, Roboticist, Rotcaller), filling empty slots like the M5 summoners. Generated from the data:
+
+| Base | Advanced | Tertiary | Tags | Ability | Passive | Granted ability (talent) |
+|---|---|---|---|---|---|---|
+| Warrior | Knight | **Paladin** | martial, guardian, divine | Divine Bulwark: Every 3rd turn: shield all allies for 4 + 70% DEF, heal them for 60% ATK, and taunt for 1 turn | Devotion Aura: Start of combat: all allies gain +1 DEF | Lay on Hands: Every 4th turn: heal the most wounded ally for 35% of your max HP |
+| Warrior | Knight | **Vanguard** | martial, guardian | Hold the Line: Every 3rd turn: shield yourself for 6 + 150% DEF, taunt for 2 turns, and the enemy front row loses 1 ATK | Spiked Guard: When hurt, deal 40% DEF piercing damage to the attacker | Shield Slam: Every 4th turn: deal 100% ATK + 100% DEF to the nearest enemy, which loses 1 SPD |
+| Warrior | Berserker | **Warlord** | martial | Rallying Whirlwind: Every 3rd turn: deal 100% ATK to every enemy, then all allies gain +1 ATK | Warcry: +10% lifesteal. Start of combat: all allies gain +1 SPD | Battle Standard: Every 5th turn: shield all allies for 100% ATK and they gain +1 DEF |
+| Warrior | Berserker | **Bloodreaver** | martial, occult | Blood Storm: Every 3rd turn: deal 110% ATK to every enemy, then heal yourself for 150% ATK | Bloodbath: +20% lifesteal. On kill, gain +3 ATK | Crimson Rite: Every 4th turn: lose 10% of your max HP, then deal 220% ATK to the weakest enemy |
+| Rogue | Assassin | **Nightblade** | shadow | Death Mark: Every 3rd turn: deal 260% ATK to the weakest enemy, then 100% ATK to whichever enemy is weakest after that | Shadow Step: On kill, your next ability comes 1 turn sooner and you gain +1 SPD | Fan of Knives: Every 4th turn: deal 70% ATK to every enemy |
+| Rogue | Assassin | **Shadowdancer** | shadow, spirit | Shadow Dance: Every 3rd turn: strike the weakest back-row enemy 3 times for 120% ATK, then shield yourself for 100% ATK | Evasive: 25% when hurt: shield yourself for 6 | Blind: Every 4th turn: the strongest enemy loses 3 ATK and its ability comes 1 turn later |
+| Rogue | Duelist | **Swordmaster** | martial | Blade Storm: Every 3rd turn: strike the nearest enemy 5 times for 70% ATK each | Perfect Parry: Reach: full damage from the back row. 45% when hurt: strike the attacker for 100% ATK | Duel: Every 4th turn: taunt for 1 turn and shield yourself for 100% DEF + 6 |
+| Rogue | Duelist | **Swashbuckler** | martial, shadow | Dirty Tricks: Every 3rd turn: strike the nearest enemy 3 times for 90% ATK; it loses 2 SPD and 1 DEF | Bravado: Reach: full damage from the back row. On kill, gain +2 ATK and +1 SPD | Pistol Shot: Every 4th turn: deal 200% ATK piercing to the strongest enemy |
+| Mage | Pyromancer | **Firelord** | arcane | Firestorm: Every 2nd turn: deal 160% ATK to each enemy in the front row and 60% ATK to every enemy | Wildfire: On kill, deal 100% ATK to every enemy | Pyroblast: Every 4th turn: deal 350% ATK to the strongest enemy (50% splash) |
+| Mage | Pyromancer | **Phoenix** | arcane, divine | Phoenix Flame: Every 2nd turn: deal 120% ATK to each enemy in the front row and heal the most wounded ally for 120% ATK | Rebirth: When bloodied, heal 45% of max HP | Flame Ward: Every 4th turn: shield all allies for 100% ATK |
+| Mage | Chronomancer | **Chronarch** | arcane | Time Dilation: Every 2nd turn: other allies’ abilities come 1 turn sooner (but not sooner than 2 turns away); deal 170% ATK to the nearest enemy | Quickening: Start of combat: all allies gain +1 SPD | Stasis: Every 4th turn: every enemy’s ability comes 1 turn later and the strongest enemy loses 2 SPD |
+| Mage | Chronomancer | **Entropist** | arcane, occult | Entropy: Every 3rd turn: every enemy loses 1 SPD and takes 80% ATK | Rust: Start of combat: every enemy loses 1 DEF | Unravel: Every 4th turn: deal 250% ATK piercing to the nearest enemy |
+| Cleric | Priest | **High Priest** | divine | Sacred Hymn: Every 3rd turn: heal all allies for 220% ATK and shield them for 80% ATK | Benediction: At the start of each of your turns, heal the most wounded ally for 100% ATK | Holy Fire: Every 4th turn: deal 200% ATK piercing to the strongest enemy |
+| Cleric | Priest | **Oracle** | divine, arcane | Prophecy: Every 3rd turn: shield all allies for 90% ATK and heal them for 60% ATK | Forewarning: Start of combat: shield all allies for 100% ATK | Vision: Every 4th turn: other allies’ abilities come 1 turn sooner (but not sooner than 2 turns away) |
+| Cleric | Inquisitor | **Templar** | divine, martial, guardian | Verdict: Every 3rd turn: deal 200% ATK piercing to the strongest enemy, heal yourself for 100% ATK and shield all allies for 50% ATK | Sworn Shield: 20% when hurt: taunt for 1 turn and shield yourself for 6 | Consecrate: Every 4th turn: deal 100% ATK to each enemy in the front row and heal all allies for 60% ATK |
+| Cleric | Inquisitor | **Zealot** | divine, martial | Righteous Wrath: Every 3rd turn: deal 240% ATK piercing to the strongest enemy, heal yourself for 100% ATK and gain +2 ATK | Fanaticism: On kill, heal 25% of max HP and gain +1 SPD | Excommunicate: Every 4th turn: the strongest enemy loses 2 DEF and 1 ATK, then takes 120% ATK |
+| Ranger | Sharpshooter | **Deadeye** | martial | Headshot: Every 3rd turn: deal 320% ATK piercing to the strongest enemy | Lethal Aim: On kill, your next ability comes 2 turns sooner and you gain +2 ATK | Volley: Every 4th turn: deal 80% ATK to every enemy |
+| Ranger | Sharpshooter | **Trapper** | martial, wild | Snare Trap: Every 3rd turn: deal 120% ATK to each enemy in the front row; they lose 2 SPD | Caltrops: Start of combat: the enemy front row loses 2 SPD | Net Throw: Every 4th turn: the strongest enemy’s ability comes 2 turns later and it loses 2 SPD |
+| Ranger | Beastmaster | **Packlord** | wild | Howl: Every 3rd turn (first on turn 1): summon a Wolf in an empty slot (60% of your max HP, 80% ATK). If the board is full, five strikes at random enemies for 70% ATK each instead | Pack Tactics: Start of combat: all allies gain +1 ATK and +1 SPD | Rabid Bite: Every 4th turn: deal 200% ATK to the nearest enemy; it loses 2 DEF |
+| Ranger | Beastmaster | **Falconer** | wild, martial | Falcon Dive: Every 3rd turn: the falcon strikes the weakest back-row enemy 4 times for 80% ATK each | Keen Talons: 30% on attack: the falcon strikes a random enemy for 60% ATK | Screech: Every 4th turn: every enemy loses 1 ATK and its ability comes 1 turn later |
+| Monk | Windwalker | **Stormfist** | martial, spirit | Thunder Palms: Every 3rd turn: strike random enemies 7 times for 55% ATK each, then gain +1 SPD | Static: 25% on attack: deal 50% ATK piercing to a random enemy | Chain Lightning: Every 4th turn: deal 90% ATK to every enemy |
+| Monk | Windwalker | **Mistwalker** | spirit | Mist Step: Every 3rd turn: strike random enemies 4 times for 60% ATK each, then heal all allies for 50% ATK | Flowing Mist: 30% when hurt: shield yourself for 8 | Renewing Mist: Every 4th turn: heal all allies for 100% ATK and shield them for 50% ATK |
+| Monk | Iron Fist | **Stoneguard** | martial, guardian, spirit | Mountain Stance: Every 3rd turn: shield yourself for 5 + 150% DEF, taunt for 2 turns, and heal yourself for 10% of max HP | Granite Skin: 30% when hurt: strike the attacker for 60% ATK | Earthshatter: Every 4th turn: deal 80% ATK + 80% DEF to each enemy in the front row; they lose 1 SPD |
+| Monk | Iron Fist | **Grandmaster** | martial, spirit | Perfect Counter: Every 3rd turn: shield yourself for 3 + 100% DEF, taunt for 1 turn, and strike the nearest enemy 3 times for 70% ATK | Riposte Mastery: 45% when hurt: strike the attacker for 80% ATK | Quivering Palm: Every 5th turn: deal 300% ATK piercing to the strongest enemy |
+| Bard | Skald | **Warchanter** | martial, spirit | Battle Hymn: Every 3rd turn: all allies gain +3 ATK and +1 SPD | Drums of War: Start of combat: all allies gain +2 ATK | Thunderous Shout: Every 4th turn: deal 80% ATK to every enemy; the enemy front row loses 1 ATK |
+| Bard | Skald | **Lorekeeper** | spirit, divine | Saga of Heroes: Every 3rd turn: all allies gain +1 ATK and +1 DEF and heal for 80% ATK | Legend: When an ally dies, shield all allies for 150% ATK | Ballad of Ages: Every 4th turn: shield all allies for 120% ATK |
+| Bard | Trickster | **Illusionist** | arcane, shadow | Mirror Images: Every 3rd turn (first on turn 1): summon a Mirror Image in an empty slot (50% of your max HP, 50% ATK). If the board is full, the strongest enemy loses 3 ATK instead | Misdirect: Start of combat: every enemy loses 1 SPD | Mind Spike: Every 4th turn: deal 180% ATK piercing to the strongest enemy |
+| Bard | Trickster | **Harlequin** | arcane, shadow | Pandemonium: Every 4th turn: every enemy’s ability comes 1 turn later, every enemy loses 1 ATK and takes 80% ATK | Pratfall: 30% when hurt: the attacker loses 1 SPD | Punchline: Every 4th turn: deal 150% ATK to the weakest enemy (50% splash) |
+| Druid | Shapeshifter | **Elder Bear** | wild, guardian, nature | Crushing Maul: Every 3rd turn: deal 200% ATK to the nearest enemy, taunt for 2 turns and heal yourself for 10% of max HP | Thick Hide: When bloodied, gain +4 DEF and heal 20% of max HP | Earthshaking Roar: Every 4th turn: every enemy loses 2 ATK |
+| Druid | Shapeshifter | **Wildstalker** | wild, nature | Pounce: Every 3rd turn: deal 260% ATK to the weakest back-row enemy, then strike it twice more for 80% ATK | Predator: On kill, gain +2 ATK and +1 SPD | Shred: Every 4th turn: strike the nearest enemy 4 times for 60% ATK; it loses 2 DEF |
+| Druid | Grove Warden | **Archdruid** | nature, divine | Tranquility: Every 3rd turn: heal all allies for 220% ATK and they gain +1 DEF | Lifebloom: At the start of each of your turns, all allies heal 4 | Starfall: Every 4th turn: deal 100% ATK to every enemy |
+| Druid | Grove Warden | **Treelord** | nature, guardian | Awaken Ancient: Every 3rd turn (first on turn 1): summon an Ancient in an empty slot (110% of your max HP, 80% ATK). If the board is full, heal all allies for 150% ATK instead | Deep Roots: At the start of each of your turns, heal the most wounded ally for 5 | Entangling Roots: Every 4th turn: deal 80% ATK to each enemy in the front row; they lose 2 SPD |
+| Warlock | Hexer | **Doombringer** | shadow, occult | Doom: Every 3rd turn: lose 8% of your max HP, then every enemy loses 1 DEF and takes 140% ATK | Dark Hunger: +15% lifesteal. On kill, heal 20% of max HP | Soul Rend: Every 4th turn: lose 10% of your max HP, then deal 300% ATK piercing to the strongest enemy |
+| Warlock | Hexer | **Curseweaver** | shadow, occult, arcane | Curse of Agony: Every 3rd turn: every enemy loses 2 ATK and 1 DEF, then takes 70% ATK | Lingering Hex: When an ally dies, every enemy loses 1 ATK | Silence: Every 4th turn: every enemy’s ability comes 2 turns later |
+| Warlock | Demonologist | **Pit Lord** | arcane, occult | Summon Fiend: Every 3rd turn (first on turn 1): summon a Fiend in an empty slot (80% of your max HP, 100% ATK). If the board is full, deal 250% ATK to the strongest enemy instead | Infernal Command: When an ally dies, gain +2 ATK and heal 15% of max HP | Rain of Fire: Every 4th turn: deal 90% ATK to every enemy |
+| Warlock | Demonologist | **Soulbinder** | occult, shadow | Soul Lash: Every 3rd turn: deal 200% ATK to the strongest enemy and shield all allies for 60% ATK | Soul Feast: On kill or when an ally dies, gain +2 ATK | Drain Soul: Every 4th turn: deal 180% ATK to the weakest enemy and heal yourself for 180% ATK |
+| Engineer | Machinist | **Artificer** | tech, arcane | Field Upgrade: Every 3rd turn: shield all allies for 120% ATK and heal the most wounded ally for 150% ATK | Overclock: Start of combat: all allies gain +1 ATK and +1 SPD | Arc Cannon: Every 4th turn: deal 160% ATK to the nearest enemy (50% splash) |
+| Engineer | Machinist | **Roboticist** | tech | Build Golem: Every 3rd turn (first on turn 1): summon a Golem in an empty slot (100% of your max HP, 90% ATK). If the board is full, fire a rocket for 260% ATK at the nearest enemy (50% splash) instead | Auto-Repair: At the start of each of your turns, heal the most wounded ally for 6 | Tesla Coil: Every 4th turn: deal 50% ATK to random enemies 5 times |
+| Engineer | Demolitionist | **Bombardier** | tech, martial | Carpet Bomb: Every 3rd turn: deal 55% ATK to every enemy, three times | Chain Reaction: On kill, deal 60% ATK to every enemy | Napalm: Every 4th turn: deal 130% ATK to each enemy in the front row; they lose 1 DEF |
+| Engineer | Demolitionist | **Siege Master** | tech, martial | Artillery Shell: Every 3rd turn: deal 260% ATK piercing to the strongest enemy (60% splash) | Fortified Position: Start of combat: shield yourself for 150% ATK | Mortar: Every 4th turn: deal 120% ATK to the weakest back-row enemy (60% splash) |
+| Necromancer | Lich | **Archlich** | arcane, shadow | Death Wave: Every 3rd turn: deal 120% ATK to every enemy and heal yourself for 150% ATK | Phylactery: When bloodied, shield yourself for 60% of max HP | Frost Nova: Every 4th turn: deal 80% ATK to every enemy; they lose 1 SPD |
+| Necromancer | Lich | **Soul Reaper** | shadow | Reap: Every 3rd turn: deal 280% ATK to the weakest enemy and heal yourself for 100% ATK | Harvest: On kill, gain +2 ATK and your next ability comes 1 turn sooner | Banshee Wail: Every 4th turn: every enemy loses 2 ATK and takes 50% ATK |
+| Necromancer | Plaguelord | **Blightlord** | shadow, occult | Pandemic: Every 3rd turn: every enemy loses 2 ATK and 2 DEF and takes 60% ATK | Plague Cloud: Start of combat: every enemy loses 1 ATK | Corpse Explosion: Every 4th turn: deal 150% ATK to the weakest enemy (100% splash) |
+| Necromancer | Plaguelord | **Rotcaller** | shadow, occult | Raise Ghoul: Every 3rd turn (first on turn 1): summon a Ghoul in an empty slot (60% of your max HP, 90% ATK). If the board is full, every enemy loses 1 ATK and takes 70% ATK instead | Grave Pact: When an ally dies, gain +2 ATK and heal 10% of max HP | Death Coil: Every 4th turn: deal 180% ATK to the nearest enemy and heal the most wounded ally for 120% ATK |
+
 ## Open design questions (for Brandon)
 
-None blocking. Things to look at when playtesting M5:
+None blocking. Things to look at when playtesting M6:
 
-1. **Difficulty.** Rounds 5–10 are harder than in M4 and the late game plateaus instead of walling. Is the base game now a fair challenge, before the ladder adds harder tiers?
-2. **Stat points.** Is 3 per level (5 at levels 3 and 5) the right amount, and is +3 HP per point competitive with +1 ATK/DEF/SPD?
-3. **Summoners.** Engineer, Machinist, Grove Warden and Demonologist want empty slots. Does running four units plus summons feel like a real choice?
+1. **Run length.** Is 15 wins right on a phone, or does it drag? The XP curve and enemy tables can follow any length.
+2. **Pacing to level 7 and 10.** Units reach level 7 around round 12 without training. Is that late enough to feel earned and early enough to enjoy?
+3. **Granted abilities.** Do second abilities read clearly in combat and on the unit card?
 4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4.

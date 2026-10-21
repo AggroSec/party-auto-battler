@@ -84,8 +84,8 @@ docs/
 ## Game design (starting point, owned by Brandon, refine in docs/DESIGN.md)
 
 **Run structure**
-- A run continues until 10 wins or 0 lives (typically 10–14 rounds). Each round has a **Shop phase** followed by a **Combat phase**.
-- The player starts with 5 lives and loses 1 per combat loss; draws count as neither a win nor a loss. 10 wins = run complete; 0 lives = run over.
+- A run continues until 15 wins or 0 lives (typically 15–19 rounds; raised from 10 wins in Milestone 6). Each round has a **Shop phase** followed by a **Combat phase**.
+- The player starts with 5 lives and loses 1 per combat loss; draws count as neither a win nor a loss. 15 wins = run complete; 0 lives = run over.
 - Enemy parties are generated per round from data, scaling with round number. No multiplayer.
 
 **Shop phase**
@@ -99,6 +99,7 @@ docs/
 - Units gain XP from combat. **Every level-up offers a choice of 2–3 talents** from that class's talent pool. Meaningful choices, not flat stat bumps.
 - **Every level-up also grants stat points the player distributes freely** (more at levels 3 and 5), with a recommended spread per class for players who don't want to min-max.
 - At level 3, a unit **advances into one of two advanced classes** (e.g. Warrior → Knight or Berserker; Mage → Pyromancer or Chronomancer). Each advanced class changes its ability and talent pool.
+- The level cap is 10. At level 7, a unit picks **one of two tertiary classes** (e.g. Knight → Paladin or Vanguard). Some late talents **grant a second ability** with its own cadence.
 - **Party synergies:** bonuses for class combinations (e.g. 2+ casters, frontline + healer). Build variety across runs is the goal.
 - **Items:** up to 2 per unit. Some items are tied to a class, so there are build-defining combos to find.
 
@@ -110,7 +111,6 @@ docs/
 - A **difficulty ladder**: winning a run unlocks the next, harder tier; each tier adds a modifier (and later tiers can add new enemies).
 - **Achievements** unlock classes, items, synergies and starting perks. Unlocks mostly add variety, but some may help a little (Vampire Survivors-style), and the ladder's difficulty outpaces that help. Unlocked content joins the enemy pool too.
 - A **daily seed** run (derived from the date, no backend).
-- Planned later: level cap 10 with a tertiary class at level 7, and talents that grant new abilities.
 
 ## Art and assets
 
