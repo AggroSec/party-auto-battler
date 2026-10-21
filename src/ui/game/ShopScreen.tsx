@@ -124,6 +124,7 @@ export function ShopScreen({ game }: { game: Game }) {
                 unit={selectedUnit}
                 slot={selected}
                 setup={party[selected.row][selected.col] ?? null}
+                board={run.board}
                 ctx={ctx}
                 movingItem={mode.kind === 'moveItem' ? mode.index : null}
                 movingUnit={mode.kind === 'moveUnit'}
