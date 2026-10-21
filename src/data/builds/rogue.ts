@@ -27,6 +27,7 @@ export const assassin = advanced({
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 3.2 } }],
   },
+  passive: { name: 'Vanish', description: 'On kill, shield yourself for 8.' },
   modifier: {
     stats: { atk: 3, hp: 4, spd: 1 },
     triggers: [on('onKill', 'Vanish', [{ kind: 'shield', target: 'self', amount: { flat: 8 } }])],
@@ -59,6 +60,7 @@ export const duelist = advanced({
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'nearest', amount: { atk: 0.8 }, hits: 3 }],
   },
+  passive: { name: 'Riposte', description: 'Reach: full damage from the back row. 35% when hurt: strike the attacker for 80% ATK.' },
   modifier: {
     stats: { def: 2, hp: 4 },
     reach: true,
@@ -101,6 +103,7 @@ export const rogueClass: ClassDef = {
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'backlineFirst', amount: { atk: 2 } }],
   },
+  passive: { name: 'Bloodlust', description: 'On kill, gain +2 ATK.' },
   triggers: [
     {
       label: 'Bloodlust',

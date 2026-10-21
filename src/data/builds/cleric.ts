@@ -30,6 +30,7 @@ export const priest = advanced({
       { kind: 'shield', target: 'allAllies', amount: { atk: 0.6 } },
     ],
   },
+  passive: { name: 'Last Rites', description: 'When an ally dies, shield all allies for 100% ATK.' },
   modifier: {
     stats: { hp: 6 },
     triggers: [on('onAllyDeath', 'Last Rites', [{ kind: 'shield', target: 'allAllies', amount: { atk: 1 } }])],
@@ -62,6 +63,7 @@ export const inquisitor = advanced({
       { kind: 'heal', target: 'self', amount: { atk: 1 } },
     ],
   },
+  passive: { name: 'Condemn', description: 'After casting, the strongest enemy loses 1 DEF.' },
   modifier: {
     stats: { atk: 2, def: 1 },
     triggers: [on('onAbility', 'Condemn', [{ kind: 'debuff', target: 'highestAtk', stat: 'def', amount: { flat: 1 } }])],
@@ -99,6 +101,7 @@ export const clericClass: ClassDef = {
     cooldown: 2,
     effects: [{ kind: 'heal', target: 'lowestHpAlly', amount: { atk: 2.5 } }],
   },
+  passive: { name: 'Blessing', description: 'Start of combat: shield all allies for 100% ATK.' },
   triggers: [
     {
       label: 'Blessing',

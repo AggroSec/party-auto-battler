@@ -31,6 +31,7 @@ export const windwalker = advanced({
     effects: [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.45 }, hits: 5 }],
   },
   statWeights: { hp: 1, atk: 3, def: 1, spd: 5 },
+  passive: { name: 'Wind Step', description: 'On kill, gain +2 SPD.' },
   modifier: {
     stats: { spd: 3, atk: 2, hp: 6 },
     triggers: [on('onKill', 'Wind Step', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 2 } }])],
@@ -66,6 +67,7 @@ export const ironFist = advanced({
     ],
   },
   statWeights: { hp: 4, atk: 2, def: 3, spd: 2 },
+  passive: { name: 'Riposte', description: '25% when hurt: strike the attacker for 60% ATK.' },
   modifier: {
     stats: { hp: 8, def: 2 },
     triggers: [on('onHurt', 'Riposte', [{ kind: 'damage', target: 'triggerSource', amount: { atk: 0.6 } }], { chance: 0.25 })],
@@ -108,5 +110,6 @@ export const monkClass: ClassDef = {
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'nearest', amount: { atk: 0.5 }, hits: 3 }],
   },
+  passive: { name: 'Momentum', description: 'Each basic attack gives +1 SPD (up to 3 times per fight).' },
   triggers: [on('onAttack', 'Momentum', [{ kind: 'buff', target: 'self', stat: 'spd', amount: { flat: 1 } }], { limit: 3 })],
 };

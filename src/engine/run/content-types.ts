@@ -41,6 +41,8 @@ export interface AdvancedClassDef {
   attackTarget?: TargetSelector;
   /** Stat bonus and passive(s) granted on advancing. */
   modifier: UnitModifier;
+  /** Describes the modifier's triggers and traits (not its stats). */
+  passive?: PassiveText;
   /** Talent ids offered at levels 4 and 5. */
   talents: readonly string[];
   /** Replaces the base class's recommended stat spread. */
@@ -53,9 +55,17 @@ export interface AdvancedClassDef {
  */
 export type StatWeights = Readonly<Record<StatKey, number>>;
 
+/** Rules text for a class's built-in passive, shown in the UI (display only). */
+export interface PassiveText {
+  name: string;
+  description: string;
+}
+
 /** A playable class as the run layer sees it. */
 export interface ClassTemplate extends UnitTemplate {
   tags: readonly string[];
+  /** Describes the class's built-in triggers, if it has any. */
+  passive?: PassiveText;
   statWeights: StatWeights;
   /** Talent ids offered at level 2. */
   talents: readonly string[];

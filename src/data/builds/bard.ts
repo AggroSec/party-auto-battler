@@ -30,6 +30,7 @@ export const skald = advanced({
     effects: [{ kind: 'buff', target: 'allAllies', stat: 'atk', amount: { flat: 2 } }],
   },
   statWeights: { hp: 3, atk: 2, def: 2, spd: 3 },
+  passive: { name: 'Lament', description: 'When an ally dies, all allies gain +1 ATK.' },
   modifier: {
     stats: { hp: 6, atk: 1 },
     triggers: [on('onAllyDeath', 'Lament', [{ kind: 'buff', target: 'allAllies', stat: 'atk', amount: { flat: 1 } }])],
@@ -67,6 +68,7 @@ export const trickster = advanced({
     ],
   },
   statWeights: { hp: 2, atk: 3, def: 1, spd: 4 },
+  passive: { name: 'Misdirection', description: 'Start of combat: the enemy front row loses 1 SPD.' },
   modifier: {
     stats: { spd: 2, atk: 1 },
     triggers: [on('startOfCombat', 'Misdirection', [{ kind: 'debuff', target: 'enemyFrontRow', stat: 'spd', amount: { flat: 1 } }])],
@@ -108,5 +110,6 @@ export const bardClass: ClassDef = {
     cooldown: 3,
     effects: [{ kind: 'buff', target: 'allAllies', stat: 'atk', amount: { flat: 1 } }],
   },
+  passive: { name: 'Inspire', description: 'Start of combat: all allies gain +1 SPD.' },
   triggers: [on('startOfCombat', 'Inspire', [{ kind: 'buff', target: 'allAllies', stat: 'spd', amount: { flat: 1 } }])],
 };

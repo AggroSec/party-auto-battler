@@ -30,6 +30,7 @@ export const lich = advanced({
       { kind: 'heal', target: 'self', amount: { atk: 1 } },
     ],
   },
+  passive: { name: 'Soul Harvest', description: 'On kill, heal for 200% ATK.' },
   modifier: {
     stats: { atk: 2, hp: 4 },
     triggers: [on('onKill', 'Soul Harvest', [{ kind: 'heal', target: 'self', amount: { atk: 2 } }])],
@@ -63,6 +64,7 @@ export const plaguelord = advanced({
       { kind: 'damage', target: 'allEnemies', amount: { atk: 0.5 } },
     ],
   },
+  passive: { name: 'Pestilence', description: 'When an ally dies, every enemy loses 1 ATK.' },
   modifier: {
     stats: { hp: 6, def: 1 },
     triggers: [on('onAllyDeath', 'Pestilence', [{ kind: 'debuff', target: 'allEnemies', stat: 'atk', amount: { flat: 1 } }])],
@@ -105,6 +107,7 @@ export const necromancerClass: ClassDef = {
       { kind: 'heal', target: 'self', amount: { atk: 1 } },
     ],
   },
+  passive: { name: 'Dark Harvest', description: 'When an ally dies, gain +2 ATK.' },
   triggers: [
     {
       label: 'Dark Harvest',

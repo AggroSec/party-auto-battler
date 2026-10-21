@@ -30,6 +30,7 @@ export const knight = advanced({
       { kind: 'taunt', target: 'self', turns: 1 },
     ],
   },
+  passive: { name: 'Stalwart', description: '20% when hurt: shield yourself for 3.' },
   modifier: {
     stats: { hp: 8, def: 2 },
     triggers: [on('onHurt', 'Stalwart', [{ kind: 'shield', target: 'self', amount: { flat: 3 } }], { chance: 0.2 })],
@@ -59,6 +60,7 @@ export const berserker = advanced({
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.85 } }],
   },
+  passive: { name: 'Rage', description: '+15% lifesteal. When bloodied, gain +4 ATK.' },
   modifier: {
     stats: { atk: 3, hp: 8 },
     lifesteal: 0.15,
@@ -97,6 +99,7 @@ export const warriorClass: ClassDef = {
     cooldown: 3,
     effects: [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 0.8 } }],
   },
+  passive: { name: 'Battle Hardened', description: 'When hurt, gain +1 DEF (up to 3 times per fight).' },
   triggers: [
     {
       label: 'Battle Hardened',
