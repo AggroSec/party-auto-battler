@@ -48,11 +48,11 @@ describe('new effects', () => {
 
   it('cooldown effects delay or haste abilities, hasting no sooner than next turn', () => {
     const s = makeState(party([unit()]), party([unit({ ability: zap(3) })]));
-    expect(byId(s, 'e0').cooldown).toBe(3);
+    expect(byId(s, 'e0').cooldowns[0]).toBe(3);
     applyEffects(s, byId(s, 'p0'), [{ kind: 'cooldown', target: 'nearest', turns: 2 }], {}, 0);
-    expect(byId(s, 'e0').cooldown).toBe(5);
+    expect(byId(s, 'e0').cooldowns[0]).toBe(5);
     applyEffects(s, byId(s, 'p0'), [{ kind: 'cooldown', target: 'nearest', turns: -10 }], {}, 0);
-    expect(byId(s, 'e0').cooldown).toBe(1);
+    expect(byId(s, 'e0').cooldowns[0]).toBe(1);
     expect(ofType(s.events, 'cooldown').map((e) => e.cooldownAfter)).toEqual([5, 1]);
   });
 
@@ -129,17 +129,36 @@ describe('cooldown floors and otherAllies', () => {
     const caster = { ...unit(), ability: { ...zap(5) } };
     const s = makeState(party([caster, { ...unit(), ability: zap(5) }]), party([tough()]));
     const [p0, p1] = [byId(s, 'p0'), byId(s, 'p1')];
-    p0.cooldown = 3;
-    p1.cooldown = 3;
+    p0.cooldowns[0] = 3;
+    p1.cooldowns[0] = 3;
     const warp = [{ kind: 'cooldown' as const, target: 'otherAllies' as const, turns: -1, min: 2 }];
     applyEffects(s, p0, warp, {}, 0);
-    expect([p0.cooldown, p1.cooldown]).toEqual([3, 2]);
+    expect([p0.cooldowns[0], p1.cooldowns[0]]).toEqual([3, 2]);
     applyEffects(s, p0, warp, {}, 0);
-    expect(p1.cooldown).toBe(2);
-    p1.cooldown = 1;
+    expect(p1.cooldowns[0]).toBe(2);
+    p1.cooldowns[0] = 1;
     applyEffects(s, p0, warp, {}, 0);
-    expect(p1.cooldown).toBe(1);
+    expect(p1.cooldowns[0]).toBe(1);
     applyEffects(s, p0, [{ kind: 'cooldown', target: 'otherAllies', turns: 2 }], {}, 0);
-    expect(p1.cooldown).toBe(3);
+    expect(p1.cooldowns[0]).toBe(3);
+  });
+});
+
+describe('granted abilities', () => {
+  const named = (id: string, cooldown: number): AbilityDef => ({ ...zap(cooldown, 1), id, name: id });
+
+  it('casts one ability per turn; the one that waited longest goes first', () => {
+    const caster = { ...unit({ ability: named('main', 1) }), extraAbilities: [named('extra', 2)] };
+    const r = simulateCombat({ player: party([caster]), enemy: party([tough()]), rng: new Rng(1), tickCap: 60 });
+    const casts = ofType(r.events, 'ability').filter((e) => e.source === 'p0').map((e) => e.abilityId);
+    // Turn 1: only main is ready. Turn 2: both ready, tie → the rarer one (extra), and main waits a turn.
+    expect(casts.slice(0, 6)).toEqual(['main', 'extra', 'main', 'extra', 'main', 'extra']);
+    expect(ofType(r.events, 'attack').filter((e) => e.source === 'p0')).toHaveLength(0);
+  });
+
+  it('cooldown effects shift every ability', () => {
+    const s = makeState(party([{ ...unit({ ability: zap(5) }), extraAbilities: [zap(4)] }]), party([tough()]));
+    applyEffects(s, byId(s, 'e0'), [{ kind: 'cooldown', target: 'nearest', turns: 2 }], {}, 0);
+    expect(byId(s, 'p0').cooldowns).toEqual([7, 6]);
   });
 });

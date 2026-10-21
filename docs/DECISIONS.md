@@ -2,6 +2,43 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-20 — Milestone 6: level cap 10, tertiary classes, granted abilities
+
+Brandon made the three design calls up front: two tertiary classes per advanced class, longer runs rather than a faster XP curve, and a second ability slot for granted abilities. Everything below was decided autonomously.
+
+### Engine
+- **`UnitSetup.extraAbilities`**, each with its own cooldown (`CombatUnit.cooldowns`, class ability first). **One ability per turn:** of the ready ones, the one that has waited longest (lowest cooldown) goes first. Ties go to the **rarer ability (longer cooldown)**, then the class ability. Breaking ties toward the class ability let an every-turn class ability starve a granted one (an every-2nd-turn ability fired every 3rd). This way the granted ability keeps its stated cadence.
+- **Cooldown effects shift every ability** the target has, and cooldown changes and ability power from talents and items apply to every ability. One rule for everything, and Time Warp-style haste helps granted abilities too.
+
+### Run layer
+- **`OwnedUnit.tertiaryClassId` and `progression.ascendLevel` (7).** A tertiary class has the same shape as an advanced class. Its ability, tags, talent pool and recommended spread replace the advanced class's, and its modifier stacks on top. Item class bonuses still key off the base or advanced class, so a Paladin keeps the Knight's item bonuses.
+- **Talent offers top up from earlier tiers.** Levels 4–6 draw from the advanced pool and 8–10 from the tertiary pool. With only 4 talents per pool, the third pick from a pool would otherwise offer just 2 options, so the offer fills to 3 with talents the unit skipped at earlier tiers. That also means a skipped base talent can come back.
+- **Choices queued before a class choice is made** (for example, levels 7 and 8 earned in one fight before choosing the advanced class) wait as placeholders and roll their options once the class is picked. A tier with no classes defined is skipped rather than waited on, so content gaps can't stall a run.
+- **XP curve** 0 / 2 / 5 / 9 / 14 / 19 / 25 / 31 / 38 / 46 (levels 1–5 unchanged). A round-1 unit reaches level 7 around round 12 with no training, and level 10 takes real training investment. **Stat points** 3 per level, 5 at levels 3, 5, 7 and 10.
+- **15 wins, 5 lives.** Brandon's chosen option said "e.g. 15", so I took 15 and kept 5 lives. A run takes 15–19 rounds.
+
+### Content
+- **44 tertiary classes** in `src/data/builds/tertiary/<class>.ts`. The pattern: the ability is a stronger take on the advanced class's ability with a twist (Knight's shield wall becomes Paladin's shield-and-heal or Vanguard's 2-turn taunt). Stats are roughly +8–22 HP and +2–4 elsewhere, plus a new passive. Each has **four talents: one granting an ability (every 4th or 5th turn, weaker than a class ability), one stat or ability-power talent, and two triggers.** A content test enforces 2 per advanced class, 4 talents and exactly one granted ability.
+- **Six new summoners** (Packlord, Illusionist, Treelord, Pit Lord, Roboticist, Rotcaller), each with a fallback for a full board, as in M5.
+- **Each advanced class lists its tertiary options, derived from the tertiary data** in `builds/index.ts`, so the parent link is defined in one place.
+- **Granted-ability talent text is generated** from the ability ("New ability. Every 4th turn: …"), and the cadence test covers granted abilities too.
+
+### Enemies and balance
+- **Enemy levels keep climbing** (5.3 by round 14, 7.8 by round 21), so long runs meet enemy tertiary classes, and enemies carry up to 2 items. **HP/ATK growth now runs through round 16 at +8.5% / +5% per round** (was +9% / +5.5% to round 10). With growth stopping at round 10, levels 6–10 made rounds 12–16 a walkover; extending it as-is made the late game a wall. This variant matched M5's completion rates (sensible ~20%, greedy ~30%).
+- **Tertiary balance pass.** Raw tertiary win rates are high for everyone because only invested runs reach level 7, so I balanced on round-adjusted lift. The first pass ran from −5 to +22, led by the classes that delay or slow the whole enemy side every 3rd turn. Following Brandon's rule (nerf the specific skill, no global caps):
+  - Illusionist's summon no longer also delays every enemy.
+  - Harlequin's mass delay is every 4th turn, like Discord.
+  - Entropist no longer drains ATK every cast.
+  - Chronarch lost the stacking SPD buff.
+  - Oracle, Phoenix and Nightblade got smaller numbers.
+  - Wildstalker, Stormfist and Archdruid were buffed.
+
+### UI and tooling
+- **The level-7 choice reuses the advanced-class panel.** Unit details show the lineage ("Firelord (Mage → Pyromancer)"), each granted ability with a *Talent* tag and its real cadence, a note on the one-ability-per-turn rule, and passives from every tier, with earlier tiers' passives labelled by class.
+- **Six new summon looks**, and glossary entries for granted abilities and class tiers. The how-to text reads the level cap, class levels, wins and lives from config.
+- **Saves move to v3.** The loader also rejects saves naming an advanced or tertiary class that no longer exists.
+- **The simulator reports tertiary classes** and reads the win target from config. The synergy bot picks tertiary classes by tag, like advanced ones.
+
 ## 2026-10-20 — Readability: passives, effective kit, glossary
 
 From Brandon's phone playtest notes. He asked for items 1–3; the details below were decided autonomously.

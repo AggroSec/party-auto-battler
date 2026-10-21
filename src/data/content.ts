@@ -1,7 +1,7 @@
 import type { RunContent, RunContext } from '../engine/run/types.ts';
 import { CLASSES, STARTER_CLASS_IDS, type ClassId } from './classes.ts';
 import { RUN_CONFIG } from './economy.ts';
-import { ADVANCED_CLASSES, TALENTS } from './builds/index.ts';
+import { ADVANCED_CLASSES, TALENTS, TERTIARY_CLASSES } from './builds/index.ts';
 import { ENEMY_ARCHETYPES, ENEMY_PROGRESSION, ENEMY_SCALING } from './enemies.ts';
 import { ITEMS, ITEM_IDS } from './items.ts';
 import { UNIT_NAMES } from './names.ts';
@@ -15,6 +15,7 @@ export function buildRunContent(unlocked: readonly ClassId[] = []): RunContent {
   return {
     classes: CLASSES,
     advancedClasses: ADVANCED_CLASSES,
+    tertiaryClasses: TERTIARY_CLASSES,
     talents: TALENTS,
     items: ITEMS,
     synergies: SYNERGIES,

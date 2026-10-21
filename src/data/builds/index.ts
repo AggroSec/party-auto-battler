@@ -1,4 +1,4 @@
-import type { AdvancedClassDef, TalentDef } from '../../engine/run/content-types.ts';
+import type { AdvancedClassDef, TalentDef, TertiaryClassDef } from '../../engine/run/content-types.ts';
 import type { ClassDef, ClassId } from '../class-types.ts';
 import { bardClass, bardTalents, skald, trickster } from './bard.ts';
 import { clericClass, clericTalents, inquisitor, priest } from './cleric.ts';
@@ -10,6 +10,17 @@ import { lich, necromancerClass, necromancerTalents, plaguelord } from './necrom
 import { beastmaster, rangerClass, rangerTalents, sharpshooter } from './ranger.ts';
 import { assassin, duelist, rogueClass, rogueTalents } from './rogue.ts';
 import { demonologist, hexer, warlockClass, warlockTalents } from './warlock.ts';
+import { BARD_TERTIARY } from './tertiary/bard.ts';
+import { CLERIC_TERTIARY } from './tertiary/cleric.ts';
+import { DRUID_TERTIARY } from './tertiary/druid.ts';
+import { ENGINEER_TERTIARY } from './tertiary/engineer.ts';
+import { MAGE_TERTIARY } from './tertiary/mage.ts';
+import { MONK_TERTIARY } from './tertiary/monk.ts';
+import { NECROMANCER_TERTIARY } from './tertiary/necromancer.ts';
+import { RANGER_TERTIARY } from './tertiary/ranger.ts';
+import { ROGUE_TERTIARY } from './tertiary/rogue.ts';
+import { WARLOCK_TERTIARY } from './tertiary/warlock.ts';
+import { WARRIOR_TERTIARY } from './tertiary/warrior.ts';
 import { berserker, knight, warriorClass, warriorTalents } from './warrior.ts';
 
 export const BASE_CLASSES: Record<ClassId, ClassDef> = {
@@ -47,8 +58,30 @@ const ADVANCED = [
   lich, plaguelord,
 ];
 
-export const ADVANCED_CLASSES: Record<string, AdvancedClassDef> = Object.fromEntries(ADVANCED.map((a) => [a.cls.id, a.cls]));
+const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
+  ...WARRIOR_TERTIARY,
+  ...ROGUE_TERTIARY,
+  ...MAGE_TERTIARY,
+  ...CLERIC_TERTIARY,
+  ...RANGER_TERTIARY,
+  ...MONK_TERTIARY,
+  ...BARD_TERTIARY,
+  ...DRUID_TERTIARY,
+  ...WARLOCK_TERTIARY,
+  ...ENGINEER_TERTIARY,
+  ...NECROMANCER_TERTIARY,
+];
+
+/** Advanced classes, each listing the tertiary classes that name it as their parent. */
+export const ADVANCED_CLASSES: Record<string, AdvancedClassDef> = Object.fromEntries(
+  ADVANCED.map((a) => [
+    a.cls.id,
+    { ...a.cls, tertiaryClasses: TERTIARY.filter((t) => t.cls.advancedClassId === a.cls.id).map((t) => t.cls.id) },
+  ]),
+);
+
+export const TERTIARY_CLASSES: Record<string, TertiaryClassDef> = Object.fromEntries(TERTIARY.map((t) => [t.cls.id, t.cls]));
 
 export const TALENTS: Record<string, TalentDef> = Object.fromEntries(
-  [...Object.values(BASE_TALENTS).flat(), ...ADVANCED.flatMap((a) => a.talents)].map((t) => [t.id, t]),
+  [...Object.values(BASE_TALENTS).flat(), ...ADVANCED.flatMap((a) => a.talents), ...TERTIARY.flatMap((t) => t.talents)].map((t) => [t.id, t]),
 );

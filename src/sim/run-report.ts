@@ -7,7 +7,7 @@ import { resolvePending, type Bot } from './bots.ts';
 /** Safety net: a run can't need more fights than wins + lives (+ draws). */
 const MAX_ROUNDS = 40;
 
-export type EntityKind = 'class' | 'advanced' | 'item' | 'talent' | 'synergy';
+export type EntityKind = 'class' | 'advanced' | 'tertiary' | 'item' | 'talent' | 'synergy';
 
 export interface Tally {
   fights: number;
@@ -83,6 +83,7 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
         unitSamples++;
         present.add(`class:${u.classId}`);
         if (u.advancedClassId) present.add(`advanced:${u.advancedClassId}`);
+        if (u.tertiaryClassId) present.add(`tertiary:${u.tertiaryClassId}`);
         for (const it of u.items) present.add(`item:${it}`);
         for (const t of u.talents) present.add(`talent:${t}`);
       }

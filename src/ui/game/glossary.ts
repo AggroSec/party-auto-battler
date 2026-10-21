@@ -22,6 +22,17 @@ export const GLOSSARY: readonly Term[] = [
     text: 'On every Nth of its own turns, a unit uses its ability instead of a basic attack. Cooldown reductions from talents and items make it come more often, down to every turn.',
   },
   {
+    id: 'granted',
+    term: 'New ability',
+    text: 'Some talents grant a second ability with its own cadence. A unit still acts once per turn: if several abilities are ready, the one that has waited longest goes first and the others wait. Cooldown reductions apply to all of them.',
+    pattern: /\bnew ability\b/i,
+  },
+  {
+    id: 'classes',
+    term: 'Advanced and tertiary classes',
+    text: 'At level 3 a unit picks one of two advanced classes, and at level 7 one of two tertiary classes. Each replaces the ability and talent pool and adds a passive; passives from earlier classes stay.',
+  },
+  {
     id: 'def',
     term: 'DEF',
     text: 'Reduces damage taken: damage × 10 ÷ (10 + DEF). 10 DEF halves damage. Every hit deals at least 1.',

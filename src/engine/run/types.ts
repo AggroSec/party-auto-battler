@@ -9,6 +9,7 @@ import type {
   ShopLayout,
   SynergyDef,
   TalentDef,
+  TertiaryClassDef,
 } from './content-types.ts';
 
 export type * from './content-types.ts';
@@ -62,6 +63,7 @@ export interface EnemyScaling {
 export interface RunContent {
   classes: Readonly<Record<string, ClassTemplate>>;
   advancedClasses: Readonly<Record<string, AdvancedClassDef>>;
+  tertiaryClasses: Readonly<Record<string, TertiaryClassDef>>;
   talents: Readonly<Record<string, TalentDef>>;
   items: Readonly<Record<string, ItemDef>>;
   synergies: readonly SynergyDef[];
@@ -90,6 +92,7 @@ export interface OwnedUnit {
   /** Cumulative XP. */
   xp: number;
   advancedClassId: string | null;
+  tertiaryClassId: string | null;
   talents: string[];
   items: string[];
   /** Stats bought with stat points (in stat units, e.g. +6 HP). */
@@ -116,8 +119,9 @@ export interface PendingChoice {
   uid: number;
   /** The level that triggered the choice. */
   level: number;
-  kind: 'talent' | 'advance';
-  /** Talent ids or advanced class ids. */
+  /** 'advance' picks an advanced class (level 3), 'ascend' a tertiary class (level 7). */
+  kind: 'talent' | 'advance' | 'ascend';
+  /** Talent ids, or advanced/tertiary class ids. Empty = rolled once an earlier class choice is made. */
   options: string[];
 }
 

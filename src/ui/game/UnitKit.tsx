@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UnitSetup } from '../../engine/index.ts';
-import { explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
+import { classTiers, explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
 import { abilityText } from './abilityText.ts';
 import { Rules } from './Rules.tsx';
 
@@ -30,14 +30,23 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
   const [open, setOpen] = useState(false);
   const { content } = ctx;
   const base = content.classes[unit.classId];
-  const adv = unit.advancedClassId ? content.advancedClasses[unit.advancedClassId] : undefined;
+  const { adv, tert } = classTiers(unit, content);
   const ex = explainUnit(unit, board, content);
-  const ability = abilityText(setup.ability, adv?.ability ?? base!.ability);
   const power = setup.abilityPower ?? 1;
-  // The base class's passive stays after advancing; label it with the class it comes from.
+  // Talent-granted abilities, unmodified, to show cooldown changes against.
+  const grantedBase = unit.talents.flatMap((id) => {
+    const a = content.talents[id]?.grantAbility;
+    return a ? [a] : [];
+  });
+  const abilities = [
+    { actual: setup.ability, text: abilityText(setup.ability, tert?.ability ?? adv?.ability ?? base!.ability), granted: false },
+    ...(setup.extraAbilities ?? []).map((a, i) => ({ actual: a, text: abilityText(a, grantedBase[i] ?? a), granted: true })),
+  ];
+  // Passives from earlier class tiers stay; label them with the class they come from.
   const passives: { name: string; description: string; from?: string }[] = [];
   if (base?.passive) passives.push(adv ? { ...base.passive, from: base.name } : base.passive);
-  if (adv?.passive) passives.push(adv.passive);
+  if (adv?.passive) passives.push(tert ? { ...adv.passive, from: adv.name } : adv.passive);
+  if (tert?.passive) passives.push(tert.passive);
 
   return (
     <div className="kit">
@@ -84,15 +93,20 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
           )}
         </dl>
       )}
-      <p className="kit-ability">
-        <strong>{setup.ability.name}</strong>{' '}
-        <span className={ability.was ? 'cadence changed' : 'cadence'}>
-          {ability.was && <s>{ability.was}</s>} {ability.cadence}
-          {ability.first && ` (${ability.first})`}
-        </span>
-        : <Rules text={ability.rest} />
-        {power !== 1 && <span className="muted"> Amounts ×{pct(power)} from ability power.</span>}
-      </p>
+      {abilities.map(({ actual, text, granted }, i) => (
+        <p key={`${actual.id}${i}`} className="kit-ability">
+          {granted && <span className="kit-tag">Talent</span>} <strong>{actual.name}</strong>{' '}
+          <span className={text.was ? 'cadence changed' : 'cadence'}>
+            {text.was && <s>{text.was}</s>} {text.cadence}
+            {text.first && ` (${text.first})`}
+          </span>
+          : <Rules text={text.rest} />
+          {power !== 1 && <span className="muted"> Amounts ×{pct(power)} from ability power.</span>}
+        </p>
+      ))}
+      {abilities.length > 1 && (
+        <p className="muted small">One ability per turn: if several are ready, the one that has waited longest goes first.</p>
+      )}
       {passives.map((p) => (
         <p key={p.name + (p.from ?? '')} className="kit-passive">
           <span className="kit-tag">Passive</span> <strong>{p.name}</strong>

@@ -21,21 +21,21 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
 /** Tuned with `npm run sim`; see docs/BALANCE.md. */
 export const ENEMY_SCALING: EnemyScaling = {
   unitsByRound: [2, 3, 4, 5],
-  // M5: players now choose their stat points (stronger than the old random
-  // rolls), so enemies start at full strength and grow 9% HP / 5.5% ATK per
-  // round through round 10, then stop: the late game stays hard without
-  // becoming a wall for comeback runs.
+  // M5: players choose their stat points, so enemies start at full strength.
+  // M6: runs last to 15 wins and units reach level 10, so enemies grow a
+  // little more slowly (8.5% HP / 5% ATK per round) but for longer, through
+  // round 16, then stop so comeback runs never hit a wall.
   baseMultiplier: 1,
-  hpGrowthPerRound: 0.09,
-  atkGrowthPerRound: 0.055,
-  growthUntilRound: 10,
+  hpGrowthPerRound: 0.085,
+  atkGrowthPerRound: 0.05,
+  growthUntilRound: 16,
 };
 
 /** Enemies level, advance and gear up alongside the player. Tuned with `npm run sim`. */
 export const ENEMY_PROGRESSION: EnemyProgression = {
   // Fractional: e.g. 2.4 = each unit is level 3 with 40% chance, else level 2.
-  // M5: a gentler climb through level 3 (advanced classes) and a plateau
-  // after round 10.
-  levelByRound: [1, 1.3, 1.7, 2.1, 2.4, 2.7, 3, 3.3, 3.6, 3.9, 4, 4.1, 4.1, 4.2],
-  itemsByRound: [0, 0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.3, 1.4, 1.4, 1.4],
+  // M5: a gentler climb through level 3 (advanced classes). M6: runs are
+  // longer, so enemies keep levelling into tertiary classes (level 7) late.
+  levelByRound: [1, 1.3, 1.7, 2.1, 2.4, 2.7, 3, 3.3, 3.6, 3.9, 4.2, 4.5, 4.9, 5.3, 5.7, 6.1, 6.5, 6.9, 7.2, 7.5, 7.8],
+  itemsByRound: [0, 0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2],
 };

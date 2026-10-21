@@ -1,4 +1,4 @@
-import { boardUnits } from '../../engine/run/index.ts';
+import { boardUnits, effectiveClassId } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { PlayLogExport } from './PlayLogExport.tsx';
 import { className } from './names.ts';
@@ -53,7 +53,7 @@ export function RunSummary({ game }: { game: Game }) {
                   {u.name} {mvp?.uid === u.uid && <span title="Most damage + healing this run">⭐ MVP</span>}
                 </strong>
                 <span className="muted">
-                  Lv {u.level} {className(ctx.content, u.advancedClassId ?? u.classId)}
+                  Lv {u.level} {className(ctx.content, effectiveClassId(u))}
                 </span>
                 <span className="muted small">{u.talents.map((t) => ctx.content.talents[t]?.name ?? t).join(', ')}</span>
                 <span className="muted small">{u.items.map((i) => `🎒 ${ctx.content.items[i]?.name ?? i}`).join(' ')}</span>

@@ -17,8 +17,10 @@ export interface UnitModifier {
   lifesteal?: number;
   /** Additive ability power (0.25 = +25% ability damage/heals/shields). */
   abilityPower?: number;
-  /** Change to ability cooldown in turns (negative = faster; never below 1). */
+  /** Change to ability cooldown in turns (negative = faster; never below 1). Applies to every ability. */
   abilityCooldown?: number;
+  /** An extra ability with its own cadence, cast alongside the class ability (M6). */
+  grantAbility?: AbilityDef;
 }
 
 export interface TalentDef extends UnitModifier {
@@ -47,6 +49,17 @@ export interface AdvancedClassDef {
   talents: readonly string[];
   /** Replaces the base class's recommended stat spread. */
   statWeights?: StatWeights;
+  /** The two tertiary classes offered at the ascend level (M6). */
+  tertiaryClasses?: readonly string[];
+}
+
+/**
+ * A tertiary class (M6): the level-7 step after an advanced class. Same shape
+ * as an advanced class; its ability, tags and talent pool replace the
+ * advanced class's, and its modifier stacks on top.
+ */
+export interface TertiaryClassDef extends Omit<AdvancedClassDef, 'tertiaryClasses'> {
+  advancedClassId: string;
 }
 
 /**
@@ -116,6 +129,8 @@ export interface ProgressionConfig {
   xpPerDraw: number;
   /** Level at which a unit chooses its advanced class. */
   advanceLevel: number;
+  /** Level at which a unit picks a tertiary class (M6). */
+  ascendLevel: number;
   /** Stat points granted on reaching each level: index 0 = level 1 (always 0). */
   statPointsByLevel: readonly number[];
   /** What one stat point buys in each stat. */

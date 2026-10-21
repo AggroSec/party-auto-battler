@@ -1,8 +1,8 @@
 import { spentPoints, STATS, type OwnedUnit, type RunContent, type RunContext, type ShopOffer } from '../../engine/run/index.ts';
 
-/** Display name for a base or advanced class id (summons show as "Summon"). */
+/** Display name for a base, advanced or tertiary class id (summons show as "Summon"). */
 export function className(content: RunContent, id: string): string {
-  return content.classes[id]?.name ?? content.advancedClasses[id]?.name ?? 'Summon';
+  return content.classes[id]?.name ?? content.advancedClasses[id]?.name ?? content.tertiaryClasses[id]?.name ?? 'Summon';
 }
 
 export function offerLabel(content: RunContent, offer: ShopOffer): { title: string; detail: string } {

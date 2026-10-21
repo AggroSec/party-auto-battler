@@ -26,7 +26,8 @@ export interface CombatUnit {
   spd: number;
   shield: number;
   gauge: number;
-  cooldown: number;
+  /** Turns until each ability is ready: the class ability first, then extraAbilities. */
+  cooldowns: number[];
   /** Own turns of taunt left (0 = not taunting). */
   taunt: number;
   alive: boolean;
@@ -90,7 +91,7 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     spd: s.spd,
     shield: 0,
     gauge: 0,
-    cooldown: setup.ability.initialCooldown ?? setup.ability.cooldown,
+    cooldowns: [setup.ability, ...(setup.extraAbilities ?? [])].map((a) => a.initialCooldown ?? a.cooldown),
     taunt: 0,
     alive: true,
     bloodied: false,

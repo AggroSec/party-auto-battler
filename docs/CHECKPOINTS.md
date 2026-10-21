@@ -2,6 +2,80 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 6 — Level cap 10, tertiary classes and granted abilities (2026-10-20)
+
+### What was built
+
+**Your three calls**
+- **Two tertiary classes per advanced class, chosen at level 7:** 44 new classes, e.g. Knight → **Paladin** or **Vanguard**, Pyromancer → **Firelord** or **Phoenix**.
+  - Each has a new ability, a passive, a stat bonus and four talents.
+  - Like advancing at level 3, the ability, tags and talent pool change. Passives from the base and advanced class stay.
+- **Longer runs:** a run now goes to **15 wins** (5 lives), about 15–19 rounds.
+- **Second ability slot:** every tertiary pool has one talent that grants a **second ability** with its own cadence, e.g. Paladin's *Lay on Hands* every 4th turn.
+  - A unit still acts once per turn. If two abilities are ready, the one that has waited longest goes first, and the other fires next turn.
+  - Cooldown reduction and ability power apply to both.
+
+**Levels 6–10**
+- XP thresholds go 0 / 2 / 5 / 9 / 14 / 19 / 25 / 31 / 38 / 46. A round-1 unit reaches level 7 around round 12 without training. Level 10 takes a unit you've invested in.
+- Stat points: 3 per level, 5 at levels 3, 5, **7 and 10**.
+- Talent choices: base pool at 2, advanced pool at 4–6, tertiary pool at 8–10. When a pool runs low, the offer is topped up with talents the unit skipped earlier, so every level-up is a choice of 3.
+
+**Six new summoners:** Packlord (Wolves), Illusionist (Mirror Images), Treelord (Ancients), Pit Lord (Fiends), Roboticist (Golems) and Rotcaller (Ghouls). Each does something else when the board is full, like the M5 summoners.
+
+**Enemies** keep levelling through the longer run (into tertiary classes from about round 16). HP/ATK growth runs through round 16 at a slightly gentler rate.
+
+**UI**
+- The level-7 choice uses the same panel as advancing.
+- Unit details show the lineage ("Firelord (Mage → Pyromancer)") and every granted ability with a *Talent* tag and its real cadence. They also show passives from each class tier.
+- New glossary entries cover granted abilities and class tiers. The title-screen how-to now reads the numbers from the game's config.
+
+**Tests:** 248, up from 239. New tests cover:
+- Casting order with granted abilities.
+- Cooldown shifts on every ability.
+- The level-7 choice, including deferred choices.
+- Tertiary talent pools and top-ups.
+- Every advanced class having exactly 2 tertiary classes with 4 talents and one granted ability.
+- Every ability's text matching its real cooldown (granted abilities included).
+- The stat breakdown adding up for all 66 advanced and tertiary classes.
+- Save validation of class choices.
+
+**Verified in a real browser** (headless Chrome, 390px wide):
+- A level-7 Knight choosing Paladin.
+- A level-9 Firelord with Pyroblast (granted) and an Hourglass: both cadences shown changed.
+- A fight with the new UI.
+- No overflow and no console errors.
+
+### What to playtest (and how)
+
+1. Merge this and play on your phone at https://aggrosec.github.io/party-auto-battler/. **Old saves are ignored** (save format v3), so start a new run. Your saved best run resets too.
+2. **Run length:** does 15 wins feel right, or does it drag on a phone?
+3. **Level 7:** feed one unit training to reach level 7 sooner, and pick a tertiary class. Is round 12 or so the right time for it?
+4. **Granted abilities:** take one at level 8–10 and watch it in combat. Is it clear when it fires?
+5. **Summoners:** leave a slot open for Packlord, Illusionist, Treelord, Pit Lord, Roboticist or Rotcaller.
+6. If a run shows something, send the play log (Export play log on the title screen).
+
+### Known issues
+
+- **Watch list:** Firelord (+13.8 lift), Harlequin (+13.2), Oracle and Chronarch (+11.9) lead the tertiary classes. Archdruid (−3.8) and Swashbuckler (−3.5) trail. The samples are small, so your play matters more here than the simulator.
+- **The bots never leave slots empty,** so the six new summoners are under-rated in the simulator, as in M5.
+- **Bots rarely reach level 10** (the average unit level across all fights is 4.2), so level-9 and level-10 talents and granted abilities have the least simulator coverage.
+- **Base-tier leaders are unchanged from M5:** Warrior (+5.3) and Inquisitor (+9.2) lead; Druid (−3.3) and Beastmaster (−4.0) trail.
+- **Pre-M6 play logs** replay under the new rules and diverge. That's expected.
+- **Placeholder art:** emoji glyphs remain until the Juice milestone.
+
+### Simulator balance numbers
+
+Seed `m3`, 2,000 runs per bot:
+
+| Bot | Completed (15 wins) | Fight win rate | Avg rounds | Avg unit level |
+|---|---:|---:|---:|---:|
+| random | 3.8% | 40.1% | 8.1 | 3.05 |
+| sensible | 20.3% | 67.2% | 12.8 | 4.20 |
+| greedy | 28.1% | 72.3% | 13.8 | 4.47 |
+| synergy | 8.9% | 56.9% | 10.8 | 3.81 |
+
+Lift spreads: base classes −3.3 to +5.3, advanced classes −4.0 to +9.2, tertiary classes −3.8 to +13.8, synergies −3.3 to +10.5, items −5.5 to +2.5. 0 tick-cap hits, 0 stuck runs. Full report in [BALANCE.md](BALANCE.md).
+
 ## Milestone 5 — Progression, balance and new classes (2026-10-18)
 
 ### What was built
