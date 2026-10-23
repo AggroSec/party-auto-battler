@@ -1,5 +1,5 @@
 import type { UnitSetup } from '../../engine/index.ts';
-import { classTiers, effectiveClassId, maxLevel, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
+import { classTiers, effectiveClassId, maxLevel, tertiaryItemFor, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
 import { className, spentSummary } from './names.ts';
@@ -27,7 +27,7 @@ function ItemRow({
   const id = unit.items[index]!;
   const item = ctx.content.items[id];
   const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId);
-  const chip = <span className="item-chip">🎒 {item?.name ?? id}</span>;
+  const chip = <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}>{item?.tertiaryClassId ? '🌟' : '🎒'} {item?.name ?? id}</span>;
   const drag = useDraggable({ kind: 'item', slot, index }, chip);
   return (
     <li className={`item-row ${drag.dragging ? 'is-dragging' : ''}`}>
@@ -92,6 +92,8 @@ export function Inspector({
   const { adv, tert } = classTiers(unit, content);
   const style = classStyle(content, unit.classId);
   const lineage = [base?.name, tert && adv?.name].filter(Boolean).join(' → ');
+  const signatureId = tert ? tertiaryItemFor(tert.id, ctx) : undefined;
+  const signature = signatureId ? content.items[signatureId] : undefined;
   return (
     <section className="inspector" style={{ '--class-color': style.color } as React.CSSProperties} aria-label={`${unit.name} details`}>
       <header className="inspector-head">
@@ -143,6 +145,12 @@ export function Inspector({
           <li className="muted">{prog.maxItemsPerUnit - unit.items.length} free item slot(s)</li>
         )}
       </ul>
+      {signature && !unit.items.includes(signature.id) && (
+        <p className="signature-hint muted small">
+          🌟 Signature item: <strong>{signature.name}</strong> ({signature.cost}g) can show up in the shop while {tert?.name} is in your party.{' '}
+          <Rules text={signature.description} />
+        </p>
+      )}
       <div className="inspector-actions">
         <button type="button" className={movingUnit ? 'active' : ''} onClick={onMoveUnit}>
           {movingUnit ? 'Cancel move' : 'Move'}

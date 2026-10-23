@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UnitSetup } from '../../engine/index.ts';
-import { classTiers, explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
+import { buildSources, classTiers, explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
 import { abilityText } from './abilityText.ts';
 import { Rules } from './Rules.tsx';
 
@@ -33,20 +33,23 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
   const { adv, tert } = classTiers(unit, content);
   const ex = explainUnit(unit, board, content);
   const power = setup.abilityPower ?? 1;
-  // Talent-granted abilities, unmodified, to show cooldown changes against.
-  const grantedBase = unit.talents.flatMap((id) => {
-    const a = content.talents[id]?.grantAbility;
-    return a ? [a] : [];
-  });
+  // Granted abilities (talents, a boss's second ability), unmodified, in the order the build applies them.
+  const granted = buildSources(unit, content).filter((s) => s.modifier.grantAbility);
   const abilities = [
-    { actual: setup.ability, text: abilityText(setup.ability, tert?.ability ?? adv?.ability ?? base!.ability), granted: false },
-    ...(setup.extraAbilities ?? []).map((a, i) => ({ actual: a, text: abilityText(a, grantedBase[i] ?? a), granted: true })),
+    { actual: setup.ability, text: abilityText(setup.ability, tert?.ability ?? adv?.ability ?? base!.ability), tag: null },
+    ...(setup.extraAbilities ?? []).map((a, i) => ({
+      actual: a,
+      text: abilityText(a, granted[i]?.modifier.grantAbility ?? a),
+      tag: granted[i]?.kind === 'boss' ? 'Boss' : 'Talent',
+    })),
   ];
   // Passives from earlier class tiers stay; label them with the class they come from.
   const passives: { name: string; description: string; from?: string }[] = [];
   if (base?.passive) passives.push(adv ? { ...base.passive, from: base.name } : base.passive);
   if (adv?.passive) passives.push(tert ? { ...adv.passive, from: adv.name } : adv.passive);
   if (tert?.passive) passives.push(tert.passive);
+  const boss = unit.bossId ? content.bosses.find((b) => b.id === unit.bossId) : undefined;
+  if (boss) passives.push({ ...boss.passive, from: 'Boss' });
 
   return (
     <div className="kit">
@@ -55,6 +58,8 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
         {power !== 1 && ` · ✨${pct(power)} power`}
         {setup.lifesteal ? ` · 🩸${pct(setup.lifesteal)} lifesteal` : ''}
         {setup.reach ? ' · 🏹 reach' : ''}
+        {setup.executeBonus ? ` · 🪓 +${pct(setup.executeBonus)} vs wounded` : ''}
+        {setup.revive ? ` · 🪶 revive${setup.revive.times > 1 ? ` ×${setup.revive.times}` : ''}` : ''}
         <span className="muted small"> {open ? '▴ hide' : '▾ breakdown'}</span>
       </button>
       {open && (
@@ -93,9 +98,9 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
           )}
         </dl>
       )}
-      {abilities.map(({ actual, text, granted }, i) => (
+      {abilities.map(({ actual, text, tag }, i) => (
         <p key={`${actual.id}${i}`} className="kit-ability">
-          {granted && <span className="kit-tag">Talent</span>} <strong>{actual.name}</strong>{' '}
+          {tag && <span className="kit-tag">{tag}</span>} <strong>{actual.name}</strong>{' '}
           <span className={text.was ? 'cadence changed' : 'cadence'}>
             {text.was && <s>{text.was}</s>} {text.cadence}
             {text.first && ` (${text.first})`}

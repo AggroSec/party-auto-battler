@@ -232,6 +232,9 @@ export function formatReplay(replays: RunReplay[], ctx: RunContext): string {
     const f = r.final;
     out.push(`## Run ${r.run} (seed "${r.seed}", started ${r.startedAt})`);
     out.push(`Result: ${f.phase === 'shop' ? 'in progress' : f.phase} — ${f.wins} wins, ${f.lives} lives, ${r.rounds.length} rounds`);
+    const { setup } = f;
+    const perks = setup.perks.map((id) => ctx.content.perks[id]?.name ?? id).join(', ') || 'none';
+    out.push(`Setup: ${setup.daily ? `daily ${setup.daily}, ` : ''}tier ${setup.tier}, perks: ${perks}, ${setup.classes.length} classes and ${setup.items.length} items unlocked`);
     for (const round of r.rounds) {
       const { result: res, shopped } = round;
       out.push('', `### Round ${round.round}: ${RESULT[res.combat.winner]} in ${res.combat.ticks} ticks`);
