@@ -109,7 +109,7 @@ export const druidClass: ClassDef = {
   name: 'Druid',
   role: 'support',
   tags: ['wild', 'nature'],
-  unlockable: false,
+  unlockable: true,
   description: 'Nature caster who slows the enemy front line; becomes a bear or a healer.',
   baseStats: { hp: 34, atk: 5, def: 1, spd: 9 },
   range: 'ranged',

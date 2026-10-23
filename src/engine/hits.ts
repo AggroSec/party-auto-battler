@@ -53,7 +53,8 @@ export function dealDamage(
   depth: number,
 ): void {
   if (!target.alive) return;
-  const scaled = source && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
+  let scaled = source && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
+  if (source?.setup.executeBonus && target.hp < target.maxHp * BLOODIED_THRESHOLD) scaled *= 1 + source.setup.executeBonus;
   const damage = mitigate(scaled, target.def, opts.pierce === true || opts.true === true);
   const { toShield, toHp } = opts.true ? { toShield: 0, toHp: damage } : absorb(damage, target.shield);
   const hpLost = Math.min(target.hp, toHp);
@@ -77,6 +78,10 @@ export function dealDamage(
   }
 
   if (target.hp <= 0) {
+    if (target.revives > 0) {
+      revive(state, target, depth);
+      return;
+    }
     kill(state, target, source, depth, opts.by);
     return;
   }
@@ -89,12 +94,27 @@ export function dealDamage(
   }
 }
 
+/** Spend a revive: the unit survives a lethal hit at a fraction of its max HP. */
+function revive(state: CombatState, target: CombatUnit, depth: number): void {
+  target.revives -= 1;
+  const hp = Math.max(1, Math.round(target.maxHp * (target.setup.revive?.hp ?? 0)));
+  emit(state, { tick: state.tick, type: 'trigger', source: target.id, label: 'Revived', on: 'onRevive' });
+  target.hp = hp;
+  emit(state, { tick: state.tick, type: 'heal', source: target.id, target: target.id, value: hp, hpAfter: hp });
+  fireTriggers(state, target, 'onRevive', {}, depth);
+}
+
 function kill(state: CombatState, target: CombatUnit, killer: CombatUnit | null, depth: number, by?: string): void {
   target.alive = false;
   emit(state, { tick: state.tick, type: 'death', target: target.id, source: killer?.id ?? by ?? OVERTIME_SOURCE });
   if (killer) {
     if (killer !== target && killer.side !== target.side) killer.stats.kills += 1;
     fireTriggers(state, killer, 'onKill', { triggerTarget: target }, depth);
+    if (killer.side !== target.side) {
+      for (const ally of living(state, killer.side)) {
+        if (ally !== killer) fireTriggers(state, ally, 'onAllyKill', { triggerSource: killer, triggerTarget: target }, depth);
+      }
+    }
   }
   for (const ally of living(state, target.side)) {
     const ctx = killer ? { triggerSource: killer, triggerTarget: target } : { triggerTarget: target };

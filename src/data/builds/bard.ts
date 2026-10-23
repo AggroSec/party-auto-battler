@@ -94,7 +94,7 @@ export const bardClass: ClassDef = {
   name: 'Bard',
   role: 'support',
   tags: ['arcane', 'spirit'],
-  unlockable: false,
+  unlockable: true,
   description: 'Back-row performer who speeds up the party and makes it stronger every song.',
   baseStats: { hp: 26, atk: 4, def: 1, spd: 10 },
   range: 'ranged',

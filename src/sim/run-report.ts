@@ -1,7 +1,7 @@
 // Full-run simulation: bots play complete runs; we tally how often fights are
 // won when each class, advanced class, item, talent and synergy is present.
 import { DEFAULT_TICK_CAP, Rng } from '../engine/index.ts';
-import { activeSynergies, boardUnits, createRun, fight, type RunContext } from '../engine/run/index.ts';
+import { activeSynergies, boardUnits, createRun, defaultSetup, fight, runContext, type RunContext, type RunSetup } from '../engine/run/index.ts';
 import { resolvePending, type Bot } from './bots.ts';
 
 /** Safety net: a run can't need more fights than wins + lives (+ draws). */
@@ -47,7 +47,9 @@ function bumpByRound(map: Map<string, Map<number, Tally>>, key: string, round: n
   bump(inner, round, score);
 }
 
-export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): BotRunReport {
+/** Play `runs` full runs with one bot. `setup` picks the ladder tier and perks (default: tier 0, everything unlocked). */
+export function runBot(bot: Bot, baseCtx: RunContext, runs: number, seed: string, setup: RunSetup = defaultSetup(baseCtx)): BotRunReport {
+  const ctx = runContext(setup, baseCtx);
   const botRng = new Rng(`${seed}:${bot.name}`);
   const hist = Array<number>(ctx.config.winsToComplete + 1).fill(0);
   const byRound = new Map<number, Tally>();
@@ -56,7 +58,7 @@ export function runBot(bot: Bot, ctx: RunContext, runs: number, seed: string): B
   let unspent = 0, stuck = 0, tickCap = 0, levelSum = 0, unitSamples = 0;
 
   for (let i = 0; i < runs; i++) {
-    let state = createRun(`${seed}:run${i}`, ctx);
+    let state = createRun(`${seed}:run${i}`, ctx, setup);
     let rounds = 0;
     while (state.phase === 'shop' && rounds < MAX_ROUNDS) {
       let shopped = resolvePending(bot, state, ctx, botRng);

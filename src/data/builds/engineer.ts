@@ -105,7 +105,7 @@ export const engineerClass: ClassDef = {
   name: 'Engineer',
   role: 'caster',
   tags: ['tech'],
-  unlockable: false,
+  unlockable: true,
   description: 'Builds turrets in empty slots: leave room on the board and they fill it.',
   baseStats: { hp: 28, atk: 5, def: 2, spd: 9 },
   range: 'ranged',

@@ -1,5 +1,6 @@
 import type { ItemDef } from '../engine/run/content-types.ts';
 import { on } from './builds/dsl.ts';
+import { SIGNATURE_ITEMS } from './signature-items/index.ts';
 
 const WARRIORS = ['warrior', 'knight', 'berserker'];
 const ROGUES = ['rogue', 'assassin', 'duelist'];
@@ -217,7 +218,61 @@ const ITEM_LIST: ItemDef[] = [
     modifier: { stats: { def: 2, spd: 1 } },
     classBonus: { classIds: ENGINEERS, description: 'Engineers: +40% ability power (stronger turrets).', modifier: { abilityPower: 0.4 } },
   },
+
+  // Unlockable items (M7).
+  {
+    id: 'phoenix-feather',
+    name: 'Phoenix Feather',
+    description: 'The first time you would fall, survive at 30% HP.',
+    cost: 6,
+    modifier: { revive: 0.3 },
+  },
+  {
+    id: 'war-banner',
+    name: 'War Banner',
+    description: 'Start of combat: you and the allies in your row gain +2 ATK.',
+    cost: 5,
+    modifier: { triggers: [on('startOfCombat', 'War Banner', [{ kind: 'buff', target: 'rowAllies', stat: 'atk', amount: { flat: 2 } }])] },
+  },
+  {
+    id: 'gamblers-coin',
+    name: "Gambler's Coin",
+    description: '+1 gold after every won fight.',
+    cost: 4,
+    modifier: {},
+    goldPerWin: 1,
+  },
+  {
+    id: 'executioners-axe',
+    name: "Executioner's Axe",
+    description: '+2 ATK. Deal 50% more damage to enemies below half HP.',
+    cost: 5,
+    modifier: { stats: { atk: 2 }, executeBonus: 0.5 },
+  },
+  {
+    id: 'mirror-shard',
+    name: 'Mirror Shard',
+    description: 'When hurt, deal 60% ATK back to the attacker (up to 4 times per fight).',
+    cost: 5,
+    modifier: { triggers: [on('onHurt', 'Mirror Shard', [{ kind: 'damage', target: 'triggerSource', amount: { atk: 0.6 } }], { limit: 4 })] },
+  },
+  {
+    id: 'soulstone',
+    name: 'Soulstone',
+    description: 'When an ally falls, your next ability comes 1 turn sooner and you shield yourself for 100% ATK.',
+    cost: 4,
+    modifier: {
+      triggers: [
+        on('onAllyDeath', 'Soulstone', [
+          { kind: 'cooldown', target: 'self', turns: -1 },
+          { kind: 'shield', target: 'self', amount: { atk: 1 } },
+        ]),
+      ],
+    },
+  },
 ];
 
-export const ITEMS: Record<string, ItemDef> = Object.fromEntries(ITEM_LIST.map((i) => [i.id, i]));
+/** Every item, including the tertiary classes' signature items (M7). */
+export const ITEMS: Record<string, ItemDef> = Object.fromEntries([...ITEM_LIST, ...SIGNATURE_ITEMS].map((i) => [i.id, i]));
+/** Items the shop and enemies roll (signature items are offered separately). */
 export const ITEM_IDS = ITEM_LIST.map((i) => i.id);

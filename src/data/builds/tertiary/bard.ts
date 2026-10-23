@@ -87,7 +87,7 @@ export const lorekeeper = tertiary({
   ],
 });
 
-const mirrorImage: SummonDef = {
+export const mirrorImage: SummonDef = {
   name: 'Mirror Image',
   classId: 'mirror-image',
   hp: { maxHp: 0.5 },

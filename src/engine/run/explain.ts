@@ -28,6 +28,7 @@ const SUFFIX: Record<ModifierSource['kind'], string> = {
   item: '',
   classBonus: ' (class bonus)',
   synergy: ' (synergy)',
+  boss: ' (boss)',
 };
 
 /** Explain a unit as it stands on `board` (synergies included). */

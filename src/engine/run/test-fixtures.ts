@@ -203,6 +203,10 @@ export function makeCtx(
       enemyScaling: { unitsByRound: [1, 2, 3], baseMultiplier: 1, hpGrowthPerRound: 0.1, atkGrowthPerRound: 0.1 },
       enemyProgression: { levelByRound: [1], itemsByRound: [0] },
       unitNames: ['Ann', 'Bo', 'Cy'],
+      ladder: [],
+      perks: {},
+      bosses: [],
+      elite: { statMultiplier: { hp: 1.3, atk: 1.3 }, levels: 1 },
       ...over.content,
     },
   };

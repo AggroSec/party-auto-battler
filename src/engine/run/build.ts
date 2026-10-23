@@ -1,7 +1,7 @@
 // Resolve a unit's build (class + stat points + advanced class + talents + items +
 // synergies) into the UnitSetup the combat engine consumes.
 import type { AbilityDef, Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
-import type { ClassTemplate, SynergyDef, SynergyTier, UnitModifier } from './content-types.ts';
+import type { ClassTemplate, SynergyDef, SynergyTier, UnitFilter, UnitModifier } from './content-types.ts';
 import type { Board, OwnedUnit, RunContent } from './types.ts';
 
 export const ZERO_STATS: Stats = { hp: 0, atk: 0, def: 0, spd: 0 };
@@ -32,7 +32,7 @@ export function unitTags(unit: OwnedUnit, content: RunContent): readonly string[
 
 /** A modifier and where it came from, for explaining a build in the UI. */
 export interface ModifierSource {
-  kind: 'advanced' | 'tertiary' | 'talent' | 'item' | 'classBonus' | 'synergy';
+  kind: 'advanced' | 'tertiary' | 'talent' | 'item' | 'classBonus' | 'synergy' | 'boss';
   name: string;
   modifier: UnitModifier;
 }
@@ -43,6 +43,11 @@ export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSour
   const { adv, tert } = classTiers(unit, content);
   if (adv) sources.push({ kind: 'advanced', name: adv.name, modifier: adv.modifier });
   if (tert) sources.push({ kind: 'tertiary', name: tert.name, modifier: tert.modifier });
+  const boss = unit.bossId ? content.bosses.find((b) => b.id === unit.bossId) : undefined;
+  if (boss) {
+    sources.push({ kind: 'boss', name: boss.passive.name, modifier: boss.modifier });
+    if (unit.empowered) sources.push({ kind: 'boss', name: boss.ability.name, modifier: { grantAbility: boss.ability } });
+  }
   for (const id of unit.talents) {
     const t = content.talents[id];
     if (t) sources.push({ kind: 'talent', name: t.name, modifier: t });
@@ -69,10 +74,58 @@ export interface ActiveSynergy {
   tier: number;
 }
 
+/** Does the unit match a synergy filter (any listed tag, base-class role or class id)? */
+export function matchesFilter(unit: OwnedUnit, filter: UnitFilter, content: RunContent): boolean {
+  if (filter.tags && unitTags(unit, content).some((t) => filter.tags!.includes(t))) return true;
+  if (filter.roles) {
+    const role = classFor(content, unit.classId).role;
+    if (role !== undefined && filter.roles.includes(role)) return true;
+  }
+  if (filter.classIds) {
+    const ids = [unit.classId, unit.advancedClassId, unit.tertiaryClassId];
+    if (ids.some((id) => id !== null && filter.classIds!.includes(id))) return true;
+  }
+  return false;
+}
+
+/**
+ * How many of the filters can each be matched by a different unit at once.
+ * Boards are tiny, so this tries every assignment.
+ */
+export function filledSlots(units: OwnedUnit[], slots: readonly UnitFilter[], content: RunContent): number {
+  const fits = slots.map((f) => units.map((u) => matchesFilter(u, f, content)));
+  const used = new Set<number>();
+  const best = (i: number): number => {
+    if (i === slots.length) return 0;
+    let most = best(i + 1); // leave slot i unfilled
+    for (let u = 0; u < units.length; u++) {
+      if (used.has(u) || !fits[i]![u]) continue;
+      used.add(u);
+      most = Math.max(most, 1 + best(i + 1));
+      used.delete(u);
+    }
+    return most;
+  };
+  return best(0);
+}
+
+/** Is a synergy tier's every requirement met by these units? */
+export function tierMet(tier: SynergyTier, units: OwnedUnit[], content: RunContent): boolean {
+  return meets(tier, units, content);
+}
+
 function meets(tier: SynergyTier, units: OwnedUnit[], content: RunContent): boolean {
   return tier.requires.every((req) => {
-    if (req.kind === 'distinctClasses') return new Set(units.map((u) => u.classId)).size >= req.count;
-    return units.filter((u) => unitTags(u, content).includes(req.tag)).length >= req.count;
+    switch (req.kind) {
+      case 'distinctClasses':
+        return new Set(units.map((u) => u.classId)).size >= req.count;
+      case 'tag':
+        return units.filter((u) => unitTags(u, content).includes(req.tag)).length >= req.count;
+      case 'units':
+        return units.filter((u) => matchesFilter(u, req.filter, content)).length >= req.count;
+      case 'party':
+        return filledSlots(units, req.slots, content) === req.slots.length;
+    }
   });
 }
 
@@ -94,7 +147,8 @@ export function activeSynergies(units: OwnedUnit[], content: RunContent): Active
 export function synergySources(unit: OwnedUnit, active: ActiveSynergy[], content: RunContent): ModifierSource[] {
   return active.flatMap(({ synergy, tier }): ModifierSource[] => {
     const t = synergy.tiers[tier]!;
-    const applies = t.appliesTo === 'all' || unitTags(unit, content).includes(t.appliesTo.tag);
+    const to = t.appliesTo;
+    const applies = to === 'all' || ('tag' in to ? unitTags(unit, content).includes(to.tag) : matchesFilter(unit, to.filter, content));
     return applies ? [{ kind: 'synergy', name: synergy.name, modifier: t.modifier }] : [];
   });
 }
@@ -127,6 +181,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   const cdDelta = mods.reduce((s, m) => s + (m.abilityCooldown ?? 0), 0);
   const lifesteal = mods.reduce((s, m) => s + (m.lifesteal ?? 0), 0);
   const abilityPower = 1 + mods.reduce((s, m) => s + (m.abilityPower ?? 0), 0);
+  const executeBonus = mods.reduce((s, m) => s + (m.executeBonus ?? 0), 0);
+  const revives = mods.flatMap((m) => (m.revive ? [m.revive] : []));
 
   const setup: UnitSetup = {
     name: unit.name,
@@ -141,6 +197,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   if (mods.some((m) => m.reach)) setup.reach = true;
   if (lifesteal > 0) setup.lifesteal = lifesteal;
   if (abilityPower !== 1) setup.abilityPower = Math.max(0, abilityPower);
+  if (executeBonus > 0) setup.executeBonus = executeBonus;
+  if (revives.length > 0) setup.revive = { hp: Math.max(...revives), times: revives.length };
   return setup;
 }
 

@@ -1,6 +1,6 @@
 // Shop-phase bots for the run simulator. Each makes shop decisions and
 // level-up choices; together they give coverage of classes, items and talents.
-import { allSlots, applyShopAction, autoAllocate, getSlot, resolveBoard, STATS, unitCount } from '../engine/run/index.ts';
+import { allSlots, applyShopAction, autoAllocate, equipError, getSlot, resolveBoard, STATS, unitCount } from '../engine/run/index.ts';
 import type { PendingChoice, RunContext, RunState, ShopAction, SlotRef } from '../engine/run/index.ts';
 import type { Party, Rng } from '../engine/index.ts';
 
@@ -42,7 +42,8 @@ export function targetsFor(s: RunState, i: number, ctx: RunContext): SlotRef[] {
   if (offer.kind === 'unit') return emptySlots(s);
   return filledSlots(s).filter((slot) => {
     const u = getSlot(s.board, slot)!;
-    return offer.kind === 'item' ? u.items.length < ctx.config.progression.maxItemsPerUnit : u.classId === offer.classId;
+    if (offer.kind === 'item') return u.items.length < ctx.config.progression.maxItemsPerUnit && equipError(u, offer.itemId, ctx) === null;
+    return u.classId === offer.classId;
   });
 }
 
@@ -53,7 +54,8 @@ export function partyPower(party: Party): number {
     if (!u) continue;
     const ehp = u.stats.hp * (1 + u.stats.def / 10);
     const dps = u.stats.atk * (u.stats.spd / 10) * (1 + 0.4 * ((u.abilityPower ?? 1) - 1) + (u.lifesteal ?? 0));
-    total += ehp * dps + 15 * u.triggers.length + (u.reach ? 20 : 0);
+    const extras = (u.reach ? 20 : 0) + (u.revive ? 40 * u.revive.times : 0) + (u.executeBonus ? 30 : 0);
+    total += ehp * dps + 15 * u.triggers.length + extras;
   }
   return total;
 }

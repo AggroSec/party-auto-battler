@@ -11,7 +11,7 @@ export const ERROR_TEXT: Record<RunError, string> = {
   emptyBoard: 'Recruit at least one unit before fighting.',
   needsTarget: 'Drag it onto a unit, or select a unit first.',
   itemSlotsFull: 'That unit already has 2 items. Sell or move one first.',
-  wrongClass: 'That training is for a different class.',
+  wrongClass: 'That is for a different class.',
   noSuchItem: 'No such item.',
   pendingChoice: 'Choose your level-up rewards before fighting.',
   noPendingChoice: 'Nothing to choose.',
@@ -19,4 +19,5 @@ export const ERROR_TEXT: Record<RunError, string> = {
   maxLevel: 'That unit is already max level.',
   invalidAllocation: 'Invalid stat points.',
   notEnoughPoints: 'Not enough stat points.',
+  alreadyEquipped: 'That unit already has one.',
 };

@@ -33,6 +33,8 @@ export interface CombatUnit {
   alive: boolean;
   /** Has dropped below 50% HP this combat (onBloodied fires once). */
   bloodied: boolean;
+  /** Revives left (UnitSetup.revive). */
+  revives: number;
   /** Fire counts per trigger, for TriggeredEffect.limit. */
   triggerFires: Map<TriggeredEffect, number>;
   stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived' | 'summonedBy'>;
@@ -95,6 +97,7 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     taunt: 0,
     alive: true,
     bloodied: false,
+    revives: setup.revive?.times ?? 0,
     triggerFires: new Map(),
     stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0 },
   };

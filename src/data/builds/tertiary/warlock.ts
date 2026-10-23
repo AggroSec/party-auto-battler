@@ -87,7 +87,7 @@ export const curseweaver = tertiary({
   ],
 });
 
-const fiend: SummonDef = {
+export const fiend: SummonDef = {
   name: 'Fiend',
   classId: 'fiend',
   hp: { maxHp: 0.8 },

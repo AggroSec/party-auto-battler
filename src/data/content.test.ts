@@ -8,10 +8,8 @@ import { ITEMS } from './items.ts';
 import { SYNERGIES } from './synergies.ts';
 
 describe('run content', () => {
-  it('keeps locked classes out of the shop until unlocked', () => {
-    expect(buildRunContent().shopPool).not.toContain('necromancer');
-    expect(buildRunContent(['necromancer']).shopPool).toContain('necromancer');
-    expect(buildRunContent(['warrior']).shopPool.filter((id) => id === 'warrior')).toHaveLength(1);
+  it('offers every class by default; a run setup narrows it (M7)', () => {
+    expect(buildRunContent().shopPool).toEqual(CLASS_IDS);
   });
 
   it('only references classes that exist', () => {

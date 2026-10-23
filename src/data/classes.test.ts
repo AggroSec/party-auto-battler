@@ -4,9 +4,9 @@ import { CLASSES, CLASS_IDS, STARTER_CLASS_IDS, type ClassId } from './classes.t
 import { createUnit, partyOf } from './units.ts';
 
 describe('class data', () => {
-  it('has ten starter classes and one unlockable', () => {
-    expect(STARTER_CLASS_IDS).toEqual(['warrior', 'rogue', 'mage', 'cleric', 'ranger', 'monk', 'bard', 'druid', 'warlock', 'engineer']);
-    expect(CLASS_IDS.filter((id) => CLASSES[id].unlockable)).toEqual(['necromancer']);
+  it('starts with the original five classes; the rest are unlocked (M7)', () => {
+    expect(STARTER_CLASS_IDS).toEqual(['warrior', 'rogue', 'mage', 'cleric', 'ranger']);
+    expect(CLASS_IDS.filter((id) => CLASSES[id].unlockable)).toEqual(['monk', 'bard', 'druid', 'warlock', 'engineer', 'necromancer']);
   });
 
   it.each(CLASS_IDS)('%s has sane stats and ability', (id) => {

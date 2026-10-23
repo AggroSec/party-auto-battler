@@ -2,10 +2,15 @@ import type { CombatResult, Winner } from '../events.ts';
 import type { BoardPos, Party, StatKey, Stats } from '../types.ts';
 import type {
   AdvancedClassDef,
+  BossDef,
   ClassTemplate,
+  EliteRules,
   EnemyProgression,
   ItemDef,
+  LadderTier,
+  PerkDef,
   ProgressionConfig,
+  RunModifier,
   ShopLayout,
   SynergyDef,
   TalentDef,
@@ -75,11 +80,20 @@ export interface RunContent {
   enemyScaling: EnemyScaling;
   enemyProgression: EnemyProgression;
   unitNames: readonly string[];
+  /** Difficulty ladder: index 0 = tier 1 (M7). */
+  ladder: readonly LadderTier[];
+  perks: Readonly<Record<string, PerkDef>>;
+  bosses: readonly BossDef[];
+  elite: EliteRules;
 }
 
 export interface RunContext {
   config: RunConfig;
   content: RunContent;
+  /** Set on a run's effective context (see runContext): its merged tier and perk modifiers. */
+  run?: RunModifier;
+  /** Set on a run's effective context: the context it was derived from. */
+  base?: RunContext;
 }
 
 /** A unit's build: everything needed to resolve it into a combat UnitSetup. */
@@ -99,6 +113,10 @@ export interface OwnedUnit {
   growth: Stats;
   /** Stat points not yet spent. Any left at fight time are spent on the recommended spread. */
   statPoints: number;
+  /** Enemy-only (M7): an Elite, a boss, and whether the boss casts its second ability. */
+  elite?: boolean;
+  bossId?: string;
+  empowered?: boolean;
 }
 
 export interface Board {
@@ -129,6 +147,8 @@ export interface IncomeBreakdown {
   base: number;
   interest: number;
   streak: number;
+  /** From items such as Gambler's Coin. */
+  items: number;
   total: number;
 }
 
@@ -143,11 +163,31 @@ export interface RoundRecord {
 export type RunPhase = 'shop' | 'complete' | 'defeated';
 
 /**
+ * Fixed when a run starts (M7): its ladder tier, perks, and the content it
+ * may draw from (what the player had unlocked then). Stored in the run so a
+ * saved or replayed run never depends on later unlocks.
+ */
+export interface RunSetup {
+  /** Difficulty ladder tier, 0 = base game. */
+  tier: number;
+  perks: string[];
+  /** Recruitable classes; enemies are drawn from these too. */
+  classes: string[];
+  /** Items the shop (and enemies) can roll. Tertiary items are always available. */
+  items: string[];
+  /** Synergies that can activate. */
+  synergies: string[];
+  /** Set on a daily run: the date it belongs to (YYYY-MM-DD). */
+  daily?: string;
+}
+
+/**
  * The whole run as plain JSON-safe data, so it can be saved to localStorage
  * and resumed. Every transition is a pure function of (state, action, context).
  */
 export interface RunState {
   seed: string;
+  setup: RunSetup;
   /** Shop/level-up RNG position; enemies and combats derive their own RNG from seed + round. */
   rngState: number;
   phase: RunPhase;
@@ -167,6 +207,9 @@ export interface RunState {
   pending: PendingChoice[];
   nextUid: number;
   history: RoundRecord[];
+  /** Perk bookkeeping: the free reroll was used this round; Second Wind was spent. */
+  freeRerollUsed: boolean;
+  secondWindUsed: boolean;
 }
 
 export type ShopAction =
@@ -201,7 +244,8 @@ export type RunError =
   | 'invalidChoice'
   | 'maxLevel'
   | 'invalidAllocation'
-  | 'notEnoughPoints';
+  | 'notEnoughPoints'
+  | 'alreadyEquipped';
 
 export type ActionResult = { ok: true; state: RunState } | { ok: false; error: RunError };
 

@@ -1,4 +1,4 @@
-export { applyShopAction, autoAllocate, createRun, fight } from './run.ts';
+export { applyShopAction, autoAllocate, createRun, equipError, fight, rerollCost } from './run.ts';
 export {
   allSlots,
   autoPlaceSlot,
@@ -17,11 +17,14 @@ export {
   classFor,
   classTiers,
   effectiveClassId,
+  filledSlots,
+  matchesFilter,
   newUnit,
   resolveBoard,
   resolveUnit,
   synergyModifiersFor,
   synergySources,
+  tierMet,
   unitTags,
   type ActiveSynergy,
   type ModifierSource,
@@ -44,6 +47,7 @@ export {
   talentOptions,
   type StatPoints,
 } from './progression.ts';
-export { rollShop } from './shop.ts';
+export { rollShop, tertiaryItemFor, wantedTertiaryItems, TERTIARY_ITEM_CHANCE } from './shop.ts';
+export { defaultSetup, mergeRunModifiers, recruitCost, runContext, setupModifiers } from './setup.ts';
 export type * from './types.ts';
 export type { PlayLogEntry } from './log.ts';
