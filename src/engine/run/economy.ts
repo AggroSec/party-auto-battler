@@ -19,9 +19,10 @@ export function roundIncome(
   winStreak: number,
   lossStreak: number,
   config: RunConfig,
+  items = 0,
 ): IncomeBreakdown {
   const base = config.baseIncome;
   const interest = interestFor(unspentGold, config);
   const streak = streakBonusFor(winStreak, lossStreak, config);
-  return { base, interest, streak, total: base + interest + streak };
+  return { base, interest, streak, items, total: base + interest + streak + items };
 }

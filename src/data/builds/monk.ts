@@ -94,7 +94,7 @@ export const monkClass: ClassDef = {
   name: 'Monk',
   role: 'striker',
   tags: ['martial', 'spirit'],
-  unlockable: false,
+  unlockable: true,
   description: 'Fast unarmed fighter: many quick hits, and quicker with every swing.',
   baseStats: { hp: 30, atk: 5, def: 2, spd: 14 },
   range: 'melee',

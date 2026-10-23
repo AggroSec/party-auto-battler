@@ -138,7 +138,7 @@ export const archdruid = tertiary({
   ],
 });
 
-const ancient: SummonDef = {
+export const ancient: SummonDef = {
   name: 'Ancient',
   classId: 'ancient',
   hp: { maxHp: 1.1 },

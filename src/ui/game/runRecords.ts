@@ -39,6 +39,7 @@ export function savedRunValidator(ctx: RunContext) {
     if (!isObject(x) || typeof x.runId !== 'string' || !isObject(x.stats) || !isObject(x.run)) return false;
     const run = x.run as Partial<RunState>;
     if (typeof run.seed !== 'string' || run.phase !== 'shop' || !isObject(run.board) || !Array.isArray(run.shop)) return false;
+    if (!isObject(run.setup) || !Array.isArray(run.setup.classes)) return false;
     try {
       const { classes, advancedClasses, tertiaryClasses } = ctx.content;
       return boardUnits(run.board as Board).every(

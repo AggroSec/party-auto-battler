@@ -53,6 +53,10 @@ export type TargetSelector =
   | 'allAllies'
   /** Every living ally except the source. */
   | 'otherAllies'
+  /** Every living ally in the source's own row (including the source). */
+  | 'rowAllies'
+  /** Every living ally in the source side's frontmost row. */
+  | 'allyFrontRow'
   | 'triggerSource'
   | 'triggerTarget';
 
@@ -137,7 +141,11 @@ export type TriggerEvent =
   /** The first time the unit drops below 50% HP in a combat (and survives). */
   | 'onBloodied'
   | 'onKill'
-  | 'onAllyDeath';
+  | 'onAllyDeath'
+  /** Another unit on the same side killed an enemy (triggerSource = killer, triggerTarget = victim). */
+  | 'onAllyKill'
+  /** After the unit is revived (see UnitSetup.revive). */
+  | 'onRevive';
 
 export interface TriggeredEffect {
   /** Short display name, shown in the combat log ("Battle Hardened"). */
@@ -188,6 +196,10 @@ export interface UnitSetup {
   lifesteal?: number;
   /** Multiplier on the unit's ability damage, heals and shields (default 1). */
   abilityPower?: number;
+  /** Extra damage fraction against targets below 50% HP (0.5 = +50%). */
+  executeBonus?: number;
+  /** The first `times` times the unit would fall, it survives at `hp` × max HP instead. */
+  revive?: { hp: number; times: number };
 }
 
 export type Range = 'melee' | 'ranged';

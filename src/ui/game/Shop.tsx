@@ -1,4 +1,4 @@
-import type { RunContext, ShopOffer } from '../../engine/run/index.ts';
+import { rerollCost, type RunContext, type RunState, type ShopOffer } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable, useDropTarget, useIsDragging } from './drag.tsx';
 import { offerLabel } from './names.ts';
@@ -22,14 +22,15 @@ function OfferCard({
   const { content } = ctx;
   const { title, detail } = offerLabel(content, offer);
   const cls = offer.kind === 'item' ? null : content.classes[offer.classId];
-  const style = offer.kind === 'item' ? { color: '#c9a227', glyph: '🎒' } : classStyle(content, offer.classId);
+  const signature = offer.kind === 'item' ? content.items[offer.itemId]?.tertiaryClassId : undefined;
+  const style = offer.kind === 'item' ? { color: signature ? '#e0a526' : '#c9a227', glyph: signature ? '🌟' : '🎒' } : classStyle(content, offer.classId);
   const body = (
-    <div className={`offer-card ${offer.kind}`} style={{ '--class-color': style.color } as React.CSSProperties}>
+    <div className={`offer-card ${offer.kind}${signature ? ' signature' : ''}${offer.cost === 0 ? ' free' : ''}`} style={{ '--class-color': style.color } as React.CSSProperties}>
       <div className="offer-top">
         <span className="avatar small" aria-hidden>
           {offer.kind === 'training' ? '📈' : style.glyph}
         </span>
-        <span className="offer-kind">{KIND_LABEL[offer.kind]}</span>
+        <span className="offer-kind">{signature ? `${content.tertiaryClasses[signature]?.name ?? ''} only` : KIND_LABEL[offer.kind]}</span>
         <span className={`cost ${gold < offer.cost ? 'short' : ''}`}>{offer.cost}g</span>
       </div>
       <strong className="offer-title">{title}</strong>
@@ -69,25 +70,25 @@ function OfferCard({
 }
 
 export function ShopRow({
-  shop,
+  run,
   ctx,
-  gold,
   onOfferClick,
   onReroll,
 }: {
-  shop: (ShopOffer | null)[];
+  run: RunState;
   ctx: RunContext;
-  gold: number;
   onOfferClick: (index: number) => void;
   onReroll: () => void;
 }) {
+  const { shop, gold } = run;
+  const reroll = rerollCost(run, ctx);
   return (
     <section className="shop-row" aria-label="Shop">
       <div className="shop-head">
         <h2>Shop</h2>
         <span className="hint">Drag onto your party, or click. Items and training go to the unit you drop them on.</span>
-        <button type="button" className="reroll" onClick={onReroll} disabled={gold < ctx.config.rerollCost}>
-          🎲 Reroll ({ctx.config.rerollCost}g)
+        <button type="button" className="reroll" onClick={onReroll} disabled={gold < reroll}>
+          🎲 Reroll ({reroll === 0 ? 'free' : `${reroll}g`})
         </button>
       </div>
       <div className="offers">

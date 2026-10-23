@@ -149,6 +149,50 @@ export const GLOSSARY: readonly Term[] = [
     term: 'Stat points',
     text: 'Earned on every level-up (more at levels 3 and 5). One point buys +3 HP or +1 ATK, DEF or SPD. Unspent points go on the recommended spread when you fight.',
   },
+  {
+    id: 'revive',
+    term: 'Rise again / survive',
+    text: 'The first time the unit would fall, it stays up at a share of its max HP instead. Each such effect works once per fight.',
+    pattern: /\b(?:rise again|survive at)\b/i,
+  },
+  {
+    id: 'execute',
+    term: 'Below half HP',
+    text: 'Bonus damage against enemies under 50% of their max HP: good for finishing wounded targets.',
+    pattern: /\bbelow half HP\b/i,
+  },
+  {
+    id: 'light-dark',
+    term: 'Light and Dark',
+    text: 'Light units are divine; Dark units are shadow or occult. Advanced and tertiary classes can change which side a unit is on. Some synergies count them.',
+    pattern: /\b(?:Light|Dark) (?:units?|\(divine\)|\(shadow or occult\))/,
+  },
+  {
+    id: 'signature',
+    term: 'Signature item',
+    text: 'Each tertiary class has one. It shows up in the shop while that class is in your party, only that class can equip it, and a unit holds one at most.',
+    pattern: /\bsignature items?\b/i,
+  },
+  {
+    id: 'ladder',
+    term: 'Ladder tiers',
+    text: 'Winning a run unlocks the next difficulty tier. Each tier adds one modifier on top of all the earlier ones (tier 10 has all ten).',
+  },
+  {
+    id: 'elite',
+    term: 'Elites and bosses',
+    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability.',
+  },
+  {
+    id: 'perks',
+    term: 'Starting perks',
+    text: 'Small bonuses picked at the start of a run from a few offered. The Perkception achievements let you keep more than one.',
+  },
+  {
+    id: 'daily',
+    term: 'Daily run',
+    text: 'A run built from the date: same seed, tier and perk offer for everyone, with everything unlocked. One attempt per day.',
+  },
 ];
 
 const LINKED = GLOSSARY.filter((t): t is Term & { pattern: RegExp } => t.pattern !== undefined);

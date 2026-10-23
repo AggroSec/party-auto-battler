@@ -1,5 +1,5 @@
 // Small constructors so build content reads like a design doc, not boilerplate.
-import type { AdvancedClassDef, TalentDef, TertiaryClassDef, UnitModifier } from '../../engine/run/content-types.ts';
+import type { AdvancedClassDef, ItemDef, TalentDef, TertiaryClassDef, UnitModifier } from '../../engine/run/content-types.ts';
 import type { AbilityDef, Effect, TriggerEvent, TriggeredEffect } from '../../engine/types.ts';
 
 export function talent(id: string, name: string, description: string, mod: UnitModifier): TalentDef {
@@ -40,3 +40,15 @@ export function abilityTalent(id: string, ability: AbilityDef, extra: UnitModifi
 }
 
 export const talentIds = (talents: readonly TalentDef[]) => talents.map((t) => t.id);
+
+/** A tertiary class's signature item (M7): only that class can equip it. */
+export function signature(
+  tertiaryClassId: string,
+  id: string,
+  name: string,
+  description: string,
+  modifier: UnitModifier,
+  cost = 7,
+): ItemDef {
+  return { id, name, description, cost, modifier, tertiaryClassId };
+}

@@ -157,7 +157,7 @@ describe('fight', () => {
     expect(r.combat.winner).toBe('player');
     expect(r.state).toMatchObject({ wins: 1, lives: 3, winStreak: 1, round: 2, phase: 'shop' });
     // 7 unspent gold -> 1 interest; streak of 1 pays nothing.
-    expect(r.income).toEqual({ base: 5, interest: 1, streak: 0, total: 6 });
+    expect(r.income).toEqual({ base: 5, interest: 1, streak: 0, items: 0, total: 6 });
     expect(r.state.gold).toBe(13);
     expect(r.state.shop.every((o) => o !== null)).toBe(true);
     expect(r.state.history[0]).toMatchObject({ round: 1, result: 'player', enemy: ['tank'] });

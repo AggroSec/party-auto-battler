@@ -15,6 +15,14 @@ describe('glossary', () => {
     expect(segmentRules(text).map((s) => (typeof s === 'string' ? s : s.text)).join('')).toBe(text);
   });
 
+  it('links M7 terms', () => {
+    expect(terms('The first time you would fall, rise again at 40% HP. Deal 50% more damage to enemies below half HP.')).toEqual([
+      'revive:rise again',
+      'execute:below half HP',
+    ]);
+    expect(terms('3 Light units: heal. 2 Dark units too.')).toEqual(['light-dark:Light units', 'light-dark:Dark units']);
+  });
+
   it('does not match inside other words', () => {
     expect(terms('Each preacher teaches the breach.')).toEqual([]);
   });

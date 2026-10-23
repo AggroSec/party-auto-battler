@@ -6,6 +6,7 @@ import {
   applyShopAction,
   boardUnits,
   createRun,
+  defaultSetup,
   fight,
   getSlot,
   resolveBoard,
@@ -15,6 +16,7 @@ import {
   type PlayLogEntry,
   type RunContext,
   type RunError,
+  type RunSetup,
   type RunState,
   type ShopAction,
 } from '../engine/run/index.ts';
@@ -82,6 +84,27 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
   }
 }
 
+/** Content added in M7; logs from before it never had these in the shop. */
+const M7_CLASSES = ['necromancer'];
+const M7_ITEMS = ['phoenix-feather', 'war-banner', 'gamblers-coin', 'executioners-axe', 'mirror-shard', 'soulstone'];
+const M7_SYNERGIES = ['holy-trinity', 'light', 'dark', 'twilight', 'life-and-death', 'mad-science', 'wild-hunt', 'battle-hymn'];
+
+/** The setup a pre-M7 run had: tier 0, no perks, the M6 content. */
+function legacySetup(ctx: RunContext): RunSetup {
+  const all = defaultSetup(ctx);
+  return {
+    ...all,
+    classes: all.classes.filter((id) => !M7_CLASSES.includes(id)),
+    items: all.items.filter((id) => !M7_ITEMS.includes(id)),
+    synergies: all.synergies.filter((id) => !M7_SYNERGIES.includes(id)),
+  };
+}
+
+/** Pre-M7 saved states have no setup or perk bookkeeping. */
+function upgrade(state: RunState, ctx: RunContext): RunState {
+  return state.setup ? state : { ...state, setup: legacySetup(ctx), freeRerollUsed: false, secondWindUsed: false };
+}
+
 /** Group log entries by run and replay each one through the engine. */
 export function replayLog(entries: PlayLogEntry[], ctx: RunContext): RunReplay[] {
   const runs = new Map<string, RunReplay & { state: RunState; pending: Omit<RoundReplay, 'shopped' | 'result' | 'round'> }>();
@@ -89,12 +112,12 @@ export function replayLog(entries: PlayLogEntry[], ctx: RunContext): RunReplay[]
     if (e.type === 'start' || e.type === 'resume') {
       const existing = runs.get(e.run);
       if (e.type === 'resume' && existing) {
-        existing.state = e.state;
+        existing.state = upgrade(e.state, ctx);
         continue;
       }
       // React StrictMode can log a start twice; keep the first.
       if (existing) continue;
-      const state = e.type === 'start' ? createRun(e.seed, ctx) : e.state;
+      const state = e.type === 'start' ? createRun(e.seed, ctx, e.setup ?? legacySetup(ctx)) : upgrade(e.state, ctx);
       runs.set(e.run, { run: e.run, seed: state.seed, startedAt: e.at, rounds: [], final: state, state, pending: fresh() });
       continue;
     }
@@ -209,6 +232,9 @@ export function formatReplay(replays: RunReplay[], ctx: RunContext): string {
     const f = r.final;
     out.push(`## Run ${r.run} (seed "${r.seed}", started ${r.startedAt})`);
     out.push(`Result: ${f.phase === 'shop' ? 'in progress' : f.phase} — ${f.wins} wins, ${f.lives} lives, ${r.rounds.length} rounds`);
+    const { setup } = f;
+    const perks = setup.perks.map((id) => ctx.content.perks[id]?.name ?? id).join(', ') || 'none';
+    out.push(`Setup: ${setup.daily ? `daily ${setup.daily}, ` : ''}tier ${setup.tier}, perks: ${perks}, ${setup.classes.length} classes and ${setup.items.length} items unlocked`);
     for (const round of r.rounds) {
       const { result: res, shopped } = round;
       out.push('', `### Round ${round.round}: ${RESULT[res.combat.winner]} in ${res.combat.ticks} ticks`);

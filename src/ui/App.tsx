@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { CombatLab } from './CombatLab.tsx';
+import { AchievementToasts } from './game/AchievementToasts.tsx';
+import { CollectionScreen } from './game/CollectionScreen.tsx';
 import { CombatScreen } from './game/CombatScreen.tsx';
+import { RunSetupScreen } from './game/RunSetupScreen.tsx';
 import { RunSummary } from './game/RunSummary.tsx';
 import { ShopScreen } from './game/ShopScreen.tsx';
 import { TitleScreen } from './game/TitleScreen.tsx';
@@ -29,9 +32,12 @@ export function App() {
   return (
     <main className="app">
       {game.screen === 'title' && <TitleScreen game={game} onOpenLab={() => setLab(true)} />}
+      {game.screen === 'setup' && <RunSetupScreen game={game} />}
+      {game.screen === 'collection' && <CollectionScreen game={game} />}
       {game.screen === 'shop' && <ShopScreen game={game} />}
       {game.screen === 'combat' && game.lastFight && <CombatScreen key={game.lastFight.round} game={game} />}
       {game.screen === 'summary' && <RunSummary game={game} />}
+      <AchievementToasts game={game} />
     </main>
   );
 }

@@ -22,7 +22,7 @@ describe('economy', () => {
   });
 
   it('sums base, interest and streak into round income', () => {
-    expect(roundIncome(12, 4, 0, cfg)).toEqual({ base: 5, interest: 2, streak: 2, total: 9 });
-    expect(roundIncome(0, 0, 0, cfg)).toEqual({ base: 5, interest: 0, streak: 0, total: 5 });
+    expect(roundIncome(12, 4, 0, cfg)).toEqual({ base: 5, interest: 2, streak: 2, items: 0, total: 9 });
+    expect(roundIncome(0, 0, 0, cfg)).toEqual({ base: 5, interest: 0, streak: 0, items: 0, total: 5 });
   });
 });

@@ -2,6 +2,104 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 7 — Meta progression (2026-10-22)
+
+### What was built
+
+**Your calls, as planned**
+- **Locked content plus an "Unlock everything" toggle** on the title screen, which stays until 1.0.
+  - New players start with Warrior, Rogue, Mage, Cleric and Ranger, 17 items, most synergies and 3 perks.
+  - 30 achievements unlock the rest: Monk, Bard, Druid, Warlock, Engineer and Necromancer (each with its class item), 10 items, 3 synergies, 9 perks and two Perkception slots.
+  - With the toggle on, everything is open, but achievements still track, so turning it off later shows what you've really earned.
+- **10 stacking ladder tiers.** Winning a run on your highest tier unlocks the next. In order: pricier rerolls, less starting gold, a lower interest cap, one less life, stronger enemies, extra enemy items, **Elites**, **bosses** on rounds 5/10/15, earlier Elites, then empowered bosses with a second ability.
+- **Perks with Perkception:** you're offered 3 perks and keep 1. Perkception (win on tier 3) offers 4 and lets you keep 2. Perkception II (tier 7) offers 5 and lets you keep 3. There are 12 perks: Deep Pockets, Armory, Bargain Hunter, Veteran, Second Wind, Tutor, Investor, Mentor, Recruiter, Extra Life, Quartermaster and Drill Sergeant.
+- **Six new items:** Phoenix Feather (survive a lethal hit), War Banner, Gambler's Coin (+1 gold per win), Executioner's Axe, Mirror Shard and Soulstone.
+- **44 signature items, one per tertiary class,** at 7–8 gold.
+  - Only that class can equip one, a unit holds one at most, and it only shows up while that class is in your party (30% per item slot until bought).
+  - Each one changes how the class plays. Examples: Ember Crown (Firelord: Wildfire spreads to your allies' kills), Ashen Heart (Phoenix rises again), Hall of Mirrors (Illusionist: images when bloodied), Heartwood Staff (Treelord: fallen allies become Ancients), Lucky Doubloon (Swashbuckler: gold per win).
+- **Eight new synergies that don't need duplicate classes:**
+  - **Holy Trinity:** a guardian, a support, and a striker or caster.
+  - **Champions of Light** and **Legion of Night:** Light is divine, Dark is shadow or occult, so advancing can switch sides.
+  - **Twilight Pact:** two of each.
+  - Four class duos: **Life and Death** (Necromancer + Cleric), **Mad Science** (Engineer + Mage), **Wild Hunt** (Ranger + Druid) and **Battle Hymn** (Bard + Warrior).
+- **Daily run:**
+  - Date-based seed, tier (2–6) and perk offer, the same for everyone, with everything unlocked.
+  - One attempt per day; the title screen shows the result.
+
+**Screens**
+- **New run:** tier picker and perk cards.
+- **Collection:** six tabs (Achievements, Classes, Items, Synergies, Perks, Ladder). Every locked entry names the achievement that unlocks it.
+- **Achievement toasts** during play, and the run summary lists achievements earned and any ladder tier unlocked.
+- **HUD:** shows your tier and perks.
+- **Shop:** marks signature items with 🌟 "Firelord only" and shows free rerolls.
+- **Unit details:** name the signature item until it's equipped, and show boss passives, revives and execute damage.
+- **Glossary:** eight new terms.
+
+**Under the hood**
+- **Progress is saved separately from runs** with its own version, so future save resets won't wipe unlocks. Your stored play logs now survive updates too.
+- **Each run stores its setup** (tier, perks, unlocked content), so new unlocks never change a run in progress. Play-log reports print the setup.
+
+**Tests:** 283, up from 248. New tests cover:
+- Revives, execute damage, the new triggers and selectors.
+- Run setups, every perk type, signature-item rules and shop offers, Elites and bosses.
+- Role and party synergies.
+- Unlocks, perk offers, daily runs and achievements.
+- Content integrity: earning every achievement unlocks everything, and every tertiary class has exactly one signature item.
+- Profile storage.
+
+**Verified in headless Chrome at phone width:**
+- A fresh profile: title screen, Collection and run setup.
+- A run with a perk.
+- The unlock-all toggle and a tier-10 setup.
+- The daily setup.
+- An injected tier-10 round-5 save, which checked:
+  - The HUD shows the tier and perk.
+  - Signature items show their class tag in the shop.
+  - Dawnbringer is refused on a Firelord.
+  - Ember Crown equips on a Firelord.
+  - The fight has **Archmage Ozric** (boss) and an **Elite Cult Acolyte**.
+- No overflow and no console errors.
+
+### What to playtest (and how)
+
+1. Merge this and play at https://aggrosec.github.io/party-auto-battler/.
+   - **Old saved runs are ignored** (save format v4), but **your stored play logs are kept.**
+   - Your profile starts fresh. Leave **Unlock everything** off for a run or two to feel the starting game.
+2. **Unlock pacing:** do the five starting classes feel thin? Do the achievements come at a good rate?
+3. **The ladder:** win a run, then climb. Which tiers feel like a fair step, and which like a wall? (The bots barely clear tier 7+, but you play far better than they do.)
+4. **Signature items:** get a tertiary class and reroll a little. Do they show up often enough, and feel worth 7–8 gold?
+5. **New synergies:** try a Holy Trinity party, Light vs Dark, and a duo or two.
+6. **The daily run.** Then turn on Unlock everything to try the rest. Send play logs as usual.
+
+### Known issues
+
+- **Daily:** the date uses your phone's local time, so the daily changes at your midnight, not a global one.
+- **Simulator coverage:**
+  - The simulator plays with everything unlocked. Starter-only balance (5 classes) isn't simulated separately.
+  - Signature items rarely appear in bot runs, so their numbers are untested by the simulator.
+- **Greedy bot:** completion is up to 38.6% (from 28.1%), because the new synergies steer it into better parties. The sensible bot is unchanged at 18.8%.
+- **Achievements:**
+  - "Kill 3 enemies at once" counts kills in the same tick by the same unit (one attack or ability and its chain reactions).
+  - Achievements earned in the daily run count.
+- **Mirror Shard and Holy Trinity** differ slightly from the plan's examples, because of engine limits. DECISIONS.md lists each change.
+
+### Simulator balance numbers
+
+2,000 runs per bot, everything unlocked, tier 0 (full report in BALANCE.md):
+
+| Bot | Completed | Avg wins | Fight win rate |
+|---|---:|---:|---:|
+| random | 5.0% | 3.6 | 42.8% |
+| sensible | 18.8% | 8.6 | 66.8% |
+| greedy | 38.6% | 10.8 | 76.4% |
+| synergy | 11.9% | 6.4 | 58.6% |
+
+Ladder completion (sensible / greedy): tier 0 17% / 39%, tier 2 15% / 27%, tier 5 6% / 16%, tier 7 3% / 6%, tier 8 1.5% / 1.3%, tier 10 0% / 0.1% (about 3–4 wins).
+
+New synergy lifts: Twilight Pact +16.5, Battle Hymn +11.3, Legion of Night +6.7/+11.0, Champions of Light +9.8, Life and Death +9.1, Holy Trinity +7.7, Wild Hunt +2.4, Mad Science +1.3. Lift here partly reflects which parties can field them.
+
+0 stuck runs and 0 tick-cap hits.
+
 ## Milestone 6 — Level cap 10, tertiary classes and granted abilities (2026-10-20)
 
 ### What was built

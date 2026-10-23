@@ -9,6 +9,8 @@ export const MAX_RUNS = 5;
 const MAX_CHARS = 500_000;
 
 const isEntries = (x: unknown): x is PlayLogEntry[] => Array.isArray(x);
+/** The play log keeps its own storage version: old entries stay replayable across run-format changes. */
+const PLAYLOG_VERSION = 3;
 
 /**
  * Record a play-log entry. Every build keeps recent runs in localStorage for
@@ -17,7 +19,7 @@ const isEntries = (x: unknown): x is PlayLogEntry[] => Array.isArray(x);
  */
 export function logPlay(entry: WithoutAt<PlayLogEntry>): void {
   const full = { ...entry, at: new Date().toISOString() } as PlayLogEntry;
-  save(STORE_KEY, trimLog([...(load(STORE_KEY, isEntries) ?? []), full]));
+  save(STORE_KEY, trimLog([...(load(STORE_KEY, isEntries, PLAYLOG_VERSION) ?? []), full]), PLAYLOG_VERSION);
   if (!import.meta.env.DEV) return;
   try {
     void fetch('/__playlog', {
@@ -45,7 +47,7 @@ export function trimLog(entries: PlayLogEntry[], maxRuns = MAX_RUNS, maxChars = 
 
 /** The stored log as JSON lines, the format `npm run playlog` reads. */
 export function storedPlayLog(): { text: string; runs: number } {
-  const entries = load(STORE_KEY, isEntries) ?? [];
+  const entries = load(STORE_KEY, isEntries, PLAYLOG_VERSION) ?? [];
   return { text: entries.map((e) => JSON.stringify(e)).join('\n') + (entries.length ? '\n' : ''), runs: new Set(entries.map((e) => e.run)).size };
 }
 

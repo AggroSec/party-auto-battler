@@ -5,16 +5,38 @@ import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from '.
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation } from './progression.ts';
-import { rollShop } from './shop.ts';
-import type { ActionResult, FightResult, OwnedUnit, PendingChoice, RunContext, RunError, RunState, ShopAction } from './types.ts';
+import { defaultSetup, runContext } from './setup.ts';
+import { rollFreeItem, rollShop } from './shop.ts';
+import type {
+  ActionResult,
+  FightResult,
+  OwnedUnit,
+  PendingChoice,
+  RunContext,
+  RunError,
+  RunSetup,
+  RunState,
+  ShopAction,
+  ShopOffer,
+} from './types.ts';
 
-/** Start a run. Round 1 opens with starting gold and a free shop. */
-export function createRun(seed: string, ctx: RunContext): RunState {
+/**
+ * Start a run. Round 1 opens with starting gold and a free shop. `setup`
+ * fixes the ladder tier, perks and unlocked content (default: tier 0, no
+ * perks, everything in `ctx`).
+ */
+export function createRun(seed: string, baseCtx: RunContext, setup: RunSetup = defaultSetup(baseCtx)): RunState {
+  const ctx = runContext(setup, baseCtx);
   const rng = new Rng(`${seed}:shop`);
   const board = emptyBoard();
-  const shop = rollShop(rng, ctx, board);
+  const shop: (ShopOffer | null)[] = rollShop(rng, ctx, board);
+  if (ctx.run?.freeItem) {
+    const free = rollFreeItem(rng, ctx);
+    if (free) shop.push(free);
+  }
   return {
     seed,
+    setup,
     rngState: rng.getState(),
     phase: 'shop',
     round: 1,
@@ -30,7 +52,24 @@ export function createRun(seed: string, ctx: RunContext): RunState {
     pending: [],
     nextUid: 1,
     history: [],
+    freeRerollUsed: false,
+    secondWindUsed: false,
   };
+}
+
+/** What the next reroll costs (the Bargain Hunter perk makes the first each round free). */
+export function rerollCost(state: RunState, baseCtx: RunContext): number {
+  const ctx = runContext(state.setup, baseCtx);
+  return ctx.run?.freeReroll && !state.freeRerollUsed ? 0 : ctx.config.rerollCost;
+}
+
+/** Why `unit` can't hold `itemId` (signature items belong to one tertiary class, one per unit), or null. */
+export function equipError(unit: OwnedUnit, itemId: string, ctx: RunContext): RunError | null {
+  const item = ctx.content.items[itemId];
+  if (!item?.tertiaryClassId) return null;
+  if (unit.tertiaryClassId !== item.tertiaryClassId) return 'wrongClass';
+  if (unit.items.includes(itemId)) return 'alreadyEquipped';
+  return null;
 }
 
 const fail = (error: RunError): { ok: false; error: RunError } => ({ ok: false, error });
@@ -54,8 +93,9 @@ function addXp(state: RunState, unit: OwnedUnit, amount: number, ctx: RunContext
 }
 
 /** Apply a shop-phase action. Never mutates `state`. */
-export function applyShopAction(state: RunState, action: ShopAction, ctx: RunContext): ActionResult {
+export function applyShopAction(state: RunState, action: ShopAction, baseCtx: RunContext): ActionResult {
   if (state.phase !== 'shop') return fail('notShopPhase');
+  const ctx = runContext(state.setup, baseCtx);
   const next = structuredClone(state);
   const { progression } = ctx.config;
 
@@ -74,13 +114,18 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
           slot = autoPlaceSlot(next.board, classFor(ctx.content, offer.classId)) ?? undefined;
           if (!slot) return fail('boardFull');
         }
-        setSlot(next.board, slot, newUnit(next.nextUid, offer.classId, offer.name));
+        const recruit = newUnit(next.nextUid, offer.classId, offer.name);
+        setSlot(next.board, slot, recruit);
+        // Veteran perk: the run's first recruit starts at level 2.
+        if (ctx.run?.veteranRecruit && next.nextUid === 1) addXp(next, recruit, progression.xpForLevel[1] ?? 0, ctx);
         next.nextUid += 1;
       } else {
         if (!action.to) return fail('needsTarget');
         const unit = getSlot(next.board, action.to);
         if (!unit) return fail('emptySlot');
         if (offer.kind === 'item') {
+          const err = equipError(unit, offer.itemId, ctx);
+          if (err) return fail(err);
           if (unit.items.length >= progression.maxItemsPerUnit) return fail('itemSlotsFull');
           unit.items.push(offer.itemId);
         } else {
@@ -119,6 +164,8 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
       const itemId = from.items[action.item];
       if (itemId === undefined) return fail('noSuchItem');
       if (from === to) return { ok: true, state: next };
+      const err = equipError(to, itemId, ctx);
+      if (err) return fail(err);
       if (to.items.length >= progression.maxItemsPerUnit) return fail('itemSlotsFull');
       from.items.splice(action.item, 1);
       to.items.push(itemId);
@@ -134,9 +181,13 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
       return { ok: true, state: next };
     }
     case 'reroll': {
-      if (next.gold < ctx.config.rerollCost) return fail('notEnoughGold');
-      next.gold -= ctx.config.rerollCost;
-      next.shop = withRng(next, (rng) => rollShop(rng, ctx, next.board));
+      const cost = rerollCost(state, ctx);
+      if (next.gold < cost) return fail('notEnoughGold');
+      next.gold -= cost;
+      if (cost === 0 && ctx.config.rerollCost > 0) next.freeRerollUsed = true;
+      // A free (Armory) item stays put through rerolls until it's taken.
+      const free = next.shop.filter((o) => o?.kind === 'item' && o.cost === 0);
+      next.shop = [...withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), ...free];
       return { ok: true, state: next };
     }
     case 'choose': {
@@ -173,7 +224,8 @@ export function applyShopAction(state: RunState, action: ShopAction, ctx: RunCon
 }
 
 /** Spend every unit's leftover stat points on its recommended spread. */
-export function autoAllocate(state: RunState, ctx: RunContext): void {
+export function autoAllocate(state: RunState, baseCtx: RunContext): void {
+  const ctx = runContext(state.setup, baseCtx);
   const { progression } = ctx.config;
   for (const unit of boardUnits(state.board)) {
     if (unit.statPoints > 0) allocatePoints(unit, recommendedAllocation(unit, ctx.content, progression), progression);
@@ -184,8 +236,9 @@ export function autoAllocate(state: RunState, ctx: RunContext): void {
  * End the shop phase: fight this round's enemy, then settle lives, wins,
  * streaks, XP and income. Draws count as neither a win nor a loss.
  */
-export function fight(state: RunState, ctx: RunContext): FightResult {
+export function fight(state: RunState, baseCtx: RunContext): FightResult {
   if (state.phase !== 'shop') return fail('notShopPhase');
+  const ctx = runContext(state.setup, baseCtx);
   if (unitCount(state.board) === 0) return fail('emptyBoard');
   if (state.pending.length > 0) return fail('pendingChoice');
 
@@ -208,7 +261,9 @@ export function fight(state: RunState, ctx: RunContext): FightResult {
     xp = progression.xpPerWin;
   } else if (combat.winner === 'enemy') {
     next.losses += 1;
-    next.lives -= 1;
+    // Second Wind perk: the first loss costs no life.
+    if (ctx.run?.secondWind && !next.secondWindUsed) next.secondWindUsed = true;
+    else next.lives -= 1;
     next.lossStreak += 1;
     next.winStreak = 0;
     xp = progression.xpPerLoss;
@@ -227,10 +282,15 @@ export function fight(state: RunState, ctx: RunContext): FightResult {
     next.phase = 'defeated';
   } else {
     for (const unit of boardUnits(next.board)) addXp(next, unit, xp, ctx);
-    income = roundIncome(next.gold, next.winStreak, next.lossStreak, ctx.config);
+    const itemGold =
+      combat.winner === 'player'
+        ? boardUnits(next.board).reduce((sum, u) => sum + u.items.reduce((s, id) => s + (ctx.content.items[id]?.goldPerWin ?? 0), 0), 0)
+        : 0;
+    income = roundIncome(next.gold, next.winStreak, next.lossStreak, ctx.config, itemGold);
     next.gold += income.total;
     next.round += 1;
-    next.shop = withRng(next, (rng) => rollShop(rng, ctx, next.board));
+    next.freeRerollUsed = false;
+    next.shop = withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round));
   }
   next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income });
 

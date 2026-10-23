@@ -21,6 +21,10 @@ export interface UnitModifier {
   abilityCooldown?: number;
   /** An extra ability with its own cadence, cast alongside the class ability (M6). */
   grantAbility?: AbilityDef;
+  /** Survive one lethal hit at this fraction of max HP. Each source adds one revive (M7). */
+  revive?: number;
+  /** Additive extra damage against targets below 50% HP (0.5 = +50%) (M7). */
+  executeBonus?: number;
 }
 
 export interface TalentDef extends UnitModifier {
@@ -77,6 +81,8 @@ export interface PassiveText {
 /** A playable class as the run layer sees it. */
 export interface ClassTemplate extends UnitTemplate {
   tags: readonly string[];
+  /** Party role ('frontline', 'striker', 'caster', 'support'), for role synergies. */
+  role?: string;
   /** Describes the class's built-in triggers, if it has any. */
   passive?: PassiveText;
   statWeights: StatWeights;
@@ -97,20 +103,45 @@ export interface ItemDef {
    * Anyone can equip the item; the tied class gets more out of it.
    */
   classBonus?: { classIds: readonly string[]; description: string; modifier: UnitModifier };
+  /**
+   * Signature item of a tertiary class (M7): only that class can equip it, it is
+   * offered only while one is in the party, and a unit holds at most one copy.
+   */
+  tertiaryClassId?: string;
+  /** Gold earned after every won fight while equipped (M7). */
+  goldPerWin?: number;
+}
+
+/**
+ * Which units count for (or receive) a synergy. A unit matches if it has any
+ * of `tags`, its base class has one of `roles`, or its base, advanced or
+ * tertiary class is one of `classIds`. Set several fields to widen the match.
+ */
+export interface UnitFilter {
+  tags?: readonly string[];
+  roles?: readonly string[];
+  classIds?: readonly string[];
 }
 
 export type SynergyRequirement =
   | { kind: 'tag'; tag: string; count: number }
   /** Number of different base classes on the board. */
-  | { kind: 'distinctClasses'; count: number };
+  | { kind: 'distinctClasses'; count: number }
+  /** At least `count` units matching the filter (M7). `label` names them in the UI ("Light units"). */
+  | { kind: 'units'; filter: UnitFilter; count: number; label: string }
+  /**
+   * A different unit for each filter, e.g. a guardian, a healer and a damage
+   * dealer (M7). `label` names the line-up in the UI ("trinity roles").
+   */
+  | { kind: 'party'; slots: readonly UnitFilter[]; label: string };
 
 export interface SynergyTier {
   /** All requirements must be met. */
   requires: readonly SynergyRequirement[];
   description: string;
   modifier: UnitModifier;
-  /** Who gets the modifier: units with this tag, or the whole party. */
-  appliesTo: { tag: string } | 'all';
+  /** Who gets the modifier: units with this tag, units matching a filter, or the whole party. */
+  appliesTo: { tag: string } | { filter: UnitFilter } | 'all';
 }
 
 export interface SynergyDef {
@@ -163,4 +194,84 @@ export interface EnemyProgression {
   levelByRound: readonly number[];
   /** Items per enemy unit (fractional = chance of one more). */
   itemsByRound: readonly number[];
+}
+
+/**
+ * A change to a whole run (M7): ladder tiers and starting perks are both
+ * expressed as run modifiers, and they stack (numbers add up, flags combine).
+ */
+export interface RunModifier {
+  startingGold?: number;
+  startingLives?: number;
+  rerollCost?: number;
+  maxInterest?: number;
+  trainingCost?: number;
+  /** Extra talent options per level-up. */
+  talentChoices?: number;
+  /** Extra item/training slots in the shop. */
+  shopSlots?: number;
+  /** Extra stat points on every level-up. */
+  statPointsPerLevel?: number;
+  /** The first reroll each round is free. */
+  freeReroll?: boolean;
+  /** The first recruit of the run starts at level 2. */
+  veteranRecruit?: boolean;
+  /** The first lost fight costs no life. */
+  secondWind?: boolean;
+  /** Recruits cost `cost` during the first `rounds` rounds. */
+  earlyRecruitCost?: { rounds: number; cost: number };
+  /** Round 1's shop has an extra, free item. */
+  freeItem?: boolean;
+  /** Enemy HP and ATK multiplier bonus (0.1 = +10%). */
+  enemyStats?: number;
+  /** From this round, every enemy carries one more item (up to the item limit). */
+  enemyExtraItemFrom?: number;
+  /** Extra enemy levels, ramping in over the first rounds. */
+  enemyLevels?: number;
+  /** From this round, one enemy per fight is an Elite. */
+  elitesFrom?: number;
+  /** These rounds are boss fights. */
+  bossRounds?: readonly number[];
+  /** Bosses also cast their second ability. */
+  empoweredBosses?: boolean;
+}
+
+/** One rung of the difficulty ladder; tier N applies tiers 1..N. */
+export interface LadderTier {
+  tier: number;
+  description: string;
+  modifier: RunModifier;
+}
+
+/** A starting perk, picked at the start of a run. */
+export interface PerkDef {
+  id: string;
+  name: string;
+  description: string;
+  modifier: RunModifier;
+}
+
+/**
+ * A boss (M7): replaces one enemy on a boss round. It fights as its class,
+ * levelled and scaled like the other enemies, then multiplied, with its own
+ * passive and (on empowered tiers) a second ability.
+ */
+export interface BossDef {
+  id: string;
+  name: string;
+  classId: string;
+  /** First round the boss can appear. */
+  minRound: number;
+  statMultiplier: Partial<Stats>;
+  passive: PassiveText;
+  modifier: UnitModifier;
+  /** Granted when bosses are empowered. */
+  ability: AbilityDef;
+}
+
+/** How much stronger an Elite enemy is than its peers. */
+export interface EliteRules {
+  statMultiplier: Partial<Stats>;
+  /** Extra levels on top of the round's enemy level. */
+  levels: number;
 }

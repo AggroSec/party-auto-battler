@@ -79,6 +79,10 @@ export function selectTargets(
       return [...allies].sort(byOrder);
     case 'otherAllies':
       return allies.filter((u) => u !== source).sort(byOrder);
+    case 'rowAllies':
+      return allies.filter((u) => u.pos.row === source.pos.row).sort(byOrder);
+    case 'allyFrontRow':
+      return frontmostRow(allies).sort(byOrder);
     case 'triggerSource':
       return ctx.triggerSource?.alive ? [ctx.triggerSource] : [];
     case 'triggerTarget':

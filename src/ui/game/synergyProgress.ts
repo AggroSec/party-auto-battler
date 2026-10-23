@@ -1,4 +1,4 @@
-import { unitTags, type OwnedUnit, type RunContent } from '../../engine/run/index.ts';
+import { filledSlots, matchesFilter, tierMet, unitTags, type OwnedUnit, type RunContent } from '../../engine/run/index.ts';
 import type { SynergyDef, SynergyRequirement } from '../../engine/run/content-types.ts';
 
 export interface SynergyProgress {
@@ -10,9 +10,17 @@ export interface SynergyProgress {
   current: string | null;
 }
 
-function count(req: SynergyRequirement, units: OwnedUnit[], content: RunContent): { have: number; label: string } {
-  if (req.kind === 'tag') return { have: units.filter((u) => unitTags(u, content).includes(req.tag)).length, label: req.tag };
-  return { have: new Set(units.map((u) => u.classId)).size, label: 'different classes' };
+function count(req: SynergyRequirement, units: OwnedUnit[], content: RunContent): { have: number; need: number; label: string } {
+  switch (req.kind) {
+    case 'tag':
+      return { have: units.filter((u) => unitTags(u, content).includes(req.tag)).length, need: req.count, label: req.tag };
+    case 'distinctClasses':
+      return { have: new Set(units.map((u) => u.classId)).size, need: req.count, label: 'different classes' };
+    case 'units':
+      return { have: units.filter((u) => matchesFilter(u, req.filter, content)).length, need: req.count, label: req.label };
+    case 'party':
+      return { have: filledSlots(units, req.slots, content), need: req.slots.length, label: req.label };
+  }
 }
 
 /**
@@ -25,13 +33,13 @@ export function synergyProgress(units: OwnedUnit[], content: RunContent): Synerg
   for (const synergy of content.synergies) {
     let activeTier = -1;
     synergy.tiers.forEach((tier, i) => {
-      if (tier.requires.every((r) => count(r, units, content).have >= r.count)) activeTier = i;
+      if (tierMet(tier, units, content)) activeTier = i;
     });
     const nextTier = synergy.tiers[activeTier + 1];
     let next: SynergyProgress['next'] = null;
     if (nextTier) {
       // Show the least-satisfied requirement of the next tier.
-      const reqs = nextTier.requires.map((r) => ({ ...count(r, units, content), need: r.count }));
+      const reqs = nextTier.requires.map((r) => count(r, units, content));
       const worst = reqs.reduce((a, b) => (b.have / b.need < a.have / a.need ? b : a));
       next = { description: nextTier.description, ...worst };
     }

@@ -9,6 +9,16 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
   return (
     <header className="hud">
       <span className="hud-round">Round {run.round}</span>
+      {(run.setup.tier > 0 || run.setup.daily) && (
+        <span className="hud-tier" title={ctx.content.ladder.filter((l) => l.tier <= run.setup.tier).map((l) => `${l.tier}. ${l.description}`).join('\n')}>
+          {run.setup.daily ? '📅 Daily · ' : ''}Tier {run.setup.tier}
+        </span>
+      )}
+      {run.setup.perks.length > 0 && (
+        <span className="hud-perks" title={run.setup.perks.map((id) => `${ctx.content.perks[id]?.name}: ${ctx.content.perks[id]?.description}`).join('\n')}>
+          ✨ {run.setup.perks.map((id) => ctx.content.perks[id]?.name ?? id).join(', ')}
+        </span>
+      )}
       <span className="hud-gold" title="Gold">
         💰 {run.gold}
       </span>

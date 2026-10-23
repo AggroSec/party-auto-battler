@@ -101,7 +101,7 @@ export const warlockClass: ClassDef = {
   name: 'Warlock',
   role: 'caster',
   tags: ['shadow', 'occult'],
-  unlockable: false,
+  unlockable: true,
   description: 'Pays in blood for huge damage: every bolt costs a slice of their own HP.',
   baseStats: { hp: 28, atk: 7, def: 0, spd: 9 },
   range: 'ranged',
