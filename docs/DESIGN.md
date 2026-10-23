@@ -12,7 +12,7 @@
 | Playable UI (screens, drag-to-position, combat playback, run summary) | ✅ Milestone 4 |
 | Progression, balance and new classes (stat points, Monk/Bard/Druid/Warlock/Engineer, summons) | ✅ Milestone 5 |
 | Level cap 10, tertiary classes at level 7, ability-granting talents, 15-win runs | ✅ Milestone 6 |
-| Meta progression (difficulty ladder, achievements, unlocks, starting perks, daily seed) | Milestone 7 |
+| Meta progression (difficulty ladder, achievements, unlocks, starting perks, daily run, signature items) | ✅ Milestone 7 |
 | Juice (icons, sound, credits) | Milestone 8 |
 | Ship (GitHub Pages, README) | Milestone 9 |
 
@@ -267,6 +267,16 @@ The highest tier met is active. Synergies apply to enemies too.
 | Workshop | 2 tech | Tech units +40% AP (stronger turrets and bombs), +2 DEF |
 | Vanguard | 1 guardian + 1 divine | Guardians +3 DEF (the brief's "frontline + healer") |
 | Adventuring Party | 4 / 5 different classes | Every ally +3 / +4 HP |
+| Holy Trinity *(M7)* | a guardian, a support and a striker or caster (different units) | Every ally +3 HP |
+| Champions of Light *(M7, unlock)* | 3 / 4 Light (divine) | Light units +6 HP / every ally +6 HP |
+| Legion of Night *(M7, unlock)* | 3 / 4 Dark (shadow or occult) | Dark units +1 ATK / +2 ATK and +1 ATK per kill |
+| Twilight Pact *(M7, unlock)* | 2 Light + 2 Dark | Every ally heals 2 at the start of its turns |
+| Life and Death *(M7)* | Necromancer + Cleric | On a kill or an ally's death, they heal the most wounded ally for 60% ATK |
+| Mad Science *(M7)* | Engineer + Mage | Tech and arcane units +25% AP |
+| Wild Hunt *(M7)* | Ranger + Druid | Wild and nature units +2 ATK, +1 SPD |
+| Battle Hymn *(M7)* | Bard + Warrior | Each Bard cast: front row +1 ATK (twice per fight) |
+
+M7 synergies count units by **role** (the base class's frontline / striker / caster / support), by **class** (base, advanced or tertiary), or by **Light and Dark**: Light means divine and Dark means shadow or occult, so advancing can move a unit between sides (a Knight is Light, an Assassin Dark).
 
 ## Resolved design questions
 
@@ -281,7 +291,7 @@ The highest tier met is active. Synergies apply to enemies too.
 - *(M3, 2026-10-17)* Levelling was weighted random: per-class stat ranges rolled each level. **Replaced in M5:** the rolls were too narrow to feel random, and Brandon chose player-allocated stat points instead (see Progression).
 - *(M5, 2026-10-18)* No XP at max level; mostly items and training once the party is full; an actions column in the combat summary; stat points with recommended spreads; five new classes (Monk, Bard, Druid, Warlock, Engineer); speed items before any class SPD change (#9); a look at Knight + Priest + Chronomancer (#10).
 - *(M6, 2026-10-20)* Two tertiary classes per advanced class (44); longer runs rather than a faster XP curve (15 wins); ability-granting talents use a second ability slot. No global cooldown floor: getting an ability to every turn is part of building; nerf specific skills if needed.
-- *(Planned)* Meta progression with a difficulty ladder, achievements that unlock classes, items, synergies and starting perks, and a daily seed (Milestone 7). Unlocks mostly add variety but may help a little; the ladder's difficulty outpaces that help, and unlocked content joins the enemy pool. Brandon will pick further classes after the core project ships.
+- *(M7, 2026-10-22)* Lock some existing content behind achievements, with an "unlock everything" toggle until 1.0 so testing is never gated. 10 stacking ladder tiers. Perks: offered 3 at a time; Perkception unlocks let you keep 2 or 3. Six new items plus a signature item per tertiary class (shown only when that class is in the party, pricier, attainable). Synergies that don't need duplicate classes: role combos and good-vs-evil themes. Brandon will pick further classes after the core project ships.
 
 ## UI (Milestone 4)
 
@@ -359,11 +369,167 @@ Two per advanced class, chosen at level 7 *(Brandon: two per advanced class, so 
 | Necromancer | Plaguelord | **Blightlord** | shadow, occult | Pandemic: Every 3rd turn: every enemy loses 2 ATK and 2 DEF and takes 60% ATK | Plague Cloud: Start of combat: every enemy loses 1 ATK | Corpse Explosion: Every 4th turn: deal 150% ATK to the weakest enemy (100% splash) |
 | Necromancer | Plaguelord | **Rotcaller** | shadow, occult | Raise Ghoul: Every 3rd turn (first on turn 1): summon a Ghoul in an empty slot (60% of your max HP, 90% ATK). If the board is full, every enemy loses 1 ATK and takes 70% ATK instead | Grave Pact: When an ally dies, gain +2 ATK and heal 10% of max HP | Death Coil: Every 4th turn: deal 180% ATK to the nearest enemy and heal the most wounded ally for 120% ATK |
 
+## Meta progression (Milestone 7)
+
+Progress lives in a **profile** saved separately from runs (its own storage version, so run-format changes never wipe it). The title screen has **New run**, **Daily run**, **Collection** and an **Unlock everything** toggle *(Brandon: a testing toggle until 1.0; achievements still track while it's on)*.
+
+**Starting content:** Warrior, Rogue, Mage, Cleric and Ranger; 17 items (the plain and effect items plus those five classes' items); every synergy except Champions of Light, Legion of Night and Twilight Pact; and three perks (Deep Pockets, Armory, Bargain Hunter). Achievements unlock the rest; a class unlock brings its class item. **Enemies use only unlocked classes and items**; bosses appear regardless.
+
+**Run setup:** before each run you pick a ladder tier (up to your highest unlocked) and your perks. A run stores its setup, so later unlocks never change a run in progress.
+
+### Difficulty ladder
+
+Tier 0 is the base game. Winning a run on your highest tier unlocks the next. Each tier adds its modifier to all earlier ones (`src/data/meta/ladder.ts`):
+
+| Tier | Adds |
+|---:|---|
+| 1 | Rerolls cost 1 more gold |
+| 2 | Start with 1 less gold |
+| 3 | Interest capped 1 gold lower |
+| 4 | One less life |
+| 5 | Enemies +5% HP and ATK |
+| 6 | From round 8, every enemy carries one more item |
+| 7 | From round 8, one enemy per fight is an **Elite** (+20% HP and ATK, "Elite" in its name) |
+| 8 | Rounds 5, 10 and 15 are **boss** fights |
+| 9 | Elites from round 5 |
+| 10 | Enemies +5% more HP and ATK; bosses cast a second ability |
+
+**Bosses** replace one enemy on their round, a level ahead and with ×1.6 HP and ×1.15 ATK (Colossus ×1.9 HP):
+
+| Boss | Class | From round | Passive | Second ability (tier 10) |
+|---|---|---:|---|---|
+| Grukk the Ironjaw | Warrior | 5 | War Cry: Start of combat: all allies gain +2 ATK, and Grukk shields himself for 200% ATK. | Earthshatter: Every 4th turn: deal 90% ATK to every enemy. |
+| Vesper, the Night Queen | Rogue | 5 | Bloodthirst: +15% lifesteal. On kill, gain +3 ATK and +2 SPD. | Fan of Knives: Every 4th turn: deal 70% ATK to every enemy. |
+| Archmage Ozric | Mage | 5 | Arcane Ward: Start of combat: shield all allies for 120% ATK. | Arcane Barrage: Every 4th turn: deal 60% ATK to random enemies 5 times. |
+| The Hollow King | Necromancer | 10 | Deathless Court: Revives once at 50% HP. When an ally dies, all allies heal for 100% ATK. | Soul Rend: Every 4th turn: deal 220% ATK to the weakest enemy and heal yourself for 100% ATK. |
+| Mother Thornroot | Druid | 10 | Overgrowth: +3 DEF. At the start of each of her turns, all allies heal 4. | Strangling Roots: Every 4th turn: deal 120% ATK to each enemy in the front row; they lose 2 SPD. |
+| The Iron Colossus | Engineer | 15 | Reinforced: +4 DEF. When hurt, 25% chance to shield itself for 10. | Overload: Every 4th turn: deal 60% ATK to every enemy, twice. |
+
+### Starting perks
+
+You're offered your kept count + 2 perks from your unlocked pool and keep 1 (2 with Perkception, 3 with Perkception II). The offer comes from the run's seed.
+
+| Perk | Effect |
+|---|---|
+| Deep Pockets | +3 starting gold |
+| Armory | Round 1's shop has an extra free item (it stays through rerolls) |
+| Bargain Hunter | First reroll each round is free |
+| Veteran | First recruit starts at level 2 |
+| Second Wind | First lost fight costs no life |
+| Tutor | Training costs 1 less |
+| Investor | Interest cap +1 |
+| Mentor | Level-ups offer 4 talents |
+| Recruiter | Recruits cost 2 for the first 3 rounds |
+| Extra Life | +1 life |
+| Quartermaster | +1 item/training shop slot |
+| Drill Sergeant | +1 stat point every level-up |
+
+### Achievements
+
+| Achievement | How | Unlocks |
+|---|---|---|
+| Hero of the Realm | Win a run. | Necromancer, Skull Totem |
+| On a Roll | Win 5 fights in a row. | Monk, Prayer Beads |
+| Full Roster | Win a fight with 5 different classes. | Bard, Enchanted Lute |
+| Lifeline | Heal 300 HP in one fight. | Druid, Oak Heart |
+| By a Thread | Win a run with 1 life left. | Warlock, Cursed Tome |
+| Seasoned | Reach round 10. | Engineer, Gearbox |
+| Wipeout | Kill 3 enemies at once. | Executioner's Axe |
+| Untouchable | Win a fight in round 8 or later without losing a unit. | Mirror Shard |
+| Nest Egg | Go into a fight with 15 gold unspent. | Gambler's Coin |
+| Against the Odds | Win a fight after 3 of your units fell. | Phoenix Feather |
+| Army of One | Summon 3 units in one fight. | Soulstone |
+| Flawless | Win a run without losing a fight. | War Banner |
+| Blitz | Win a fight in 15 ticks or less. | Quicksilver Rapier, Winged Sandals |
+| Armed to the Teeth | Go into a fight with 5 units holding 2 items each. | Vampiric Fang |
+| Collector | Reach 10 different tertiary classes. | Hourglass |
+| Champions | Win a fight with 3 Light (divine) units. | Champions of Light |
+| Darkness Rising | Win a fight with 3 Dark (shadow or occult) units. | Legion of Night |
+| In Harmony | Have 4 synergies active at once. | Twilight Pact |
+| First Steps | Reach round 5. | Recruiter |
+| Try, Try Again | Lose a run. | Extra Life |
+| Ascended | Reach level 7 with a unit. | Veteran |
+| Pinnacle | Reach level 10 with a unit. | Drill Sergeant |
+| Regular | Win 3 runs. | Mentor |
+| Old Soldier | Win 100 fights in total. | Quartermaster |
+| Climber | Win a run on tier 1 or higher. | Second Wind |
+| Still Climbing | Win a run on tier 2 or higher. | Tutor |
+| Perkception | Win a run on tier 3 or higher. | +1 perk kept |
+| High Climber | Win a run on tier 5 or higher. | Investor |
+| Perkception II | Win a run on tier 7 or higher. | +1 perk kept |
+| Legend | Win a run on tier 10. | — |
+
+### Daily run
+
+The seed comes from the date (`daily-YYYY-MM-DD`). The tier rotates through 2–6 and the perk offer (3, keep 1) is fixed, with everything unlocked so the run is the same for everyone. You get one attempt: it counts once started, and the title screen shows the result. Dailies don't advance the ladder.
+
+### Items added in M7
+
+| Item | Cost | Effect | Unlock |
+|---|---:|---|---|
+| Phoenix Feather | 6g | The first time you would fall, survive at 30% HP | Against the Odds |
+| War Banner | 5g | Start of combat: you and your row +2 ATK | Flawless |
+| Gambler's Coin | 4g | +1 gold after every won fight | Nest Egg |
+| Executioner's Axe | 5g | +2 ATK; +50% damage to enemies below half HP | Wipeout |
+| Mirror Shard | 5g | When hurt, 60% ATK back at the attacker (4 times per fight) | Untouchable |
+| Soulstone | 4g | When an ally falls: next ability 1 turn sooner, shield 100% ATK | Army of One |
+
+### Signature items
+
+One per tertiary class *(Brandon: unique, pricier, attainable, shown only when the class is in the party)*. Only that class can equip it, a unit holds one at most, and it never enters the random item pool. While a tertiary unit lacks its item, each item/training shop slot has a 30% chance to offer it. Reaching the class is the unlock; the Collection lists each one once discovered.
+
+| Tertiary class | Signature item | Cost | Effect |
+|---|---|---:|---|
+| Paladin | Dawnbringer | 7g | +10 HP. At the start of each of your turns, all allies heal 3. |
+| Vanguard | Aegis of the Unbroken | 7g | +3 DEF. When hurt, the attacker loses 1 ATK (up to 6 times per fight). |
+| Warlord | Horde Banner | 7g | On kill, all allies gain +1 ATK and +1 SPD. |
+| Bloodreaver | Crimson Chalice | 7g | +15% lifesteal. When bloodied, deal 100% ATK to every enemy. |
+| Nightblade | Shadowfang | 7g | Deal 50% more damage to enemies below half HP. On kill, shield yourself for 100% ATK. |
+| Shadowdancer | Veil of Night | 7g | +2 SPD. On kill, your next ability comes 2 turns sooner. |
+| Swordmaster | Kensei Blade | 8g | +2 ATK. 40% on attack: strike the target again for 100% ATK. |
+| Swashbuckler | Lucky Doubloon | 7g | +2 ATK. +1 gold after every won fight. On kill, the enemy front row loses 1 SPD. |
+| Firelord | Ember Crown | 8g | Wildfire spreads: when an ally gets a kill, deal 50% ATK to every enemy. |
+| Phoenix | Ashen Heart | 8g | The first time you would fall, rise again at 40% HP and heal all allies for 100% ATK. |
+| Chronarch | Paradox Engine | 8g | Start of combat: every ally's first ability comes 1 turn sooner. |
+| Entropist | Hourglass of Ruin | 7g | +20% ability power. After casting, every enemy loses 1 ATK. |
+| High Priest | Chalice of Mercy | 7g | At the start of each of your turns, shield the most wounded ally for 100% ATK. |
+| Oracle | Eye of Fate | 7g | Start of combat: all allies gain +1 SPD and every enemy's first ability comes 1 turn later. |
+| Templar | Crusader's Oath | 7g | +8 HP. After casting, taunt for 1 turn and gain +1 DEF (up to 5 times per fight). |
+| Zealot | Brand of Zeal | 7g | On kill, gain +2 ATK and your next ability comes 1 turn sooner. |
+| Deadeye | Hawkeye Scope | 8g | +1 ATK. Deal 60% more damage to enemies below half HP. |
+| Trapper | Spiked Snares | 7g | Start of combat: the enemy front row loses 2 DEF. After casting, the enemy front row takes 40% ATK piercing. |
+| Packlord | Alpha's Fang | 7g | +30% ability power (stronger wolves). When an ally falls, your next ability comes 1 turn sooner. |
+| Falconer | Hooded Falcon | 7g | 40% on attack: the falcon strikes the weakest back-row enemy for 100% ATK. |
+| Stormfist | Thunder Wraps | 7g | After casting, deal 60% ATK to every enemy. |
+| Mistwalker | Jade Lotus | 7g | 30% when hurt: heal all allies for 50% ATK. |
+| Stoneguard | Mountain Heart | 7g | +16 HP. When bloodied, taunt for 2 turns and shield yourself for 50% of max HP. |
+| Grandmaster | Grandmaster's Sash | 8g | +1 DEF, +1 SPD. 30% when hurt: strike the attacker for 100% ATK piercing. |
+| Warchanter | Warhorn | 7g | Start of combat: all allies gain +1 ATK and +1 SPD. When an ally dies, all allies gain +1 SPD. |
+| Lorekeeper | Tome of Sagas | 7g | Start of combat: all allies gain +1 DEF. When an ally dies, heal all allies for 150% ATK. |
+| Illusionist | Hall of Mirrors | 8g | When bloodied, summon a Mirror Image in an empty slot. When an ally falls, summon another (once per fight). |
+| Harlequin | Jester's Bells | 7g | +20% ability power. On kill, every enemy's ability comes 1 turn later. |
+| Elder Bear | Ursine Totem | 7g | +3 DEF. 30% when hurt: heal 6% of your max HP. |
+| Wildstalker | Moonfang Claws | 7g | +2 ATK, +2 SPD. On kill, deal 150% ATK to the weakest enemy. |
+| Archdruid | Seed of Renewal | 8g | +20% ability power. Start of combat: shield all allies for 150% ATK. When an ally dies, heal all allies for 100% ATK. |
+| Treelord | Heartwood Staff | 7g | +20% ability power. When an ally falls, summon an Ancient in an empty slot (up to 2 times per fight). |
+| Doombringer | Blood Moon Idol | 7g | +15% lifesteal. After casting, heal 10% of your max HP. |
+| Curseweaver | Black Grimoire | 7g | +20% ability power. Start of combat: every enemy loses 1 ATK and 1 DEF. |
+| Pit Lord | Hellforge Collar | 8g | When an ally falls, summon a Fiend in an empty slot (up to 2 times per fight). |
+| Soulbinder | Soul Gem | 7g | On kill or when an ally dies, shield all allies for 60% ATK. |
+| Artificer | Master Toolkit | 7g | After casting, all allies gain +1 ATK (up to 4 times per fight). |
+| Roboticist | Master Schematic | 8g | After casting, repair the party: heal all allies for 60% ATK and shield them for 40% ATK. |
+| Bombardier | Payload Detonator | 7g | Start of combat: deal 60% ATK to every enemy. |
+| Siege Master | Siege Plans | 7g | After casting, the strongest enemy loses 2 DEF and 1 SPD. |
+| Archlich | Phylactery Crystal | 8g | The first time you would fall, rise again at 30% HP and deal 150% ATK to every enemy. |
+| Soul Reaper | Reaper's Scythe | 7g | Deal 50% more damage to enemies below half HP. On kill, heal 15% of your max HP. |
+| Blightlord | Plague Censer | 7g | At the start of each of your turns, every enemy takes 20% ATK. |
+| Rotcaller | Grave Banner | 7g | +20% ability power. When an ally falls, it bursts: deal 70% ATK to every enemy. |
+
 ## Open design questions (for Brandon)
 
-None blocking. Things to look at when playtesting M6:
+None blocking. Things to look at when playtesting M7:
 
-1. **Run length.** Is 15 wins right on a phone, or does it drag? The XP curve and enemy tables can follow any length.
-2. **Pacing to level 7 and 10.** Units reach level 7 around round 12 without training. Is that late enough to feel earned and early enough to enjoy?
-3. **Granted abilities.** Do second abilities read clearly in combat and on the unit card?
-4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4.
+1. **Ladder steepness.** The tiers are ordered mildest first. Bots barely clear tier 7+, but you play far better than they do. Which tiers feel like a fair step and which like a wall?
+2. **Unlock pacing.** Do the starting five classes feel too thin, or about right, and do the achievements come at a good rate? (Play with Unlock everything off to judge.)
+3. **Signature items.** Are they findable often enough (30% per item slot while wanted) and worth 7–8 gold?
+4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4, and more relevant now with bosses.

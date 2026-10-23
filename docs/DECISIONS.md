@@ -2,6 +2,52 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-22 — Milestone 7: meta progression
+
+Brandon approved the plan up front. His calls: lock some existing content, plus an "unlock everything" toggle until 1.0; 10 stacking ladder tiers; perks offered 3 at a time, with Perkception unlocks to keep more; 6 new items plus a signature item for each tertiary class; and synergies that don't need duplicate classes (role combos and good-vs-evil themes). Everything below was decided autonomously, including where the plan's examples had to change to fit the engine.
+
+### Engine and run layer
+- **Runs carry a `RunSetup`** (tier, perks, and the classes, items and synergies unlocked when the run started). `runContext(setup, ctx)` derives the effective config and content from it, memoized per setup and idempotent. Saved runs and play-log replays never depend on later unlocks, and engine functions accept either the base or the effective context.
+- **Ladder tiers and perks share one shape** (`RunModifier`) and stack: numbers add, flags combine, boss rounds merge. Perks with per-round bookkeeping (free reroll, Second Wind) keep two flags in the run state.
+- **Enemies are drawn only from unlocked classes**, as CLAUDE.md says. Bosses are separate and appear regardless of unlocks.
+- **Elites and bosses are flags on the enemy's build** (`elite`, `bossId`, `empowered`), so the inspector and stat breakdown explain them like any other unit. A boss replaces one random enemy on its round. Its passive is a modifier, and on tier 10 its second ability is a granted ability (M6's slot).
+- **New engine mechanics, kept small:**
+  - `revive` (survive a lethal hit once per source at a share of max HP) and an `onRevive` trigger.
+  - `executeBonus` (extra damage to targets below half HP).
+  - An `onAllyKill` trigger.
+  - Two selectors: `rowAllies` and `allyFrontRow`.
+- **Synergy requirements gained unit filters** (tags, base role or class ids): `units` (N matching units) and `party` (a different unit for each slot, solved by trying every assignment). `appliesTo` takes a filter too.
+- **Light and Dark are derived, not new tags.** Light means divine; Dark means shadow or occult. The existing tags already split along that line and advanced or tertiary classes already move units between them (Knight gains divine, Assassin gains shadow). It also needs no new data on 77 classes.
+- **Signature items** are ordinary items with `tertiaryClassId`. Only that class can equip one, a unit holds at most one, and they never enter the random item pool. While a tertiary unit lacks its item, each item/training shop slot has a 30% chance to offer it, so a few rerolls usually find it. They need no unlock: reaching the class is the unlock. The Collection marks them discovered.
+- **`goldPerWin` on items** pays out with round income (`IncomeBreakdown.items`), so the summary shows it.
+
+### Meta progression
+- **The meta engine is pure** (`src/engine/meta`). It covers profile, unlocks, achievement checks after each fight and run, perk offers seeded by the run seed, and the daily run. The daily's tier and perk offer come from a hash of the date string, keeping `Date` out of the engine.
+- **New players start with** the original five classes, 17 items (plain, effect, and the five classes' items), every synergy except Light, Dark and Twilight, and three perks. Unlocking a class also unlocks its class item.
+- **30 achievements.** Each unlocks something; a content test checks that earning all of them unlocks everything. Ladder tiers open by winning a run on your highest tier, not through achievements.
+- **Perk offers:** kept + 2 (3, 4 or 5 offered), keep 1, 2 or 3. The daily offers 3 from every perk and you keep one, so it's the same for everyone.
+- **The daily run** is tier 2–6 (rotating), with everything unlocked, one attempt per day. The attempt counts as soon as it starts, and the ladder doesn't advance from dailies.
+- **The profile is stored separately** with its own version, so run-format bumps (saves v4 in this milestone) never wipe progress. The play log keeps its own version too, so stored logs survive updates.
+
+### Content changes from the plan's examples
+- **Mirror Shard** reflects the first 4 hits of any kind, because hits don't record whether they came from an ability.
+- **Soulstone** hastes and shields rather than granting ability power, because ability power isn't a stat that combat buffs.
+- **Holy Trinity** gives every ally HP rather than a frontline shield, since one synergy tier has one recipient.
+- **Wild Hunt** buffs wild and nature units rather than "summoned beasts" (summons can't be targeted by synergy modifiers).
+- **Phoenix's Ashen Heart** is a revive (it rises again), not a second Rebirth, since onBloodied only fires once.
+- **Roboticist's Master Schematic** repairs and shields after every cast rather than replacing the full-board fallback.
+- **Deadeye's Hawkeye Scope** gives execute damage, since Headshot already pierces.
+
+### Balance
+- **The ladder was reordered mildest-first** after the first pass made tier 1 (+10% enemy stats) halve completion and tier 7+ hopeless for the bots. Enemy stat bonuses swing late rounds hard, so they come later and in 5% steps. Elites are +20% HP/ATK (not +30% and a level). Bosses are ×1.6 HP and ×1.15 ATK (Colossus ×1.9 HP).
+- **Every-tier completion is in BALANCE.md.** The bots are far weaker than a person, so tier 10 is near-impossible for them by design.
+- **New synergy numbers came down twice.** The greedy bot's jump from 27% to ~40% completion traces to Holy Trinity and Legion of Night steering its picks toward tank-plus-healer and shadow parties. Removing each synergy alone moved it about 7 and 4 points, while a +3 HP bonus can't account for that. The sensible bot is unchanged (~17–23%).
+
+### UI
+- **New screens:** run setup (tier picker and perk cards), Collection (six tabs, each locked entry naming its achievement), and achievement toasts. The title screen gains Daily and Collection buttons and the unlock-all toggle.
+- **The HUD shows tier and perks.** Signature items get a 🌟 and their class name in the shop. The inspector names a unit's signature item until it's equipped.
+- **`styles.css` passed 400 lines,** so the new screens' styles live in `src/ui/meta.css`.
+
 ## 2026-10-20 — Milestone 6: level cap 10, tertiary classes, granted abilities
 
 Brandon made the three design calls up front: two tertiary classes per advanced class, longer runs rather than a faster XP curve, and a second ability slot for granted abilities. Everything below was decided autonomously.

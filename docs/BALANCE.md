@@ -2,6 +2,333 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-10-22 — Milestone 7 (meta progression, ladder, signature items)
+
+Command: `npm run sim` (seed `m3`, 2,000 runs per bot). The simulator plays with **everything unlocked at tier 0**, so this run includes the Necromancer, the 6 new items, 44 signature items and 8 new synergies. The ladder table comes from `runBot` at each tier (800 runs per bot per tier). `npm run sim -- --only ladder` reproduces it, more slowly.
+
+- **Sensible bot unchanged** (18.8% completion; M6 20.3%). **Greedy rose from 28.1% to 38.6%,** almost entirely from the new synergies steering its picks. Adding Holy Trinity alone took it from 27% to 34%, and Legion of Night alone to 32%. The bonuses are small (+3 HP for Holy Trinity), so the gain is the bot buying tank-plus-healer and shadow parties it previously didn't. Adding the Necromancer and the new items moved it by 2–5 points.
+- **New synergy lifts** run from +16.5 (Twilight Pact) down to +1.3 (Mad Science). Lift here is composition-biased: Twilight needs four mature units (two Light, two Dark advanced classes), which only invested parties field. All were trimmed twice (see DECISIONS.md).
+- **Signature items barely appear in the bot runs** (3–20 fights each), because few bot units reach level 7 and the bots value items only by stats. Their lifts are noise. Your play is the test.
+- **Ladder** (completion, average wins):
+
+| Tier | Adds | Sensible | Greedy |
+|---:|---|---|---|
+| 0 | — | 17.1% · 8.5 | 39.0% · 10.9 |
+| 1 | Reroll +1g | 20.9% · 8.8 | 36.6% · 10.9 |
+| 2 | Start −1 gold | 14.8% · 7.6 | 27.0% · 9.6 |
+| 3 | Interest cap −1 | 12.1% · 7.1 | 27.4% · 9.4 |
+| 4 | −1 life | 14.8% · 7.3 | 28.6% · 9.7 |
+| 5 | Enemies +5% | 5.6% · 5.7 | 16.0% · 7.7 |
+| 6 | Enemy items from round 8 | 3.6% · 5.2 | 8.4% · 6.7 |
+| 7 | Elites from round 8 | 2.8% · 5.1 | 5.8% · 6.4 |
+| 8 | Bosses on 5/10/15 | 1.5% · 4.2 | 1.3% · 5.2 |
+| 9 | Elites from round 5 | 0.4% · 4.1 | 0.9% · 4.9 |
+| 10 | +5% and empowered bosses | 0.0% · 3.4 | 0.1% · 4.0 |
+
+  Tiers 0–4 are within noise of each other for the bots; they mostly cost tempo, which bots use poorly anyway. Enemy strength is what bites, so it comes from tier 5 on in small steps. The first pass (+10% enemy stats at tier 1, a full extra enemy level at tier 7, Elites +30% and a level) made tier 1 halve completion and tier 7+ hopeless.
+- **Bots are much weaker than a person** (you clear tier 0 nearly every run), so tiers 8–10 are meant to be hard for a skilled player. They're the first thing to tune from your playtests.
+
+Seed `m3`. Draws count as half a win.
+
+### Full runs (2000 per bot, all content, ladder tier 0)
+
+| Bot | Completed (15 wins) | Avg wins | Avg rounds | Fight win rate | Avg unit level | Unspent gold | Draws | Tick-cap | Stuck |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| random | 5.0% | 3.60 | 8.4 | 42.8% | 3.14 | 3.2 | 0.0% | 0 | 0 |
+| sensible | 18.8% | 8.60 | 12.9 | 66.8% | 4.22 | 2.2 | 0.1% | 0 | 0 |
+| greedy | 38.6% | 10.83 | 14.2 | 76.4% | 4.54 | 2.4 | 0.0% | 0 | 0 |
+| synergy | 11.9% | 6.39 | 10.9 | 58.6% | 3.87 | 1.7 | 0.1% | 0 | 0 |
+
+- **random**: Random purchases and targets, rerolls 30% of the time with spare gold, random level-up choices and stat points.
+- **sensible**: Two frontliners then class variety; then items/training for its best units; random level-up choices.
+- **greedy**: Buys the offer that most raises estimated party power (HP×DEF × ATK×SPD); picks choices and stat points the same way.
+- **synergy**: Chooses a synergy tag per run, recruits and advances toward it, gears its tagged units, random talents.
+
+#### Fight win rate by round
+
+| Round | random | sensible | greedy | synergy |
+|---:|---:|---:|---:|---:|
+| 1 | 49.1% | 92.7% | 94.7% | 92.2% |
+| 2 | 55.8% | 99.9% | 99.7% | 81.7% |
+| 3 | 45.3% | 90.4% | 95.7% | 69.5% |
+| 4 | 42.0% | 89.4% | 91.4% | 67.0% |
+| 5 | 35.4% | 76.3% | 85.6% | 56.4% |
+| 6 | 34.6% | 63.4% | 77.0% | 45.6% |
+| 7 | 26.7% | 46.6% | 64.4% | 35.3% |
+| 8 | 28.6% | 43.8% | 63.1% | 36.9% |
+| 9 | 35.2% | 44.1% | 62.4% | 41.8% |
+| 10 | 43.8% | 43.6% | 59.0% | 45.2% |
+| 11 | 45.4% | 45.9% | 58.9% | 46.4% |
+| 12 | 48.6% | 54.8% | 67.5% | 54.7% |
+| 13 | 62.5% | 65.9% | 79.0% | 66.1% |
+| 14 | 71.9% | 75.1% | 85.8% | 72.6% |
+| 15 | 84.3% | 80.9% | 88.8% | 77.1% |
+| 16 | 67.9% | 65.8% | 71.9% | 62.3% |
+| 17 | 45.4% | 34.5% | 33.3% | 36.2% |
+| 18 | 24.2% | 21.1% | 13.7% | 12.8% |
+| 19 | 16.7% | 12.6% | 12.1% | 11.3% |
+| 20 | – | – | 0.0% | 0.0% |
+
+#### Pick-to-win rates (all bots combined)
+
+Share of fights won while the entity was on the player's board (draws count half). Flagged if above 65.0% or below 35.0% with at least 300 fights. For reference, the overall fight win rate is 61.2%. **Lift** compares each fight with the average result for that round (points), removing the bias from things that only show up in later, harder rounds; tables are sorted by it.
+
+**Outliers (90):** Necromancer (class, 66.3%), Cleric (class, 66.9%), Shadow Pact (tier 1) (synergy, 67.4%), Life and Death (tier 1) (synergy, 71.1%), Call of the Wild (tier 1) (synergy, 68.2%), Nature's Bond (tier 1) (synergy, 65.7%), Vanguard (tier 1) (synergy, 67.2%), Holy Trinity (tier 1) (synergy, 68.4%), Divine Choir (tier 1) (synergy, 66.2%), Falconer (tertiary, 69.6%), Elder Bear (tertiary, 69.4%), Blightlord (tertiary, 68.2%), High Priest (tertiary, 68.5%), Legion of Night (tier 1) (synergy, 68.0%), Bard (class, 67.5%), Warrior (class, 67.3%), Battle Hymn (tier 1) (synergy, 73.0%), Second Verse (talent, 65.5%), Arcane Circle (tier 1) (synergy, 69.0%), Devotion (talent, 70.5%), Shield Wall (tier 1) (synergy, 66.6%), Inquisitor (advanced, 67.4%), Dirge (talent, 67.1%), Soul Siphon (talent, 68.4%), Trickster (advanced, 68.9%), Inner Harmony (tier 1) (synergy, 66.5%), Legion of Night (tier 2) (synergy, 70.7%), Lich (advanced, 65.3%), Frost Armor (talent, 66.0%), Undying (talent, 66.4%), Zeal (talent, 71.6%), Shadowdancer (tertiary, 75.8%), Sanctified Blade (talent, 70.5%), Archlich (tertiary, 76.6%), Quickcast (talent, 65.5%), Long Stance (talent, 65.9%), Arcane Circle (tier 2) (synergy, 74.4%), Allegro (talent, 67.5%), Polearm Training (talent, 69.6%), Knight (advanced, 66.8%), Champions of Light (tier 1) (synergy, 67.8%), Martial Discipline (tier 2) (synergy, 66.2%), Harmony (talent, 66.7%), Cacophony (talent, 70.0%), Vanish (talent, 69.3%), Righteous (talent, 68.3%), Necrotic Power (talent, 67.1%), Soul Reaper (tertiary, 66.4%), Rotcaller (tertiary, 67.2%), Vanguard (tertiary, 74.8%), Illusionist (tertiary, 69.7%), Bulwark (talent, 65.4%), Aegis (talent, 66.6%), Shield Wall (tier 2) (synergy, 67.4%), Backfire (talent, 68.9%), Jinx (talent, 68.9%), Harlequin (tertiary, 81.1%), Warchanter (tertiary, 72.7%), Inner Harmony (tier 2) (synergy, 68.6%), Arcane Focus (talent, 66.4%), Inferno (talent, 65.4%), Twilight Pact (tier 1) (synergy, 74.4%), Nightblade (tertiary, 69.7%), Entropist (tertiary, 75.0%), Packlord (tertiary, 65.3%), Stormfist (tertiary, 65.1%), Chronarch (tertiary, 73.9%), Bombardier (tertiary, 67.9%), Phoenix (tertiary, 77.7%), Firelord (tertiary, 71.9%), Curseweaver (tertiary, 69.2%), Pit Lord (tertiary, 75.8%), Bloodreaver (tertiary, 67.9%), Lorekeeper (tertiary, 75.1%), Siege Master (tertiary, 76.0%), Stoneguard (tertiary, 72.4%), Deadeye (tertiary, 65.7%), Trapper (tertiary, 71.0%), Oracle (tertiary, 77.1%), Mistwalker (tertiary, 66.3%), Templar (tertiary, 77.2%), Crusade (talent, 70.5%), Paladin (tertiary, 71.4%), Swordmaster (tertiary, 68.7%), Artificer (tertiary, 71.8%), Radiance (talent, 67.5%), Warlord (tertiary, 69.3%), Slapstick (talent, 72.7%), Demon Skin (talent, 68.6%), Entrench (talent, 67.8%)
+
+##### Classes
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Bard | 32889 | 67.5% ⚠️ high | +4.9 |
+| Warrior | 41598 | 67.3% ⚠️ high | +4.9 |
+| Cleric | 30164 | 66.9% ⚠️ high | +4.2 |
+| Necromancer | 32622 | 66.3% ⚠️ high | +3.7 |
+| Mage | 29229 | 64.9% | +2.1 |
+| Monk | 39172 | 64.3% | +2.0 |
+| Rogue | 38142 | 62.5% | +0.0 |
+| Ranger | 32610 | 62.4% | −0.1 |
+| Warlock | 33125 | 60.7% | −2.0 |
+| Druid | 33412 | 60.3% | −2.2 |
+| Engineer | 26379 | 58.0% | −4.8 |
+
+##### Advanced classes
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Trickster | 13172 | 68.9% ⚠️ high | +11.3 |
+| Inquisitor | 14111 | 67.4% ⚠️ high | +9.7 |
+| Knight | 22379 | 66.8% ⚠️ high | +9.3 |
+| Lich | 17412 | 65.3% ⚠️ high | +7.9 |
+| Iron Fist | 15892 | 62.8% | +5.7 |
+| Pyromancer | 14322 | 63.0% | +5.7 |
+| Skald | 11939 | 60.9% | +3.8 |
+| Demonologist | 11795 | 59.8% | +2.8 |
+| Chronomancer | 7772 | 59.6% | +2.5 |
+| Assassin | 15868 | 58.8% | +1.7 |
+| Priest | 8845 | 58.4% | +1.6 |
+| Beastmaster | 12350 | 57.4% | +0.5 |
+| Shapeshifter | 16594 | 56.7% | −0.0 |
+| Demolitionist | 11656 | 55.5% | −1.2 |
+| Berserker | 11303 | 54.8% | −1.8 |
+| Sharpshooter | 12655 | 54.7% | −1.9 |
+| Windwalker | 15210 | 54.0% | −2.6 |
+| Grove Warden | 8377 | 53.9% | −2.6 |
+| Plaguelord | 7710 | 53.7% | −3.1 |
+| Duelist | 13529 | 52.5% | −4.1 |
+| Hexer | 12658 | 51.5% | −5.0 |
+| Machinist | 7363 | 49.9% | −6.6 |
+
+##### Tertiary classes
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Harlequin | 1657 | 81.1% ⚠️ high | +14.7 |
+| Oracle | 700 | 77.1% ⚠️ high | +12.7 |
+| Templar | 2674 | 77.2% ⚠️ high | +11.2 |
+| Phoenix | 2034 | 77.7% ⚠️ high | +11.0 |
+| Siege Master | 1414 | 76.0% ⚠️ high | +10.9 |
+| Archlich | 2832 | 76.6% ⚠️ high | +10.5 |
+| Shadowdancer | 2089 | 75.8% ⚠️ high | +10.5 |
+| Lorekeeper | 841 | 75.1% ⚠️ high | +10.2 |
+| Pit Lord | 1775 | 75.8% ⚠️ high | +10.1 |
+| Entropist | 663 | 75.0% ⚠️ high | +10.0 |
+| Chronarch | 792 | 73.9% ⚠️ high | +9.2 |
+| Vanguard | 2001 | 74.8% ⚠️ high | +9.1 |
+| Firelord | 762 | 71.9% ⚠️ high | +8.0 |
+| Stoneguard | 2709 | 72.4% ⚠️ high | +7.0 |
+| Warchanter | 1499 | 72.7% ⚠️ high | +6.5 |
+| Trapper | 1531 | 71.0% ⚠️ high | +6.4 |
+| Paladin | 3428 | 71.4% ⚠️ high | +6.0 |
+| Illusionist | 1428 | 69.7% ⚠️ high | +5.8 |
+| Artificer | 538 | 71.8% ⚠️ high | +5.7 |
+| Warlord | 597 | 69.3% ⚠️ high | +5.4 |
+| Nightblade | 851 | 69.7% ⚠️ high | +5.0 |
+| Falconer | 1558 | 69.6% ⚠️ high | +4.3 |
+| High Priest | 879 | 68.5% ⚠️ high | +4.2 |
+| Elder Bear | 2202 | 69.4% ⚠️ high | +4.0 |
+| Bombardier | 445 | 67.9% ⚠️ high | +3.9 |
+| Curseweaver | 415 | 69.2% ⚠️ high | +3.9 |
+| Rotcaller | 635 | 67.2% ⚠️ high | +3.6 |
+| Swordmaster | 1452 | 68.7% ⚠️ high | +3.6 |
+| Blightlord | 595 | 68.2% ⚠️ high | +3.3 |
+| Bloodreaver | 1281 | 67.9% ⚠️ high | +3.3 |
+| Mistwalker | 574 | 66.3% ⚠️ high | +1.9 |
+| Soul Reaper | 1005 | 66.4% ⚠️ high | +1.7 |
+| Deadeye | 527 | 65.7% ⚠️ high | +1.2 |
+| Packlord | 625 | 65.3% ⚠️ high | +1.2 |
+| Soulbinder | 472 | 64.1% | +1.1 |
+| Stormfist | 1935 | 65.1% ⚠️ high | +0.1 |
+| Doombringer | 1452 | 63.8% | +0.1 |
+| Roboticist | 460 | 63.9% | −0.5 |
+| Grandmaster | 694 | 62.7% | −0.6 |
+| Wildstalker | 935 | 63.8% | −0.6 |
+| Swashbuckler | 557 | 61.6% | −1.8 |
+| Archdruid | 856 | 58.9% | −3.8 |
+| Treelord | 555 | 59.3% | −3.9 |
+| Zealot | 554 | 61.0% | −4.2 |
+
+##### Synergies
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Twilight Pact (tier 1) | 3611 | 74.4% ⚠️ high | +16.5 |
+| Arcane Circle (tier 2) | 9799 | 74.4% ⚠️ high | +13.3 |
+| Battle Hymn (tier 1) | 13264 | 73.0% ⚠️ high | +11.3 |
+| Legion of Night (tier 2) | 5133 | 70.7% ⚠️ high | +11.0 |
+| Champions of Light (tier 1) | 3318 | 67.8% ⚠️ high | +9.8 |
+| Life and Death (tier 1) | 9280 | 71.1% ⚠️ high | +9.1 |
+| Shield Wall (tier 2) | 5798 | 67.4% ⚠️ high | +8.6 |
+| Divine Choir (tier 1) | 15541 | 66.2% ⚠️ high | +8.3 |
+| Vanguard (tier 1) | 33173 | 67.2% ⚠️ high | +7.8 |
+| Holy Trinity (tier 1) | 40664 | 68.4% ⚠️ high | +7.7 |
+| Shield Wall (tier 1) | 15339 | 66.6% ⚠️ high | +7.5 |
+| Martial Discipline (tier 2) | 14026 | 66.2% ⚠️ high | +6.7 |
+| Legion of Night (tier 1) | 10399 | 68.0% ⚠️ high | +6.7 |
+| Inner Harmony (tier 2) | 4688 | 68.6% ⚠️ high | +6.6 |
+| Arcane Circle (tier 1) | 18753 | 69.0% ⚠️ high | +5.3 |
+| Nature's Bond (tier 1) | 7363 | 65.7% ⚠️ high | +4.9 |
+| Call of the Wild (tier 1) | 14623 | 68.2% ⚠️ high | +4.6 |
+| Shadow Pact (tier 1) | 32286 | 67.4% ⚠️ high | +4.3 |
+| Adventuring Party (tier 2) | 29994 | 64.1% | +3.5 |
+| Adventuring Party (tier 1) | 37225 | 64.3% | +3.1 |
+| Inner Harmony (tier 1) | 13069 | 66.5% ⚠️ high | +2.8 |
+| Wild Hunt (tier 1) | 13041 | 63.8% | +2.4 |
+| Martial Discipline (tier 1) | 44958 | 64.7% | +1.5 |
+| Mad Science (tier 1) | 7890 | 63.5% | +1.3 |
+| Dark Covenant (tier 1) | 6819 | 60.3% | −1.4 |
+| Champions of Light (tier 2) | 818 | 52.8% | −4.4 |
+| Workshop (tier 1) | 3359 | 55.2% | −6.1 |
+
+##### Items
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Crimson Chalice | 3 | 100.0% | +22.9 |
+| Aegis of the Unbroken | 6 | 100.0% | +22.4 |
+| Hourglass of Ruin | 3 | 100.0% | +21.8 |
+| Chalice of Mercy | 12 | 83.3% | +20.1 |
+| Dawnbringer | 8 | 75.0% | +16.9 |
+| Alpha's Fang | 11 | 81.8% | +16.5 |
+| Blood Moon Idol | 9 | 88.9% | +16.0 |
+| Phylactery Crystal | 12 | 83.3% | +14.7 |
+| Hellforge Collar | 7 | 85.7% | +13.1 |
+| Kensei Blade | 12 | 58.3% | +9.0 |
+| Grave Banner | 15 | 73.3% | +8.2 |
+| Hooded Falcon | 10 | 70.0% | +7.9 |
+| Heartwood Staff | 10 | 80.0% | +7.6 |
+| Moonfang Claws | 6 | 50.0% | +5.7 |
+| Ember Crown | 11 | 63.6% | +3.5 |
+| Quicksilver Rapier | 11246 | 60.6% | +3.5 |
+| Gearbox | 18009 | 60.6% | +3.2 |
+| Featherweight Charm | 16882 | 60.4% | +3.1 |
+| Crusader's Oath | 28 | 67.9% | +2.7 |
+| Giant's Belt | 18430 | 59.9% | +2.6 |
+| Tome of Sagas | 9 | 55.6% | +2.5 |
+| Chainmail | 18174 | 59.5% | +2.2 |
+| Iron Sword | 18004 | 59.6% | +2.2 |
+| Long Spear | 16642 | 59.4% | +2.1 |
+| Smoke Cloak | 16696 | 59.1% | +1.8 |
+| Reaper's Scythe | 11 | 63.6% | +1.8 |
+| Oak Heart | 17241 | 58.9% | +1.7 |
+| Cursed Tome | 16877 | 58.9% | +1.6 |
+| Swift Boots | 17064 | 58.6% | +1.4 |
+| Prayer Beads | 16525 | 58.6% | +1.3 |
+| Executioner's Axe | 9476 | 57.1% | +0.0 |
+| Adrenaline Vial | 14602 | 56.9% | −0.2 |
+| Vampiric Fang | 12828 | 56.7% | −0.2 |
+| Plague Censer | 10 | 70.0% | −0.7 |
+| Healing Charm | 14131 | 55.9% | −1.0 |
+| Spellbook | 11133 | 55.5% | −1.4 |
+| Winged Sandals | 7391 | 55.8% | −1.4 |
+| Phoenix Feather | 7116 | 56.0% | −1.5 |
+| Time Shard | 9914 | 55.2% | −1.6 |
+| Soulstone | 9814 | 55.2% | −1.7 |
+| Enchanted Lute | 10517 | 55.0% | −1.9 |
+| Mountain Heart | 11 | 68.2% | −2.2 |
+| Holy Symbol | 11145 | 54.0% | −2.9 |
+| Tower Shield | 10019 | 53.1% | −3.7 |
+| Skull Totem | 9729 | 53.1% | −3.8 |
+| War Banner | 6867 | 52.9% | −4.0 |
+| Assassin's Dagger | 10681 | 52.7% | −4.3 |
+| Master Toolkit | 11 | 63.6% | −4.6 |
+| Mirror Shard | 7322 | 52.1% | −4.7 |
+| Hunting Bow | 9888 | 51.8% | −5.0 |
+| Hourglass | 5992 | 52.1% | −5.0 |
+| Thorned Mail | 8734 | 50.9% | −5.9 |
+| Veil of Night | 9 | 66.7% | −6.2 |
+| Rage Gauntlets | 9040 | 50.5% | −6.2 |
+| Gambler's Coin | 6875 | 48.0% | −9.1 |
+| Ashen Heart | 18 | 61.1% | −11.7 |
+| Warhorn | 9 | 44.4% | −19.7 |
+| Hall of Mirrors | 13 | 38.5% | −20.9 |
+| Horde Banner | 6 | 33.3% | −26.4 |
+| Brand of Zeal | 5 | 40.0% | −32.4 |
+
+##### Talents (top and bottom 10)
+
+| | Fights | Win rate | Lift vs round avg |
+|---|---:|---:|---:|
+| Stasis | 67 | 83.6% | +27.9 |
+| Juggle | 175 | 76.9% | +21.5 |
+| Omen | 104 | 69.2% | +17.8 |
+| Potency | 44 | 65.9% | +16.1 |
+| Punchline | 91 | 71.4% | +14.9 |
+| Zeal | 8148 | 71.6% ⚠️ high | +14.7 |
+| Ballad of Ages | 106 | 71.7% | +14.1 |
+| Clarity | 112 | 68.3% | +13.6 |
+| Collapse | 94 | 68.1% | +13.4 |
+| Sanctified Blade | 7440 | 70.5% ⚠️ high | +13.2 |
+| … 288 more … | | | |
+| Flowing Blade | 58 | 37.9% | −8.5 |
+| Scourge | 77 | 40.3% | −8.8 |
+| Taunting Grin | 73 | 38.4% | −8.9 |
+| Quivering Palm | 117 | 43.6% | −8.9 |
+| Fervor | 54 | 42.6% | −9.0 |
+| Rangefinder | 5254 | 50.9% | −9.4 |
+| Soul Well | 82 | 42.1% | −9.5 |
+| Cycle of Life | 100 | 40.0% | −10.0 |
+| Chain Lightning | 96 | 49.0% | −10.5 |
+| Shred | 45 | 33.3% | −11.5 |
+
+
+### Random 5v5 fights (2000 fights)
+
+Random 5-unit parties, placed by role (frontliners forward, casters back). Win rate of parties containing at least one of the class.
+
+| Class | Appearances | Win rate |
+|---|---:|---:|
+| Warrior | 1528 | 59.7% |
+| Rogue | 1496 | 42.1% |
+| Mage | 1558 | 46.7% |
+| Cleric | 1535 | 59.3% |
+| Ranger | 1507 | 50.8% |
+| Monk | 1540 | 58.6% |
+| Bard | 1489 | 50.4% |
+| Druid | 1500 | 42.9% |
+| Warlock | 1520 | 52.2% |
+| Engineer | 1524 | 40.1% |
+| Necromancer | 1528 | 50.2% |
+
+Draws: 0 (0.0%), tick-cap timeouts: 0, avg length: 84.2 ticks, longest: 223 ticks (cap 1000).
+
+### 1v1 duels (200 per pairing, sides alternated)
+
+| Row beats column | Warrior | Rogue | Mage | Cleric | Ranger | Monk | Bard | Druid | Warlock | Engineer | Necromancer | Overall |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Warrior | – | 100.0% | 100.0% | 0.0% | 51.5% | 0.0% | 100.0% | 97.5% | 100.0% | 17.0% | 100.0% | 66.6% |
+| Rogue | 0.0% | – | 100.0% | 100.0% | 58.0% | 0.0% | 100.0% | 85.5% | 100.0% | 31.0% | 100.0% | 67.5% |
+| Mage | 0.0% | 0.0% | – | 100.0% | 0.0% | 0.0% | 100.0% | 0.0% | 51.0% | 0.0% | 100.0% | 35.1% |
+| Cleric | 100.0% | 0.0% | 0.0% | – | 0.0% | 0.0% | 100.0% | 0.0% | 0.0% | 0.0% | 100.0% | 30.0% |
+| Ranger | 48.0% | 45.5% | 100.0% | 100.0% | – | 0.0% | 100.0% | 63.0% | 5.5% | 15.0% | 100.0% | 57.7% |
+| Monk | 100.0% | 100.0% | 100.0% | 100.0% | 100.0% | – | 100.0% | 100.0% | 100.0% | 99.0% | 100.0% | 99.9% |
+| Bard | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | – | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+| Druid | 0.5% | 13.5% | 100.0% | 100.0% | 40.0% | 0.0% | 100.0% | – | 74.5% | 4.0% | 85.0% | 51.7% |
+| Warlock | 0.0% | 0.0% | 47.0% | 100.0% | 94.0% | 0.0% | 100.0% | 30.0% | – | 90.5% | 100.0% | 56.1% |
+| Engineer | 84.0% | 70.0% | 100.0% | 100.0% | 86.0% | 0.0% | 100.0% | 93.5% | 8.5% | – | 100.0% | 74.2% |
+| Necromancer | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% | 100.0% | 18.0% | 0.0% | 0.0% | – | 11.8% |
+
+_Duels are a sanity check, not a balance target: supports and backliners are expected to lose 1v1._
+
 ## 2026-10-20 — Milestone 6 (level cap 10, tertiary classes, 15-win runs)
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot). Changes since M5: levels 6–10, 44 tertiary classes with one ability-granting talent each, runs to 15 wins, enemies that level into tertiary classes, and enemy HP/ATK growth through round 16 at +8.5% / +5% per round.
