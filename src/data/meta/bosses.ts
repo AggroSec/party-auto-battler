@@ -12,7 +12,7 @@ export const BOSSES: BossDef[] = [
     name: 'Grukk the Ironjaw',
     classId: 'warrior',
     minRound: 5,
-    statMultiplier: { hp: 2, atk: 1.3 },
+    statMultiplier: { hp: 1.6, atk: 1.15 },
     passive: { name: 'War Cry', description: 'Start of combat: all allies gain +2 ATK, and Grukk shields himself for 200% ATK.' },
     modifier: {
       triggers: [
@@ -35,7 +35,7 @@ export const BOSSES: BossDef[] = [
     name: 'Vesper, the Night Queen',
     classId: 'rogue',
     minRound: 5,
-    statMultiplier: { hp: 1.8, atk: 1.35 },
+    statMultiplier: { hp: 1.6, atk: 1.15 },
     passive: { name: 'Bloodthirst', description: '+15% lifesteal. On kill, gain +3 ATK and +2 SPD.' },
     modifier: {
       lifesteal: 0.15,
@@ -59,7 +59,7 @@ export const BOSSES: BossDef[] = [
     name: 'Archmage Ozric',
     classId: 'mage',
     minRound: 5,
-    statMultiplier: { hp: 2, atk: 1.3 },
+    statMultiplier: { hp: 1.6, atk: 1.15 },
     passive: { name: 'Arcane Ward', description: 'Start of combat: shield all allies for 120% ATK.' },
     modifier: { triggers: [on('startOfCombat', 'Arcane Ward', [{ kind: 'shield', target: 'allAllies', amount: { atk: 1.2 } }])] },
     ability: {
@@ -75,7 +75,7 @@ export const BOSSES: BossDef[] = [
     name: 'The Hollow King',
     classId: 'necromancer',
     minRound: 10,
-    statMultiplier: { hp: 2, atk: 1.3 },
+    statMultiplier: { hp: 1.6, atk: 1.15 },
     passive: { name: 'Deathless Court', description: 'Revives once at 50% HP. When an ally dies, all allies heal for 100% ATK.' },
     modifier: {
       revive: 0.5,
@@ -97,7 +97,7 @@ export const BOSSES: BossDef[] = [
     name: 'Mother Thornroot',
     classId: 'druid',
     minRound: 10,
-    statMultiplier: { hp: 2.2, atk: 1.25 },
+    statMultiplier: { hp: 1.6, atk: 1.15 },
     passive: { name: 'Overgrowth', description: '+3 DEF. At the start of each of her turns, all allies heal 4.' },
     modifier: {
       stats: { def: 3 },
@@ -119,7 +119,7 @@ export const BOSSES: BossDef[] = [
     name: 'The Iron Colossus',
     classId: 'engineer',
     minRound: 15,
-    statMultiplier: { hp: 2.6, atk: 1.3 },
+    statMultiplier: { hp: 1.9, atk: 1.15 },
     passive: { name: 'Reinforced', description: '+4 DEF. When hurt, 25% chance to shield itself for 10.' },
     modifier: {
       stats: { def: 4 },

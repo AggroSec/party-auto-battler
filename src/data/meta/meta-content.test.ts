@@ -66,7 +66,7 @@ describe('meta content', () => {
 
     const everything = unlockedContent({ ...newProfile(), unlockAll: true }, META_CATALOG);
     const hard = createRun('meta', ctx, runSetupFor(everything, 10, []));
-    expect(hard).toMatchObject({ gold: 8, lives: 4 });
+    expect(hard).toMatchObject({ gold: 9, lives: 4 });
     hard.board.front[0] = newUnit(1, 'warrior', 'W');
     expect(fight(hard, ctx).ok).toBe(true);
   });

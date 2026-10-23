@@ -181,7 +181,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'elite',
     term: 'Elites and bosses',
-    text: 'From ladder tier 5, one enemy per fight may be an Elite: a level ahead with +30% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability.',
+    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability.',
   },
   {
     id: 'perks',
