@@ -124,7 +124,7 @@ export const runebladeClass: ClassDef = {
   },
   passive: { name: 'Runic Detonation', description: 'Basic attacks carve 1 Rune. At 5 Runes they detonate for 250% ATK.' },
   triggers: [
-    on('onAttack', 'Runic Detonation', [{ kind: 'status', target: 'triggerTarget', status: RUNE, stacks: 1 }]),
+    on('onAttack', 'Carve', [{ kind: 'status', target: 'triggerTarget', status: RUNE, stacks: 1 }]),
     onDetonate('Runic Detonation', [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 2.5 } }]),
   ],
 };
