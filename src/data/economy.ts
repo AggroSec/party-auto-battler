@@ -16,6 +16,9 @@ export const RUN_CONFIG: RunConfig = {
   unitCost: 3,
   sellRefund: 1,
   rerollCost: 1,
+  // Brandon (post-M7): lock an offer for 1 gold; perks make it cheaper or allow more.
+  lockCost: 1,
+  maxLocks: 1,
   shop: {
     unitSlots: 4,
     // Items and training (issue #5: training appears randomly, so rerolling chases it).

@@ -1,4 +1,4 @@
-import { rerollCost, type RunContext, type RunState, type ShopOffer } from '../../engine/run/index.ts';
+import { rerollCost, runContext, type RunContext, type RunState, type ShopOffer } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable, useDropTarget, useIsDragging } from './drag.tsx';
 import { offerLabel } from './names.ts';
@@ -74,14 +74,18 @@ export function ShopRow({
   ctx,
   onOfferClick,
   onReroll,
+  onLock,
 }: {
   run: RunState;
   ctx: RunContext;
   onOfferClick: (index: number) => void;
   onReroll: () => void;
+  onLock: (index: number) => void;
 }) {
   const { shop, gold } = run;
   const reroll = rerollCost(run, ctx);
+  const { lockCost, maxLocks } = runContext(run.setup, ctx).config;
+  const locked = run.locked ?? [];
   return (
     <section className="shop-row" aria-label="Shop">
       <div className="shop-head">
@@ -94,7 +98,21 @@ export function ShopRow({
       <div className="offers">
         {shop.map((offer, i) =>
           offer ? (
-            <OfferCard key={i} offer={offer} index={i} ctx={ctx} gold={gold} onClick={() => onOfferClick(i)} />
+            <div key={i} className={`offer-wrap ${locked.includes(i) ? 'locked' : ''}`}>
+              <OfferCard offer={offer} index={i} ctx={ctx} gold={gold} onClick={() => onOfferClick(i)} />
+              {maxLocks > 0 && (
+                <button
+                  type="button"
+                  className="lock-offer"
+                  onClick={() => onLock(i)}
+                  aria-pressed={locked.includes(i)}
+                  disabled={!locked.includes(i) && (locked.length >= maxLocks || gold < lockCost)}
+                  title={locked.includes(i) ? 'Locked: stays through rerolls and next round. Click to unlock (no refund).' : `Lock this offer (${lockCost === 0 ? 'free' : `${lockCost}g`})`}
+                >
+                  {locked.includes(i) ? '🔒' : `🔓${lockCost === 0 ? '' : ` ${lockCost}g`}`}
+                </button>
+              )}
+            </div>
           ) : (
             <div key={i} className="offer-slot sold">
               Sold

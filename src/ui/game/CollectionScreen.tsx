@@ -186,6 +186,18 @@ export function CollectionScreen({ game }: { game: Game }) {
           ))}
         </ol>
       )}
+
+      <section className="danger-zone">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm('Reset all progress? Achievements, unlocks, ladder tiers and discovered classes start over. Your current run and play logs are kept.')) game.resetProgress();
+          }}
+        >
+          Reset progress
+        </button>
+        <span className="muted small"> Start unlocks from scratch.</span>
+      </section>
     </div>
   );
 }

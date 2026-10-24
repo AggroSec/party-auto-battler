@@ -97,7 +97,7 @@ export function ShopScreen({ game }: { game: Game }) {
             onChoose={(option) => act({ type: 'choose', option })}
           />
         )}
-        <ShopRow run={run} ctx={ctx} onOfferClick={onOfferClick} onReroll={() => act({ type: 'reroll' })} />
+        <ShopRow run={run} ctx={ctx} onOfferClick={onOfferClick} onReroll={() => act({ type: 'reroll' })} onLock={(offer) => act({ type: 'lock', offer })} />
         <div className="shop-main">
           <section className="party" aria-label="Your party">
             <div className="party-head">

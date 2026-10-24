@@ -4,6 +4,7 @@ import { META_CATALOG } from '../../data/meta/catalog.ts';
 import type { CombatResult } from '../../engine/index.ts';
 import {
   dailyRun,
+  newProfile,
   recordDiscovery,
   recordFight,
   recordRunEnd,
@@ -201,6 +202,13 @@ export function useGame() {
     [profile],
   );
 
+  /** Start progress over (achievements, ladder, discoveries), keeping the unlock-all setting and today's daily attempt. */
+  const resetProgress = useCallback(() => {
+    const next: Profile = { ...newProfile(), unlockAll: profile.unlockAll, daily: profile.daily };
+    saveProfile(next);
+    setProfile(next);
+  }, [profile]);
+
   return {
     /** The current run's effective context. */
     ctx,
@@ -234,6 +242,7 @@ export function useGame() {
     finishCombat,
     toTitle,
     setUnlockAll,
+    resetProgress,
   };
 }
 

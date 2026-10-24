@@ -70,6 +70,11 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       return `moved an item from ${unitAt(action.from)} to ${unitAt(action.to)}`;
     case 'reroll':
       return 'rerolled';
+    case 'lock': {
+      const o = state.shop[action.offer];
+      const what = !o ? '?' : o.kind === 'unit' ? nameOf(ctx, o.classId) : o.kind === 'item' ? (ctx.content.items[o.itemId]?.name ?? o.itemId) : `${nameOf(ctx, o.classId)} training`;
+      return `${state.locked?.includes(action.offer) ? 'unlocked' : 'locked'} ${what}`;
+    }
     case 'allocate': {
       const spent = Object.entries(action.points).filter(([, n]) => n).map(([k, n]) => `+${n} ${k.toUpperCase()}`);
       return `${unitAt(action.at)} spent points: ${spent.join(', ') || 'none'}`;

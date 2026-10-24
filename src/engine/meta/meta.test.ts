@@ -97,7 +97,17 @@ describe('achievements', () => {
     expect(recordRunEnd(newProfile(), ended('defeated'), CATALOG).earned.map((a) => a.id)).toEqual(['lose']);
     const daily = recordRunEnd(newProfile(), ended('complete', { wins: 15, setup: { ...defaultSetup(ctx), daily: '2026-10-23' } }), CATALOG);
     expect(daily.profile.daily).toMatchObject({ date: '2026-10-23', completed: true, done: true, wins: 15 });
-    expect(daily.profile.maxTier).toBe(0);
+    // Dailies never count toward progress: no tier, totals or achievements.
+    expect(daily.profile).toMatchObject({ maxTier: 0, stats: { runs: 0, completed: 0 }, achievements: [] });
+    expect(daily.earned).toEqual([]);
+  });
+
+  it('daily fights and discoveries count for nothing', () => {
+    const before = { ...createRun('s', ctx), setup: { ...defaultSetup(ctx), daily: '2026-10-23' } };
+    before.board.front[0] = { ...newUnit(1, 'tank', 'T'), advancedClassId: 'paladin', tertiaryClassId: 'templar' };
+    const fight = recordFight(newProfile(), { before, after: { ...before, winStreak: 2 }, combat: combat('player') }, ctx, CATALOG);
+    expect(fight).toEqual({ profile: newProfile(), earned: [] });
+    expect(recordDiscovery(newProfile(), before, CATALOG)).toEqual({ profile: newProfile(), earned: [] });
   });
 
   it('discovering a tertiary class mid-shop', () => {
@@ -106,5 +116,29 @@ describe('achievements', () => {
     const r = recordDiscovery(newProfile(), s, CATALOG);
     expect(r.profile.discovered).toEqual(['templar']);
     expect(r.earned.map((a) => a.id)).toEqual(['disc']);
+  });
+});
+
+describe('shop-lock achievements', () => {
+  const cat = (condition: MetaCatalog['achievements'][number]['condition']): MetaCatalog => ({
+    ...CATALOG,
+    achievements: [{ id: 'x', name: 'X', description: '', condition, reward: {} }],
+  });
+  const won = (before: RunState, after: RunState, c: MetaCatalog) => recordFight(newProfile(), { before, after, combat: combat('player') }, ctx, c).earned.length;
+
+  it('counts locked offers bought this run', () => {
+    const c = cat({ kind: 'lockedBought', count: 5 });
+    const s = createRun('s', ctx);
+    expect(won({ ...s, lockedBought: 4 }, s, c)).toBe(0);
+    expect(won({ ...s, lockedBought: 5 }, s, c)).toBe(1);
+  });
+
+  it('needs the gold streak over consecutive fights', () => {
+    const c = cat({ kind: 'goldStreak', gold: 10, rounds: 3 });
+    const s = createRun('s', ctx);
+    const rec = (gold?: number) => ({ round: 1, result: 'player' as const, enemy: [], income: null, ...(gold === undefined ? {} : { gold }) });
+    expect(won(s, { ...s, history: [rec(12), rec(10)] }, c)).toBe(0);
+    expect(won(s, { ...s, history: [rec(12), rec(9), rec(10), rec(11)] }, c)).toBe(0);
+    expect(won(s, { ...s, history: [rec(), rec(12), rec(10), rec(11)] }, c)).toBe(1);
   });
 });

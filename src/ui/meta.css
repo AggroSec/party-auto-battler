@@ -51,3 +51,15 @@
   .perk-offer { grid-template-columns: minmax(0, 1fr); }
   .hud-perks { flex-basis: 100%; }
 }
+
+/* Shop locks (post-M7). */
+.offer-wrap { position: relative; display: grid; }
+.offer-wrap > .offer-slot { height: 100%; }
+.offer-wrap.locked .offer-card { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
+.lock-offer {
+  position: absolute; right: 4px; bottom: 4px; padding: 1px 6px; font-size: 0.75rem; line-height: 1.4;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 999px; color: var(--muted); cursor: pointer;
+}
+.lock-offer[aria-pressed='true'] { color: inherit; border-color: var(--gold); }
+.lock-offer:disabled { opacity: 0.4; cursor: default; }
+.danger-zone { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--border); }

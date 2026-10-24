@@ -74,6 +74,21 @@ export function equipError(unit: OwnedUnit, itemId: string, ctx: RunContext): Ru
 
 const fail = (error: RunError): { ok: false; error: RunError } => ({ ok: false, error });
 
+/** Lay a freshly rolled shop over the old one, keeping locked offers in their slots. */
+function keepLocked(old: readonly (ShopOffer | null)[], rolled: (ShopOffer | null)[], locked: readonly number[] = []): { shop: (ShopOffer | null)[]; locked: number[] } {
+  const shop = [...rolled];
+  const kept: number[] = [];
+  for (const i of locked) {
+    const offer = old[i];
+    if (!offer) continue;
+    // The shop can shrink (a full party gets fewer recruit slots): keep the offer at the end.
+    const at = i < shop.length && !kept.includes(i) ? i : shop.push(offer) - 1;
+    shop[at] = offer;
+    kept.push(at);
+  }
+  return { shop, locked: kept };
+}
+
 /** Run `fn` with the state's shop RNG and store the advanced RNG position back. */
 function withRng<T>(state: RunState, fn: (rng: Rng) => T): T {
   const rng = new Rng(state.rngState);
@@ -136,6 +151,10 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       }
       next.gold -= offer.cost;
       next.shop[action.offer] = null;
+      if (next.locked?.includes(action.offer)) {
+        next.locked = next.locked.filter((i) => i !== action.offer);
+        next.lockedBought = (next.lockedBought ?? 0) + 1;
+      }
       return { ok: true, state: next };
     }
     case 'sell': {
@@ -186,8 +205,22 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       next.gold -= cost;
       if (cost === 0 && ctx.config.rerollCost > 0) next.freeRerollUsed = true;
       // A free (Armory) item stays put through rerolls until it's taken.
-      const free = next.shop.filter((o) => o?.kind === 'item' && o.cost === 0);
-      next.shop = [...withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), ...free];
+      const free = next.shop.filter((o, i) => o?.kind === 'item' && o.cost === 0 && !next.locked?.includes(i));
+      const rolled = [...withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), ...free];
+      Object.assign(next, keepLocked(state.shop, rolled, state.locked));
+      return { ok: true, state: next };
+    }
+    case 'lock': {
+      if (!next.shop[action.offer]) return fail('noSuchOffer');
+      const locked = next.locked ?? [];
+      if (locked.includes(action.offer)) {
+        next.locked = locked.filter((i) => i !== action.offer);
+        return { ok: true, state: next };
+      }
+      if (locked.length >= ctx.config.maxLocks) return fail('lockLimit');
+      if (next.gold < ctx.config.lockCost) return fail('notEnoughGold');
+      next.gold -= ctx.config.lockCost;
+      next.locked = [...locked, action.offer];
       return { ok: true, state: next };
     }
     case 'choose': {
@@ -290,9 +323,9 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     next.gold += income.total;
     next.round += 1;
     next.freeRerollUsed = false;
-    next.shop = withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round));
+    Object.assign(next, keepLocked(state.shop, withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), state.locked));
   }
-  next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income });
+  next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income, gold: state.gold });
 
   return { ok: true, state: next, combat, playerParty, enemyParty: enemy.party, enemyBuilds: enemy.builds, income };
 }
