@@ -52,6 +52,10 @@ function fightMet(cond: AchievementCondition, info: FightInfo, ctx: RunContext):
       return won && new Set(units.map((u) => u.classId)).size >= cond.count;
     case 'winWithUnits':
       return won && units.filter((u) => matchesFilter(u, cond.filter, ctx.content)).length >= cond.count;
+    case 'winWithClasses':
+      return won && cond.classIds.every((id) => units.some((u) => u.classId === id && u.level >= (cond.minLevel ?? 1)));
+    case 'lastStanding':
+      return won && combat.summary.filter((s) => s.side === 'player' && s.survived && !s.summonedBy).length <= cond.survivors;
     case 'healInFight':
       return combat.summary.filter((s) => s.side === 'player').reduce((sum, s) => sum + s.healingDone + (cond.shields ? s.shieldingDone : 0), 0) >= cond.amount;
     case 'activeSynergies':

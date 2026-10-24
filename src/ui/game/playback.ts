@@ -27,6 +27,8 @@ export interface UnitView {
   replaced: boolean;
   /** Where the gauge animates from this frame: the previous value, or the new one when it dropped (a spent turn snaps down). */
   gaugeFrom: number;
+  /** Stacking statuses on the unit (post-M7), by status id. */
+  statuses: Record<string, { name: string; stacks: number }>;
 }
 
 /** Something to animate on a unit during a frame. */
@@ -39,7 +41,8 @@ export type Fx =
   | { kind: 'taunt'; target: UnitId }
   | { kind: 'death'; target: UnitId }
   | { kind: 'summon'; target: UnitId }
-  | { kind: 'trigger'; target: UnitId; label: string };
+  | { kind: 'trigger'; target: UnitId; label: string }
+  | { kind: 'burst'; target: UnitId; name: string };
 
 export type FrameKind = 'start' | 'turn' | 'overtime' | 'end';
 
@@ -71,7 +74,7 @@ function emptyFrame(kind: FrameKind, tick: number, units: Record<UnitId, UnitVie
 
 function cloneUnits(units: Record<UnitId, UnitView>): Record<UnitId, UnitView> {
   const out: Record<UnitId, UnitView> = {};
-  for (const [id, u] of Object.entries(units)) out[id] = { ...u, hpFrom: u.hp, gaugeFrom: u.gauge };
+  for (const [id, u] of Object.entries(units)) out[id] = { ...u, hpFrom: u.hp, gaugeFrom: u.gauge, statuses: { ...u.statuses } };
   return out;
 }
 
@@ -151,6 +154,15 @@ function apply(frame: Frame, e: CombatEvent): void {
       frame.fx.push({ kind: 'summon', target: e.unit.id });
       return;
     }
+    case 'status': {
+      const t = u[e.target];
+      if (t) {
+        if (e.stacks > 0) t.statuses[e.status] = { name: e.name, stacks: e.stacks };
+        else delete t.statuses[e.status];
+      }
+      if (e.burst) frame.fx.push({ kind: 'burst', target: e.target, name: e.name });
+      return;
+    }
     case 'overtime':
       frame.overtime = { stage: e.stage, percent: e.percent };
       return;
@@ -182,6 +194,7 @@ function unitView(s: UnitSnapshot, summoned: boolean): UnitView {
     gaugeFrom: 0,
     summoned,
     replaced: false,
+    statuses: {},
   };
 }
 

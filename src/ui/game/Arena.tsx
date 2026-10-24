@@ -5,9 +5,13 @@ import type { Fx, Frame, UnitView } from './playback.ts';
 
 const STAT_ICON = { atk: '⚔️', def: '🛡️', spd: '💨' } as const;
 
+/** Glyphs for stacking statuses (post-M7); placeholders until the icon set lands. */
+const STATUS_ICON: Record<string, string> = { rune: 'ᚱ', searing: '🔥', corruption: '🟣', dread: '😨', hellfire: '♨️', 'deathless-fury': '💢' };
+
 /** Floating text for a unit's effects this frame, merged so busy frames stay readable. */
 export function floatsFor(fx: Fx[]): { text: string; cls: string }[] {
   let damage = 0, absorbed = 0, heal = 0, shield = 0, taunt = false, hasDamage = false;
+  const bursts: string[] = [];
   const stats = new Map<keyof typeof STAT_ICON, number>();
   let cooldown = 0;
   for (const f of fx) {
@@ -20,12 +24,14 @@ export function floatsFor(fx: Fx[]): { text: string; cls: string }[] {
     else if (f.kind === 'stat') stats.set(f.stat, (stats.get(f.stat) ?? 0) + f.value);
     else if (f.kind === 'cooldown') cooldown += f.turns;
     else if (f.kind === 'taunt') taunt = true;
+    else if (f.kind === 'burst') bursts.push(f.name);
   }
   const out: { text: string; cls: string }[] = [];
   if (hasDamage) out.push({ text: damage > 0 ? `-${damage}` : `(${absorbed})`, cls: 'dmg' });
   if (heal > 0) out.push({ text: `+${heal}`, cls: 'heal' });
   if (shield > 0) out.push({ text: `🛡${shield}`, cls: 'shield' });
   if (taunt) out.push({ text: 'Taunt!', cls: 'taunt' });
+  for (const name of bursts) out.push({ text: `💥 ${name}s`, cls: 'burst' });
   const statText = [...stats]
     .filter(([, v]) => v !== 0)
     .map(([k, v]) => `${STAT_ICON[k]}${v > 0 ? '+' : ''}${v}`)
@@ -90,6 +96,16 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
           >
             <span className="gauge" style={{ '--from': `${gaugeFromPct}%`, '--to': `${gaugePct}%` } as React.CSSProperties} />
             <span className="gauge-spd">💨{unit.spd}</span>
+          </div>
+        )}
+        {unit.alive && Object.keys(unit.statuses).length > 0 && (
+          <div className="status-pips">
+            {Object.entries(unit.statuses).map(([id, s]) => (
+              <span key={id} className={`status-pip status-${id}`} title={`${s.name} ×${s.stacks}`}>
+                {STATUS_ICON[id] ?? '•'}
+                {s.stacks}
+              </span>
+            ))}
           </div>
         )}
         {unit.taunt > 0 && (

@@ -6,7 +6,7 @@ import { createUnit, partyOf } from './units.ts';
 describe('class data', () => {
   it('starts with the original five classes; the rest are unlocked (M7)', () => {
     expect(STARTER_CLASS_IDS).toEqual(['warrior', 'rogue', 'mage', 'cleric', 'ranger']);
-    expect(CLASS_IDS.filter((id) => CLASSES[id].unlockable)).toEqual(['monk', 'bard', 'druid', 'warlock', 'engineer', 'necromancer']);
+    expect(CLASS_IDS.filter((id) => CLASSES[id].unlockable)).toEqual(['monk', 'bard', 'druid', 'warlock', 'engineer', 'necromancer', 'runeblade', 'dark-knight']);
   });
 
   it.each(CLASS_IDS)('%s has sane stats and ability', (id) => {

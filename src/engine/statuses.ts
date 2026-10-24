@@ -34,7 +34,7 @@ function setStacks(state: CombatState, unit: CombatUnit, s: ActiveStatus, stacks
   if (stacks === 0) unit.statuses.delete(s.def.id);
 }
 
-/** Give `target` stacks of a status from `source`; bursts it if that reaches `burstAt`. */
+/** Give `target` stacks of a status from `source`; bursts it if that reaches `burstAt` (extra stacks carry over). */
 export function applyStatus(
   state: CombatState,
   source: CombatUnit,
@@ -57,11 +57,16 @@ export function applyStatus(
   if (def.duration !== undefined) s.turns = def.duration;
   const next = Math.min(def.maxStacks ?? Infinity, s.stacks + stacks);
   if (next === s.stacks) return;
-  setStacks(state, target, s, next);
-  if (def.burstAt !== undefined && next >= def.burstAt) {
-    setStacks(state, target, s, 0, true);
-    fireBurst(state, source, target, def.id, depth);
+  if (def.burstAt === undefined || next < def.burstAt) {
+    setStacks(state, target, s, next);
+    return;
   }
+  // Burst; stacks past the threshold carry over (never enough for a second burst).
+  setStacks(state, target, s, def.burstAt);
+  setStacks(state, target, s, 0, true);
+  fireBurst(state, source, target, def.id, depth);
+  const leftover = Math.min(next - def.burstAt, def.burstAt - 1);
+  if (leftover > 0 && target.alive) applyStatus(state, source, target, def, leftover, power, depth, fireBurst);
 }
 
 /** Start of the unit's turn: its damage-over-time statuses deal their damage. */

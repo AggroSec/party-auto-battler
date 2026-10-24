@@ -13,6 +13,9 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'full-roster', name: 'Full Roster', description: 'Win a fight with 5 different classes.', condition: { kind: 'winWithDistinctClasses', count: 5 }, reward: { classes: ['bard'], items: ['enchanted-lute'] } },
   { id: 'lifeline', name: 'Lifeline', description: 'Heal or shield 400 HP in one fight.', condition: { kind: 'healInFight', amount: 400, shields: true }, reward: { classes: ['druid'], items: ['oak-heart'] } },
   { id: 'by-a-thread', name: 'By a Thread', description: 'Win a run with 1 life left.', condition: { kind: 'completeRun', maxLives: 1 }, reward: { classes: ['warlock'], items: ['cursed-tome'] } },
+  // Post-M7 classes (Brandon: every new class is unlockable).
+  { id: 'spellsword', name: 'Spellsword', description: 'Win a fight with a Warrior and a Mage, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['warrior', 'mage'], minLevel: 5 }, reward: { classes: ['runeblade'] } },
+  { id: 'last-one-standing', name: 'Last One Standing', description: 'Win a fight with only one of your units still standing.', condition: { kind: 'lastStanding', survivors: 1 }, reward: { classes: ['dark-knight'], synergies: ['rivals'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 
   // Items.

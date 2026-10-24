@@ -82,3 +82,14 @@ describe('statuses', () => {
     expect(byId(s, 'e0').hp).toBe(170);
   });
 });
+
+describe('burst overflow', () => {
+  it('stacks past the threshold carry over after the burst', () => {
+    const s = makeState(party([unit()]), party([tough()]));
+    const e = byId(s, 'e0');
+    applyEffects(s, byId(s, 'p0'), [status(RUNE, 2)], {}, 0);
+    applyEffects(s, byId(s, 'p0'), [status(RUNE, 2)], {}, 0);
+    expect(e.statuses.get('rune')?.stacks).toBe(1);
+    expect(ofType(s.events, 'status').map((x) => x.stacks)).toEqual([2, 3, 0, 1]);
+  });
+});

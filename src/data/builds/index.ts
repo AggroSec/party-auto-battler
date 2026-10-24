@@ -1,6 +1,7 @@
 import type { AdvancedClassDef, TalentDef, TertiaryClassDef } from '../../engine/run/content-types.ts';
 import type { ClassDef, ClassId } from '../class-types.ts';
 import { bardClass, bardTalents, skald, trickster } from './bard.ts';
+import { blackguard, darkKnightClass, darkKnightTalents, dreadknight } from './dark-knight.ts';
 import { clericClass, clericTalents, inquisitor, priest } from './cleric.ts';
 import { druidClass, druidTalents, groveWarden, shapeshifter } from './druid.ts';
 import { demolitionist, engineerClass, engineerTalents, machinist } from './engineer.ts';
@@ -9,9 +10,11 @@ import { ironFist, monkClass, monkTalents, windwalker } from './monk.ts';
 import { lich, necromancerClass, necromancerTalents, plaguelord } from './necromancer.ts';
 import { beastmaster, rangerClass, rangerTalents, sharpshooter } from './ranger.ts';
 import { assassin, duelist, rogueClass, rogueTalents } from './rogue.ts';
+import { duskblade, runebladeClass, runebladeTalents, spellblade } from './runeblade.ts';
 import { demonologist, hexer, warlockClass, warlockTalents } from './warlock.ts';
 import { BARD_TERTIARY } from './tertiary/bard.ts';
 import { CLERIC_TERTIARY } from './tertiary/cleric.ts';
+import { DARK_KNIGHT_TERTIARY } from './tertiary/dark-knight.ts';
 import { DRUID_TERTIARY } from './tertiary/druid.ts';
 import { ENGINEER_TERTIARY } from './tertiary/engineer.ts';
 import { MAGE_TERTIARY } from './tertiary/mage.ts';
@@ -19,6 +22,7 @@ import { MONK_TERTIARY } from './tertiary/monk.ts';
 import { NECROMANCER_TERTIARY } from './tertiary/necromancer.ts';
 import { RANGER_TERTIARY } from './tertiary/ranger.ts';
 import { ROGUE_TERTIARY } from './tertiary/rogue.ts';
+import { RUNEBLADE_TERTIARY } from './tertiary/runeblade.ts';
 import { WARLOCK_TERTIARY } from './tertiary/warlock.ts';
 import { WARRIOR_TERTIARY } from './tertiary/warrior.ts';
 import { berserker, knight, warriorClass, warriorTalents } from './warrior.ts';
@@ -35,6 +39,8 @@ export const BASE_CLASSES: Record<ClassId, ClassDef> = {
   warlock: warlockClass,
   engineer: engineerClass,
   necromancer: necromancerClass,
+  runeblade: runebladeClass,
+  'dark-knight': darkKnightClass,
 };
 
 /** Level-2 talent pools by base class. */
@@ -50,12 +56,14 @@ export const BASE_TALENTS: Record<ClassId, readonly TalentDef[]> = {
   warlock: warlockTalents,
   engineer: engineerTalents,
   necromancer: necromancerTalents,
+  runeblade: runebladeTalents,
+  'dark-knight': darkKnightTalents,
 };
 
 const ADVANCED = [
   knight, berserker, assassin, duelist, pyromancer, chronomancer, priest, inquisitor, sharpshooter, beastmaster,
   windwalker, ironFist, skald, trickster, shapeshifter, groveWarden, hexer, demonologist, machinist, demolitionist,
-  lich, plaguelord,
+  lich, plaguelord, spellblade, duskblade, blackguard, dreadknight,
 ];
 
 const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
@@ -70,6 +78,8 @@ const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
   ...WARLOCK_TERTIARY,
   ...ENGINEER_TERTIARY,
   ...NECROMANCER_TERTIARY,
+  ...RUNEBLADE_TERTIARY,
+  ...DARK_KNIGHT_TERTIARY,
 ];
 
 /** Advanced classes, each listing the tertiary classes that name it as their parent. */

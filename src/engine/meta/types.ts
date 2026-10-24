@@ -23,6 +23,10 @@ export type AchievementCondition =
   | { kind: 'winWithDistinctClasses'; count: number }
   /** Win a fight with this many units matching the filter. */
   | { kind: 'winWithUnits'; filter: UnitFilter; count: number }
+  /** Win a fight with each of these base classes in the party, each at `minLevel` or higher. */
+  | { kind: 'winWithClasses'; classIds: readonly string[]; minLevel?: number }
+  /** Win a fight with at most this many of your units still standing (summons don't count). */
+  | { kind: 'lastStanding'; survivors: number }
   /** Healing done in one fight; with `shields`, shielding counts too. */
   | { kind: 'healInFight'; amount: number; shields?: boolean }
   | { kind: 'activeSynergies'; count: number }

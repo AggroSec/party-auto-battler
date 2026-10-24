@@ -11,7 +11,9 @@ export type ClassId =
   | 'bard'
   | 'druid'
   | 'warlock'
-  | 'engineer';
+  | 'engineer'
+  | 'runeblade'
+  | 'dark-knight';
 
 export type ClassRole = 'frontline' | 'striker' | 'caster' | 'support';
 

@@ -63,3 +63,13 @@
 .lock-offer[aria-pressed='true'] { color: inherit; border-color: var(--gold); }
 .lock-offer:disabled { opacity: 0.4; cursor: default; }
 .danger-zone { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+/* Stacking statuses in combat playback (post-M7). */
+.status-pips { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
+.status-pip {
+  font-size: 0.68rem; line-height: 1.3; padding: 0 4px; border-radius: 999px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--text); white-space: nowrap;
+}
+.status-pip.status-rune { border-color: #5fd4e8; color: #5fd4e8; font-weight: 600; }
+.status-pip.status-dread { border-color: #a03a4a; }
+.float.burst { color: #5fd4e8; font-weight: 700; }

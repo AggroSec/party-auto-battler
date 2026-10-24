@@ -142,3 +142,35 @@ describe('shop-lock achievements', () => {
     expect(won(s, { ...s, history: [rec(), rec(12), rec(10), rec(11)] }, c)).toBe(1);
   });
 });
+
+describe('class-unlock achievements', () => {
+  const cat = (condition: MetaCatalog['achievements'][number]['condition']): MetaCatalog => ({
+    ...CATALOG,
+    achievements: [{ id: 'x', name: 'X', description: '', condition, reward: {} }],
+  });
+  const earned = (before: RunState, c: MetaCatalog, result: CombatResult = combat('player')) =>
+    recordFight(newProfile(), { before, after: before, combat: result }, ctx, c).earned.length;
+
+  it('winWithClasses needs every listed class at the level', () => {
+    const c = cat({ kind: 'winWithClasses', classIds: ['tank', 'archer'], minLevel: 5 });
+    const s = createRun('s', ctx);
+    s.board.front[0] = { ...newUnit(1, 'tank', 'T'), level: 5 };
+    s.board.back[0] = { ...newUnit(2, 'archer', 'A'), level: 4 };
+    expect(earned(s, c)).toBe(0);
+    s.board.back[0] = { ...s.board.back[0], level: 5 };
+    expect(earned(s, c)).toBe(1);
+    expect(earned(s, c, combat('enemy'))).toBe(0);
+  });
+
+  it('lastStanding counts surviving board units, not summons', () => {
+    const c = cat({ kind: 'lastStanding', survivors: 1 });
+    const row = (id: string, survived: boolean, summonedBy?: string) => ({
+      id, name: id, side: 'player' as const, survived, damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0,
+      ...(summonedBy ? { summonedBy } : {}),
+    });
+    const s = createRun('s', ctx);
+    const fightWith = (summary: ReturnType<typeof row>[]) => ({ ...combat('player'), summary });
+    expect(earned(s, c, fightWith([row('p0', true), row('p1', true)]))).toBe(0);
+    expect(earned(s, c, fightWith([row('p0', true), row('p1', false), row('ps0', true, 'p0')]))).toBe(1);
+  });
+});

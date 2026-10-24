@@ -31,10 +31,11 @@ describe('build content integrity', () => {
       expect(c.advancedClasses).toHaveLength(2);
       for (const a of c.advancedClasses) {
         expect(ADVANCED_CLASSES[a]?.baseClassId).toBe(id);
-        expect(ADVANCED_CLASSES[a]?.talents).toHaveLength(4);
+        // Berserker has a fifth: Deathless Fury (Brandon, post-M7).
+        expect(ADVANCED_CLASSES[a]?.talents).toHaveLength(a === 'berserker' ? 5 : 4);
       }
     }
-    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(22);
+    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(26);
   });
 
   it('every advanced class has 2 tertiary classes that point back to it, each with 4 talents and one granted ability', () => {
@@ -48,7 +49,7 @@ describe('build content integrity', () => {
         expect(t.talents.filter((tid) => TALENTS[tid]?.grantAbility), id).toHaveLength(1);
       }
     }
-    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(44);
+    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(52);
   });
 
   it('class ids are unique across tiers', () => {
@@ -62,8 +63,8 @@ describe('build content integrity', () => {
       ...Object.values(ADVANCED_CLASSES).map((a) => a.talents),
       ...Object.values(TERTIARY_CLASSES).map((t) => t.talents),
     ].flat();
-    expect(pools).toHaveLength(308);
-    expect(new Set(pools).size).toBe(308);
+    expect(pools).toHaveLength(365);
+    expect(new Set(pools).size).toBe(365);
     expect(Object.keys(TALENTS).sort()).toEqual([...pools].sort());
   });
 
