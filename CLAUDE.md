@@ -94,7 +94,7 @@ docs/
 - Party size is 5, in a **front row (3) and back row (2)**. Melee targets the front row first; position matters.
 
 **Units, classes and builds (the core fantasy)**
-- Classes: Warrior, Rogue, Mage, Cleric, Ranger, Monk, Bard, Druid, Warlock, Engineer and Necromancer. New players start with the first five; achievements unlock the rest (Milestone 7). More classes come after the core project ships, with Brandon choosing them.
+- Classes: Warrior, Rogue, Mage, Cleric, Ranger, Monk, Bard, Druid, Warlock, Engineer, Necromancer, Runeblade and Dark Knight. New players start with the first five; achievements unlock the rest (Milestone 7), and every new class is unlockable. Brandon chooses and designs new classes (Runeblade and Dark Knight were added after Milestone 7).
 - Stats: HP, ATK, DEF, SPD, plus a class ability on a cooldown or resource.
 - Units gain XP from combat. **Every level-up offers a choice of 2–3 talents** from that class's talent pool. Meaningful choices, not flat stat bumps.
 - **Every level-up also grants stat points the player distributes freely** (more at levels 3 and 5), with a recommended spread per class for players who don't want to min-max.

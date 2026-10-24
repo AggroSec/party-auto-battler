@@ -2,6 +2,34 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-24 — After M7: playtest fixes, shop locks, Runeblade and Dark Knight
+
+Brandon approved the fix plan (dailies don't count, Reset progress, shop locks with two perks, an easier Druid unlock) and designed two new classes with me: the Runeblade (Runes that build and detonate; elemental and twilight paths; two tertiaries fight from the back row) and the Dark Knight (an evil tank that pays HP, lifesteals and scales with missing HP; blood and Dread paths), plus a Berserker rage talent and a Rivals synergy. Everything below was decided autonomously.
+
+### Engine
+- **One general status system instead of class-specific code.** A `status` effect carries its whole `StatusDef` (like summons carry theirs), so the engine never looks content up. One entry per status per unit, owned by its latest applier, who gets credit for its damage and whose `onBurst` triggers fire. `TriggeredEffect.status` narrows an `onBurst` trigger to one status.
+- **Per-stack stat changes undo exactly what they took.** A status that lowers ATK 2 → 0 gives back 2, not its nominal amount, so stat floors never leak.
+- **Damage over time ticks at the start of the afflicted unit's turn,** ignores DEF, skips the back-row melee penalty and execute bonus, and fires no `onHurt` (so thorns-style passives don't retaliate against every tick). Lifesteal still applies.
+- **Burst overflow carries over** (a 2-Rune hit at 4 Runes bursts and leaves 1), capped below a second burst.
+- **Timed statuses count down at the end of the afflicted unit's own turn,** so "for 2 turns" means two of its actions.
+- **`missingHp` amounts** (fraction of the source's max HP minus current HP) give the Dark Knight its low-HP scaling without new triggers.
+
+### Content
+- **Rune detonation is the Runeblade's base passive (250% ATK);** each path adds its own `onBurst` effect on top, so the rhythm stays and the payoff changes.
+- **Stormblade and Dawnblade are the back-row tertiaries** (reach). Stormblade also attacks random enemies, so its Runes spread.
+- **Duskblade is tagged divine and shadow,** so it counts toward both Champions of Light and Legion of Night, and toward Twilight Pact by itself.
+- **The Dark Knight's base passive is a bloodied bonus, not lifesteal:** base classes can't carry lifesteal (only modifiers can), and Blackguard, talents and items supply it.
+- **Deathless Fury reuses `revive`** (at 1 HP) plus a timed status with `preventDeath`. It's a fifth Berserker talent; Bloodreaver already had a talent named Undying Rage, so the new one got a different name.
+- **Unlock achievements:** Spellsword (Warrior and Mage, both level 5+, win a fight) and Last One Standing (win with one unit left). Both are reachable with the starter classes. Two new achievement kinds: `winWithClasses` and `lastStanding`.
+- **Renamed for uniqueness:** Bedrock → Living Stone, Radiance → First Light (passives), and the talents Blood Pact, Sacrifice, Brimstone, Hemorrhage and Thirst, which already existed elsewhere.
+
+### Fixes
+- **Dailies are excluded at the source** (`recordFight`, `recordDiscovery`, `recordRunEnd` return early), so no future achievement kind can leak through them.
+- **Lifeline is 400 healing plus shields.** The simulator puts the first 400 at around round 10 for bots with starter classes (bots play worse than people).
+- **Lock state is optional on the run** (`locked`, `lockedBought`) so saved runs from before this change still load. Locks persist by slot; if the shop shrinks (a full party gets fewer recruit slots) a locked offer moves to the end.
+- **Rounds record the gold taken into the fight** (for Penny Pincher), also optional for old saves.
+- **Play-log replays of Berserker level-ups may drift** for logs made before this change, because its talent pool grew from 4 to 5 and talent options are rolled. Results already logged are unaffected.
+
 ## 2026-10-22 — Milestone 7: meta progression
 
 Brandon approved the plan up front. His calls: lock some existing content, plus an "unlock everything" toggle until 1.0; 10 stacking ladder tiers; perks offered 3 at a time, with Perkception unlocks to keep more; 6 new items plus a signature item for each tertiary class; and synergies that don't need duplicate classes (role combos and good-vs-evil themes). Everything below was decided autonomously, including where the plan's examples had to change to fit the engine.
