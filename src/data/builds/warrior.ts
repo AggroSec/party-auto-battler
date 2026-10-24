@@ -1,4 +1,5 @@
 import type { ClassDef } from '../class-types.ts';
+import { DEATHLESS_FURY } from '../statuses.ts';
 import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const warriorTalents = [
@@ -75,6 +76,11 @@ export const berserker = advanced({
     talent('berserker/unstoppable', 'Unstoppable', 'When bloodied, shield yourself for 35% of max HP.', trig(
       on('onBloodied', 'Unstoppable', [{ kind: 'shield', target: 'self', amount: { maxHp: 0.35 } }]),
     )),
+    // Brandon (post-M7): a rage talent that stops the Berserker dying and boosts it for a few turns.
+    talent('berserker/deathless-fury', 'Deathless Fury', "The first time you would fall, stay at 1 HP instead: for 2 turns you can't drop below 1 HP and gain +4 ATK and +4 SPD.", {
+      revive: 0.01,
+      triggers: [on('onRevive', 'Deathless Fury', [{ kind: 'status', target: 'self', status: DEATHLESS_FURY, stacks: 1 }])],
+    }),
   ],
 });
 

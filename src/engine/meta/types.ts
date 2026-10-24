@@ -23,7 +23,12 @@ export type AchievementCondition =
   | { kind: 'winWithDistinctClasses'; count: number }
   /** Win a fight with this many units matching the filter. */
   | { kind: 'winWithUnits'; filter: UnitFilter; count: number }
-  | { kind: 'healInFight'; amount: number }
+  /** Win a fight with each of these base classes in the party, each at `minLevel` or higher. */
+  | { kind: 'winWithClasses'; classIds: readonly string[]; minLevel?: number }
+  /** Win a fight with at most this many of your units still standing (summons don't count). */
+  | { kind: 'lastStanding'; survivors: number }
+  /** Healing done in one fight; with `shields`, shielding counts too. */
+  | { kind: 'healInFight'; amount: number; shields?: boolean }
   | { kind: 'activeSynergies'; count: number }
   /** Kill this many enemies in a single moment (one attack or ability and what it sets off). */
   | { kind: 'killsAtOnce'; count: number }
@@ -35,6 +40,10 @@ export type AchievementCondition =
   | { kind: 'summonsInFight'; count: number }
   /** Go into a fight with this much gold unspent. */
   | { kind: 'goldInHand'; gold: number }
+  /** Go into this many fights in a row, each with at least `gold` unspent. */
+  | { kind: 'goldStreak'; gold: number; rounds: number }
+  /** Buy this many locked shop offers in one run. */
+  | { kind: 'lockedBought'; count: number }
   /** Go into a fight with 5 units holding 2 items each. */
   | { kind: 'fullyEquipped' }
   /** Reach this many different tertiary classes across all runs. */

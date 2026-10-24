@@ -23,6 +23,17 @@ describe('glossary', () => {
     expect(terms('3 Light units: heal. 2 Dark units too.')).toEqual(['light-dark:Light units', 'light-dark:Dark units']);
   });
 
+  it('links post-M7 status terms', () => {
+    expect(terms('Carve 2 Runes. Detonations give 3 Corruption and 1 Dread; deal 10% of your missing HP.')).toEqual([
+      'rune:Runes',
+      'rune:Detonations',
+      'dot:Corruption',
+      'dread:Dread',
+      'missing-hp:missing HP',
+    ]);
+    expect(terms('The Runeblade recruits.')).toEqual([]);
+  });
+
   it('does not match inside other words', () => {
     expect(terms('Each preacher teaches the breach.')).toEqual([]);
   });

@@ -204,6 +204,9 @@ export interface RunModifier {
   startingGold?: number;
   startingLives?: number;
   rerollCost?: number;
+  lockCost?: number;
+  /** Extra shop offers that can be locked at once. */
+  lockSlots?: number;
   maxInterest?: number;
   trainingCost?: number;
   /** Extra talent options per level-up. */

@@ -13,6 +13,7 @@
 | Progression, balance and new classes (stat points, Monk/Bard/Druid/Warlock/Engineer, summons) | ✅ Milestone 5 |
 | Level cap 10, tertiary classes at level 7, ability-granting talents, 15-win runs | ✅ Milestone 6 |
 | Meta progression (difficulty ladder, achievements, unlocks, starting perks, daily run, signature items) | ✅ Milestone 7 |
+| Playtest follow-ups: shop locks, stacking statuses, Runeblade, Dark Knight | ✅ After M7 |
 | Juice (icons, sound, credits) | Milestone 8 |
 | Ship (GitHub Pages, README) | Milestone 9 |
 
@@ -148,10 +149,12 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 | Warlock | Caster | Ranged | 28/7/0/9 | highest ATK | **Shadow Bolt** (3): 230% ATK to the strongest enemy, then pay 8% max HP | **Soul Siphon:** heal 25% max HP on kill |
 | Engineer | Caster | Ranged | 28/5/2/9 | nearest | **Deploy Turret** (4, first on turn 2): summon a Turret (50% HP, 60% ATK); full board: 160% ATK rocket | **Field Repairs:** 30% at turn start, heal the most wounded ally 3 |
 | Necromancer 🔒 | Caster | Ranged | 24/5/1/9 | lowest HP | **Drain Life** (3): 150% ATK to the weakest enemy, heal self 100% ATK | **Dark Harvest:** +2 ATK when an ally dies |
+| Runeblade 🔒 | Striker | Melee | 36/6/2/10 | nearest | **Runestrike** (3): 110% ATK to the nearest enemy and carve 2 Runes | **Runic Detonation:** basic attacks carve 1 Rune; 5 Runes detonate for 250% ATK |
+| Dark Knight 🔒 | Frontline | Melee | 40/6/2/8 | nearest | **Blood Price** (3): pay 8% max HP, 130% ATK + 20% missing HP to the nearest enemy, heal 50% ATK | **Dark Resolve:** when bloodied, +3 DEF and +2 ATK |
 
-🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request.
+🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request; Runeblade and Dark Knight after M7, to his design (see below).
 
-**Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Monk martial + spirit, Bard arcane + spirit, Druid wild + nature, Warlock shadow + occult, Engineer tech, Necromancer arcane + shadow. Advanced classes replace their base tags.
+**Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Monk martial + spirit, Bard arcane + spirit, Druid wild + nature, Warlock shadow + occult, Engineer tech, Necromancer arcane + shadow, Runeblade arcane + martial, Dark Knight martial + guardian + shadow. Advanced classes replace their base tags.
 
 **Recommended stat spreads** (relative weights; the "Recommended" button and enemies follow these, players can ignore them):
 
@@ -168,6 +171,8 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 | Warlock | 2 | 4 | 1 | 2 |
 | Engineer | 3 | 3 | 2 | 1 |
 | Necromancer | 2 | 4 | 1 | 1 |
+| Runeblade | 3 | 4 | 1 | 2 |
+| Dark Knight | 4 | 3 | 2 | 1 |
 
 Some advanced classes override their base spread (e.g. Knight leans HP/DEF, Windwalker SPD).
 
@@ -525,6 +530,119 @@ One per tertiary class *(Brandon: unique, pricier, attainable, shown only when t
 | Blightlord | Plague Censer | 7g | At the start of each of your turns, every enemy takes 20% ATK. |
 | Rotcaller | Grave Banner | 7g | +20% ability power. When an ally falls, it bursts: deal 70% ATK to every enemy. |
 
+## After Milestone 7: Brandon's playtest feedback
+
+### Fixes
+- **Daily runs don't count toward progress.** No achievements, discoveries or lifetime stats; the daily keeps only its own record. (Brandon earned the tier achievements up to 4 from one daily.)
+- **Reset progress** (Collection screen, behind a confirm) clears achievements, ladder tiers and discoveries, keeping the unlock-all setting and today's daily attempt.
+- **Lifeline** (unlocks Druid) counts shields: heal or shield 400 HP in one fight. Healing alone was nearly impossible with the starter classes, whose best healer mostly shields.
+- **By a Thread** (unlocks Warlock) is unchanged while Brandon tries it; the fallback is "win a fight at 1 life".
+
+### Shop locks
+- Every shop offer (recruit, item or training) has a 🔒 button. Locking costs **1 gold**, paid once; a locked offer survives rerolls and the next round until you buy it or unlock it. Unlocking is free and refunds nothing.
+- One lock at a time. Perks: **Haggler** (locks are free; from **Penny Pincher**: go into 3 fights in a row with 10+ gold) and **Layaway** (+1 lock; from **Window Shopper**: buy 5 locked offers in one run).
+
+### Stacking statuses
+A status is a named stack on a unit: it can change a stat per stack, deal damage each of the afflicted unit's turns (ignoring DEF, credited to whoever applied it), last a number of turns, burst at a threshold (firing its applier's `onBurst` effects), or keep the unit above 0 HP. Stack counts show on unit cards during playback.
+
+| Status | Rules | From |
+|---|---|---|
+| Rune | Bursts at 5 (extra stacks carry over) | Runeblade line |
+| Searing | 20% ATK per stack per turn, up to 5, 3 turns | Searing Runes |
+| Corruption | 25% ATK per stack per turn, up to 10, 3 turns | Voidblade |
+| Dread | −1 ATK per stack, up to 2, rest of the fight | Dark Knight line |
+| Hellfire | 20% ATK per stack per turn, up to 5, 3 turns | Hellknight |
+| Deathless Fury | Can't drop below 1 HP, +4 ATK, +4 SPD, 2 turns | Berserker |
+
+Amounts can also scale with the source's **missing HP** (Dark Knight).
+
+### New classes (Brandon's design)
+Both are unlockable, like every new class from now on: **Spellsword** (win a fight with a Warrior and a Mage, both level 5+) unlocks the Runeblade; **Last One Standing** (win a fight with only one unit left) unlocks the Dark Knight and the Rivals synergy. Enemy versions: Hexblade Sellsword (from round 3) and Fallen Knight (from round 2).
+
+#### Runeblade
+
+Arcane warrior: every hit carves a Rune, and 5 Runes detonate. Tags: arcane, martial. 36/6/2/10, melee.
+
+- **Runestrike:** Every 3rd turn: deal 110% ATK to the nearest enemy and carve 2 Runes into it.
+- **Runic Detonation:** Basic attacks carve 1 Rune. At 5 Runes they detonate for 250% ATK.
+- Talents: **Searing Runes** (Basic attacks also sear the target: 20% ATK damage per turn, stacking up to 5, for 3 turns.); **Deep Carving** (After casting, carve 1 more Rune into the nearest enemy.); **Runic Ward** (When your Runes detonate, shield yourself for 100% ATK.); **Volatile Runes** (Detonations also deal 60% ATK to the target and its row neighbours.)
+
+**Spellblade** (arcane, martial): Elemental Runes: every detonation spills onto the target’s neighbours.
+- **Elemental Edge:** Every 3rd turn: carve 2 Runes into each enemy in the front row, then deal 130% ATK to the nearest enemy.
+- **Elemental Runes:** Detonations also deal 80% ATK to the target and its row neighbours.
+- Talents: **Arc Runes** (When your Runes detonate, your next ability comes 1 turn sooner.); **Frost Runes** (Detonations chill the enemy front row: each loses 2 SPD.); **Runic Focus** (+30% ability power.); **Quick Carving** (Basic attacks have a 50% chance to carve an extra Rune.)
+
+- **Stormblade** (arcane, martial): Lightning from the back row: Runes land everywhere and detonations arc between enemies.
+  - **Thunder Rune:** Every 3rd turn: carve 1 Rune into every enemy, then strike 3 random enemies for 70% ATK.
+  - **Arc Surge:** Fights at full strength from the back row; basic attacks hit random enemies. Detonations arc to 2 random enemies for 80% ATK.
+  - Talents: **Static Charge** (+3 SPD, +2 ATK.); **Storm Surge** (Each detonation grants +1 SPD.); **Conductive Runes** (Basic attacks also carve a Rune into another random enemy.); **Thunderclap** (New ability. Every 4th turn: deal 60% ATK to every enemy and carve 1 Rune into each.)
+  - Signature item: **Tempest Edge** (7g): +2 SPD. Start of combat: carve 2 Runes into every enemy.
+- **Earthwarden** (arcane, martial, guardian): Rune knight of stone: holds the front line, and every detonation hardens it.
+  - **Quake Rune:** Every 3rd turn: carve 2 Runes into each enemy in the front row, shield yourself for 4 + 80% DEF, and taunt for 1 turn.
+  - **Living Stone:** When your Runes detonate, shield yourself for 10% of max HP and the target loses 1 DEF.
+  - Talents: **Stone Skin** (+3 DEF, +10 HP.); **Aftershock** (Detonations also deal 100% DEF to each enemy in the front row.); **Rooted** (Start of combat: taunt for 2 turns and shield yourself for 20% of max HP.); **Tremor** (New ability. Every 4th turn: deal 80% ATK to each enemy in the front row; they lose 1 SPD.)
+  - Signature item: **Heart of the Mountain** (7g): +20 HP. When your Runes detonate, shield all allies for 5.
+
+**Duskblade** (arcane, divine, shadow): Twilight Runes: light and shadow at once. Detonations mend the party.
+- **Twilight Edge:** Every 3rd turn: deal 120% ATK to the nearest enemy and carve 2 Runes into it, then heal the most wounded ally for 40% ATK.
+- **Balance:** When your Runes detonate, heal the most wounded ally for 60% ATK.
+- Talents: **Dusk Ward** (When your Runes detonate, shield the most wounded ally for 100% ATK.); **Shadow Edge** (+15% lifesteal.); **Waning Light** (When an ally falls, carve 1 Rune into every enemy.); **Twin Runes** (After casting, carve 1 Rune into a random enemy.)
+
+- **Dawnblade** (arcane, divine): Rune-priest of the dawn: fights from the back row, and its detonations heal everyone.
+  - **Sunrise Rune:** Every 3rd turn: carve 2 Runes into the nearest enemy, heal all allies for 50% ATK, and shield the most wounded ally for 100% ATK.
+  - **First Light:** Fights at full strength from the back row. When your Runes detonate, heal all allies for 50% ATK.
+  - Talents: **Dawnward** (+30% ability power.); **Sunfire** (Detonations also deal 50% ATK to every enemy.); **Beacon** (Start of combat: shield all allies for 100% ATK.); **Solar Flare** (New ability. Every 4th turn: heal the most wounded ally for 150% ATK and carve 1 Rune into every enemy.)
+  - Signature item: **Sunforged Sigil** (7g): Start of combat: shield all allies for 100% ATK. Detonations heal all allies for another 30% ATK.
+- **Voidblade** (arcane, shadow): Shadow Runes rot into Corruption: damage over time, lifesteal and executions.
+  - **Void Rend:** Every 3rd turn: deal 120% ATK to the nearest enemy, give it 3 Corruption, and carve 1 Rune into it.
+  - **Hunger of the Void:** +20% lifesteal and +30% damage to enemies below half HP. Detonations give the target 3 Corruption (25% ATK damage per stack each turn, for 3 turns).
+  - Talents: **Creeping Void** (Basic attacks also give 1 Corruption.); **Devour** (On kill, heal 30% of max HP.); **Abyssal Edge** (+2 ATK and +30% damage to enemies below half HP.); **Void Bloom** (New ability. Every 4th turn: give every enemy 2 Corruption.)
+  - Signature item: **Abyssal Fang** (7g): +10% lifesteal. Basic attacks give 1 Corruption.
+
+#### Dark Knight
+
+Evil tank: pays HP for power, drinks it back, and grows deadlier as it bleeds. Tags: martial, guardian, shadow. 40/6/2/8, melee.
+
+- **Blood Price:** Every 3rd turn: pay 8% of max HP, then deal 130% ATK + 20% of your missing HP to the nearest enemy and heal for 50% ATK.
+- **Dark Resolve:** When bloodied, gain +3 DEF and +2 ATK.
+- Talents: **Dread Aura** (When hurt, 30% chance the attacker gains 1 Dread (−1 ATK, up to 2).); **Blood Oath** (+15% lifesteal.); **Unholy Vigor** (Start of combat: pay 10% of max HP and gain +3 ATK.); **Spite** (Basic attacks deal an extra 10% of your missing HP.)
+
+**Blackguard** (martial, shadow): Blood knight: bleeds itself to cut down the front row, and drinks it all back.
+- **Crimson Cleave:** Every 3rd turn: pay 8% of max HP, deal 100% ATK + 20% of your missing HP to each enemy in the front row, and heal for 60% ATK.
+- **Sanguine:** +15% lifesteal.
+- Talents: **Blood Frenzy** (When bloodied, gain +4 ATK and +2 SPD.); **Open Veins** (Basic attacks deal an extra 15% of your missing HP.); **Crimson Thirst** (+15% lifesteal.); **Bleed for It** (Ability cooldown −1.)
+
+- **Crimson Lord** (martial, shadow): Lord of blood: huge lifesteal, and the lower it falls the harder it hits.
+  - **Sanguine Tide:** Every 3rd turn: pay 10% of max HP, deal 90% ATK + 25% of your missing HP to every enemy, and heal for 100% ATK.
+  - **Blood Sovereign:** +10% lifesteal. When bloodied, gain +4 ATK.
+  - Talents: **Exsanguinate** (On kill, heal 25% of max HP.); **Crimson Fury** (Basic attacks deal an extra 20% of your missing HP.); **Bloodbound** (+3 ATK, +10 HP.); **Blood Nova** (New ability. Every 4th turn: pay 10% of max HP and deal 50% of your missing HP to every enemy.)
+  - Signature item: **Sanguine Crown** (7g): +15% lifesteal. When an enemy falls, heal 10% of max HP.
+- **Hellknight** (martial, shadow, occult): Sworn to the pit: wreathed in Hellfire that burns everyone who strikes it.
+  - **Hellfire Slash:** Every 3rd turn: deal 130% ATK to the nearest enemy, give it 3 Hellfire, and taunt for 1 turn.
+  - **Infernal Aura:** When hurt, 50% chance the attacker gains 1 Hellfire (20% ATK damage per stack each turn, up to 5, for 3 turns).
+  - Talents: **Pit-Forged** (+3 DEF, +6 HP.); **Pact of Flame** (Start of combat: every enemy gains 2 Hellfire.); **Burning Blood** (When bloodied, every enemy gains 3 Hellfire.); **Infernal Eruption** (New ability. Every 4th turn: deal 60% ATK to every enemy and give each 1 Hellfire.)
+  - Signature item: **Brand of the Pit** (7g): +2 DEF. Start of combat: every enemy gains 2 Hellfire.
+
+**Dreadknight** (martial, guardian, shadow): Terror on two legs: draws every blow and leaves attackers too frightened to hit hard.
+- **Terrorize:** Every 3rd turn: taunt for 1 turn, give each enemy in the front row 1 Dread, and shield yourself for 4 + 80% DEF.
+- **Aura of Dread:** When hurt, 40% chance the attacker gains 1 Dread (−1 ATK, up to 2).
+- Talents: **Intimidation** (Start of combat: every enemy gains 1 Dread.); **Iron Will** (+2 DEF, +8 HP.); **Menace** (Start of combat: taunt for 2 turns.); **Grim Retort** (When hurt, deal 20% DEF + 5% of your missing HP to the attacker.)
+
+- **Tyrant** (martial, guardian, shadow): Rules by fear: the whole enemy party fights at a fraction of its strength.
+  - **Reign of Terror:** Every 3rd turn: every enemy gains 1 Dread; taunt for 2 turns and shield yourself for 6 + 100% DEF.
+  - **Dominion:** Start of combat: every enemy gains 1 Dread.
+  - Talents: **Tyranny** (+4 DEF, −1 SPD.); **Subjugate** (Basic attacks have a 50% chance to give the target 1 Dread.); **Oppression** (Start of combat: each enemy in the front row loses 2 SPD.); **Dread Lash** (New ability. Every 4th turn: deal 100% ATK + 100% DEF to the nearest enemy and give it 2 Dread.)
+  - Signature item: **Crown of Dread** (7g): +3 DEF. Basic attacks give the target 1 Dread.
+- **Revenant** (martial, guardian, shadow): Refuses to stay dead: rises once more and fights on, still hitting harder the lower it is.
+  - **Grave Strike:** Every 3rd turn: pay 5% of max HP, deal 130% ATK + 30% of your missing HP to the nearest enemy, and heal for 60% ATK.
+  - **Undeath:** The first time you would fall, rise at 30% HP; every enemy gains 1 Dread.
+  - Talents: **Second Grave** (Rise one more time.); **Wrath of the Grave** (After rising, gain +4 ATK and taunt for 1 turn.); **Cold Iron** (+3 DEF, +10 HP.); **Grave Chill** (New ability. Every 4th turn: every enemy loses 1 SPD and gains 1 Dread.)
+  - Signature item: **Gravebound Plate** (7g): +10 HP. Rise one more time, at 30% HP.
+
+### Other additions
+- **Berserker: Deathless Fury.** The first time the Berserker would fall, it stays at 1 HP and can't drop below it for 2 turns, with +4 ATK and +4 SPD. Brandon asked for a rage talent that stops it dying and boosts it for a few turns.
+- **Rivals** (Warrior + Dark Knight): the first time an ally falls, both gain +3 ATK.
+
 ## Open design questions (for Brandon)
 
 None blocking. Things to look at when playtesting M7:
@@ -533,3 +651,5 @@ None blocking. Things to look at when playtesting M7:
 2. **Unlock pacing.** Do the starting five classes feel too thin, or about right, and do the achievements come at a good rate? (Play with Unlock everything off to judge.)
 3. **Signature items.** Are they findable often enough (30% per item slot while wanted) and worth 7–8 gold?
 4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4, and more relevant now with bosses.
+5. **Runeblade and Dark Knight.** Does the Rune rhythm read well in playback, and do the four paths feel distinct? Is Dread (−1 ATK per stack, up to 2) noticeable without being oppressive?
+6. **By a Thread.** Is winning a run at 1 life a fair Warlock unlock, or should it become "win a fight at 1 life"?

@@ -6,13 +6,14 @@ export const DEF_SCALE = 10;
 /** Resolve an Amount against the source unit's current stats. Never negative. */
 export function resolveAmount(
   amount: Amount,
-  source: { atk: number; def: number; maxHp: number },
+  source: { atk: number; def: number; maxHp: number; hp?: number },
 ): number {
   const raw =
     (amount.flat ?? 0) +
     (amount.atk ?? 0) * source.atk +
     (amount.def ?? 0) * source.def +
-    (amount.maxHp ?? 0) * source.maxHp;
+    (amount.maxHp ?? 0) * source.maxHp +
+    (amount.missingHp ?? 0) * Math.max(0, source.maxHp - (source.hp ?? source.maxHp));
   return Math.max(0, raw);
 }
 

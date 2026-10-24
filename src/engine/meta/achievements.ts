@@ -52,8 +52,12 @@ function fightMet(cond: AchievementCondition, info: FightInfo, ctx: RunContext):
       return won && new Set(units.map((u) => u.classId)).size >= cond.count;
     case 'winWithUnits':
       return won && units.filter((u) => matchesFilter(u, cond.filter, ctx.content)).length >= cond.count;
+    case 'winWithClasses':
+      return won && cond.classIds.every((id) => units.some((u) => u.classId === id && u.level >= (cond.minLevel ?? 1)));
+    case 'lastStanding':
+      return won && combat.summary.filter((s) => s.side === 'player' && s.survived && !s.summonedBy).length <= cond.survivors;
     case 'healInFight':
-      return combat.summary.filter((s) => s.side === 'player').reduce((sum, s) => sum + s.healingDone, 0) >= cond.amount;
+      return combat.summary.filter((s) => s.side === 'player').reduce((sum, s) => sum + s.healingDone + (cond.shields ? s.shieldingDone : 0), 0) >= cond.amount;
     case 'activeSynergies':
       return activeSynergies(units, ctx.content).length >= cond.count;
     case 'killsAtOnce':
@@ -68,6 +72,12 @@ function fightMet(cond: AchievementCondition, info: FightInfo, ctx: RunContext):
       return combat.events.filter((e) => e.type === 'summon' && isPlayer(e.source)).length >= cond.count;
     case 'goldInHand':
       return before.gold >= cond.gold;
+    case 'goldStreak': {
+      const last = after.history.slice(-cond.rounds);
+      return last.length === cond.rounds && last.every((r) => (r.gold ?? 0) >= cond.gold);
+    }
+    case 'lockedBought':
+      return (before.lockedBought ?? 0) >= cond.count;
     case 'fullyEquipped':
       return units.length >= 5 && units.every((u) => u.items.length >= ctx.config.progression.maxItemsPerUnit);
     default:
@@ -113,6 +123,8 @@ function award(profile: Profile, catalog: MetaCatalog, met: (a: AchievementDef) 
 
 /** After a fight: lifetime stats, discovered tertiary classes and fight achievements. */
 export function recordFight(profile: Profile, info: FightInfo, base: RunContext, catalog: MetaCatalog): MetaUpdate {
+  // Brandon (post-M7): daily runs have everything unlocked, so they never count toward progress.
+  if (info.before.setup.daily) return { profile, earned: [] };
   const next = structuredClone(profile);
   const ctx = runContext(info.before.setup, base);
   if (info.combat.winner === 'player') next.stats.fightsWon += 1;
@@ -125,6 +137,7 @@ export function recordFight(profile: Profile, info: FightInfo, base: RunContext,
 
 /** Note a tertiary class reached mid-shop (the Collection marks it discovered at once). */
 export function recordDiscovery(profile: Profile, state: RunState, catalog: MetaCatalog): MetaUpdate {
+  if (state.setup.daily) return { profile, earned: [] };
   const fresh = boardUnits(state.board).flatMap((u) => (u.tertiaryClassId && !profile.discovered.includes(u.tertiaryClassId) ? [u.tertiaryClassId] : []));
   if (fresh.length === 0) return { profile, earned: [] };
   const next = structuredClone(profile);
@@ -136,11 +149,14 @@ export function recordDiscovery(profile: Profile, state: RunState, catalog: Meta
 export function recordRunEnd(profile: Profile, state: RunState, catalog: MetaCatalog): MetaUpdate {
   const next = structuredClone(profile);
   const complete = state.phase === 'complete';
+  if (state.setup.daily) {
+    // The daily keeps its own record and nothing else (see recordFight).
+    next.daily = { date: state.setup.daily, wins: state.wins, rounds: state.history.length, completed: complete, done: true };
+    return { profile: next, earned: [] };
+  }
   next.stats.runs += 1;
   if (complete) next.stats.completed += 1;
-  if (state.setup.daily) {
-    next.daily = { date: state.setup.daily, wins: state.wins, rounds: state.history.length, completed: complete, done: true };
-  } else if (complete && state.setup.tier >= next.maxTier) {
+  if (complete && state.setup.tier >= next.maxTier) {
     next.maxTier = Math.min(catalog.maxTier, state.setup.tier + 1);
   }
   const earned = award(next, catalog, (a) => runEndMet(a.condition, state) || lifetimeMet(a.condition, next));

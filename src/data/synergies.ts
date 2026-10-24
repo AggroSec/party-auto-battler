@@ -261,4 +261,19 @@ export const SYNERGIES: SynergyDef[] = [
       },
     ],
   },
+  {
+    // Brandon (post-M7): hero and villain, grudgingly side by side.
+    id: 'rivals',
+    name: 'Rivals',
+    tiers: [
+      {
+        requires: [{ kind: 'party', slots: [{ classIds: ['warrior'] }, { classIds: ['dark-knight'] }], label: 'Warrior and Dark Knight' }],
+        description: 'Warrior + Dark Knight: the first time an ally falls, both gain +3 ATK.',
+        modifier: {
+          triggers: [on('onAllyDeath', 'Rivals', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 3 } }], { limit: 1 })],
+        },
+        appliesTo: { filter: { classIds: ['warrior', 'dark-knight'] } },
+      },
+    ],
+  },
 ];

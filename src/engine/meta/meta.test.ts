@@ -97,7 +97,17 @@ describe('achievements', () => {
     expect(recordRunEnd(newProfile(), ended('defeated'), CATALOG).earned.map((a) => a.id)).toEqual(['lose']);
     const daily = recordRunEnd(newProfile(), ended('complete', { wins: 15, setup: { ...defaultSetup(ctx), daily: '2026-10-23' } }), CATALOG);
     expect(daily.profile.daily).toMatchObject({ date: '2026-10-23', completed: true, done: true, wins: 15 });
-    expect(daily.profile.maxTier).toBe(0);
+    // Dailies never count toward progress: no tier, totals or achievements.
+    expect(daily.profile).toMatchObject({ maxTier: 0, stats: { runs: 0, completed: 0 }, achievements: [] });
+    expect(daily.earned).toEqual([]);
+  });
+
+  it('daily fights and discoveries count for nothing', () => {
+    const before = { ...createRun('s', ctx), setup: { ...defaultSetup(ctx), daily: '2026-10-23' } };
+    before.board.front[0] = { ...newUnit(1, 'tank', 'T'), advancedClassId: 'paladin', tertiaryClassId: 'templar' };
+    const fight = recordFight(newProfile(), { before, after: { ...before, winStreak: 2 }, combat: combat('player') }, ctx, CATALOG);
+    expect(fight).toEqual({ profile: newProfile(), earned: [] });
+    expect(recordDiscovery(newProfile(), before, CATALOG)).toEqual({ profile: newProfile(), earned: [] });
   });
 
   it('discovering a tertiary class mid-shop', () => {
@@ -106,5 +116,61 @@ describe('achievements', () => {
     const r = recordDiscovery(newProfile(), s, CATALOG);
     expect(r.profile.discovered).toEqual(['templar']);
     expect(r.earned.map((a) => a.id)).toEqual(['disc']);
+  });
+});
+
+describe('shop-lock achievements', () => {
+  const cat = (condition: MetaCatalog['achievements'][number]['condition']): MetaCatalog => ({
+    ...CATALOG,
+    achievements: [{ id: 'x', name: 'X', description: '', condition, reward: {} }],
+  });
+  const won = (before: RunState, after: RunState, c: MetaCatalog) => recordFight(newProfile(), { before, after, combat: combat('player') }, ctx, c).earned.length;
+
+  it('counts locked offers bought this run', () => {
+    const c = cat({ kind: 'lockedBought', count: 5 });
+    const s = createRun('s', ctx);
+    expect(won({ ...s, lockedBought: 4 }, s, c)).toBe(0);
+    expect(won({ ...s, lockedBought: 5 }, s, c)).toBe(1);
+  });
+
+  it('needs the gold streak over consecutive fights', () => {
+    const c = cat({ kind: 'goldStreak', gold: 10, rounds: 3 });
+    const s = createRun('s', ctx);
+    const rec = (gold?: number) => ({ round: 1, result: 'player' as const, enemy: [], income: null, ...(gold === undefined ? {} : { gold }) });
+    expect(won(s, { ...s, history: [rec(12), rec(10)] }, c)).toBe(0);
+    expect(won(s, { ...s, history: [rec(12), rec(9), rec(10), rec(11)] }, c)).toBe(0);
+    expect(won(s, { ...s, history: [rec(), rec(12), rec(10), rec(11)] }, c)).toBe(1);
+  });
+});
+
+describe('class-unlock achievements', () => {
+  const cat = (condition: MetaCatalog['achievements'][number]['condition']): MetaCatalog => ({
+    ...CATALOG,
+    achievements: [{ id: 'x', name: 'X', description: '', condition, reward: {} }],
+  });
+  const earned = (before: RunState, c: MetaCatalog, result: CombatResult = combat('player')) =>
+    recordFight(newProfile(), { before, after: before, combat: result }, ctx, c).earned.length;
+
+  it('winWithClasses needs every listed class at the level', () => {
+    const c = cat({ kind: 'winWithClasses', classIds: ['tank', 'archer'], minLevel: 5 });
+    const s = createRun('s', ctx);
+    s.board.front[0] = { ...newUnit(1, 'tank', 'T'), level: 5 };
+    s.board.back[0] = { ...newUnit(2, 'archer', 'A'), level: 4 };
+    expect(earned(s, c)).toBe(0);
+    s.board.back[0] = { ...s.board.back[0], level: 5 };
+    expect(earned(s, c)).toBe(1);
+    expect(earned(s, c, combat('enemy'))).toBe(0);
+  });
+
+  it('lastStanding counts surviving board units, not summons', () => {
+    const c = cat({ kind: 'lastStanding', survivors: 1 });
+    const row = (id: string, survived: boolean, summonedBy?: string) => ({
+      id, name: id, side: 'player' as const, survived, damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0,
+      ...(summonedBy ? { summonedBy } : {}),
+    });
+    const s = createRun('s', ctx);
+    const fightWith = (summary: ReturnType<typeof row>[]) => ({ ...combat('player'), summary });
+    expect(earned(s, c, fightWith([row('p0', true), row('p1', true)]))).toBe(0);
+    expect(earned(s, c, fightWith([row('p0', true), row('p1', false), row('ps0', true, 'p0')]))).toBe(1);
   });
 });

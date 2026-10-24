@@ -16,6 +16,8 @@ const STYLES: Record<string, { color: string; glyph: string }> = {
   druid: { color: '#9cc93f', glyph: '🌿' },
   warlock: { color: '#c0399b', glyph: '😈' },
   engineer: { color: '#7aa6c2', glyph: '⚙️' },
+  runeblade: { color: '#5fd4e8', glyph: '🪄' },
+  'dark-knight': { color: '#a03a4a', glyph: '🩸' },
   // Summons take their summoner's colour.
   treant: { color: '#9cc93f', glyph: '🌳' },
   imp: { color: '#c0399b', glyph: '👿' },

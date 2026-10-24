@@ -36,6 +36,10 @@ export interface RunConfig {
   unitCost: number;
   sellRefund: number;
   rerollCost: number;
+  /** Gold to lock a shop offer so it survives rerolls and the next round. */
+  lockCost: number;
+  /** How many offers can be locked at once. */
+  maxLocks: number;
   shop: ShopLayout;
   progression: ProgressionConfig;
 }
@@ -158,6 +162,8 @@ export interface RoundRecord {
   /** Enemy class ids (advanced where applicable), in board order. */
   enemy: string[];
   income: IncomeBreakdown | null;
+  /** Gold left unspent going into the fight. Optional: older saves lack it. */
+  gold?: number;
 }
 
 export type RunPhase = 'shop' | 'complete' | 'defeated';
@@ -210,6 +216,10 @@ export interface RunState {
   /** Perk bookkeeping: the free reroll was used this round; Second Wind was spent. */
   freeRerollUsed: boolean;
   secondWindUsed: boolean;
+  /** Shop slots the player locked: they keep their offer through rerolls and into the next round. Optional so older saves load. */
+  locked?: number[];
+  /** Locked offers bought this run (for the Window Shopper achievement). */
+  lockedBought?: number;
 }
 
 export type ShopAction =
@@ -221,6 +231,8 @@ export type ShopAction =
   /** Remove an item from a unit for `progression.itemSellRefund` gold, freeing the slot. */
   | { type: 'sellItem'; from: SlotRef; item: number }
   | { type: 'reroll' }
+  /** Lock a shop offer (costs `lockCost`), or unlock it again (free, no refund). */
+  | { type: 'lock'; offer: number }
   /** Resolve the first pending choice by option index. */
   | { type: 'choose'; option: number }
   /** Spend stat points on the unit at `at` (points per stat, not stat units). */
@@ -238,6 +250,7 @@ export type RunError =
   | 'needsTarget'
   | 'itemSlotsFull'
   | 'wrongClass'
+  | 'lockLimit'
   | 'noSuchItem'
   | 'pendingChoice'
   | 'noPendingChoice'

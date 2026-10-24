@@ -155,6 +155,8 @@ export const TEST_CONFIG: RunConfig = {
   unitCost: 3,
   sellRefund: 1,
   rerollCost: 1,
+  lockCost: 1,
+  maxLocks: 1,
   shop: { unitSlots: 4, extraSlots: 0, trainingChance: 0.5, fullPartyUnitSlots: 4 },
   progression: {
     xpForLevel: [0, 2, 5, 9, 14],

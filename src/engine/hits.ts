@@ -4,6 +4,7 @@ import { absorb, mitigate } from './damage.ts';
 import { fireTriggers } from './effects.ts';
 import { OVERTIME_SOURCE } from './events.ts';
 import { emit, living, type CombatState, type CombatUnit } from './state.ts';
+import { cannotDie } from './statuses.ts';
 
 /** Damage multiplier for melee units attacking from the back row while their front row stands. */
 export const BACKLINE_MELEE_MULTIPLIER = 0.5;
@@ -28,6 +29,8 @@ export interface DamageOptions {
   true?: boolean;
   /** For source-less damage: who the event log names as the source (default: sudden death). */
   by?: string;
+  /** Damage over time: no back-row penalty or execute bonus, and it fires no onHurt. */
+  dot?: boolean;
 }
 
 /** Restore HP to `target`, capped at max HP. Returns the amount actually healed. */
@@ -53,11 +56,12 @@ export function dealDamage(
   depth: number,
 ): void {
   if (!target.alive) return;
-  let scaled = source && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
-  if (source?.setup.executeBonus && target.hp < target.maxHp * BLOODIED_THRESHOLD) scaled *= 1 + source.setup.executeBonus;
+  let scaled = source && !opts.dot && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
+  if (!opts.dot && source?.setup.executeBonus && target.hp < target.maxHp * BLOODIED_THRESHOLD) scaled *= 1 + source.setup.executeBonus;
   const damage = mitigate(scaled, target.def, opts.pierce === true || opts.true === true);
   const { toShield, toHp } = opts.true ? { toShield: 0, toHp: damage } : absorb(damage, target.shield);
-  const hpLost = Math.min(target.hp, toHp);
+  // Undying Rage and the like: the unit holds at 1 HP.
+  const hpLost = Math.max(0, Math.min(target.hp - (cannotDie(target) ? 1 : 0), toHp));
   target.shield -= toShield;
   target.hp -= hpLost;
   if (source) source.stats.damageDealt += hpLost + toShield;
@@ -85,7 +89,7 @@ export function dealDamage(
     kill(state, target, source, depth, opts.by);
     return;
   }
-  if (damage > 0) {
+  if (damage > 0 && !opts.dot) {
     fireTriggers(state, target, 'onHurt', source ? { triggerSource: source } : {}, depth);
   }
   if (target.alive && !target.bloodied && target.hp < target.maxHp * BLOODIED_THRESHOLD) {

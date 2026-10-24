@@ -70,6 +70,11 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       return `moved an item from ${unitAt(action.from)} to ${unitAt(action.to)}`;
     case 'reroll':
       return 'rerolled';
+    case 'lock': {
+      const o = state.shop[action.offer];
+      const what = !o ? '?' : o.kind === 'unit' ? nameOf(ctx, o.classId) : o.kind === 'item' ? (ctx.content.items[o.itemId]?.name ?? o.itemId) : `${nameOf(ctx, o.classId)} training`;
+      return `${state.locked?.includes(action.offer) ? 'unlocked' : 'locked'} ${what}`;
+    }
     case 'allocate': {
       const spent = Object.entries(action.points).filter(([, n]) => n).map(([k, n]) => `+${n} ${k.toUpperCase()}`);
       return `${unitAt(action.at)} spent points: ${spent.join(', ') || 'none'}`;
@@ -84,10 +89,10 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
   }
 }
 
-/** Content added in M7; logs from before it never had these in the shop. */
-const M7_CLASSES = ['necromancer'];
+/** Content added in M7 (and the post-M7 classes); logs from before it never had these in the shop. */
+const M7_CLASSES = ['necromancer', 'runeblade', 'dark-knight'];
 const M7_ITEMS = ['phoenix-feather', 'war-banner', 'gamblers-coin', 'executioners-axe', 'mirror-shard', 'soulstone'];
-const M7_SYNERGIES = ['holy-trinity', 'light', 'dark', 'twilight', 'life-and-death', 'mad-science', 'wild-hunt', 'battle-hymn'];
+const M7_SYNERGIES = ['holy-trinity', 'light', 'dark', 'twilight', 'life-and-death', 'mad-science', 'wild-hunt', 'battle-hymn', 'rivals'];
 
 /** The setup a pre-M7 run had: tier 0, no perks, the M6 content. */
 function legacySetup(ctx: RunContext): RunSetup {

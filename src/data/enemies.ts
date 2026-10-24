@@ -16,6 +16,8 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
   { id: 'tinker', name: 'Goblin Tinker', classId: 'engineer', minRound: 4, statMultiplier: { hp: 0.9 } },
   { id: 'cultist', name: 'Blood Cultist', classId: 'warlock', minRound: 4 },
   { id: 'bonecaller', name: 'Bonecaller', classId: 'necromancer', minRound: 5 },
+  { id: 'hexblade', name: 'Hexblade Sellsword', classId: 'runeblade', minRound: 3 },
+  { id: 'fallen-knight', name: 'Fallen Knight', classId: 'dark-knight', minRound: 2, statMultiplier: { hp: 1.05, atk: 0.9 } },
 ];
 
 /** Tuned with `npm run sim`; see docs/BALANCE.md. */

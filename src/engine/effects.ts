@@ -3,6 +3,7 @@
 import { resolveAmount } from './damage.ts';
 import { applyHeal, dealDamage } from './hits.ts';
 import { emit, type CombatState, type CombatUnit } from './state.ts';
+import { applyStatus } from './statuses.ts';
 import { summonUnit } from './summon.ts';
 import { rowNeighbours, selectTargets, type TargetContext } from './targeting.ts';
 import type { Effect, TriggerEvent } from './types.ts';
@@ -26,6 +27,7 @@ export function fireTriggers(
   if (depth > MAX_TRIGGER_DEPTH || !unit.alive) return;
   for (const trigger of unit.setup.triggers) {
     if (trigger.on !== on) continue;
+    if (trigger.status !== undefined && trigger.status !== ctx.status) continue;
     const fired = unit.triggerFires.get(trigger) ?? 0;
     if (trigger.limit !== undefined && fired >= trigger.limit) continue;
     if (trigger.chance !== undefined && !state.rng.chance(trigger.chance)) continue;
@@ -141,6 +143,14 @@ function applyEffect(
     case 'payHp': {
       const value = Math.max(0, Math.round(resolveAmount(effect.amount, source)));
       if (value > 0) dealDamage(state, null, source, value, { true: true, by: source.id }, depth);
+      return;
+    }
+    case 'status': {
+      for (const target of selectTargets(state, source, effect.target, ctx)) {
+        applyStatus(state, source, target, effect.status, effect.stacks, power, depth, (st, unit, afflicted, status, d) =>
+          fireTriggers(st, unit, 'onBurst', { triggerTarget: afflicted, status }, d),
+        );
+      }
       return;
     }
     case 'summon': {

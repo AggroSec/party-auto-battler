@@ -9,7 +9,8 @@ import { mergeEntities, runBot, type BotRunReport } from './run-report.ts';
 describe('run simulator', () => {
   const ctx = buildRunContext();
 
-  it('plays every run to a finish without getting stuck', () => {
+  // 60 full runs: ~1.5s locally, but CI runners can be several times slower than the 5s default.
+  it('plays every run to a finish without getting stuck', { timeout: 30_000 }, () => {
     for (const bot of BOTS) {
       const r = runBot(bot, ctx, 15, 'test');
       expect(r.stuckRuns).toBe(0);

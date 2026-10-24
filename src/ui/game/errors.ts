@@ -20,4 +20,5 @@ export const ERROR_TEXT: Record<RunError, string> = {
   invalidAllocation: 'Invalid stat points.',
   notEnoughPoints: 'Not enough stat points.',
   alreadyEquipped: 'That unit already has one.',
+  lockLimit: 'You can\'t lock any more offers. Unlock one first.',
 };

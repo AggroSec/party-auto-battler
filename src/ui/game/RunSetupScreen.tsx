@@ -41,7 +41,7 @@ export function RunSetupScreen({ game }: { game: Game }) {
       <section className="setup-section">
         <h2>Difficulty</h2>
         {isDaily ? (
-          <p className="muted">Today&apos;s daily is tier {shownTier}, with every class and item unlocked. Same seed for everyone; one attempt.</p>
+          <p className="muted">Today&apos;s daily is tier {shownTier}, with every class and item unlocked. Same seed for everyone; one attempt. Achievements don&apos;t count on dailies.</p>
         ) : (
           <div className="tier-picker" role="radiogroup" aria-label="Ladder tier">
             {Array.from({ length: unlocked.maxTier + 1 }, (_, t) => (

@@ -191,7 +191,41 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'daily',
     term: 'Daily run',
-    text: 'A run built from the date: same seed, tier and perk offer for everyone, with everything unlocked. One attempt per day.',
+    text: 'A run built from the date: same seed, tier and perk offer for everyone, with everything unlocked. One attempt per day. Dailies don’t count toward achievements or unlocks.',
+  },
+  {
+    id: 'statuses',
+    term: 'Stacking statuses',
+    text: 'Runes, Dread, Corruption, Hellfire and the like stack on a unit; the stack count shows on its card during a fight. The latest unit to apply one owns it.',
+  },
+  {
+    id: 'rune',
+    term: 'Runes and detonation',
+    text: 'Runeblades carve Runes into enemies. At 5 Runes they detonate: the Runes clear and the Runeblade’s detonation effects fire on that enemy. Extra Runes past 5 carry over.',
+    pattern: /\b(?:runes?|detonat(?:e|es|ion|ions))\b/i,
+  },
+  {
+    id: 'dread',
+    term: 'Dread',
+    text: 'Each stack is −1 ATK for the rest of the fight, up to 2 stacks per unit.',
+    pattern: /\bdread\b/i,
+  },
+  {
+    id: 'dot',
+    term: 'Damage over time',
+    text: 'Corruption, Hellfire and Searing deal damage at the start of each of the afflicted unit’s turns, per stack, ignoring DEF. They last 3 of its turns; reapplying refreshes the timer.',
+    pattern: /\b(?:corruption|hellfire|sear(?:s|ing)?)\b/i,
+  },
+  {
+    id: 'missing-hp',
+    term: 'Missing HP',
+    text: 'Max HP minus current HP. Dark Knights hit harder the more HP they have lost.',
+    pattern: /\bmissing HP\b/i,
+  },
+  {
+    id: 'lock',
+    term: 'Locking offers',
+    text: 'Lock a shop offer (🔒) and it stays through rerolls and into the next round until you buy it or unlock it. Unlocking is free but gives no refund.',
   },
 ];
 

@@ -17,6 +17,8 @@ const PERK_LIST: PerkDef[] = [
   { id: 'recruiter', name: 'Recruiter', description: 'Recruits cost 2 gold for the first 3 rounds.', modifier: { earlyRecruitCost: { rounds: 3, cost: 2 } } },
   { id: 'extra-life', name: 'Extra Life', description: 'Start with one more life.', modifier: { startingLives: 1 } },
   { id: 'quartermaster', name: 'Quartermaster', description: 'The shop has one more item/training slot.', modifier: { shopSlots: 1 } },
+  { id: 'haggler', name: 'Haggler', description: 'Locking a shop offer is free.', modifier: { lockCost: -1 } },
+  { id: 'layaway', name: 'Layaway', description: 'You can lock one more shop offer.', modifier: { lockSlots: 1 } },
   { id: 'drill-sergeant', name: 'Drill Sergeant', description: 'Every level-up grants 1 more stat point.', modifier: { statPointsPerLevel: 1 } },
 ];
 

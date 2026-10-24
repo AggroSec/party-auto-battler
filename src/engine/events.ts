@@ -55,6 +55,8 @@ export type CombatEvent =
       statAfter: number;
     }
   | { tick: number; type: 'death'; target: UnitId; source: UnitId }
+  /** A status's stacks changed (post-M7). `stacks` is the new count; 0 = gone (expired or burst). */
+  | { tick: number; type: 'status'; source: UnitId; target: UnitId; status: string; name: string; stacks: number; burst?: boolean }
   /** A unit was summoned into an empty slot mid-combat. */
   | { tick: number; type: 'summon'; source: UnitId; unit: UnitSnapshot }
   /** A sudden-death pulse: every living unit takes `percent` of max HP as true damage. */

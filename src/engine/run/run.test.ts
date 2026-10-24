@@ -268,3 +268,43 @@ describe('determinism and saves', () => {
     expect(mustFight(saved, ctx).state).toEqual(mustFight(s, ctx).state);
   });
 });
+
+describe('locking shop offers', () => {
+  it('a locked offer survives rerolls and costs lockCost once', () => {
+    const ctx = makeCtx();
+    const s = act(createRun('lock', ctx), { type: 'lock', offer: 2 }, ctx);
+    expect(s).toMatchObject({ gold: 9, locked: [2] });
+    const kept = s.shop[2];
+    const r1 = act(s, { type: 'reroll' }, ctx);
+    const r2 = act(r1, { type: 'reroll' }, ctx);
+    expect(r2.shop[2]).toEqual(kept);
+    expect(r2).toMatchObject({ gold: 7, locked: [2] });
+  });
+
+  it('a locked offer carries into the next round', () => {
+    const ctx = makeCtx();
+    let s = runWith('tank', ctx);
+    s = act(s, { type: 'lock', offer: 1 }, ctx);
+    const kept = s.shop[1];
+    const next = mustFight(s, ctx).state;
+    expect(next.shop[1]).toEqual(kept);
+    expect(next.locked).toEqual([1]);
+  });
+
+  it('unlocking is free, limits apply, and buying clears the lock', () => {
+    const ctx = makeCtx();
+    let s = act(createRun('lock', ctx), { type: 'lock', offer: 0 }, ctx);
+    expect(applyShopAction(s, { type: 'lock', offer: 1 }, ctx)).toEqual({ ok: false, error: 'lockLimit' });
+    const unlocked = act(s, { type: 'lock', offer: 0 }, ctx);
+    expect(unlocked).toMatchObject({ gold: 9, locked: [] });
+    s = act(s, { type: 'buy', offer: 0 }, ctx);
+    expect(s).toMatchObject({ locked: [], lockedBought: 1 });
+    expect(applyShopAction(s, { type: 'lock', offer: 0 }, ctx)).toEqual({ ok: false, error: 'noSuchOffer' });
+  });
+
+  it('records the gold taken into each fight', () => {
+    const ctx = makeCtx();
+    const r = mustFight(runWith('tank', ctx), ctx);
+    expect(r.state.history[0]?.gold).toBe(7);
+  });
+});

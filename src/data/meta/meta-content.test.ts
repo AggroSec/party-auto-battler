@@ -53,7 +53,7 @@ describe('meta content', () => {
 
   it('the ladder runs tiers 1–10 in order; perks and bosses are well formed', () => {
     expect(LADDER.map((l) => l.tier)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    expect(PERK_IDS).toHaveLength(12);
+    expect(PERK_IDS).toHaveLength(14);
     for (const b of BOSSES) expect(CLASSES).toHaveProperty(b.classId);
   });
 

@@ -2,6 +2,60 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## After M7 — Playtest fixes, shop locks, Runeblade and Dark Knight (2026-10-24)
+
+Not a numbered milestone: your playtest notes plus the two classes you designed, in one PR as you asked.
+
+### What was built
+
+**Fixes from your notes**
+- **Dailies no longer count toward progress:** no achievements, discoveries or lifetime stats. The daily setup screen says so.
+- **Reset progress** button at the bottom of the Collection (with a confirm). Your current achievements include the ones the daily gave you; I can't tell which, so this lets you start clean. It keeps Unlock everything and today's daily attempt.
+- **Lifeline (Druid unlock)** is now "Heal or shield 400 HP in one fight", so a Cleric's shields count.
+- **By a Thread (Warlock)** is unchanged while you try it.
+- **Shop locks:** a 🔒 button on every offer. 1 gold, stays through rerolls and into the next round until bought or unlocked (unlocking is free, no refund). One lock at a time.
+  - **Haggler** perk: locks are free (unlocked by Penny Pincher: 3 fights in a row with 10+ gold unspent).
+  - **Layaway** perk: one more lock (unlocked by Window Shopper: buy 5 locked offers in one run).
+
+**Engine: stacking statuses.** One general system for buildup, damage over time and timed effects. A status can change stats per stack, deal damage each turn, expire after some turns, burst at a threshold, or keep a unit above 0 HP. Stack counts show as pips on unit cards during fights, and bursts pop a 💥.
+
+**Runeblade** 🔒 (unlocked by Spellsword: win a fight with a Warrior and a Mage, both level 5+)
+- Every basic attack carves a Rune; Runestrike carves 2. At 5 Runes they detonate for 250% ATK.
+- **Spellblade:** detonations splash the row. **Stormblade** fights from the back row: Runes land everywhere and detonations arc to random enemies. **Earthwarden** turns into a rune tank whose detonations shield it.
+- **Duskblade** (divine and shadow, so it counts as Light *and* Dark): detonations heal. **Dawnblade** fights from the back row and heals the party with each detonation. **Voidblade** turns Runes into Corruption (damage over time), with lifesteal and execute damage.
+
+**Dark Knight** 🔒 (unlocked by Last One Standing: win a fight with only one unit left)
+- Pays HP to power Blood Price, heals it back, and hits harder the more HP it's missing. When bloodied, gains DEF and ATK.
+- **Blackguard** (blood): **Crimson Lord** (lifesteal, missing-HP damage to every enemy) and **Hellknight** (Hellfire burns whoever hits it).
+- **Dreadknight** (fear): attackers gain **Dread** (−1 ATK per stack, up to 2). **Tyrant** spreads Dread to the whole enemy party; **Revenant** rises once after falling.
+
+**Also**
+- 8 signature items (one per new tertiary), 2 enemy archetypes (Hexblade Sellsword, Fallen Knight), glossary entries for Runes, Dread, damage over time and missing HP.
+- **Berserker: Deathless Fury.** The first time it would fall, it holds at 1 HP for 2 turns with +4 ATK and +4 SPD.
+- **Rivals** synergy (Warrior + Dark Knight, unlocked with the Dark Knight): the first time an ally falls, both gain +3 ATK.
+
+### What to playtest (and how)
+1. **Locks:** lock something, reroll, fight, and check it's still there. Does 1 gold feel right?
+2. **The new classes:** turn Unlock everything on to get them straight away, or earn them with it off. Does the Rune rhythm read in playback? Do the four paths feel distinct? Try a back-row Stormblade or Dawnblade.
+3. **Dark Knight:** does the low-HP play feel good? Is Dread noticeable without feeling oppressive?
+4. **Deathless Fury** on a Berserker.
+5. **Unlocks with the toggle off:** consider pressing Reset progress first. Are Lifeline, Spellsword and Last One Standing reachable?
+6. **By a Thread:** your call after trying it.
+
+### Known issues
+- **Bots barely use the new mechanics' synergies** (they don't plan around Runes), so new-class numbers are rougher than usual. Revenant and Earthwarden sit around +7 lift on small samples.
+- **Both new classes win most 1v1 duels at level 1** (every Rune lands on the only target). In 5v5 parties they're mid-pack.
+- **The "Carve" callout** shows on Runeblade basic attacks, like other on-attack passives.
+- **Old play logs with Berserker level-ups may replay slightly differently,** because the Berserker's talent pool grew.
+- Saved runs carry over (no reset this time).
+
+### Simulator balance numbers
+- **Full runs** (2,000 per bot, everything unlocked, tier 0): random 3.9%, sensible 21.8%, greedy 29.5%, synergy 10.3%. No stuck runs, no tick-cap hits. M7 was 5.0 / 18.8 / 38.6 / 11.9.
+- **New classes (lift vs round average):** Dark Knight +3.7, Runeblade +1.9. Advanced: Dreadknight +6.9, Duskblade +3.0, Spellblade +0.4, Blackguard −1.7.
+- **The first pass was far too strong on the Dark Knight side** (Hellknight +16.6, Dreadknight +14.5, Rivals +15.7); three tuning passes are logged in BALANCE.md.
+- **Ladder:** unchanged, and not re-simulated for this PR (it takes about 40 minutes). If the follow-up run shows anything bad, it gets a small fix PR.
+- Tests: 305 passing.
+
 ## Milestone 7 — Meta progression (2026-10-22)
 
 ### What was built

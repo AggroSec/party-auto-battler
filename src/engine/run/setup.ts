@@ -25,6 +25,8 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
     add('startingGold', m.startingGold);
     add('startingLives', m.startingLives);
     add('rerollCost', m.rerollCost);
+    add('lockCost', m.lockCost);
+    add('lockSlots', m.lockSlots);
     add('maxInterest', m.maxInterest);
     add('trainingCost', m.trainingCost);
     add('talentChoices', m.talentChoices);
@@ -65,6 +67,8 @@ function applyToConfig(config: RunConfig, m: RunModifier): RunConfig {
     startingGold: Math.max(0, config.startingGold + (m.startingGold ?? 0)),
     startingLives: Math.max(1, config.startingLives + (m.startingLives ?? 0)),
     rerollCost: Math.max(0, config.rerollCost + (m.rerollCost ?? 0)),
+    lockCost: Math.max(0, config.lockCost + (m.lockCost ?? 0)),
+    maxLocks: Math.max(0, config.maxLocks + (m.lockSlots ?? 0)),
     maxInterest: Math.max(0, config.maxInterest + (m.maxInterest ?? 0)),
     shop: { ...config.shop, extraSlots: config.shop.extraSlots + (m.shopSlots ?? 0) },
     progression: {
