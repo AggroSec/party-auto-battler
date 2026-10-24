@@ -9,6 +9,7 @@ import {
   type CombatState,
   type CombatUnit,
 } from './state.ts';
+import { expireStatuses, tickStatuses } from './statuses.ts';
 import { selectTargets } from './targeting.ts';
 import type { Party } from './types.ts';
 
@@ -148,8 +149,15 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
   emit(state, { tick: state.tick, type: 'turn', source: unit.id, gauges });
   unit.gauge -= ACTION_THRESHOLD;
   if (unit.taunt > 0) unit.taunt -= 1;
+  tickStatuses(state, unit);
+  if (!unit.alive || checkWinner(state) !== null) return;
   fireTriggers(state, unit, 'onTurnStart', {}, 0);
   if (!unit.alive || checkWinner(state) !== null) return;
+  act(state, unit);
+  if (unit.alive) expireStatuses(state, unit);
+}
+
+function act(state: CombatState, unit: CombatUnit): void {
 
   unit.cooldowns = unit.cooldowns.map((cd) => cd - 1);
   const ready = readyAbility(unit);

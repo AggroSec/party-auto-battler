@@ -5,6 +5,8 @@ import type { BoardPos, TargetSelector } from './types.ts';
 export interface TargetContext {
   triggerSource?: CombatUnit;
   triggerTarget?: CombatUnit;
+  /** onBurst: the status that burst. */
+  status?: string;
 }
 
 /**

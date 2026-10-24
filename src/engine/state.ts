@@ -4,12 +4,28 @@ import {
   BACK_SLOTS,
   FRONT_SLOTS,
   type BoardPos,
+  type BuffableStat,
   type Party,
   type Side,
   type Stats,
+  type StatusDef,
   type TriggeredEffect,
   type UnitSetup,
 } from './types.ts';
+
+/** A status on a unit (see StatusDef). */
+export interface ActiveStatus {
+  def: StatusDef;
+  stacks: number;
+  /** Who applied it last: credited for its damage, and its onBurst triggers fire. */
+  source: CombatUnit;
+  /** Own turns left; undefined = no duration. */
+  turns?: number;
+  /** DoT damage per stack, resolved from the applier. */
+  dotPerStack: number;
+  /** Stat changes currently applied by this status (so they undo exactly). */
+  applied: Partial<Record<BuffableStat, number>>;
+}
 
 /** Mutable per-combat state of one unit. Lives only inside a simulateCombat call. */
 export interface CombatUnit {
@@ -40,6 +56,8 @@ export interface CombatUnit {
   stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived' | 'summonedBy'>;
   /** Set on summoned units. */
   summonedBy?: UnitId;
+  /** Statuses by id (post-M7). */
+  statuses: Map<string, ActiveStatus>;
 }
 
 export interface CombatState {
@@ -99,6 +117,7 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     bloodied: false,
     revives: setup.revive?.times ?? 0,
     triggerFires: new Map(),
+    statuses: new Map(),
     stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0 },
   };
 }

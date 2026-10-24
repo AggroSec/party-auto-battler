@@ -62,13 +62,43 @@ export type TargetSelector =
 
 /**
  * A number derived from the source unit's current stats:
- * flat + atk*source.atk + def*source.def + maxHp*source.maxHp
+ * flat + atk*source.atk + def*source.def + maxHp*source.maxHp + missingHp*(source.maxHp - source.hp)
  */
 export interface Amount {
   flat?: number;
   atk?: number;
   def?: number;
   maxHp?: number;
+  /** Scales with the source's missing HP (post-M7: Dark Knight). */
+  missingHp?: number;
+}
+
+/**
+ * A stacking status on a unit (post-M7): Runes, Dread, damage over time,
+ * Undying Rage. Statuses are defined in data and carried on the effect that
+ * applies them, so the engine never looks one up by id. One entry per id
+ * per unit; the latest applier owns it (credit for its damage, its bursts).
+ */
+export interface StatusDef {
+  id: string;
+  /** Display name ("Rune", "Dread"). */
+  name: string;
+  /** Extra stacks beyond this are lost. */
+  maxStacks?: number;
+  /** Flat stat change per stack, undone when stacks are lost (Dread: { atk: -1 }). */
+  stats?: Partial<Record<BuffableStat, number>>;
+  /**
+   * Damage over time: at the start of each of the afflicted unit's turns it
+   * takes this much per stack (resolved from the applier when applied),
+   * ignoring DEF. Credited to the applier.
+   */
+  dot?: Amount;
+  /** Lasts this many of the afflicted unit's turns; reapplying refreshes it. Unset = until combat ends or it bursts. */
+  duration?: number;
+  /** At this many stacks the status bursts: the stacks clear and the applier's onBurst triggers fire (triggerTarget = afflicted). */
+  burstAt?: number;
+  /** While active, the unit can't drop below 1 HP (Undying Rage). */
+  preventDeath?: boolean;
 }
 
 export type Effect =
@@ -112,7 +142,9 @@ export type Effect =
    * first). Its HP and ATK scale with the summoner (and ability power). With
    * no empty slot, `fallback` effects are applied instead.
    */
-  | { kind: 'summon'; summon: SummonDef; fallback?: Effect[] };
+  | { kind: 'summon'; summon: SummonDef; fallback?: Effect[] }
+  /** Give the target `stacks` stacks of a status (post-M7). */
+  | { kind: 'status'; target: TargetSelector; status: StatusDef; stacks: number };
 
 /** A combat-only unit created by a summon effect. It never joins the run's board. */
 export interface SummonDef {
@@ -145,7 +177,9 @@ export type TriggerEvent =
   /** Another unit on the same side killed an enemy (triggerSource = killer, triggerTarget = victim). */
   | 'onAllyKill'
   /** After the unit is revived (see UnitSetup.revive). */
-  | 'onRevive';
+  | 'onRevive'
+  /** A status this unit applied burst (see StatusDef.burstAt; triggerTarget = the afflicted unit). */
+  | 'onBurst';
 
 export interface TriggeredEffect {
   /** Short display name, shown in the combat log ("Battle Hardened"). */
@@ -156,6 +190,8 @@ export interface TriggeredEffect {
   chance?: number;
   /** Maximum number of times this trigger can fire per combat. */
   limit?: number;
+  /** onBurst only: fire just for this status id. */
+  status?: string;
 }
 
 export interface AbilityDef {

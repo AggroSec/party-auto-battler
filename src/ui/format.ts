@@ -46,6 +46,9 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
       return `💀 ${n(e.target)} falls.`;
     case 'summon':
       return `${n(e.source)} summons ${n(e.unit.id)}!`;
+    case 'status':
+      if (e.burst) return `  💥 ${e.name} bursts on ${n(e.target)}!`;
+      return e.stacks === 0 ? `  ${n(e.target)}: ${e.name} fades` : `  ${n(e.target)}: ${e.name} ×${e.stacks}`;
     case 'combatEnd':
       return e.winner === 'draw'
         ? `Draw (${e.reason === 'tickCap' ? 'time ran out' : 'mutual destruction'}).`
