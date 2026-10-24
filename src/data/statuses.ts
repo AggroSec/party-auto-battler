@@ -15,10 +15,10 @@ export const SEARING: StatusDef = { id: 'searing', name: 'Searing', dot: { atk: 
 export const CORRUPTION: StatusDef = { id: 'corruption', name: 'Corruption', dot: { atk: 0.25 }, duration: 3, maxStacks: 10 };
 
 /** Dark Knight: each stack is −1 ATK, for the rest of the fight. */
-export const DREAD: StatusDef = { id: 'dread', name: 'Dread', stats: { atk: -1 }, maxStacks: 3 };
+export const DREAD: StatusDef = { id: 'dread', name: 'Dread', stats: { atk: -1 }, maxStacks: 2 };
 
 /** Hellknight: demonic fire that clings to whoever touches it. */
-export const HELLFIRE: StatusDef = { id: 'hellfire', name: 'Hellfire', dot: { atk: 0.3 }, duration: 3, maxStacks: 9 };
+export const HELLFIRE: StatusDef = { id: 'hellfire', name: 'Hellfire', dot: { atk: 0.2 }, duration: 3, maxStacks: 5 };
 
 /** Berserker (Deathless Fury): can't drop below 1 HP, and hits harder, for 2 turns. */
 export const DEATHLESS_FURY: StatusDef = {

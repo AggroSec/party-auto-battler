@@ -21,11 +21,11 @@ export const crimsonLord = tertiary({
       { kind: 'heal', target: 'self', amount: { atk: 1 } },
     ],
   },
-  passive: { name: 'Blood Sovereign', description: '+15% lifesteal. When bloodied, gain +5 ATK.' },
+  passive: { name: 'Blood Sovereign', description: '+10% lifesteal. When bloodied, gain +4 ATK.' },
   modifier: {
-    stats: { hp: 14, atk: 3 },
-    lifesteal: 0.15,
-    triggers: [on('onBloodied', 'Blood Sovereign', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 5 } }])],
+    stats: { hp: 12, atk: 2 },
+    lifesteal: 0.1,
+    triggers: [on('onBloodied', 'Blood Sovereign', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 4 } }])],
   },
   talents: [
     talent('crimson-lord/exsanguinate', 'Exsanguinate', 'On kill, heal 25% of max HP.', trig(
@@ -67,10 +67,10 @@ export const hellknight = tertiary({
     ],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
-  passive: { name: 'Infernal Aura', description: 'When hurt, the attacker gains 1 Hellfire (30% ATK damage per stack each turn, for 3 turns).' },
+  passive: { name: 'Infernal Aura', description: 'When hurt, 50% chance the attacker gains 1 Hellfire (20% ATK damage per stack each turn, up to 5, for 3 turns).' },
   modifier: {
-    stats: { hp: 14, atk: 2, def: 2 },
-    triggers: [on('onHurt', 'Infernal Aura', [{ kind: 'status', target: 'triggerSource', status: HELLFIRE, stacks: 1 }])],
+    stats: { hp: 10, atk: 2, def: 1 },
+    triggers: [on('onHurt', 'Infernal Aura', [{ kind: 'status', target: 'triggerSource', status: HELLFIRE, stacks: 1 }], { chance: 0.5 })],
   },
   talents: [
     talent('hellknight/pit-forged', 'Pit-Forged', '+3 DEF, +6 HP.', { stats: { def: 3, hp: 6 } }),
@@ -103,24 +103,24 @@ export const tyrant = tertiary({
   ability: {
     id: 'reign-of-terror',
     name: 'Reign of Terror',
-    description: 'Every 3rd turn: every enemy gains 1 Dread; taunt for 2 turns and shield yourself for 8 + 150% DEF.',
+    description: 'Every 3rd turn: every enemy gains 1 Dread; taunt for 2 turns and shield yourself for 6 + 100% DEF.',
     cooldown: 3,
     effects: [
       { kind: 'status', target: 'allEnemies', status: DREAD, stacks: 1 },
       { kind: 'taunt', target: 'self', turns: 2 },
-      { kind: 'shield', target: 'self', amount: { flat: 8, def: 1.5 } },
+      { kind: 'shield', target: 'self', amount: { flat: 6, def: 1 } },
     ],
   },
   statWeights: { hp: 5, atk: 1, def: 4, spd: 1 },
   passive: { name: 'Dominion', description: 'Start of combat: every enemy gains 1 Dread.' },
   modifier: {
-    stats: { hp: 16, def: 3 },
+    stats: { hp: 12, def: 2 },
     triggers: [on('startOfCombat', 'Dominion', [{ kind: 'status', target: 'allEnemies', status: DREAD, stacks: 1 }])],
   },
   talents: [
     talent('tyrant/tyranny', 'Tyranny', '+4 DEF, −1 SPD.', { stats: { def: 4, spd: -1 } }),
-    talent('tyrant/subjugate', 'Subjugate', 'Basic attacks give the target 1 Dread.', trig(
-      on('onAttack', 'Subjugate', [{ kind: 'status', target: 'triggerTarget', status: DREAD, stacks: 1 }]),
+    talent('tyrant/subjugate', 'Subjugate', 'Basic attacks have a 50% chance to give the target 1 Dread.', trig(
+      on('onAttack', 'Subjugate', [{ kind: 'status', target: 'triggerTarget', status: DREAD, stacks: 1 }], { chance: 0.5 }),
     )),
     talent('tyrant/oppression', 'Oppression', 'Start of combat: each enemy in the front row loses 2 SPD.', trig(
       on('startOfCombat', 'Oppression', [{ kind: 'debuff', target: 'enemyFrontRow', stat: 'spd', amount: { flat: 2 } }]),
@@ -157,10 +157,10 @@ export const revenant = tertiary({
     ],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
-  passive: { name: 'Undeath', description: 'The first time you would fall, rise at 40% HP; every enemy gains 1 Dread.' },
+  passive: { name: 'Undeath', description: 'The first time you would fall, rise at 30% HP; every enemy gains 1 Dread.' },
   modifier: {
-    stats: { hp: 12, atk: 2, def: 1 },
-    revive: 0.4,
+    stats: { hp: 10, atk: 2 },
+    revive: 0.3,
     triggers: [on('onRevive', 'Undeath', [{ kind: 'status', target: 'allEnemies', status: DREAD, stacks: 1 }])],
   },
   talents: [

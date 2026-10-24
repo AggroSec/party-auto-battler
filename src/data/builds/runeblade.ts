@@ -35,28 +35,28 @@ export const spellblade = advanced({
   ability: {
     id: 'elemental-edge',
     name: 'Elemental Edge',
-    description: 'Every 3rd turn: carve 1 Rune into each enemy in the front row, then deal 120% ATK to the nearest enemy.',
+    description: 'Every 3rd turn: carve 2 Runes into each enemy in the front row, then deal 130% ATK to the nearest enemy.',
     cooldown: 3,
     effects: [
-      { kind: 'status', target: 'enemyFrontRow', status: RUNE, stacks: 1 },
-      { kind: 'damage', target: 'nearest', amount: { atk: 1.2 } },
+      { kind: 'status', target: 'enemyFrontRow', status: RUNE, stacks: 2 },
+      { kind: 'damage', target: 'nearest', amount: { atk: 1.3 } },
     ],
   },
-  passive: { name: 'Elemental Runes', description: 'Detonations also deal 50% ATK to the target and its row neighbours.' },
+  passive: { name: 'Elemental Runes', description: 'Detonations also deal 80% ATK to the target and its row neighbours.' },
   modifier: {
-    stats: { hp: 6, atk: 2 },
-    triggers: [onDetonate('Elemental Runes', [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 0.5 }, splash: 1 }])],
+    stats: { hp: 8, atk: 3 },
+    triggers: [onDetonate('Elemental Runes', [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 0.8 }, splash: 1 }])],
   },
   talents: [
     talent('spellblade/arc-runes', 'Arc Runes', 'When your Runes detonate, your next ability comes 1 turn sooner.', trig(
       onDetonate('Arc Runes', [{ kind: 'cooldown', target: 'self', turns: -1 }]),
     )),
-    talent('spellblade/frost-runes', 'Frost Runes', 'Detonations chill the target: it loses 2 SPD.', trig(
-      onDetonate('Frost Runes', [{ kind: 'debuff', target: 'triggerTarget', stat: 'spd', amount: { flat: 2 } }]),
+    talent('spellblade/frost-runes', 'Frost Runes', 'Detonations chill the enemy front row: each loses 2 SPD.', trig(
+      onDetonate('Frost Runes', [{ kind: 'debuff', target: 'enemyFrontRow', stat: 'spd', amount: { flat: 2 } }]),
     )),
     talent('spellblade/runic-focus', 'Runic Focus', '+30% ability power.', { abilityPower: 0.3 }),
-    talent('spellblade/quick-carving', 'Quick Carving', 'Basic attacks have a 35% chance to carve an extra Rune.', trig(
-      on('onAttack', 'Quick Carving', [{ kind: 'status', target: 'triggerTarget', status: RUNE, stacks: 1 }], { chance: 0.35 }),
+    talent('spellblade/quick-carving', 'Quick Carving', 'Basic attacks have a 50% chance to carve an extra Rune.', trig(
+      on('onAttack', 'Quick Carving', [{ kind: 'status', target: 'triggerTarget', status: RUNE, stacks: 1 }], { chance: 0.5 }),
     )),
   ],
 });
@@ -71,26 +71,26 @@ export const duskblade = advanced({
   ability: {
     id: 'twilight-edge',
     name: 'Twilight Edge',
-    description: 'Every 3rd turn: deal 120% ATK to the nearest enemy and carve 2 Runes into it, then heal the most wounded ally for 60% ATK.',
+    description: 'Every 3rd turn: deal 120% ATK to the nearest enemy and carve 2 Runes into it, then heal the most wounded ally for 40% ATK.',
     cooldown: 3,
     effects: [
       { kind: 'damage', target: 'nearest', amount: { atk: 1.2 } },
       { kind: 'status', target: 'nearest', status: RUNE, stacks: 2 },
-      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 0.6 } },
+      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 0.4 } },
     ],
   },
-  passive: { name: 'Balance', description: 'When your Runes detonate, heal the most wounded ally for 100% ATK.' },
+  passive: { name: 'Balance', description: 'When your Runes detonate, heal the most wounded ally for 60% ATK.' },
   modifier: {
-    stats: { hp: 6, atk: 2 },
-    triggers: [onDetonate('Balance', [{ kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1 } }])],
+    stats: { hp: 4, atk: 1 },
+    triggers: [onDetonate('Balance', [{ kind: 'heal', target: 'lowestHpAlly', amount: { atk: 0.6 } }])],
   },
   talents: [
     talent('duskblade/dusk-ward', 'Dusk Ward', 'When your Runes detonate, shield the most wounded ally for 100% ATK.', trig(
       onDetonate('Dusk Ward', [{ kind: 'shield', target: 'lowestHpAlly', amount: { atk: 1 } }]),
     )),
     talent('duskblade/shadow-edge', 'Shadow Edge', '+15% lifesteal.', { lifesteal: 0.15 }),
-    talent('duskblade/waning-light', 'Waning Light', 'When an ally falls, carve 2 Runes into every enemy.', trig(
-      on('onAllyDeath', 'Waning Light', [{ kind: 'status', target: 'allEnemies', status: RUNE, stacks: 2 }]),
+    talent('duskblade/waning-light', 'Waning Light', 'When an ally falls, carve 1 Rune into every enemy.', trig(
+      on('onAllyDeath', 'Waning Light', [{ kind: 'status', target: 'allEnemies', status: RUNE, stacks: 1 }]),
     )),
     talent('duskblade/twin-runes', 'Twin Runes', 'After casting, carve 1 Rune into a random enemy.', trig(
       on('onAbility', 'Twin Runes', [{ kind: 'status', target: 'randomEnemy', status: RUNE, stacks: 1 }]),

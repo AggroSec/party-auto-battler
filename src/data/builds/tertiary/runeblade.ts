@@ -24,11 +24,11 @@ export const stormblade = tertiary({
     ],
   },
   statWeights: { hp: 2, atk: 4, def: 1, spd: 3 },
-  passive: { name: 'Arc Surge', description: 'Fights at full strength from the back row; basic attacks hit random enemies. Detonations arc to 2 random enemies for 60% ATK.' },
+  passive: { name: 'Arc Surge', description: 'Fights at full strength from the back row; basic attacks hit random enemies. Detonations arc to 2 random enemies for 80% ATK.' },
   modifier: {
     stats: { hp: 6, atk: 2, spd: 3 },
     reach: true,
-    triggers: [onDetonate('Arc Surge', [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.6 }, hits: 2 }])],
+    triggers: [onDetonate('Arc Surge', [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 0.8 }, hits: 2 }])],
   },
   talents: [
     talent('stormblade/static-charge', 'Static Charge', '+3 SPD, +2 ATK.', { stats: { spd: 3, atk: 2 } }),
@@ -61,22 +61,22 @@ export const earthwarden = tertiary({
   ability: {
     id: 'quake-rune',
     name: 'Quake Rune',
-    description: 'Every 3rd turn: carve 2 Runes into each enemy in the front row, shield yourself for 6 + 100% DEF, and taunt for 1 turn.',
+    description: 'Every 3rd turn: carve 2 Runes into each enemy in the front row, shield yourself for 4 + 80% DEF, and taunt for 1 turn.',
     cooldown: 3,
     effects: [
       { kind: 'status', target: 'enemyFrontRow', status: RUNE, stacks: 2 },
-      { kind: 'shield', target: 'self', amount: { flat: 6, def: 1 } },
+      { kind: 'shield', target: 'self', amount: { flat: 4, def: 0.8 } },
       { kind: 'taunt', target: 'self', turns: 1 },
     ],
   },
   statWeights: { hp: 5, atk: 2, def: 3, spd: 1 },
-  passive: { name: 'Living Stone', description: 'When your Runes detonate, shield yourself for 15% of max HP and the target loses 2 DEF.' },
+  passive: { name: 'Living Stone', description: 'When your Runes detonate, shield yourself for 10% of max HP and the target loses 1 DEF.' },
   modifier: {
-    stats: { hp: 16, def: 3 },
+    stats: { hp: 12, def: 2 },
     triggers: [
       onDetonate('Living Stone', [
-        { kind: 'shield', target: 'self', amount: { maxHp: 0.15 } },
-        { kind: 'debuff', target: 'triggerTarget', stat: 'def', amount: { flat: 2 } },
+        { kind: 'shield', target: 'self', amount: { maxHp: 0.1 } },
+        { kind: 'debuff', target: 'triggerTarget', stat: 'def', amount: { flat: 1 } },
       ]),
     ],
   },
@@ -125,7 +125,7 @@ export const dawnblade = tertiary({
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
   passive: { name: 'First Light', description: 'Fights at full strength from the back row. When your Runes detonate, heal all allies for 50% ATK.' },
   modifier: {
-    stats: { hp: 10, atk: 2, def: 1 },
+    stats: { hp: 12, atk: 3, def: 1 },
     reach: true,
     triggers: [onDetonate('First Light', [{ kind: 'heal', target: 'allAllies', amount: { atk: 0.5 } }])],
   },

@@ -268,10 +268,9 @@ export const SYNERGIES: SynergyDef[] = [
     tiers: [
       {
         requires: [{ kind: 'party', slots: [{ classIds: ['warrior'] }, { classIds: ['dark-knight'] }], label: 'Warrior and Dark Knight' }],
-        description: 'Warrior + Dark Knight: both start with +2 ATK and +1 DEF, and gain +2 ATK whenever an ally falls (up to 2 times per fight).',
+        description: 'Warrior + Dark Knight: the first time an ally falls, both gain +3 ATK.',
         modifier: {
-          stats: { atk: 2, def: 1 },
-          triggers: [on('onAllyDeath', 'Rivals', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 2 } }], { limit: 2 })],
+          triggers: [on('onAllyDeath', 'Rivals', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 3 } }], { limit: 1 })],
         },
         appliesTo: { filter: { classIds: ['warrior', 'dark-knight'] } },
       },

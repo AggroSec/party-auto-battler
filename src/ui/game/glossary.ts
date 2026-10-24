@@ -207,7 +207,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'dread',
     term: 'Dread',
-    text: 'Each stack is −1 ATK for the rest of the fight, up to 3 stacks per unit.',
+    text: 'Each stack is −1 ATK for the rest of the fight, up to 2 stacks per unit.',
     pattern: /\bdread\b/i,
   },
   {

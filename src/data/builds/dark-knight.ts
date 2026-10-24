@@ -7,8 +7,8 @@ import { DREAD } from '../statuses.ts';
 import { advanced, on, talent, talentIds, trig } from './dsl.ts';
 
 export const darkKnightTalents = [
-  talent('dark-knight/dread-aura', 'Dread Aura', 'When hurt, 50% chance the attacker gains 1 Dread (−1 ATK, up to 3).', trig(
-    on('onHurt', 'Dread Aura', [{ kind: 'status', target: 'triggerSource', status: DREAD, stacks: 1 }], { chance: 0.5 }),
+  talent('dark-knight/dread-aura', 'Dread Aura', 'When hurt, 30% chance the attacker gains 1 Dread (−1 ATK, up to 2).', trig(
+    on('onHurt', 'Dread Aura', [{ kind: 'status', target: 'triggerSource', status: DREAD, stacks: 1 }], { chance: 0.3 }),
   )),
   talent('dark-knight/blood-oath', 'Blood Oath', '+15% lifesteal.', { lifesteal: 0.15 }),
   talent('dark-knight/unholy-vigor', 'Unholy Vigor', 'Start of combat: pay 10% of max HP and gain +3 ATK.', trig(
@@ -39,8 +39,8 @@ export const blackguard = advanced({
       { kind: 'heal', target: 'self', amount: { atk: 0.6 } },
     ],
   },
-  passive: { name: 'Sanguine', description: '+20% lifesteal.' },
-  modifier: { stats: { hp: 8, atk: 3 }, lifesteal: 0.2 },
+  passive: { name: 'Sanguine', description: '+15% lifesteal.' },
+  modifier: { stats: { hp: 6, atk: 2 }, lifesteal: 0.15 },
   talents: [
     talent('blackguard/blood-frenzy', 'Blood Frenzy', 'When bloodied, gain +4 ATK and +2 SPD.', trig(
       on('onBloodied', 'Blood Frenzy', [
@@ -65,28 +65,28 @@ export const dreadknight = advanced({
   ability: {
     id: 'terrorize',
     name: 'Terrorize',
-    description: 'Every 3rd turn: taunt for 2 turns, give each enemy in the front row 1 Dread, and shield yourself for 6 + 100% DEF.',
+    description: 'Every 3rd turn: taunt for 1 turn, give each enemy in the front row 1 Dread, and shield yourself for 4 + 80% DEF.',
     cooldown: 3,
     effects: [
-      { kind: 'taunt', target: 'self', turns: 2 },
+      { kind: 'taunt', target: 'self', turns: 1 },
       { kind: 'status', target: 'enemyFrontRow', status: DREAD, stacks: 1 },
-      { kind: 'shield', target: 'self', amount: { flat: 6, def: 1 } },
+      { kind: 'shield', target: 'self', amount: { flat: 4, def: 0.8 } },
     ],
   },
   statWeights: { hp: 5, atk: 1, def: 3, spd: 1 },
-  passive: { name: 'Aura of Dread', description: 'When hurt, the attacker gains 1 Dread (−1 ATK, up to 3).' },
+  passive: { name: 'Aura of Dread', description: 'When hurt, 40% chance the attacker gains 1 Dread (−1 ATK, up to 2).' },
   modifier: {
-    stats: { hp: 12, def: 3 },
-    triggers: [on('onHurt', 'Aura of Dread', [{ kind: 'status', target: 'triggerSource', status: DREAD, stacks: 1 }])],
+    stats: { hp: 10, def: 2 },
+    triggers: [on('onHurt', 'Aura of Dread', [{ kind: 'status', target: 'triggerSource', status: DREAD, stacks: 1 }], { chance: 0.4 })],
   },
   talents: [
     talent('dreadknight/intimidation', 'Intimidation', 'Start of combat: every enemy gains 1 Dread.', trig(
       on('startOfCombat', 'Intimidation', [{ kind: 'status', target: 'allEnemies', status: DREAD, stacks: 1 }]),
     )),
-    talent('dreadknight/iron-will', 'Iron Will', '+3 DEF, +8 HP.', { stats: { def: 3, hp: 8 } }),
+    talent('dreadknight/iron-will', 'Iron Will', '+2 DEF, +8 HP.', { stats: { def: 2, hp: 8 } }),
     talent('dreadknight/menace', 'Menace', 'Start of combat: taunt for 2 turns.', trig(on('startOfCombat', 'Menace', [{ kind: 'taunt', target: 'self', turns: 2 }]))),
-    talent('dreadknight/grim-retort', 'Grim Retort', 'When hurt, deal 30% DEF + 10% of your missing HP to the attacker.', trig(
-      on('onHurt', 'Grim Retort', [{ kind: 'damage', target: 'triggerSource', amount: { def: 0.3, missingHp: 0.1 } }]),
+    talent('dreadknight/grim-retort', 'Grim Retort', 'When hurt, deal 20% DEF + 5% of your missing HP to the attacker.', trig(
+      on('onHurt', 'Grim Retort', [{ kind: 'damage', target: 'triggerSource', amount: { def: 0.2, missingHp: 0.05 } }]),
     )),
   ],
 });
@@ -98,7 +98,7 @@ export const darkKnightClass: ClassDef = {
   tags: ['martial', 'guardian', 'shadow'],
   unlockable: true,
   description: 'Evil tank: pays HP for power, drinks it back, and grows deadlier as it bleeds.',
-  baseStats: { hp: 44, atk: 6, def: 2, spd: 8 },
+  baseStats: { hp: 40, atk: 6, def: 2, spd: 8 },
   range: 'melee',
   placement: 0,
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
@@ -108,12 +108,12 @@ export const darkKnightClass: ClassDef = {
   ability: {
     id: 'blood-price',
     name: 'Blood Price',
-    description: 'Every 3rd turn: pay 8% of max HP, then deal 140% ATK + 25% of your missing HP to the nearest enemy and heal for 75% ATK.',
+    description: 'Every 3rd turn: pay 8% of max HP, then deal 130% ATK + 20% of your missing HP to the nearest enemy and heal for 50% ATK.',
     cooldown: 3,
     effects: [
       { kind: 'payHp', amount: { maxHp: 0.08 } },
-      { kind: 'damage', target: 'nearest', amount: { atk: 1.4, missingHp: 0.25 } },
-      { kind: 'heal', target: 'self', amount: { atk: 0.75 } },
+      { kind: 'damage', target: 'nearest', amount: { atk: 1.3, missingHp: 0.2 } },
+      { kind: 'heal', target: 'self', amount: { atk: 0.5 } },
     ],
   },
   passive: { name: 'Dark Resolve', description: 'When bloodied, gain +3 DEF and +2 ATK.' },

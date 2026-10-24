@@ -22,11 +22,11 @@ describe('Runeblade', () => {
 });
 
 describe('Dark Knight', () => {
-  it('Dreadknights sap attackers with Dread, up to 3 stacks', () => {
+  it('Dreadknights sap attackers with Dread, up to 2 stacks', () => {
     const knight = make('dark-knight', { level: 3, advancedClassId: 'dreadknight' });
     const r = fight(knight, { ...dummy(), stats: { hp: 400, atk: 8, def: 0, spd: 12 } });
     const dread = statuses(r.events).filter((e) => e.status === 'dread' && e.target === 'e0');
-    expect(dread.at(-1)?.stacks).toBe(3);
+    expect(dread.at(-1)?.stacks).toBe(2);
   });
 });
 
