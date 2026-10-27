@@ -2,6 +2,10 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-10-27 — Favored class
+
+No simulator change: the bots never pick a favored class, and without one the shop rolls exactly as before (the guarantee uses no random draws). The numbers below still stand.
+
 ## 2026-10-24 — After M7 (Runeblade, Dark Knight, Deathless Fury, Rivals)
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0, so both new classes are in every shop).
@@ -13,7 +17,23 @@ Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at ti
 - **1v1 duels:** both new classes win most duels at level 1. A lone target means every Rune lands on the same enemy, and the Dark Knight drains through anything. Duels are a sanity check; in random 5v5 parties they sit mid-pack (Runeblade 50.1%, Dark Knight 56.8%, Warrior 59.4%).
 - **Deathless Fury** shows up too rarely in the bot runs to judge (random talent picks, and only Berserkers).
 
-- **Ladder:** not re-run for this PR (the ladder simulation takes about 40 minutes and Brandon asked to open the PR first). The ladder itself didn't change; a follow-up will add the table if anything stands out.
+- **Ladder (finished after the PR merged, added in the favored-class PR):** nothing alarming. The sensible bot tracks M7 at every tier; greedy is lower at the middle tiers, in line with its lower tier-0 starting point (29.0% vs M7's 38.6%), not a harder ladder.
+
+  | Tier | Sensible: completed · avg wins | Greedy: completed · avg wins |
+  |---:|---:|---:|
+  | 0 | 20.4% · 8.8 | 29.0% · 10.0 |
+  | 1 | 21.3% · 8.9 | 28.5% · 9.9 |
+  | 2 | 13.8% · 7.6 | 16.8% · 8.3 |
+  | 3 | 15.2% · 7.8 | 14.9% · 8.2 |
+  | 4 | 11.9% · 7.3 | 17.3% · 8.3 |
+  | 5 | 6.8% · 6.0 | 9.6% · 6.7 |
+  | 6 | 4.9% · 5.7 | 6.1% · 6.3 |
+  | 7 | 2.9% · 5.4 | 2.7% · 5.8 |
+  | 8 | 0.9% · 4.5 | 0.4% · 4.8 |
+  | 9 | 0.9% · 4.3 | 0.4% · 4.5 |
+  | 10 | 0.2% · 3.7 | 0.3% · 3.9 |
+
+  Seed `m3`, 2,000 runs per bot per tier.
 
 Seed `m3`. Draws count as half a win.
 

@@ -53,7 +53,7 @@ Not a numbered milestone: your playtest notes plus the two classes you designed,
 - **Full runs** (2,000 per bot, everything unlocked, tier 0): random 3.9%, sensible 21.8%, greedy 29.5%, synergy 10.3%. No stuck runs, no tick-cap hits. M7 was 5.0 / 18.8 / 38.6 / 11.9.
 - **New classes (lift vs round average):** Dark Knight +3.7, Runeblade +1.9. Advanced: Dreadknight +6.9, Duskblade +3.0, Spellblade +0.4, Blackguard −1.7.
 - **The first pass was far too strong on the Dark Knight side** (Hellknight +16.6, Dreadknight +14.5, Rivals +15.7); three tuning passes are logged in BALANCE.md.
-- **Ladder:** unchanged, and not re-simulated for this PR (it takes about 40 minutes). If the follow-up run shows anything bad, it gets a small fix PR.
+- **Ladder** (finished after the merge): nothing alarming. Sensible / greedy completion: tier 0 20% / 29%, tier 2 14% / 17%, tier 5 7% / 10%, tier 7 3% / 3%, tier 8 0.9% / 0.4%, tier 10 0.2% / 0.3%. Full table in BALANCE.md.
 - Tests: 305 passing.
 
 ## Milestone 7 — Meta progression (2026-10-22)

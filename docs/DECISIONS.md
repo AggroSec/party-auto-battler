@@ -2,6 +2,14 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-27 — Favored class
+
+Brandon approved the feature (free, allowed in dailies, bots unchanged). Decided autonomously:
+- **Stored on the run's setup** (`favored`, optional), so saved runs and old play logs are unaffected and a replay reproduces the guarantee.
+- **The guarantee rewrites an offer instead of rolling a new one:** the first recruit slot keeps its name and price and only changes class. It uses no random draws, so a run without a favored class rolls exactly as before.
+- **Locked slots are never rewritten;** a locked offer of the favored class counts as the guarantee.
+- **A favored class the run can't recruit is ignored** (dropped by `runSetupFor` if not unlocked, and skipped in the shop if not in its pool).
+
 ## 2026-10-24 — After M7: playtest fixes, shop locks, Runeblade and Dark Knight
 
 Brandon approved the fix plan (dailies don't count, Reset progress, shop locks with two perks, an easier Druid unlock) and designed two new classes with me: the Runeblade (Runes that build and detonate; elemental and twilight paths; two tertiaries fight from the back row) and the Dark Knight (an evil tank that pays HP, lifesteals and scales with missing HP; blood and Dread paths), plus a Berserker rage talent and a Rivals synergy. Everything below was decided autonomously.

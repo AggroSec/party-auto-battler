@@ -53,6 +53,12 @@ describe('unlocks', () => {
     expect(runSetupFor(u, 5, ['a', 'b', 'zzz'])).toEqual({ tier: 0, perks: ['a'], classes: ['tank'], items: ['sword'], synergies: ['guards'] });
   });
 
+  it('keeps a favored class only if it is unlocked', () => {
+    const u = unlockedContent(newProfile(), CATALOG);
+    expect(runSetupFor(u, 0, [], 'tank').favored).toBe('tank');
+    expect(runSetupFor(u, 0, [], 'archer')).not.toHaveProperty('favored');
+  });
+
   it('offers kept + 2 perks, deterministically per seed', () => {
     const offer = perkOffer('seed', CATALOG.all.perks, 1, CATALOG);
     expect(offer).toHaveLength(3);

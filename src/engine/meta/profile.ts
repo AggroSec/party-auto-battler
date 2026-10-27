@@ -42,14 +42,15 @@ export function perkOffer(seed: string, pool: readonly string[], kept: number, c
   return sample(new Rng(`${seed}:perks`), pool, kept + catalog.perkChoiceExtra);
 }
 
-/** A run's setup from what's unlocked, a chosen tier and chosen perks. */
-export function runSetupFor(unlocked: Unlocked, tier: number, perks: readonly string[]): RunSetup {
+/** A run's setup from what's unlocked, a chosen tier, chosen perks and an optional favored class. */
+export function runSetupFor(unlocked: Unlocked, tier: number, perks: readonly string[], favored?: string): RunSetup {
   return {
     tier: Math.max(0, Math.min(tier, unlocked.maxTier)),
     perks: perks.filter((p) => unlocked.perks.includes(p)).slice(0, unlocked.perkSlots),
     classes: [...unlocked.classes],
     items: [...unlocked.items],
     synergies: [...unlocked.synergies],
+    ...(favored && unlocked.classes.includes(favored) ? { favored } : {}),
   };
 }
 

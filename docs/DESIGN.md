@@ -542,6 +542,10 @@ One per tertiary class *(Brandon: unique, pricier, attainable, shown only when t
 - Every shop offer (recruit, item or training) has a 🔒 button. Locking costs **1 gold**, paid once; a locked offer survives rerolls and the next round until you buy it or unlock it. Unlocking is free and refunds nothing.
 - One lock at a time. Perks: **Haggler** (locks are free; from **Penny Pincher**: go into 3 fights in a row with 10+ gold) and **Layaway** (+1 lock; from **Window Shopper**: buy 5 locked offers in one run).
 
+### Favored class (2026-10-27)
+- The run setup screen has an optional **Favored class** picker (any unlocked class; dailies too). In rounds 1 and 2, every shop, rerolls included, offers at least one recruit of that class. If none rolls naturally, the first unlocked recruit slot becomes it, at the normal price. From round 3 the shop is normal.
+- Free for everyone, not a perk, so newly unlocked classes can be tried straight away. Brandon may make the forced offer cost more after testing.
+
 ### Stacking statuses
 A status is a named stack on a unit: it can change a stat per stack, deal damage each of the afflicted unit's turns (ignoring DEF, credited to whoever applied it), last a number of turns, burst at a threshold (firing its applier's `onBurst` effects), or keep the unit above 0 HP. Stack counts show on unit cards during playback.
 
