@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { META_CATALOG } from '../../data/meta/catalog.ts';
 import { perkOffer, runSetupFor } from '../../engine/meta/index.ts';
+import { FAVORED_ROUNDS } from '../../engine/run/index.ts';
 import { randomSeed, type Game } from './useGame.ts';
 
 /** Before a run: pick a ladder tier and starting perks (or take today's daily as it comes). */
@@ -20,13 +21,15 @@ export function RunSetupScreen({ game }: { game: Game }) {
   const [picked, setPicked] = useState<string[]>([]);
   const chosen = picked.filter((p) => offer.includes(p));
   const shownTier = isDaily ? daily.setup.tier : tier;
+  const classes = isDaily ? daily.setup.classes : unlocked.classes;
+  const [favored, setFavored] = useState('');
 
   const toggle = (id: string) =>
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : keep === 1 ? [id] : p.length < keep ? [...p, id] : p));
 
   const start = () => {
-    if (isDaily) game.startRun(daily.seed, { ...daily.setup, perks: chosen.slice(0, 1) });
-    else game.startRun(runSeed, runSetupFor(unlocked, tier, chosen));
+    if (isDaily) game.startRun(daily.seed, { ...daily.setup, perks: chosen.slice(0, 1), ...(classes.includes(favored) ? { favored } : {}) });
+    else game.startRun(runSeed, runSetupFor(unlocked, tier, chosen, favored || undefined));
   };
 
   return (
@@ -88,6 +91,21 @@ export function RunSetupScreen({ game }: { game: Game }) {
         {!isDaily && unlocked.perkSlots < META_CATALOG.maxPerkSlots && (
           <p className="muted small">The Perkception achievements let you keep more perks.</p>
         )}
+      </section>
+
+      <section className="setup-section">
+        <h2>
+          Favored class <span className="muted small">(optional)</span>
+        </h2>
+        <select value={favored} onChange={(e) => setFavored(e.target.value)} aria-label="Favored class">
+          <option value="">None</option>
+          {classes.map((id) => (
+            <option key={id} value={id}>
+              {baseCtx.content.classes[id]?.name ?? id}
+            </option>
+          ))}
+        </select>
+        <p className="muted small">Every shop in rounds 1–{FAVORED_ROUNDS}, rerolls included, offers at least one recruit of this class.</p>
       </section>
 
       {!isDaily && (

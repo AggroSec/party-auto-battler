@@ -74,6 +74,30 @@ export function rollShop(rng: Rng, ctx: RunContext, board: Board, round = 1): Sh
   return [...units, ...Array.from({ length: extraSlots }, () => rollExtraOffer(rng, ctx, board, round))];
 }
 
+/** Rounds in which a run's favored class is guaranteed a recruit offer. */
+export const FAVORED_ROUNDS = 2;
+
+/**
+ * Favored class: in the first FAVORED_ROUNDS rounds, if no recruit offer is
+ * that class, the first unlocked recruit offer becomes it. Same name and cost,
+ * and no RNG, so the rest of the shop is unchanged.
+ */
+export function ensureFavored(
+  shop: readonly (ShopOffer | null)[],
+  locked: readonly number[],
+  favored: string | undefined,
+  round: number,
+  ctx: RunContext,
+): (ShopOffer | null)[] {
+  const out = [...shop];
+  if (!favored || round > FAVORED_ROUNDS || !ctx.content.shopPool.includes(favored)) return out;
+  if (out.some((o) => o?.kind === 'unit' && o.classId === favored)) return out;
+  const i = out.findIndex((o, j) => o?.kind === 'unit' && !locked.includes(j));
+  const offer = out[i];
+  if (offer?.kind === 'unit') out[i] = { ...offer, classId: favored };
+  return out;
+}
+
 /** A free random item for the Armory perk's first shop. */
 export function rollFreeItem(rng: Rng, ctx: RunContext): ShopOffer | null {
   return ctx.content.itemPool.length > 0 ? { kind: 'item', itemId: rng.pick(ctx.content.itemPool), cost: 0 } : null;

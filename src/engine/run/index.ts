@@ -47,7 +47,7 @@ export {
   talentOptions,
   type StatPoints,
 } from './progression.ts';
-export { rollShop, tertiaryItemFor, wantedTertiaryItems, TERTIARY_ITEM_CHANCE } from './shop.ts';
+export { ensureFavored, FAVORED_ROUNDS, rollShop, tertiaryItemFor, wantedTertiaryItems, TERTIARY_ITEM_CHANCE } from './shop.ts';
 export { defaultSetup, mergeRunModifiers, recruitCost, runContext, setupModifiers } from './setup.ts';
 export type * from './types.ts';
 export type { PlayLogEntry } from './log.ts';
