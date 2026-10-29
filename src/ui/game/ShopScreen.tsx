@@ -7,7 +7,7 @@ import { dropAction, type DragSource } from './dropRules.ts';
 import { ERROR_TEXT } from './errors.ts';
 import { Hud } from './Hud.tsx';
 import { Inspector } from './Inspector.tsx';
-import { SellZone, ShopRow } from './Shop.tsx';
+import { ShopRow } from './Shop.tsx';
 import { SynergyList } from './SynergyList.tsx';
 import type { Game } from './useGame.ts';
 
@@ -24,7 +24,6 @@ export function ShopScreen({ game }: { game: Game }) {
   const units = useMemo(() => boardUnits(run.board), [run.board]);
   const selectedUnit = selected ? (getSlot(run.board, selected) ?? null) : null;
   const pending = run.pending[0];
-  const { progression } = ctx.config;
 
   const act = (...args: Parameters<typeof dispatch>) => {
     setHint(null);
@@ -58,16 +57,8 @@ export function ShopScreen({ game }: { game: Game }) {
     if (!action) return;
     const ok = act(action);
     if (!ok) return;
-    if (action.type === 'sell' && selected && action.from.row === selected.row && action.from.col === selected.col) setSelected(null);
     if (action.type === 'move' && selected && action.from.row === selected.row && action.from.col === selected.col) setSelected(action.to);
     if (action.type === 'buy' && action.to && source.kind === 'offer' && run.shop[source.index]?.kind === 'unit') setSelected(action.to);
-  };
-
-  const refundFor = (source: DragSource): number | null => {
-    if (source.kind === 'offer') return null;
-    if (source.kind === 'item') return progression.itemSellRefund;
-    const u = getSlot(run.board, source.slot);
-    return u ? ctx.config.sellRefund + u.items.length * progression.itemSellRefund : null;
   };
 
   const withPoints = units.filter((u) => u.statPoints > 0);
@@ -108,7 +99,6 @@ export function ShopScreen({ game }: { game: Game }) {
               ▲ Enemy side
             </div>
             <Board run={run} party={party} ctx={ctx} selected={selected} onSelect={onSlotSelect} />
-            <SellZone refundFor={refundFor} />
             <div className="fight-bar">
               <p className={`message${!hint && !error && pointsHint ? ' info' : ''}`} role="status">
                 {message}

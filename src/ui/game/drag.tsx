@@ -164,8 +164,3 @@ export function useDropTarget(target: DropTarget) {
     props: { 'data-drop': encoded },
   };
 }
-
-/** Whether anything is being dragged right now (for showing the sell zone). */
-export function useIsDragging(): DragSource | null {
-  return useDragApi().active?.source ?? null;
-}

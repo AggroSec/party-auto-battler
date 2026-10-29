@@ -31,7 +31,7 @@ function ItemRow({
   const drag = useDraggable({ kind: 'item', slot, index }, chip);
   return (
     <li className={`item-row ${drag.dragging ? 'is-dragging' : ''}`}>
-      <span className="draggable" {...drag.props} title="Drag to another unit, or to the sell zone">
+      <span className="draggable" {...drag.props} title="Drag to another unit">
         {chip}
       </span>
       <span className="item-desc">

@@ -2,6 +2,13 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-28 — No drag-to-sell; no repeated talents
+
+From Brandon's playtest notes:
+- **The sell drop zone is gone for units and items alike.** On a phone, a scroll that started on a unit could end on the zone (he sold his Cleric twice in one run). Items had the same risk, and both already have a Sell button in the inspector.
+- **Two level-ups at once can no longer offer the same talent twice.** Both choices are rolled together, before the first is picked. Now, picking a talent swaps it out of that unit's later queued choices for a fresh talent (in the same position), or drops the option if none is left. It only draws randomness when a swap is needed, so runs without a collision play out as before; an old play log where the collision happened replays differently from that choice on.
+- **Paying HP (Blood Price and similar) already skips shields:** it always came straight out of HP. A test now pins that down.
+
 ## 2026-10-27 — Favored class
 
 Brandon approved the feature (free, allowed in dailies, bots unchanged). Decided autonomously:
