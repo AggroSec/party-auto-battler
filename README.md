@@ -2,7 +2,7 @@
 
 A browser-playable party auto-battler with RPG classes and builds. You draft a party, position it, equip it and level it up between rounds, then the fight resolves on its own. Think Super Auto Pets or Backpack Battles, with the depth coming from CRPG-style classes, talent choices and advanced-class upgrades.
 
-> 🚧 In development. Milestones 1–7 are done: the combat engine, run loop, builds (levels 1–10, stat points, talents, advanced and tertiary classes, talents that grant a second ability, items, synergies), a playable UI with drag-to-position and animated combat playback, 13 classes with 78 advanced and tertiary classes, stacking statuses (Runes, Dread, damage over time), and meta progression (a 10-tier difficulty ladder, 34 achievements that unlock classes, items, synergies and starting perks, signature items for every tertiary class, shop locks and a daily run). Next: juice and shipping. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
+> 🚧 In development. Milestones 1–8 are done: the combat engine, run loop, builds (levels 1–10, stat points, talents, advanced and tertiary classes, talents that grant a second ability, items, synergies), a playable UI with drag-to-position and animated combat playback, 13 classes with 78 advanced and tertiary classes, stacking statuses (Runes, Dread, damage over time), and meta progression (a 10-tier difficulty ladder, 34 achievements that unlock classes, items, synergies and starting perks, signature items for every tertiary class, shop locks and a daily run), and juice (game-icons.net icons, retro sound effects made in code, combat and shop animations, a credits screen). Next: shipping. See [docs/CHECKPOINTS.md](docs/CHECKPOINTS.md) for progress.
 
 ## Play
 
@@ -18,6 +18,7 @@ npm run dev     # play locally (the combat lab is linked from the title screen)
 npm run check   # typecheck + lint + tests
 npm run sim     # headless balance simulator
 npm run playlog # replay play logs recorded by npm run dev (playlogs/)
+npm run icons   # re-fetch the game-icons.net icons and regenerate their credits
 npm run build   # production build
 ```
 
@@ -27,7 +28,8 @@ npm run build   # production build
 src/engine/   pure, deterministic game logic (no DOM, no Math.random)
 src/data/     classes and other content as typed data
 src/sim/      headless balance simulator
-src/ui/       React UI
+src/ui/       React UI (src/ui/audio: sound effects)
+src/assets/   icons (generated) and ATTRIBUTION.md
 docs/         design doc, decision log, checkpoints, balance reports
 ```
 

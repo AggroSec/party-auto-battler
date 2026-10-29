@@ -11,7 +11,8 @@ describe('combat floating text', () => {
       { kind: 'stat', target: 'p0', stat: 'atk', value: 1 },
       { kind: 'trigger', target: 'p0', label: 'Pack Leader' },
     ]);
-    expect(t.map((x) => x.text)).toEqual(['-8', '+4', '⚔️+2']);
+    expect(t.map((x) => x.text)).toEqual(['-8', '+4', '+2']);
+    expect(t[2]).toMatchObject({ stat: 'atk', cls: 'buff' });
   });
 
   it('shows fully absorbed hits in brackets and debuffs distinctly', () => {
@@ -21,7 +22,7 @@ describe('combat floating text', () => {
     ]);
     expect(t).toEqual([
       { text: '(6)', cls: 'dmg' },
-      { text: '🛡️-2', cls: 'debuff' },
+      { text: '-2', cls: 'debuff', stat: 'def' },
     ]);
   });
 });

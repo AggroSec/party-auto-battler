@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "check": "tsc -b && eslint . && vitest run",
     "sim": "tsx src/sim/index.ts",
-    "playlog": "tsx src/sim/playlog-cli.ts"
+    "playlog": "tsx src/sim/playlog-cli.ts",
+    "icons": "tsx src/sim/fetch-icons.ts"
   },
   "dependencies": {
     "react": "^19.3.1",

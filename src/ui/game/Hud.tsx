@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { RunContext, RunState } from '../../engine/run/index.ts';
+import { SoundToggle } from '../audio/SoundToggle.tsx';
 import { Glossary } from './Rules.tsx';
 
 /** Round, gold, lives and wins. */
@@ -20,7 +21,10 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
         </span>
       )}
       <span className="hud-gold" title="Gold">
-        💰 {run.gold}
+        💰{' '}
+        <span className="bump" key={run.gold}>
+          {run.gold}
+        </span>
       </span>
       <span className="hud-lives" title={`${run.lives} of ${startingLives} lives`} aria-label={`${run.lives} lives`}>
         {Array.from({ length: startingLives }, (_, i) => (
@@ -30,7 +34,11 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
         ))}
       </span>
       <span className="hud-wins" title="Wins" aria-label={`${run.wins} of ${winsToComplete} wins`}>
-        🏆 {run.wins}/{winsToComplete}
+        🏆{' '}
+        <span className="bump" key={run.wins}>
+          {run.wins}
+        </span>
+        /{winsToComplete}
         <span className="wins-bar" aria-hidden>
           <span style={{ width: `${(run.wins / winsToComplete) * 100}%` }} />
         </span>
@@ -38,6 +46,7 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
       {(run.winStreak > 1 || run.lossStreak > 1) && (
         <span className="hud-streak">{run.winStreak > 1 ? `🔥 ${run.winStreak} win streak` : `${run.lossStreak} loss streak`}</span>
       )}
+      <SoundToggle className="hud-sound" />
       <button type="button" className="hud-help" onClick={() => setHelp(true)} aria-label="Glossary" title="Glossary">
         ?
       </button>

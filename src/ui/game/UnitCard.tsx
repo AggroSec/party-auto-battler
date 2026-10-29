@@ -1,6 +1,7 @@
 import type { UnitSetup } from '../../engine/index.ts';
 import { effectiveClassId, maxLevel, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
+import { Icon, StatLine } from './Icon.tsx';
 import { className } from './names.ts';
 
 /** Compact card for a unit on the shop board. */
@@ -29,17 +30,22 @@ export function UnitCard({
   return (
     <div className="unit-card" style={{ '--class-color': style.color } as React.CSSProperties}>
       <div className="avatar" aria-hidden>
-        {style.glyph}
+        <Icon id={style.icon} />
       </div>
       <div className="unit-text">
-        <strong className="unit-name">{unit.name}</strong>
+        <strong className="unit-name">
+          <Icon id={style.icon} className="mini-icon" />
+          {unit.name}
+        </strong>
         <span className="unit-class">
-          Lv {unit.level} {className(content, effectiveClassId(unit))}
+          {/* Re-keyed on level-up so the level pops. */}
+          <span className="unit-level" key={unit.level}>
+            Lv {unit.level}
+          </span>{' '}
+          {className(content, effectiveClassId(unit))}
         </span>
         {setup && (
-          <span className="unit-stats" aria-label="HP, attack, defence, speed">
-            ❤️{setup.stats.hp} ⚔️{setup.stats.atk} 🛡️{setup.stats.def} 💨{setup.stats.spd}
-          </span>
+          <StatLine stats={setup.stats} className="unit-stats" />
         )}
       </div>
       <div className="xp-bar" title={atMax ? 'Max level' : `XP ${unit.xp} / ${hi}`}>
@@ -48,7 +54,7 @@ export function UnitCard({
       <div className="badges">
         {unit.items.map((id, i) => (
           <span key={i} className="badge item-pip" title={content.items[id]?.name}>
-            🎒
+            <Icon id={content.items[id]?.tertiaryClassId ? 'signature' : 'item'} />
           </span>
         ))}
         {unit.statPoints > 0 && (

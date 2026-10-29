@@ -1,17 +1,27 @@
 import { effectiveClassId, type OwnedUnit, type PendingChoice, type RunContent } from '../../engine/run/index.ts';
+import type { StatKey } from '../../engine/types.ts';
 import { classStyle } from './classStyle.ts';
+import { Icon, StatIcon } from './Icon.tsx';
 import type { LevelUp } from './levelUps.ts';
 import { className } from './names.ts';
 import { Rules } from './Rules.tsx';
 
-const STAT_ICON = { hp: '❤️', atk: '⚔️', def: '🛡️', spd: '💨' } as const;
+const STATS = ['hp', 'atk', 'def', 'spd'] as const;
 
-export function statBonus(stats: Partial<Record<keyof typeof STAT_ICON, number>> | undefined): string {
-  if (!stats) return '';
-  return (Object.keys(STAT_ICON) as (keyof typeof STAT_ICON)[])
-    .filter((k) => stats[k])
-    .map((k) => `${STAT_ICON[k]}${stats[k]! > 0 ? '+' : ''}${stats[k]}`)
-    .join(' ');
+/** Stat changes as icon + signed number, e.g. HP+8 ATK+3. */
+export function StatBonus({ stats }: { stats: Partial<Record<StatKey, number>> | undefined }) {
+  if (!stats) return null;
+  return (
+    <span className="stat-bonus">
+      {STATS.filter((k) => stats[k]).map((k) => (
+        <span key={k} className="stat-line">
+          <StatIcon stat={k} />
+          {stats[k]! > 0 ? '+' : ''}
+          {stats[k]}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 /** Level-up decision for the first pending choice. */
@@ -50,7 +60,7 @@ export function ChoicePanel({
             return (
               <button key={id} type="button" className="choice-card" onClick={() => onChoose(i)}>
                 <strong className="choice-title">
-                  {style.glyph} {adv?.name ?? id}
+                  <Icon id={style.icon} /> {adv?.name ?? id}
                 </strong>
                 <span>{adv?.description}</span>
                 <span>
@@ -62,7 +72,7 @@ export function ChoicePanel({
                   </span>
                 )}
                 <span className="muted">
-                  {statBonus(adv?.modifier.stats)} · {adv?.tags.join(', ')}
+                  <StatBonus stats={adv?.modifier.stats} /> · {adv?.tags.join(', ')}
                 </span>
               </button>
             );

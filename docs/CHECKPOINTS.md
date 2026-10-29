@@ -2,6 +2,35 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 8 — Juice (2026-10-28)
+
+### What was built
+- **Icons from game-icons.net** for the 13 base classes, the 10 summons, the four stats, shop offers (item, signature item, training) and the sound toggle: 32 icons, all CC BY 3.0. Advanced and tertiary classes use their base class's icon in their colour. Stat icons are coloured (HP red, ATK orange, DEF blue, SPD teal). On phones, a small class icon now sits beside each unit's name (the big avatar is hidden there for space).
+- **Retro sound effects, made in code** (no audio files):
+  - **Fights:** hits, blocked hits, casts, heals, shields, deaths, Rune detonations, summons and sudden death, plus a victory or defeat jingle.
+  - **Shop:** buying, selling, rerolls, locks, choices, level-ups, an error buzz and the Fight button. Achievements chime.
+  - **Sound toggle** on the title screen, in the shop header and in the fight controls. It's on by default and remembered.
+- **Animations:**
+  - **Fights:** casts glow, heals and shields pulse, big hits (a quarter of max HP or more) flash red and shake harder, Rune detonations burst, and dying units flare and collapse. The Victory or Defeat title lands with weight.
+  - **Shop:** new offers deal in after a reroll or a new round, levels pop when they go up, and gold and wins bump when they change.
+- **Credits screen** (title screen → Credits): you as designer and director, Claude Code as the coder, every icon with author and link, and how the sound is made. `src/assets/ATTRIBUTION.md` lists the same icons, and a test checks they match.
+- `npm run icons` re-fetches the icons and regenerates their credits, so the icon set is reproducible.
+
+### What to playtest (and how)
+1. **On your phone with sound on:** play a few rounds. Are the sounds pleasant or grating after 10 minutes? Is anything too loud or too frequent (hits at 2x)? Try the toggle in the shop and in a fight.
+2. **Fight readability:** do casts, big hits, deaths and detonations read better than before? Anything too flashy?
+3. **Icons:** do the 13 class icons read as their classes at a glance, on the board and in fights? Any you'd swap? (Changing one is a one-line edit plus `npm run icons`.)
+4. **Credits:** title screen → Credits. Is anything missing from "Made by"?
+
+### Known issues
+- **Statuses and HUD markers are still emoji** (Runes, Dread, burns, gold, lives, wins, locks). That's in line with the agreed scope (classes, item types, stats); they can get icons later.
+- **Sound only starts after your first tap**, a browser rule. Every sound follows a tap anyway.
+- **I checked the screens in headless Chrome, at phone and desktop width, with no errors.** I couldn't listen to the sounds there, so their mix is untested by ear.
+
+### Simulator balance numbers
+- **No rule or content changes** in this milestone, so the numbers from the post-M7 report stand: full runs (2,000 per bot, tier 0) random 3.9%, sensible 21.8%, greedy 29.5%, synergy 10.3%; ladder tier 10 0.2% / 0.3% (sensible / greedy). Details in BALANCE.md.
+- Tests: 319 passing (5 new: icons, credits and sounds).
+
 ## After M7 — Playtest fixes, shop locks, Runeblade and Dark Knight (2026-10-24)
 
 Not a numbered milestone: your playtest notes plus the two classes you designed, in one PR as you asked.

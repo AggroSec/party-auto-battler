@@ -1,45 +1,53 @@
+import { ICONS, type IconId } from '../../assets/icons.ts';
 import type { RunContent } from '../../engine/run/index.ts';
 
 /**
- * Colour and placeholder glyph per base class. Advanced classes use their base
- * class's look. Glyphs are emoji until the game-icons.net set lands (Juice milestone).
+ * Colour per base class (and summon). Advanced and tertiary classes use their
+ * base class's look; the icon is the game-icons.net icon with the same id.
  */
-const STYLES: Record<string, { color: string; glyph: string }> = {
-  warrior: { color: '#d08a3c', glyph: '🛡️' },
-  rogue: { color: '#9a6bd8', glyph: '🗡️' },
-  mage: { color: '#4c8dff', glyph: '🔮' },
-  cleric: { color: '#e8c95a', glyph: '✨' },
-  ranger: { color: '#5bb85d', glyph: '🏹' },
-  necromancer: { color: '#6fc2b4', glyph: '💀' },
-  monk: { color: '#e85d75', glyph: '👊' },
-  bard: { color: '#ff9ff3', glyph: '🎵' },
-  druid: { color: '#9cc93f', glyph: '🌿' },
-  warlock: { color: '#c0399b', glyph: '😈' },
-  engineer: { color: '#7aa6c2', glyph: '⚙️' },
-  runeblade: { color: '#5fd4e8', glyph: '🪄' },
-  'dark-knight': { color: '#a03a4a', glyph: '🩸' },
+const COLORS: Record<string, string> = {
+  warrior: '#d08a3c',
+  rogue: '#9a6bd8',
+  mage: '#4c8dff',
+  cleric: '#e8c95a',
+  ranger: '#5bb85d',
+  necromancer: '#6fc2b4',
+  monk: '#e85d75',
+  bard: '#ff9ff3',
+  druid: '#9cc93f',
+  warlock: '#c0399b',
+  engineer: '#7aa6c2',
+  runeblade: '#5fd4e8',
+  'dark-knight': '#a03a4a',
   // Summons take their summoner's colour.
-  treant: { color: '#9cc93f', glyph: '🌳' },
-  imp: { color: '#c0399b', glyph: '👿' },
-  turret: { color: '#7aa6c2', glyph: '🔩' },
-  sentry: { color: '#7aa6c2', glyph: '🤖' },
-  wolf: { color: '#a3794f', glyph: '🐺' },
-  'mirror-image': { color: '#b07fe0', glyph: '🪞' },
-  ancient: { color: '#6f9a2e', glyph: '🌲' },
-  fiend: { color: '#d0453a', glyph: '👹' },
-  golem: { color: '#8c9aa6', glyph: '🗿' },
-  ghoul: { color: '#7d8c5a', glyph: '🧟' },
+  treant: '#9cc93f',
+  imp: '#c0399b',
+  turret: '#7aa6c2',
+  sentry: '#7aa6c2',
+  wolf: '#a3794f',
+  'mirror-image': '#b07fe0',
+  ancient: '#6f9a2e',
+  fiend: '#d0453a',
+  golem: '#8c9aa6',
+  ghoul: '#7d8c5a',
 };
 
-const FALLBACK = { color: '#8a90a2', glyph: '❔' };
+const FALLBACK_COLOR = '#8a90a2';
+
+export interface ClassLook {
+  color: string;
+  /** Null for an unknown class (shown as a plain "?"). */
+  icon: IconId | null;
+}
 
 /** Base class id for a base, advanced or tertiary class id. */
 export function baseClassOf(content: RunContent, classId: string): string {
   return content.advancedClasses[classId]?.baseClassId ?? content.tertiaryClasses[classId]?.baseClassId ?? classId;
 }
 
-export function classStyle(content: RunContent | null, classId: string): { color: string; glyph: string } {
-  const base = content ? baseClassOf(content, classId) : classId;
-  return STYLES[base] ?? FALLBACK;
-}
+const isIcon = (id: string): id is IconId => id in ICONS;
 
+export function classStyle(content: RunContent | null, classId: string): ClassLook {
+  const base = content ? baseClassOf(content, classId) : classId;
+  return { color: COLORS[base] ?? FALLBACK_COLOR, icon: isIcon(base) ? base : null };
+}

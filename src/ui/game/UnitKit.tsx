@@ -2,9 +2,9 @@ import { useState } from 'react';
 import type { UnitSetup } from '../../engine/index.ts';
 import { buildSources, classTiers, explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
 import { abilityText } from './abilityText.ts';
+import { StatIcon, StatLine } from './Icon.tsx';
 import { Rules } from './Rules.tsx';
 
-const ICON = { hp: '❤️', atk: '⚔️', def: '🛡️', spd: '💨' } as const;
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const signed = (n: string, negative: boolean) => (negative ? `−${n}` : `+${n}`);
 
@@ -54,7 +54,7 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
   return (
     <div className="kit">
       <button type="button" className="stats-line" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        {STATS.map((k) => `${ICON[k]} ${setup.stats[k]}`).join(' ')}
+        <StatLine stats={setup.stats} />
         {power !== 1 && ` · ✨${pct(power)} power`}
         {setup.lifesteal ? ` · 🩸${pct(setup.lifesteal)} lifesteal` : ''}
         {setup.reach ? ' · 🏹 reach' : ''}
@@ -67,7 +67,7 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
           {STATS.map((k) => (
             <div key={k}>
               <dt>
-                {ICON[k]} {setup.stats[k]}
+                <StatIcon stat={k} /> {setup.stats[k]}
               </dt>
               <dd>
                 <Sources items={ex.stats[k]} />

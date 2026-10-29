@@ -1,18 +1,25 @@
 import type { RunContent } from '../../engine/run/index.ts';
+import type { BuffableStat } from '../../engine/types.ts';
 import { classStyle } from './classStyle.ts';
+import { Icon, StatIcon } from './Icon.tsx';
 import { className } from './names.ts';
 import type { Fx, Frame, UnitView } from './playback.ts';
 
-const STAT_ICON = { atk: '⚔️', def: '🛡️', spd: '💨' } as const;
-
-/** Glyphs for stacking statuses (post-M7); placeholders until the icon set lands. */
+/** Glyphs for stacking statuses (post-M7). They stay emoji: icons cover classes, items and stats. */
 const STATUS_ICON: Record<string, string> = { rune: 'ᚱ', searing: '🔥', corruption: '🟣', dread: '😨', hellfire: '♨️', 'deathless-fury': '💢' };
 
+export interface FloatText {
+  text: string;
+  cls: string;
+  /** Shown as the stat's icon before the text. */
+  stat?: BuffableStat;
+}
+
 /** Floating text for a unit's effects this frame, merged so busy frames stay readable. */
-export function floatsFor(fx: Fx[]): { text: string; cls: string }[] {
+export function floatsFor(fx: Fx[]): FloatText[] {
   let damage = 0, absorbed = 0, heal = 0, shield = 0, taunt = false, hasDamage = false;
   const bursts: string[] = [];
-  const stats = new Map<keyof typeof STAT_ICON, number>();
+  const stats = new Map<BuffableStat, number>();
   let cooldown = 0;
   for (const f of fx) {
     if (f.kind === 'damage') {
@@ -26,17 +33,13 @@ export function floatsFor(fx: Fx[]): { text: string; cls: string }[] {
     else if (f.kind === 'taunt') taunt = true;
     else if (f.kind === 'burst') bursts.push(f.name);
   }
-  const out: { text: string; cls: string }[] = [];
+  const out: FloatText[] = [];
   if (hasDamage) out.push({ text: damage > 0 ? `-${damage}` : `(${absorbed})`, cls: 'dmg' });
   if (heal > 0) out.push({ text: `+${heal}`, cls: 'heal' });
   if (shield > 0) out.push({ text: `🛡${shield}`, cls: 'shield' });
   if (taunt) out.push({ text: 'Taunt!', cls: 'taunt' });
   for (const name of bursts) out.push({ text: `💥 ${name}s`, cls: 'burst' });
-  const statText = [...stats]
-    .filter(([, v]) => v !== 0)
-    .map(([k, v]) => `${STAT_ICON[k]}${v > 0 ? '+' : ''}${v}`)
-    .join(' ');
-  if (statText) out.push({ text: statText, cls: [...stats.values()].some((v) => v < 0) ? 'debuff' : 'buff' });
+  for (const [stat, v] of stats) if (v !== 0) out.push({ text: `${v > 0 ? '+' : ''}${v}`, cls: v < 0 ? 'debuff' : 'buff', stat });
   if (cooldown !== 0) out.push({ text: cooldown < 0 ? '⏩ hasted' : '⏸ delayed', cls: 'buff' });
   return out;
 }
@@ -46,6 +49,8 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
   const fx = frame.fx.filter((f) => f.target === unit.id);
   const acting = frame.actor === unit.id;
   const hit = fx.some((f) => f.kind === 'damage' && (f.value > 0 || f.absorbed > 0));
+  // A hit for a quarter of max HP or more gets a heavier shake and flash.
+  const bigHit = fx.reduce((sum, f) => sum + (f.kind === 'damage' ? f.value : 0), 0) >= unit.maxHp * 0.25;
   // The ability name, else the first trigger this unit fired (e.g. "Second Wind").
   const trigger = fx.find((f) => f.kind === 'trigger');
   const callout = acting && frame.ability ? frame.ability : trigger?.kind === 'trigger' ? trigger.label : null;
@@ -62,6 +67,11 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
     acting ? 'acting' : '',
     acting && frame.ability ? 'casting' : '',
     hit ? 'hit' : '',
+    hit && bigHit ? 'big-hit' : '',
+    fx.some((f) => f.kind === 'death') ? 'dying' : '',
+    fx.some((f) => f.kind === 'heal' && f.value > 0) ? 'healed' : '',
+    fx.some((f) => f.kind === 'shield' && f.value > 0) ? 'shielded' : '',
+    fx.some((f) => f.kind === 'burst') ? 'bursting' : '',
     frame.attacked.includes(unit.id) ? 'targeted' : '',
     unit.taunt > 0 ? 'taunting' : '',
     unit.summoned ? 'summoned' : '',
@@ -72,9 +82,12 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
       {/* Re-keyed every frame so the CSS animations replay. */}
       <div className="arena-body" key={`b${frameIndex}`}>
         <span className="avatar" aria-hidden>
-          {style.glyph}
+          <Icon id={style.icon} />
         </span>
-        <span className="arena-name">{unit.name}</span>
+        <span className="arena-name">
+          <Icon id={style.icon} className="mini-icon" />
+          {unit.name}
+        </span>
         <span className="arena-class">{className(content, unit.classId)}</span>
         <div className="hp-bar" role="meter" aria-label={`${unit.name} HP`} aria-valuenow={unit.hp} aria-valuemin={0} aria-valuemax={unit.maxHp}>
           <span className="hp" style={{ '--from': `${hpFromPct}%`, '--to': `${hpPct}%` } as React.CSSProperties} />
@@ -95,7 +108,10 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
             title={`Action gauge: fills by SPD (${unit.spd}) each tick, acts at 100`}
           >
             <span className="gauge" style={{ '--from': `${gaugeFromPct}%`, '--to': `${gaugePct}%` } as React.CSSProperties} />
-            <span className="gauge-spd">💨{unit.spd}</span>
+            <span className="gauge-spd">
+              <StatIcon stat="spd" />
+              {unit.spd}
+            </span>
           </div>
         )}
         {unit.alive && Object.keys(unit.statuses).length > 0 && (
@@ -122,6 +138,7 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
       <div className="floats" key={`f${frameIndex}`} aria-hidden>
         {floatsFor(fx).map((t, i) => (
           <span key={i} className={`float ${t.cls}`} style={{ animationDelay: `${i * 90}ms` }}>
+            {t.stat && <StatIcon stat={t.stat} />}
             {t.text}
           </span>
         ))}

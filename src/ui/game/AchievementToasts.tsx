@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { play } from '../audio/sfx.ts';
 import { rewardText } from './CollectionScreen.tsx';
 import type { Game } from './useGame.ts';
 
@@ -8,6 +9,7 @@ export function AchievementToasts({ game }: { game: Game }) {
   const { dismissToast } = game;
   useEffect(() => {
     if (!toast) return;
+    play('achievement');
     const timer = setTimeout(dismissToast, 6000);
     return () => clearTimeout(timer);
   }, [toast, dismissToast]);

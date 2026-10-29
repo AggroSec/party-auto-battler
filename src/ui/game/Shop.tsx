@@ -1,10 +1,13 @@
 import { rerollCost, runContext, type RunContext, type RunState, type ShopOffer } from '../../engine/run/index.ts';
-import { classStyle } from './classStyle.ts';
+import { classStyle, type ClassLook } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
+import { Icon, StatLine } from './Icon.tsx';
 import { offerLabel } from './names.ts';
 import { Rules } from './Rules.tsx';
 
 const KIND_LABEL = { unit: 'Recruit', item: 'Item', training: 'Training' } as const;
+
+const offerKey = (o: ShopOffer) => (o.kind === 'unit' ? `u:${o.classId}:${o.name}` : o.kind === 'item' ? `i:${o.itemId}:${o.cost}` : `t:${o.classId}`);
 
 function OfferCard({
   offer,
@@ -23,12 +26,13 @@ function OfferCard({
   const { title, detail } = offerLabel(content, offer);
   const cls = offer.kind === 'item' ? null : content.classes[offer.classId];
   const signature = offer.kind === 'item' ? content.items[offer.itemId]?.tertiaryClassId : undefined;
-  const style = offer.kind === 'item' ? { color: signature ? '#e0a526' : '#c9a227', glyph: signature ? '🌟' : '🎒' } : classStyle(content, offer.classId);
+  const style: ClassLook =
+    offer.kind === 'item' ? { color: signature ? '#e0a526' : '#c9a227', icon: signature ? 'signature' : 'item' } : classStyle(content, offer.classId);
   const body = (
     <div className={`offer-card ${offer.kind}${signature ? ' signature' : ''}${offer.cost === 0 ? ' free' : ''}`} style={{ '--class-color': style.color } as React.CSSProperties}>
       <div className="offer-top">
         <span className="avatar small" aria-hidden>
-          {offer.kind === 'training' ? '📈' : style.glyph}
+          <Icon id={offer.kind === 'training' ? 'training' : style.icon} />
         </span>
         <span className="offer-kind">{signature ? `${content.tertiaryClasses[signature]?.name ?? ''} only` : KIND_LABEL[offer.kind]}</span>
         <span className={`cost ${gold < offer.cost ? 'short' : ''}`}>{offer.cost}g</span>
@@ -36,7 +40,7 @@ function OfferCard({
       <strong className="offer-title">{title}</strong>
       {offer.kind === 'unit' && cls && (
         <span className="offer-stats">
-          ❤️{cls.baseStats.hp} ⚔️{cls.baseStats.atk} 🛡️{cls.baseStats.def} 💨{cls.baseStats.spd} · {cls.range}
+          <StatLine stats={cls.baseStats} /> · {cls.range}
         </span>
       )}
       <span className="offer-detail">
@@ -98,7 +102,8 @@ export function ShopRow({
       <div className="offers">
         {shop.map((offer, i) =>
           offer ? (
-            <div key={i} className={`offer-wrap ${locked.includes(i) ? 'locked' : ''}`}>
+            // Keyed by what's on offer, so new offers (after a reroll or a new round) deal in.
+            <div key={`${i}:${offerKey(offer)}`} className={`offer-wrap ${locked.includes(i) ? 'locked' : ''}`} style={{ '--i': i } as React.CSSProperties}>
               <OfferCard offer={offer} index={i} ctx={ctx} gold={gold} onClick={() => onOfferClick(i)} />
               {maxLocks > 0 && (
                 <button

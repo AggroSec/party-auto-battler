@@ -7,8 +7,9 @@ import {
   type RunContext,
   type StatPoints,
 } from '../../engine/run/index.ts';
+import { Icon } from './Icon.tsx';
 
-const LABEL = { hp: '❤️ HP', atk: '⚔️ ATK', def: '🛡️ DEF', spd: '💨 SPD' } as const;
+const LABEL = { hp: 'HP', atk: 'ATK', def: 'DEF', spd: 'SPD' } as const;
 const ZERO: StatPoints = { hp: 0, atk: 0, def: 0, spd: 0 };
 
 /**
@@ -36,7 +37,9 @@ export function StatPanel({ unit, ctx, onConfirm }: { unit: OwnedUnit; ctx: RunC
       <ul>
         {STATS.map((k) => (
           <li key={k}>
-            <span className="stat-name">{LABEL[k]}</span>
+            <span className="stat-name">
+              <Icon id={k} className={`stat-icon stat-${k}`} /> {LABEL[k]}
+            </span>
             <span className="stat-rec" title="Recommended weight for this class" aria-label={`Recommended weight ${weights[k]} of ${maxWeight}`}>
               {Array.from({ length: maxWeight }, (_, i) => (
                 <i key={i} className={i < weights[k] ? 'on' : ''} />
