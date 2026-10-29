@@ -25,7 +25,6 @@ describe('drop rules', () => {
   it('recruits a unit into an empty slot only', () => {
     expect(dropAction({ kind: 'offer', index: 0 }, slot(back1), state())).toEqual({ type: 'buy', offer: 0, to: back1 });
     expect(dropAction({ kind: 'offer', index: 0 }, slot(front0), state())).toBeNull();
-    expect(dropAction({ kind: 'offer', index: 0 }, { kind: 'sell' }, state())).toBeNull();
   });
 
   it('gives items and training to the unit they are dropped on', () => {
@@ -35,23 +34,22 @@ describe('drop rules', () => {
     expect(dropAction({ kind: 'offer', index: 3 }, slot(front0), state())).toBeNull();
   });
 
-  it('moves or swaps units, and sells them on the sell zone', () => {
+  it('moves or swaps units', () => {
     expect(dropAction({ kind: 'unit', slot: front0 }, slot(back1), state())).toEqual({ type: 'move', from: front0, to: back1 });
     expect(dropAction({ kind: 'unit', slot: front0 }, slot(front0), state())).toBeNull();
-    expect(dropAction({ kind: 'unit', slot: front0 }, { kind: 'sell' }, state())).toEqual({ type: 'sell', from: front0 });
   });
 
-  it('moves items between units and sells them', () => {
+  it('moves items between units', () => {
     const s = state();
     s.board.back[1] = newUnit(2, 'mage', 'M');
     const item = { kind: 'item', slot: front0, index: 0 } as const;
     expect(dropAction(item, slot(back1), s)).toEqual({ type: 'moveItem', from: front0, item: 0, to: back1 });
     expect(dropAction(item, slot(front0), s)).toBeNull();
-    expect(dropAction(item, { kind: 'sell' }, s)).toEqual({ type: 'sellItem', from: front0, item: 0 });
   });
 
-  it('round-trips drop targets through their DOM encoding', () => {
-    for (const t of [slot(front0), slot(back1), { kind: 'sell' } as const]) expect(decodeTarget(encodeTarget(t))).toEqual(t);
+  it('round-trips drop targets through their DOM encoding, with no sell zone', () => {
+    for (const t of [slot(front0), slot(back1)]) expect(decodeTarget(encodeTarget(t))).toEqual(t);
+    expect(decodeTarget('sell')).toBeNull();
     expect(decodeTarget('nope')).toBeNull();
   });
 });

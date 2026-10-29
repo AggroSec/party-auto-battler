@@ -112,6 +112,22 @@ export function talentOptions(
   return [...options, ...sample(rng, leftovers, cfg.talentChoices - options.length)];
 }
 
+/**
+ * A queued talent choice's options with talents the unit has since taken
+ * swapped for fresh ones. Two level-ups at once roll their options together,
+ * so the second can offer what the first just gave. Uses no RNG unless a
+ * swap is needed; an option with no replacement is dropped.
+ */
+export function refreshTalentOptions(unit: OwnedUnit, choice: PendingChoice, content: RunContent, cfg: ProgressionConfig, rng: Rng): string[] {
+  if (choice.kind !== 'talent' || !choice.options.some((id) => unit.talents.includes(id))) return choice.options;
+  const spare = (talentOptions(unit, choice.level, content, cfg, rng) ?? []).filter((id) => !choice.options.includes(id));
+  return choice.options.flatMap((id) => {
+    if (!unit.talents.includes(id)) return [id];
+    const next = spare.shift();
+    return next ? [next] : [];
+  });
+}
+
 /** Class options for an advance (level 3) or ascend (level 7) choice; null if the previous tier is undecided. */
 export function classOptions(unit: OwnedUnit, kind: 'advance' | 'ascend', content: RunContent): string[] | null {
   if (kind === 'advance') return classFor(content, unit.classId).advancedClasses.filter((id) => content.advancedClasses[id]);

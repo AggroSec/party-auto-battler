@@ -131,6 +131,24 @@ describe('level-up choices', () => {
     expect(['tough', 'strong', 'quick', 'sturdy'].filter((t) => t !== taken)).toContain(options[2]);
   });
 
+  it('never offers a talent twice when two level-ups queue at once', () => {
+    let s = setup([]);
+    s.pending = [
+      { uid: 1, level: 2, kind: 'talent', options: ['tough', 'strong', 'quick'] },
+      { uid: 1, level: 2, kind: 'talent', options: ['tough', 'sturdy', 'strong'] },
+    ];
+    s = act(s, { type: 'choose', option: 0 }, ctx); // tough
+    // 'tough' is swapped in place for the only unoffered tank talent left.
+    expect(s.pending[0]!.options).toEqual(['quick', 'sturdy', 'strong']);
+    s.pending.push({ uid: 1, level: 2, kind: 'talent', options: ['strong', 'quick'] });
+    s.pending.push({ uid: 1, level: 2, kind: 'talent', options: ['strong'] });
+    s = act(s, { type: 'choose', option: 2 }, ctx); // strong
+    expect(s.pending[0]!.options).toEqual(['sturdy', 'quick']);
+    // A choice whose only option was taken gets a fresh one.
+    expect(['quick', 'sturdy']).toContain(s.pending[1]!.options[0]);
+    expect(s.board.front[0]!.talents).toEqual(['tough', 'strong']);
+  });
+
   it('drops a deferred choice when no talents are left anywhere', () => {
     const bare = makeCtx({ content: { classes: { ...TEMPLATES, tank: { ...TEMPLATES.tank, talents: [] } } } });
     const s = applyShopAction(setup([{ kind: 'training', classId: 'tank', xp: 9, cost: 3 }]), { type: 'buy', offer: 0, to: front0 }, bare);

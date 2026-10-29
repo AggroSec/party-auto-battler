@@ -1,6 +1,6 @@
 import { rerollCost, runContext, type RunContext, type RunState, type ShopOffer } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
-import { useDraggable, useDropTarget, useIsDragging } from './drag.tsx';
+import { useDraggable } from './drag.tsx';
 import { offerLabel } from './names.ts';
 import { Rules } from './Rules.tsx';
 
@@ -121,19 +121,6 @@ export function ShopRow({
         )}
       </div>
     </section>
-  );
-}
-
-/** Drop zone for selling; only visible while dragging a unit or an item. */
-export function SellZone({ refundFor }: { refundFor: (source: NonNullable<ReturnType<typeof useIsDragging>>) => number | null }) {
-  const source = useIsDragging();
-  const drop = useDropTarget({ kind: 'sell' });
-  const refund = source ? refundFor(source) : null;
-  if (refund === null) return null;
-  return (
-    <div className={`sell-zone ${drop.over ? 'drop-over' : ''}`} {...drop.props}>
-      💰 Drop here to sell (+{refund}g)
-    </div>
   );
 }
 

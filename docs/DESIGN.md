@@ -314,7 +314,6 @@ M7 synergies count units by **role** (the base class's frontline / striker / cas
 | Recruit card | Empty slot | Buys into that slot | Click the card (auto-places) |
 | Item / training card | A unit | Buys it for that unit | Select the unit, click the card |
 | Unit | Any slot | Moves (swaps if occupied) | Inspector → Move, then click a slot |
-| Unit / item | Sell zone (appears while dragging) | Sells for the refund shown | Inspector → Sell |
 | Equipped item (inspector) | Another unit | Moves the item | Inspector → Move, then click a unit |
 
 Drag uses pointer events, so mouse, pen and touch all work. While dragging near the top or bottom of the screen the page scrolls. Valid drop targets highlight during a drag.
