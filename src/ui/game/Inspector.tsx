@@ -2,6 +2,7 @@ import type { UnitSetup } from '../../engine/index.ts';
 import { classTiers, effectiveClassId, maxLevel, tertiaryItemFor, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
+import { Icon } from './Icon.tsx';
 import { className, spentSummary } from './names.ts';
 import { Rules } from './Rules.tsx';
 import { StatPanel } from './StatPanel.tsx';
@@ -27,7 +28,7 @@ function ItemRow({
   const id = unit.items[index]!;
   const item = ctx.content.items[id];
   const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId);
-  const chip = <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}>{item?.tertiaryClassId ? '🌟' : '🎒'} {item?.name ?? id}</span>;
+  const chip = <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}><Icon id={item?.tertiaryClassId ? 'signature' : 'item'} /> {item?.name ?? id}</span>;
   const drag = useDraggable({ kind: 'item', slot, index }, chip);
   return (
     <li className={`item-row ${drag.dragging ? 'is-dragging' : ''}`}>
@@ -98,7 +99,7 @@ export function Inspector({
     <section className="inspector" style={{ '--class-color': style.color } as React.CSSProperties} aria-label={`${unit.name} details`}>
       <header className="inspector-head">
         <span className="avatar" aria-hidden>
-          {style.glyph}
+          <Icon id={style.icon} />
         </span>
         <div>
           <h3>{unit.name}</h3>
@@ -147,7 +148,7 @@ export function Inspector({
       </ul>
       {signature && !unit.items.includes(signature.id) && (
         <p className="signature-hint muted small">
-          🌟 Signature item: <strong>{signature.name}</strong> ({signature.cost}g) can show up in the shop while {tert?.name} is in your party.{' '}
+          <Icon id="signature" /> Signature item: <strong>{signature.name}</strong> ({signature.cost}g) can show up in the shop while {tert?.name} is in your party.{' '}
           <Rules text={signature.description} />
         </p>
       )}

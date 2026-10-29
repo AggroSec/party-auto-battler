@@ -94,6 +94,21 @@ button.link { background: none; border: none; color: var(--muted); text-decorati
   font-size: 1.05rem; line-height: 1;
 }
 .avatar.small { width: 1.9em; height: 1.9em; font-size: 0.9rem; }
+/* Class icons take the class colour, a little brighter than the ring. */
+.avatar .icon { width: 1.35em; height: 1.35em; color: color-mix(in srgb, var(--class-color, #ccc) 70%, #fff); }
+
+/* ---------- Icons (game-icons.net, M8) ---------- */
+.icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.14em; flex: none; }
+.icon-unknown { text-align: center; font-weight: 700; }
+.stat-hp { color: #ef6b73; }
+.stat-atk { color: #f0a85a; }
+.stat-def { color: #8fb4e8; }
+.stat-spd { color: #7fd6c2; }
+.stat-row, .stat-bonus { display: inline-flex; flex-wrap: wrap; gap: 0 0.55em; }
+.stat-line { white-space: nowrap; }
+.stat-line .icon { margin-right: 0.15em; }
+.history-icon { color: var(--muted); }
+.row-icon { color: var(--muted); }
 
 /* ---------- HUD ---------- */
 .hud {
@@ -394,7 +409,7 @@ button.stats-line { display: block; width: 100%; text-align: left; margin: 6px 0
 .history li.player { border-color: color-mix(in srgb, var(--heal) 50%, var(--border)); }
 .history li.enemy { border-color: color-mix(in srgb, var(--enemy) 50%, var(--border)); }
 .history-round { color: var(--muted); }
-.history-enemy { font-size: 0.65rem; letter-spacing: -2px; }
+.history-enemy { font-size: 0.7rem; display: inline-flex; gap: 1px; }
 .final-party { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
 .final-unit { display: flex; flex-direction: column; gap: 3px; padding: 10px; background: var(--panel); border: 1px solid var(--border); border-top: 3px solid var(--class-color); border-radius: var(--radius); }
 .final-unit.mvp { box-shadow: 0 0 0 1px var(--gold); }

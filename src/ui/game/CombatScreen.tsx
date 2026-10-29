@@ -5,6 +5,7 @@ import { combatUnits, describeEvent } from '../format.ts';
 import { Arena } from './Arena.tsx';
 import { LevelUpGains } from './ChoicePanel.tsx';
 import { classStyle } from './classStyle.ts';
+import { Icon } from './Icon.tsx';
 import { buildTimeline, type Frame } from './playback.ts';
 import { usePlayback } from './usePlayback.ts';
 import type { FightView, Game } from './useGame.ts';
@@ -56,7 +57,7 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
               .map((s) => (
                 <tr key={s.id} className={`${s.survived ? '' : 'dead'}${s.summonedBy ? ' summon-row' : ''}`}>
                   <td>
-                    {classStyle(content, classOf.get(s.id) ?? '').glyph} {s.name}
+                    <Icon id={classStyle(content, classOf.get(s.id) ?? '').icon} className="row-icon" /> {s.name}
                     {s.summonedBy && <span className="muted"> (summon)</span>}
                     {s.kills > 0 && <span className="muted"> · {s.kills}💀</span>}
                   </td>

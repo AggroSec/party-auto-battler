@@ -1,6 +1,7 @@
 import { rerollCost, runContext, type RunContext, type RunState, type ShopOffer } from '../../engine/run/index.ts';
-import { classStyle } from './classStyle.ts';
+import { classStyle, type ClassLook } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
+import { Icon, StatLine } from './Icon.tsx';
 import { offerLabel } from './names.ts';
 import { Rules } from './Rules.tsx';
 
@@ -23,12 +24,13 @@ function OfferCard({
   const { title, detail } = offerLabel(content, offer);
   const cls = offer.kind === 'item' ? null : content.classes[offer.classId];
   const signature = offer.kind === 'item' ? content.items[offer.itemId]?.tertiaryClassId : undefined;
-  const style = offer.kind === 'item' ? { color: signature ? '#e0a526' : '#c9a227', glyph: signature ? '🌟' : '🎒' } : classStyle(content, offer.classId);
+  const style: ClassLook =
+    offer.kind === 'item' ? { color: signature ? '#e0a526' : '#c9a227', icon: signature ? 'signature' : 'item' } : classStyle(content, offer.classId);
   const body = (
     <div className={`offer-card ${offer.kind}${signature ? ' signature' : ''}${offer.cost === 0 ? ' free' : ''}`} style={{ '--class-color': style.color } as React.CSSProperties}>
       <div className="offer-top">
         <span className="avatar small" aria-hidden>
-          {offer.kind === 'training' ? '📈' : style.glyph}
+          <Icon id={offer.kind === 'training' ? 'training' : style.icon} />
         </span>
         <span className="offer-kind">{signature ? `${content.tertiaryClasses[signature]?.name ?? ''} only` : KIND_LABEL[offer.kind]}</span>
         <span className={`cost ${gold < offer.cost ? 'short' : ''}`}>{offer.cost}g</span>
@@ -36,7 +38,7 @@ function OfferCard({
       <strong className="offer-title">{title}</strong>
       {offer.kind === 'unit' && cls && (
         <span className="offer-stats">
-          ❤️{cls.baseStats.hp} ⚔️{cls.baseStats.atk} 🛡️{cls.baseStats.def} 💨{cls.baseStats.spd} · {cls.range}
+          <StatLine stats={cls.baseStats} /> · {cls.range}
         </span>
       )}
       <span className="offer-detail">
