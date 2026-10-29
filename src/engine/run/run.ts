@@ -4,7 +4,7 @@ import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, unitCount } f
 import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from './build.ts';
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
-import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation } from './progression.ts';
+import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
 import { ensureFavored, rollFreeItem, rollShop } from './shop.ts';
 import type {
@@ -230,7 +230,17 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const unit = findUnit(next, choice.uid);
       if (!unit || !applyChoice(unit, choice, action.option)) return fail('invalidChoice');
       next.pending.shift();
-      if (choice.kind !== 'talent') {
+      if (choice.kind === 'talent') {
+        // Never offer a talent twice: later choices swap out what was just taken.
+        const taken = choice.options[action.option]!;
+        const emptied = new Set<PendingChoice>();
+        for (const p of next.pending) {
+          if (p.uid !== unit.uid || !p.options.includes(taken)) continue;
+          p.options = withRng(next, (rng) => refreshTalentOptions(unit, p, ctx.content, progression, rng));
+          if (p.options.length === 0) emptied.add(p);
+        }
+        next.pending = next.pending.filter((p) => !emptied.has(p));
+      } else {
         // Choices queued behind this class choice can roll their options now;
         // drop any whose pool turns out empty (null = still waiting on another class choice).
         const empty = new Set<PendingChoice>();

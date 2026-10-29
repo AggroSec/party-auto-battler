@@ -85,4 +85,13 @@ describe('payHp', () => {
     expect(ofType(s.events, 'heal')).toHaveLength(0);
     expect(ofType(s.events, 'damage')).toEqual([expect.objectContaining({ source: 'p0', target: 'p0', value: 5 })]);
   });
+
+  it('comes out of HP, never shields, so missing-HP payoffs work while shielded', () => {
+    const s = makeState(party([unit({ stats: { hp: 50, def: 10 } })]), party([unit()]));
+    const p0 = byId(s, 'p0');
+    p0.shield = 30;
+    applyEffects(s, p0, [{ kind: 'payHp', amount: { maxHp: 0.1 } }], {}, 0, 2);
+    expect(p0.hp).toBe(45);
+    expect(p0.shield).toBe(30);
+  });
 });
