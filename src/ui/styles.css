@@ -124,6 +124,11 @@ button.link { background: none; border: none; color: var(--muted); text-decorati
 .wins-bar { display: inline-block; width: 6em; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .wins-bar span { display: block; height: 100%; background: var(--gold); transition: width 0.4s; }
 .hud-streak { color: var(--muted); font-weight: 500; }
+.hud-sound { margin-left: auto; }
+.hud-sound + .hud-help { margin-left: 0; }
+.sound-toggle { display: inline-flex; align-items: center; gap: 4px; }
+.sound-toggle.off { color: var(--muted); }
+.sound-toggle:not(.link) { width: 2.2em; justify-content: center; padding: 4px 0; }
 .hud-help { margin-left: auto; width: 2em; padding: 4px 0; border-radius: 50%; font-weight: 700; }
 .hud-help + .hud-menu { margin-left: 0; }
 .hud-menu { margin-left: auto; }

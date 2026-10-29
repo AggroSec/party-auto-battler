@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { play, playAll } from '../audio/sfx.ts';
+import { frameSounds } from '../audio/sounds.ts';
+import { SoundToggle } from '../audio/SoundToggle.tsx';
 import type { CombatResult } from '../../engine/index.ts';
 import { boardUnits, isMaxLevel, type RunContent } from '../../engine/run/index.ts';
 import { combatUnits, describeEvent } from '../format.ts';
@@ -101,6 +104,8 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
   const [showLog, setShowLog] = useState(false);
   const outcome = OUTCOME[fight.combat.winner];
   const over = game.run.phase !== 'shop';
+  const winner = fight.combat.winner;
+  useEffect(() => play(winner === 'player' ? 'victory' : winner === 'enemy' ? 'defeat' : 'block'), [winner]);
   return (
     <section className={`result ${outcome.cls}`} aria-live="polite">
       <h2>{outcome.title}</h2>
@@ -146,6 +151,11 @@ export function CombatScreen({ game }: { game: Game }) {
   const frames = useMemo(() => buildTimeline(fight.combat), [fight]);
   const pb = usePlayback(frames);
   const frame = pb.frame;
+  // Each frame's sounds, as it comes up. Skipping jumps to the end silently.
+  const { index, done } = pb;
+  useEffect(() => {
+    if (!done) playAll(frameSounds(frames[index]!));
+  }, [frames, index, done]);
   return (
     <div className="screen combat-screen">
       <header className="combat-head">
@@ -155,6 +165,7 @@ export function CombatScreen({ game }: { game: Game }) {
           <button type="button" onClick={pb.togglePlay} disabled={pb.done} aria-label={pb.playing ? 'Pause' : 'Play'}>
             {pb.playing ? '⏸' : '▶'}
           </button>
+          <SoundToggle />
           {([1, 2] as const).map((s) => (
             <button key={s} type="button" className={pb.speed === s ? 'active' : ''} onClick={() => pb.setSpeed(s)} aria-pressed={pb.speed === s}>
               {s}x

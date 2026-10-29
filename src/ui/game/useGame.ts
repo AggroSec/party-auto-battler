@@ -26,6 +26,8 @@ import {
   type RunState,
   type ShopAction,
 } from '../../engine/run/index.ts';
+import { play } from '../audio/sfx.ts';
+import type { SoundId } from '../audio/sounds.ts';
 import { logPlay, newRunId } from '../playlog.ts';
 import { levelUps, mergeLevelUps, type LevelUp } from './levelUps.ts';
 import { loadProfile, saveProfile, todayString } from './profileStore.ts';
@@ -54,7 +56,20 @@ export interface FightView {
   levelUps: LevelUp[];
 }
 
-export type Screen = 'title' | 'setup' | 'collection' | 'shop' | 'combat' | 'summary';
+export type Screen = 'title' | 'setup' | 'collection' | 'credits' | 'shop' | 'combat' | 'summary';
+
+/** What each successful shop action sounds like (a level-up overrides it). */
+const ACTION_SOUND: Record<ShopAction['type'], SoundId | null> = {
+  buy: 'buy',
+  sell: 'sell',
+  sellItem: 'sell',
+  reroll: 'reroll',
+  lock: 'lock',
+  choose: 'choose',
+  allocate: 'choose',
+  move: null,
+  moveItem: null,
+};
 
 export const randomSeed = () => Math.random().toString(36).slice(2, 8);
 
@@ -90,7 +105,7 @@ export function useGame() {
 
   // Save after every change while a run is in its shop phase.
   useEffect(() => {
-    if (screen === 'title' || screen === 'setup' || screen === 'collection') return;
+    if (screen === 'title' || screen === 'setup' || screen === 'collection' || screen === 'credits') return;
     if (run.phase === 'shop') save(RUN_KEY, { runId, run, stats } satisfies SavedRun);
     else remove(RUN_KEY);
   }, [screen, runId, run, stats]);
@@ -144,11 +159,13 @@ export function useGame() {
       logPlay(r.ok ? { type: 'action', run: runId, action } : { type: 'action', run: runId, action, error: r.error });
       if (r.ok) {
         const gained = levelUps(run.board, r.state.board, ctx.config.progression);
+        play(gained.length > 0 ? 'levelUp' : ACTION_SOUND[action.type]);
         if (gained.length > 0) setRecentLevelUps((l) => mergeLevelUps(l, gained));
         setRun(r.state);
         setError(null);
         if (action.type === 'choose') applyMeta(recordDiscovery(profile, r.state, META_CATALOG));
       } else {
+        play('error');
         setError(r.error);
       }
       return r.ok;
@@ -158,7 +175,11 @@ export function useGame() {
 
   const fight = useCallback(() => {
     const r = runFight(run, baseCtx);
-    if (!r.ok) return setError(r.error);
+    if (!r.ok) {
+      play('error');
+      return setError(r.error);
+    }
+    play('fight');
     logPlay({ type: 'fight', run: runId, round: run.round, winner: r.combat.winner });
     const { progression } = ctx.config;
     const xp = { player: progression.xpPerWin, enemy: progression.xpPerLoss, draw: progression.xpPerDraw }[r.combat.winner];
@@ -236,6 +257,7 @@ export function useGame() {
     startRun,
     openSetup,
     openCollection: () => setScreen('collection'),
+    openCredits: () => setScreen('credits'),
     continueRun,
     dispatch,
     fight,

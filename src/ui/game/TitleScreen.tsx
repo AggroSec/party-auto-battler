@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { META_CATALOG } from '../../data/meta/catalog.ts';
 import { maxLevel } from '../../engine/run/index.ts';
+import { SoundToggle } from '../audio/SoundToggle.tsx';
 import { PlayLogExport } from './PlayLogExport.tsx';
 import { Glossary } from './Rules.tsx';
 import type { Game } from './useGame.ts';
@@ -81,6 +82,10 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
           <button type="button" className="link" onClick={onOpenLab}>
             Combat lab
           </button>
+          <button type="button" className="link" onClick={game.openCredits}>
+            Credits
+          </button>
+          <SoundToggle className="link" withLabel />
         </span>
         <PlayLogExport />
       </footer>
