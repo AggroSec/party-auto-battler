@@ -2,6 +2,29 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-28 — Milestone 8: Juice
+
+Brandon chose sounds made in code (retro) and icons for the base classes, item types and stats. Decided autonomously:
+
+### Icons
+- **Icons are stored as SVG path data in a generated TS module**, not as image files. They inherit the text colour, so one icon serves every class tint, and nothing is fetched at runtime. A script (`npm run icons`) regenerates the module and the credits, so the asset list is reproducible and its credits can't drift from what ships.
+- **The fetch script keeps only path data that passes a strict pattern** (path commands and numbers). Nothing else from the downloaded files reaches the game.
+- **Summons and the sound toggle got icons too** (10 + 2): leaving summons as emoji next to icon-drawn classes looked inconsistent, and the extra icons cost nothing to credit.
+- **Statuses and HUD markers stay emoji** (Runes, Dread, gold, lives, wins, locks). They're small, and Brandon's scope was classes, item types and stats.
+- **Stat icons are coloured per stat** (HP red, ATK orange, DEF blue, SPD teal), so a row of four numbers reads at a glance.
+- **Shields keep the 🛡 float in fights:** the DEF icon is also a shield, and the two would be confused.
+
+### Sound
+- **Sounds are data** (`SOUNDS`: notes with wave, frequency, slide, start, length and volume), played by a small Web Audio synth. Noise uses one shared buffer of random samples; `Math.random` is fine there since it's UI, not game logic.
+- **Fight sounds come from a pure function of the playback frame** (`frameSounds`), capped at 3 per frame by priority (death and detonations first), so fast fights don't turn to noise. The same sound can't restart within 60 ms.
+- **Sound defaults to on** at a low master volume. Browsers block audio until the first tap, and every sound follows one (the fight plays after you press Fight).
+- **The setting has its own storage version,** so run-format changes never reset it.
+
+### Animations
+- **Glows and flashes use an overlay (`::after`)** so they combine with the existing lunge and shake transforms instead of replacing them.
+- **New shop offers animate by keying each card on what it offers.** A reroll redeals the changed cards, and locked offers don't move.
+- **A "big hit" is a quarter of the target's max HP** in one frame: rare enough to stand out.
+
 ## 2026-10-28 — No drag-to-sell; no repeated talents
 
 From Brandon's playtest notes:

@@ -14,7 +14,8 @@
 | Level cap 10, tertiary classes at level 7, ability-granting talents, 15-win runs | ✅ Milestone 6 |
 | Meta progression (difficulty ladder, achievements, unlocks, starting perks, daily run, signature items) | ✅ Milestone 7 |
 | Playtest follow-ups: shop locks, stacking statuses, Runeblade, Dark Knight | ✅ After M7 |
-| Juice (icons, sound, credits) | Milestone 8 |
+| Playtest follow-ups: favored class, no drag-to-sell, no repeated talents | ✅ After M7 |
+| Juice (icons, sound, animations, credits) | ✅ Milestone 8 |
 | Ship (GitHub Pages, README) | Milestone 9 |
 
 ## Run structure
@@ -646,11 +647,35 @@ Evil tank: pays HP for power, drinks it back, and grows deadlier as it bleeds. T
 - **Berserker: Deathless Fury.** The first time the Berserker would fall, it stays at 1 HP and can't drop below it for 2 turns, with +4 ATK and +4 SPD. Brandon asked for a rage talent that stops it dying and boosts it for a few turns.
 - **Rivals** (Warrior + Dark Knight): the first time an ally falls, both gain +3 ATK.
 
+## Juice (Milestone 8)
+
+Brandon's calls: sounds made in code with a retro feel, and icons for the 13 base classes, item types and stats.
+
+### Icons
+- **game-icons.net icons (CC BY 3.0)** for the 13 base classes, the 10 summons, the four stats (HP, ATK, DEF, SPD), shop offers (item, signature item, training) and the sound toggle: 32 in all. Advanced and tertiary classes use their base class's icon, tinted with its colour.
+- `npm run icons` fetches them from the game-icons repository, keeps only the SVG path data, and regenerates `src/assets/icons.ts` and the icon list in `src/assets/ATTRIBUTION.md`. The in-game Credits screen lists the same data, and a test checks every icon is credited.
+- Statuses (Runes, Dread, burns) and HUD markers (gold, lives, wins, locks) keep their emoji.
+- On phones, where card avatars are hidden for space, a small class icon sits beside each unit's name.
+
+### Sound
+- **Retro sound effects synthesised with the Web Audio API**: no audio files. Each sound is a few notes of data (square, triangle, sine or noise, with slides).
+- **Fights:** hits, fully blocked hits, casts, heals, shields, deaths, Rune detonations, summons and sudden death. A busy turn plays its three most important sounds, and the result plays a victory or defeat jingle. Skipping a fight is silent.
+- **Shop:** buy, sell, reroll, lock, choices and stat points, level-ups, errors (a low buzz), and the Fight button. Achievements chime.
+- **Sound toggle** on the title screen, in the shop header and in the fight controls. It's on by default and remembered. Browsers keep audio silent until the first tap, which every sound follows.
+
+### Animations
+- **Fights:** casts glow in the class colour, heals and shields pulse, hits for a quarter of max HP or more flash red and shake harder, Rune detonations burst, and dying units flare and collapse. The result title lands with weight (gold for a win, a shake for a loss).
+- **Shop:** new offers deal in left to right after a reroll or a new round (locked offers stay put); a unit's level pops when it goes up; gold and wins bump when they change.
+- **Reduced motion:** the system setting still shortens every animation to an instant.
+
+### Credits screen
+Linked from the title screen: who made the game (Brandon designed and directed it; Claude Code wrote the code), every icon with its author and link, and how the sound is made.
+
 ## Open design questions (for Brandon)
 
 None blocking. Things to look at when playtesting M7:
 
-1. **Ladder steepness.** The tiers are ordered mildest first. Bots barely clear tier 7+, but you play far better than they do. Which tiers feel like a fair step and which like a wall?
+1. **Ladder steepness.** Settled for 1.0: the 10 tiers stay as they are. More tiers, unique bosses and must-beat boss rounds come after release ([#20](https://github.com/AggroSec/party-auto-battler/issues/20)).
 2. **Unlock pacing.** Do the starting five classes feel too thin, or about right, and do the achievements come at a good rate? (Play with Unlock everything off to judge.)
 3. **Signature items.** Are they findable often enough (30% per item slot while wanted) and worth 7–8 gold?
 4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4, and more relevant now with bosses.
