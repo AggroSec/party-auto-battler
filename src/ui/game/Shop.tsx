@@ -7,6 +7,8 @@ import { Rules } from './Rules.tsx';
 
 const KIND_LABEL = { unit: 'Recruit', item: 'Item', training: 'Training' } as const;
 
+const offerKey = (o: ShopOffer) => (o.kind === 'unit' ? `u:${o.classId}:${o.name}` : o.kind === 'item' ? `i:${o.itemId}:${o.cost}` : `t:${o.classId}`);
+
 function OfferCard({
   offer,
   index,
@@ -100,7 +102,8 @@ export function ShopRow({
       <div className="offers">
         {shop.map((offer, i) =>
           offer ? (
-            <div key={i} className={`offer-wrap ${locked.includes(i) ? 'locked' : ''}`}>
+            // Keyed by what's on offer, so new offers (after a reroll or a new round) deal in.
+            <div key={`${i}:${offerKey(offer)}`} className={`offer-wrap ${locked.includes(i) ? 'locked' : ''}`} style={{ '--i': i } as React.CSSProperties}>
               <OfferCard offer={offer} index={i} ctx={ctx} gold={gold} onClick={() => onOfferClick(i)} />
               {maxLocks > 0 && (
                 <button

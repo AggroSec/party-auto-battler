@@ -33,9 +33,16 @@ export function UnitCard({
         <Icon id={style.icon} />
       </div>
       <div className="unit-text">
-        <strong className="unit-name">{unit.name}</strong>
+        <strong className="unit-name">
+          <Icon id={style.icon} className="mini-icon" />
+          {unit.name}
+        </strong>
         <span className="unit-class">
-          Lv {unit.level} {className(content, effectiveClassId(unit))}
+          {/* Re-keyed on level-up so the level pops. */}
+          <span className="unit-level" key={unit.level}>
+            Lv {unit.level}
+          </span>{' '}
+          {className(content, effectiveClassId(unit))}
         </span>
         {setup && (
           <StatLine stats={setup.stats} className="unit-stats" />

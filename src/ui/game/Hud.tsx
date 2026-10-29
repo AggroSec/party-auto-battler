@@ -21,7 +21,10 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
         </span>
       )}
       <span className="hud-gold" title="Gold">
-        💰 {run.gold}
+        💰{' '}
+        <span className="bump" key={run.gold}>
+          {run.gold}
+        </span>
       </span>
       <span className="hud-lives" title={`${run.lives} of ${startingLives} lives`} aria-label={`${run.lives} lives`}>
         {Array.from({ length: startingLives }, (_, i) => (
@@ -31,7 +34,11 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
         ))}
       </span>
       <span className="hud-wins" title="Wins" aria-label={`${run.wins} of ${winsToComplete} wins`}>
-        🏆 {run.wins}/{winsToComplete}
+        🏆{' '}
+        <span className="bump" key={run.wins}>
+          {run.wins}
+        </span>
+        /{winsToComplete}
         <span className="wins-bar" aria-hidden>
           <span style={{ width: `${(run.wins / winsToComplete) * 100}%` }} />
         </span>

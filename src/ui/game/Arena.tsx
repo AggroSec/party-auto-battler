@@ -49,6 +49,8 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
   const fx = frame.fx.filter((f) => f.target === unit.id);
   const acting = frame.actor === unit.id;
   const hit = fx.some((f) => f.kind === 'damage' && (f.value > 0 || f.absorbed > 0));
+  // A hit for a quarter of max HP or more gets a heavier shake and flash.
+  const bigHit = fx.reduce((sum, f) => sum + (f.kind === 'damage' ? f.value : 0), 0) >= unit.maxHp * 0.25;
   // The ability name, else the first trigger this unit fired (e.g. "Second Wind").
   const trigger = fx.find((f) => f.kind === 'trigger');
   const callout = acting && frame.ability ? frame.ability : trigger?.kind === 'trigger' ? trigger.label : null;
@@ -65,6 +67,11 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
     acting ? 'acting' : '',
     acting && frame.ability ? 'casting' : '',
     hit ? 'hit' : '',
+    hit && bigHit ? 'big-hit' : '',
+    fx.some((f) => f.kind === 'death') ? 'dying' : '',
+    fx.some((f) => f.kind === 'heal' && f.value > 0) ? 'healed' : '',
+    fx.some((f) => f.kind === 'shield' && f.value > 0) ? 'shielded' : '',
+    fx.some((f) => f.kind === 'burst') ? 'bursting' : '',
     frame.attacked.includes(unit.id) ? 'targeted' : '',
     unit.taunt > 0 ? 'taunting' : '',
     unit.summoned ? 'summoned' : '',
@@ -77,7 +84,10 @@ function ArenaUnit({ unit, frame, frameIndex, content }: { unit: UnitView; frame
         <span className="avatar" aria-hidden>
           <Icon id={style.icon} />
         </span>
-        <span className="arena-name">{unit.name}</span>
+        <span className="arena-name">
+          <Icon id={style.icon} className="mini-icon" />
+          {unit.name}
+        </span>
         <span className="arena-class">{className(content, unit.classId)}</span>
         <div className="hp-bar" role="meter" aria-label={`${unit.name} HP`} aria-valuenow={unit.hp} aria-valuemin={0} aria-valuemax={unit.maxHp}>
           <span className="hp" style={{ '--from': `${hpFromPct}%`, '--to': `${hpPct}%` } as React.CSSProperties} />
