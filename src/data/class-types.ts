@@ -14,7 +14,8 @@ export type ClassId =
   | 'engineer'
   | 'runeblade'
   | 'dark-knight'
-  | 'cultist';
+  | 'cultist'
+  | 'adventurer';
 
 export type ClassRole = 'frontline' | 'striker' | 'caster' | 'support';
 

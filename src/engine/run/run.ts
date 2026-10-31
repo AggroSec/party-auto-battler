@@ -122,6 +122,7 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       if (action.to && !isValidSlot(action.to)) return fail('invalidSlot');
 
       if (offer.kind === 'unit') {
+        if (classFor(ctx.content, offer.classId).uniqueInParty && boardUnits(next.board).some((u) => u.classId === offer.classId)) return fail('uniqueClass');
         let slot = action.to;
         if (slot) {
           if (getSlot(next.board, slot) !== null) return fail('slotOccupied');
@@ -208,7 +209,7 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const free = next.shop.filter((o, i) => o?.kind === 'item' && o.cost === 0 && !next.locked?.includes(i));
       const rolled = [...withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), ...free];
       Object.assign(next, keepLocked(state.shop, rolled, state.locked));
-      next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx);
+      next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx, next.board);
       return { ok: true, state: next };
     }
     case 'lock': {
@@ -335,7 +336,7 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     next.round += 1;
     next.freeRerollUsed = false;
     Object.assign(next, keepLocked(state.shop, withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), state.locked));
-    next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx);
+    next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx, next.board);
   }
   next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income, gold: state.gold });
 

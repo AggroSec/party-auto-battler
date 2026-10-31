@@ -2,6 +2,14 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-10-31 — Adventurer
+
+Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0). No tuning passes: Brandon wants Jack swingy.
+
+- **Bots:** completion random 4.0%, sensible 19.1%, greedy 26.7%, synergy 11.5%. No stuck runs or tick-cap fights.
+- **Lift vs round average:** Adventurer −3.5, Journeyman −5.8, Hedge Wizard +4.1. Tertiaries on small samples: Savant +12.0, Polymath +11.4, Master of One +5.6, Master of None −3.9.
+- **1v1 and 5v5:** loses most duels and wins 34.1% of random 5v5 fights (flagged low by the report). Left as it is: he has plain stats and his own abilities until he has borrowed something.
+
 ## 2026-10-31 — Cultist
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0, so the Cultist is in every shop and Plague Cultists join the enemy pool from round 3).

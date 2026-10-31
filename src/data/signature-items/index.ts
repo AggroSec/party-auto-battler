@@ -1,5 +1,6 @@
 // Every tertiary class's signature item (M7), one per class.
 import type { ItemDef } from '../../engine/run/content-types.ts';
+import { ADVENTURER_SIGNATURES } from './adventurer.ts';
 import { BARD_SIGNATURES } from './bard.ts';
 import { CLERIC_SIGNATURES } from './cleric.ts';
 import { CULTIST_SIGNATURES } from './cultist.ts';
@@ -30,4 +31,5 @@ export const SIGNATURE_ITEMS: ItemDef[] = [
   ...RUNEBLADE_SIGNATURES,
   ...DARK_KNIGHT_SIGNATURES,
   ...CULTIST_SIGNATURES,
+  ...ADVENTURER_SIGNATURES,
 ];

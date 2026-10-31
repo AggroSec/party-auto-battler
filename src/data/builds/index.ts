@@ -1,5 +1,6 @@
 import type { AdvancedClassDef, TalentDef, TertiaryClassDef } from '../../engine/run/content-types.ts';
 import type { ClassDef, ClassId } from '../class-types.ts';
+import { buildAdventurer } from './adventurer.ts';
 import { bardClass, bardTalents, skald, trickster } from './bard.ts';
 import { blackguard, darkKnightClass, darkKnightTalents, dreadknight } from './dark-knight.ts';
 import { cultistClass, cultistTalents, hemomancer, plagueDoctor } from './cultist.ts';
@@ -29,7 +30,7 @@ import { WARLOCK_TERTIARY } from './tertiary/warlock.ts';
 import { WARRIOR_TERTIARY } from './tertiary/warrior.ts';
 import { berserker, knight, warriorClass, warriorTalents } from './warrior.ts';
 
-export const BASE_CLASSES: Record<ClassId, ClassDef> = {
+const OTHER_CLASSES: Record<Exclude<ClassId, 'adventurer'>, ClassDef> = {
   warrior: warriorClass,
   rogue: rogueClass,
   mage: mageClass,
@@ -46,8 +47,7 @@ export const BASE_CLASSES: Record<ClassId, ClassDef> = {
   cultist: cultistClass,
 };
 
-/** Level-2 talent pools by base class. */
-export const BASE_TALENTS: Record<ClassId, readonly TalentDef[]> = {
+const OTHER_TALENTS: Record<Exclude<ClassId, 'adventurer'>, readonly TalentDef[]> = {
   warrior: warriorTalents,
   rogue: rogueTalents,
   mage: mageTalents,
@@ -64,13 +64,13 @@ export const BASE_TALENTS: Record<ClassId, readonly TalentDef[]> = {
   cultist: cultistTalents,
 };
 
-const ADVANCED = [
+const OTHER_ADVANCED = [
   knight, berserker, assassin, duelist, pyromancer, chronomancer, priest, inquisitor, sharpshooter, beastmaster,
   windwalker, ironFist, skald, trickster, shapeshifter, groveWarden, hexer, demonologist, machinist, demolitionist,
   lich, plaguelord, spellblade, duskblade, blackguard, dreadknight, hemomancer, plagueDoctor,
 ];
 
-const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
+const OTHER_TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
   ...WARRIOR_TERTIARY,
   ...ROGUE_TERTIARY,
   ...MAGE_TERTIARY,
@@ -87,6 +87,16 @@ const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
   ...CULTIST_TERTIARY,
 ];
 
+const adventurer = buildAdventurer({ classes: Object.values(OTHER_CLASSES), baseTalents: OTHER_TALENTS, advanced: OTHER_ADVANCED, tertiary: OTHER_TERTIARY });
+
+const ADVANCED = [...OTHER_ADVANCED, ...adventurer.advanced];
+const TERTIARY = [...OTHER_TERTIARY, ...adventurer.tertiary];
+
+export const BASE_CLASSES: Record<ClassId, ClassDef> = { ...OTHER_CLASSES, adventurer: adventurer.cls };
+
+/** Level-2 talent pools by base class. */
+export const BASE_TALENTS: Record<ClassId, readonly TalentDef[]> = { ...OTHER_TALENTS, adventurer: [] };
+
 /** Advanced classes, each listing the tertiary classes that name it as their parent. */
 export const ADVANCED_CLASSES: Record<string, AdvancedClassDef> = Object.fromEntries(
   ADVANCED.map((a) => [
@@ -97,6 +107,12 @@ export const ADVANCED_CLASSES: Record<string, AdvancedClassDef> = Object.fromEnt
 
 export const TERTIARY_CLASSES: Record<string, TertiaryClassDef> = Object.fromEntries(TERTIARY.map((t) => [t.cls.id, t.cls]));
 
+/** Every talent, stamped with the base class it comes from. */
 export const TALENTS: Record<string, TalentDef> = Object.fromEntries(
-  [...Object.values(BASE_TALENTS).flat(), ...ADVANCED.flatMap((a) => a.talents), ...TERTIARY.flatMap((t) => t.talents)].map((t) => [t.id, t]),
+  [
+    ...Object.entries(OTHER_TALENTS).flatMap(([classId, talents]) => talents.map((t) => ({ ...t, sourceClassId: classId }))),
+    ...OTHER_ADVANCED.flatMap((a) => a.talents.map((t) => ({ ...t, sourceClassId: a.cls.baseClassId }))),
+    ...OTHER_TERTIARY.flatMap((t) => t.talents.map((x) => ({ ...x, sourceClassId: t.cls.baseClassId }))),
+    ...adventurer.borrowed,
+  ].map((t) => [t.id, t]),
 );

@@ -106,7 +106,12 @@ export function generateEnemy(seed: string, round: number, ctx: RunContext): Ene
   const pool = content.enemies.filter((a) => a.minRound <= round);
   if (pool.length === 0) throw new Error(`No enemy archetypes available for round ${round}`);
 
-  const picks: Pick[] = Array.from({ length: enemyCount(round, content) }, () => ({ archetype: rng.pick(pool) }));
+  const picks: Pick[] = [];
+  for (let i = 0; i < enemyCount(round, content); i++) {
+    const taken = (classId: string) => classFor(content, classId).uniqueInParty && picks.some((p) => p.archetype.classId === classId);
+    const open = pool.filter((a) => !taken(a.classId));
+    picks.push({ archetype: rng.pick(open.length > 0 ? open : pool) });
+  }
   addBossAndElite(picks, round, ctx, rng);
   // Place frontliners first so they claim the front row.
   picks.sort((x, y) => classFor(content, x.archetype.classId).placement - classFor(content, y.archetype.classId).placement);

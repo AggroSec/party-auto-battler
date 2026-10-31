@@ -141,9 +141,9 @@ export interface PendingChoice {
   uid: number;
   /** The level that triggered the choice. */
   level: number;
-  /** 'advance' picks an advanced class (level 3), 'ascend' a tertiary class (level 7). */
-  kind: 'talent' | 'advance' | 'ascend';
-  /** Talent ids, or advanced/tertiary class ids. Empty = rolled once an earlier class choice is made. */
+  /** 'advance' picks an advanced class (level 3), 'ascend' a tertiary class (level 7), 'borrow' another class's ability. */
+  kind: 'talent' | 'advance' | 'ascend' | 'borrow';
+  /** Talent ids (also for 'borrow'), or advanced/tertiary class ids. Empty = rolled once an earlier class choice is made. */
   options: string[];
 }
 
@@ -256,6 +256,7 @@ export type RunError =
   | 'needsTarget'
   | 'itemSlotsFull'
   | 'wrongClass'
+  | 'uniqueClass'
   | 'lockLimit'
   | 'noSuchItem'
   | 'pendingChoice'

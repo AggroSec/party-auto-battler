@@ -108,6 +108,7 @@ function runEndMet(cond: AchievementCondition, state: RunState): boolean {
         state.setup.tier >= (cond.minTier ?? 0) &&
         state.lives <= (cond.maxLives ?? Infinity) &&
         (!cond.flawless || state.losses === 0) &&
+        (cond.distinctClasses === undefined || new Set(boardUnits(state.board).map((u) => u.classId)).size >= cond.distinctClasses) &&
         (cond.favoredLevel === undefined ||
           boardUnits(state.board).some((u) => favoredClasses(state.setup).includes(u.classId) && u.level >= cond.favoredLevel!))
       );

@@ -17,7 +17,7 @@ export interface Unlocks {
 export type AchievementCondition =
   /** Win a run, optionally on at least `minTier`, with at most `maxLives` left, or without losing a life. */
   /** …and, with `favoredLevel`, with a unit of one of the run's favored classes at that level or higher. */
-  | { kind: 'completeRun'; minTier?: number; maxLives?: number; flawless?: boolean; favoredLevel?: number }
+  | { kind: 'completeRun'; minTier?: number; maxLives?: number; flawless?: boolean; favoredLevel?: number; distinctClasses?: number }
   | { kind: 'loseRun' }
   | { kind: 'winStreak'; count: number }
   | { kind: 'reachRound'; round: number }

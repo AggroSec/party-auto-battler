@@ -47,6 +47,8 @@ export {
   talentOptions,
   type StatPoints,
 } from './progression.ts';
+export { applyChoice, borrowOptions } from './progression.ts';
+export { borrowedPassives } from './build.ts';
 export { ensureFavored, FAVORED_ROUNDS, favoredClasses, rollShop, tertiaryItemFor, wantedTertiaryItems, TERTIARY_ITEM_CHANCE } from './shop.ts';
 export { defaultSetup, mergeRunModifiers, recruitCost, runContext, setupModifiers } from './setup.ts';
 export type * from './types.ts';
