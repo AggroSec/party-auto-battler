@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CombatLab } from './CombatLab.tsx';
+import { DEV_TOOLS } from './devTools.ts';
 import { AchievementToasts } from './game/AchievementToasts.tsx';
 import { CollectionScreen } from './game/CollectionScreen.tsx';
 import { CombatScreen } from './game/CombatScreen.tsx';
@@ -15,7 +16,8 @@ export function App() {
   const game = useGame();
   const [lab, setLab] = useState(false);
 
-  if (lab) {
+  // Dev builds only: in release builds this branch (and the lab's code) is dropped.
+  if (DEV_TOOLS && lab) {
     return (
       <main className="app lab">
         <header className="lab-head">

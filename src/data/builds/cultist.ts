@@ -97,7 +97,7 @@ export const cultistClass: ClassDef = {
   tags: ['occult', 'shadow'],
   unlockable: true,
   description: 'Evil healer: steals life from the enemy, and its Blight keeps the party standing.',
-  baseStats: { hp: 30, atk: 5, def: 1, spd: 9 },
+  baseStats: { hp: 30, atk: 4, def: 1, spd: 9 },
   range: 'ranged',
   placement: 2,
   statWeights: { hp: 3, atk: 3, def: 1, spd: 2 },
@@ -107,17 +107,17 @@ export const cultistClass: ClassDef = {
   ability: {
     id: 'siphon',
     name: 'Siphon',
-    description: 'Every 2nd turn: deal 100% ATK to the nearest enemy and give it 2 Blight, then heal the most wounded ally for 150% ATK.',
+    description: 'Every 2nd turn: deal 100% ATK to the nearest enemy and give it 2 Blight, then heal the most wounded ally for 100% ATK.',
     cooldown: 2,
     effects: [
       { kind: 'damage', target: 'nearest', amount: { atk: 1 } },
       { kind: 'status', target: 'nearest', status: BLIGHT, stacks: 2 },
-      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1.5 } },
+      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1 } },
     ],
   },
   passive: {
     name: 'Blight',
-    description: 'Basic attacks give 1 Blight: 20% ATK damage per stack each turn (up to 6, for 3 turns), and every tick heals your most wounded ally for the damage dealt.',
+    description: 'Basic attacks give 1 Blight: 20% ATK damage per stack each turn (up to 6, for 3 turns), and every tick heals your most wounded ally for half the damage dealt.',
   },
   triggers: [on('onAttack', 'Blight', [{ kind: 'status', target: 'triggerTarget', status: BLIGHT, stacks: 1 }])],
 };
