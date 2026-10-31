@@ -2,6 +2,26 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-31 — Cultist, a second favored class, dev-only testing tools
+
+Brandon approved the evil healer design (renamed the base class Cultist), the Sacred and Profane synergy, and asked for a hard achievement that unlocks a second favored class, and for the testing tools to leave release builds. Decided autonomously:
+
+### Cultist
+- **Blight is a plain status with one new field, `dotHeals`:** each damage-over-time tick heals the applier's most wounded ally for a fraction of the HP and shield it took. Ticks heal only while the applier is alive, so killing the Cultist stops its rot from feeding the enemy party.
+- **Siphon is damage, then Blight, then a heal of its own** (not "heal for the damage dealt"): the effect system has no "heal for what the last hit did", and a fixed heal reads more clearly on the card.
+- **First pass was far too strong:** a 69% win rate in random 5v5 fights and every 1v1 duel won. Blight healed for the full damage, Siphon healed 150% ATK and the Cultist had 5 ATK. Now Blight heals for half and stacks to 5, Siphon heals 100% ATK, and base ATK is 4 (the Cleric's). Full runs then showed the Plague path as the real problem (Pestilent Saint +24.5 lift): spreading Blight to the whole enemy party means many heals a turn. Its spreading effects give 1 Blight where they gave 2, and its party heals are smaller (details in BALANCE.md). It still wins every duel: alone, it heals itself. Like the Runeblade and Dark Knight duels, that's a sanity check, not a balance target.
+- **Vampire Lord's "party lifesteal" is a heal on any ally's kill,** since lifesteal is per unit. Rot Mother's "enemies dying with Blight" heals on any kill, so it doesn't need a Blight check.
+- **The enemy version is the Plague Cultist** (from round 3). "Blood Cultist" was already the Warlock enemy's name.
+- **Unholy Communion** (win a fight with a Cleric and a Warlock, both level 5+) unlocks it and the synergy, mirroring Spellsword.
+
+### Favored classes
+- **`RunSetup.favored` is now a list;** a single string (saves from PR #18) still reads as a one-item list.
+- **With two favored classes, a missing one takes a recruit offer that isn't locked and isn't the last offer of the other favored class,** so both are always guaranteed.
+- **Chosen One reuses `completeRun` with a new `favoredLevel`** field rather than adding a new condition kind. Its reward is a new `favoredSlots` field (like `perkSlots`, capped at 2). Dailies keep one favored class.
+
+### Dev-only tools
+- **Unlock everything and the combat lab show only in `npm run dev` builds** (`import.meta.env.DEV`). A saved profile with Unlock everything on is ignored in release builds instead of being rewritten, so switching back to a dev build restores it.
+
 ## 2026-10-28 — Milestone 8: Juice
 
 Brandon chose sounds made in code (retro) and icons for the base classes, item types and stats. Decided autonomously:

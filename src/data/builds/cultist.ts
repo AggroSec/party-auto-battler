@@ -33,12 +33,12 @@ export const hemomancer = advanced({
   ability: {
     id: 'transfusion',
     name: 'Transfusion',
-    description: 'Every 2nd turn: pay 6% of max HP, deal 80% ATK to the nearest enemy, and heal the most wounded ally for 250% ATK.',
+    description: 'Every 2nd turn: pay 6% of max HP, deal 80% ATK to the nearest enemy, and heal the most wounded ally for 200% ATK.',
     cooldown: 2,
     effects: [
       { kind: 'payHp', amount: { maxHp: 0.06 } },
       { kind: 'damage', target: 'nearest', amount: { atk: 0.8 } },
-      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 2.5 } },
+      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 2 } },
     ],
   },
   passive: { name: 'Blood Bond', description: '+15% lifesteal.' },
@@ -64,25 +64,25 @@ export const plagueDoctor = advanced({
   ability: {
     id: 'miasma',
     name: 'Miasma',
-    description: 'Every 2nd turn: each enemy in the front row gains 2 Blight; heal the most wounded ally for 120% ATK.',
+    description: 'Every 2nd turn: each enemy in the front row gains 1 Blight; heal the most wounded ally for 100% ATK.',
     cooldown: 2,
     effects: [
-      { kind: 'status', target: 'enemyFrontRow', status: BLIGHT, stacks: 2 },
-      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1.2 } },
+      { kind: 'status', target: 'enemyFrontRow', status: BLIGHT, stacks: 1 },
+      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1 } },
     ],
   },
-  passive: { name: 'Contagion', description: 'Basic attacks give 1 more Blight.' },
+  passive: { name: 'Contagion', description: 'Basic attacks have a 50% chance to give 1 more Blight.' },
   modifier: {
     stats: { hp: 6, atk: 1, def: 1 },
-    triggers: [on('onAttack', 'Contagion', [{ kind: 'status', target: 'triggerTarget', status: BLIGHT, stacks: 1 }])],
+    triggers: [on('onAttack', 'Contagion', [{ kind: 'status', target: 'triggerTarget', status: BLIGHT, stacks: 1 }], { chance: 0.5 })],
   },
   talents: [
-    talent('plague-doctor/virulence', 'Virulence', 'Start of combat: every enemy gains 2 Blight.', trig(
-      on('startOfCombat', 'Virulence', [{ kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 2 }]),
+    talent('plague-doctor/virulence', 'Virulence', 'Start of combat: every enemy gains 1 Blight.', trig(
+      on('startOfCombat', 'Virulence', [{ kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 }]),
     )),
     talent('plague-doctor/plague-mask', 'Plague Mask', '+2 DEF, +8 HP.', { stats: { def: 2, hp: 8 } }),
-    talent('plague-doctor/fever-dream', 'Fever Dream', 'When hurt, 40% chance the attacker gains 2 Blight.', trig(
-      on('onHurt', 'Fever Dream', [{ kind: 'status', target: 'triggerSource', status: BLIGHT, stacks: 2 }], { chance: 0.4 }),
+    talent('plague-doctor/fever-dream', 'Fever Dream', 'When hurt, 30% chance the attacker gains 1 Blight.', trig(
+      on('onHurt', 'Fever Dream', [{ kind: 'status', target: 'triggerSource', status: BLIGHT, stacks: 1 }], { chance: 0.3 }),
     )),
     talent('plague-doctor/epidemic', 'Epidemic', 'After casting, a random enemy gains 2 Blight.', trig(
       on('onAbility', 'Epidemic', [{ kind: 'status', target: 'randomEnemy', status: BLIGHT, stacks: 2 }]),
@@ -117,7 +117,7 @@ export const cultistClass: ClassDef = {
   },
   passive: {
     name: 'Blight',
-    description: 'Basic attacks give 1 Blight: 20% ATK damage per stack each turn (up to 6, for 3 turns), and every tick heals your most wounded ally for half the damage dealt.',
+    description: 'Basic attacks give 1 Blight: 20% ATK damage per stack each turn (up to 5, for 3 turns), and every tick heals your most wounded ally for half the damage dealt.',
   },
   triggers: [on('onAttack', 'Blight', [{ kind: 'status', target: 'triggerTarget', status: BLIGHT, stacks: 1 }])],
 };

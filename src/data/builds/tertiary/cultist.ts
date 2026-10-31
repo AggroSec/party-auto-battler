@@ -103,22 +103,22 @@ export const pestilentSaint = tertiary({
   ability: {
     id: 'great-plague',
     name: 'Great Plague',
-    description: 'Every 3rd turn: every enemy gains 2 Blight; heal all allies for 50% ATK.',
+    description: 'Every 3rd turn: every enemy gains 1 Blight; heal all allies for 20% ATK.',
     cooldown: 3,
     effects: [
-      { kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 2 },
-      { kind: 'heal', target: 'allAllies', amount: { atk: 0.5 } },
+      { kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 },
+      { kind: 'heal', target: 'allAllies', amount: { atk: 0.2 } },
     ],
   },
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
-  passive: { name: 'Sainted Rot', description: 'Start of combat: every enemy gains 2 Blight.' },
+  passive: { name: 'Sainted Rot', description: 'Start of combat: every enemy gains 1 Blight.' },
   modifier: {
-    stats: { hp: 8, atk: 3 },
-    triggers: [on('startOfCombat', 'Sainted Rot', [{ kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 2 }])],
+    stats: { hp: 8, atk: 1 },
+    triggers: [on('startOfCombat', 'Sainted Rot', [{ kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 }])],
   },
   talents: [
-    talent('pestilent-saint/swarm-of-flies', 'Swarm of Flies', 'When hurt, 50% chance every enemy gains 1 Blight.', trig(
-      on('onHurt', 'Swarm of Flies', [{ kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 }], { chance: 0.5 }),
+    talent('pestilent-saint/swarm-of-flies', 'Swarm of Flies', 'When hurt, 25% chance every enemy gains 1 Blight.', trig(
+      on('onHurt', 'Swarm of Flies', [{ kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 }], { chance: 0.25 }),
     )),
     talent('pestilent-saint/holy-pestilence', 'Holy Pestilence', '+30% ability power.', { abilityPower: 0.3 }),
     talent('pestilent-saint/incense-of-decay', 'Incense of Decay', '+2 DEF, +10 HP.', { stats: { def: 2, hp: 10 } }),
@@ -145,24 +145,24 @@ export const rotMother = tertiary({
   ability: {
     id: 'brood-of-rot',
     name: 'Brood of Rot',
-    description: 'Every 3rd turn: the nearest enemy gains 4 Blight; heal the most wounded ally for 150% ATK.',
+    description: 'Every 3rd turn: the nearest enemy gains 3 Blight; heal the most wounded ally for 120% ATK.',
     cooldown: 3,
     effects: [
-      { kind: 'status', target: 'nearest', status: BLIGHT, stacks: 4 },
-      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1.5 } },
+      { kind: 'status', target: 'nearest', status: BLIGHT, stacks: 3 },
+      { kind: 'heal', target: 'lowestHpAlly', amount: { atk: 1.2 } },
     ],
   },
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
-  passive: { name: 'Cycle of Rot', description: 'When any enemy falls, heal all allies for 30% ATK and every enemy gains 1 Blight.' },
+  passive: { name: 'Cycle of Rot', description: 'When any enemy falls, heal all allies for 20% ATK and every enemy gains 1 Blight.' },
   modifier: {
     stats: { hp: 12, atk: 2, def: 1 },
     triggers: [
       on('onKill', 'Cycle of Rot', [
-        { kind: 'heal', target: 'allAllies', amount: { atk: 0.3 } },
+        { kind: 'heal', target: 'allAllies', amount: { atk: 0.2 } },
         { kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 },
       ]),
       on('onAllyKill', 'Cycle of Rot', [
-        { kind: 'heal', target: 'allAllies', amount: { atk: 0.3 } },
+        { kind: 'heal', target: 'allAllies', amount: { atk: 0.2 } },
         { kind: 'status', target: 'allEnemies', status: BLIGHT, stacks: 1 },
       ]),
     ],

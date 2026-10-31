@@ -219,7 +219,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'blight',
     term: 'Blight',
-    text: 'The Cultist’s damage over time (up to 6 stacks, for 3 of the afflicted unit’s turns). Every tick also heals the Cultist’s most wounded ally for half the damage dealt, while that Cultist is alive.',
+    text: 'The Cultist’s damage over time (up to 5 stacks, for 3 of the afflicted unit’s turns). Every tick also heals the Cultist’s most wounded ally for half the damage dealt, while that Cultist is alive.',
     pattern: /\bblight\b/i,
   },
   {

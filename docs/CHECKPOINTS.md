@@ -2,6 +2,39 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## After M8 — Cultist, a second favored class, release prep (2026-10-31)
+
+Not a numbered milestone: your last requests before shipping 1.0.
+
+### What was built
+- **Cultist** 🔒, your evil healer. Unlocked by **Unholy Communion**: win a fight with a Cleric and a Warlock, both level 5+.
+  - **Siphon** drains the nearest enemy and heals your most wounded ally. Basic attacks give **Blight**, a stacking damage over time whose every tick heals the Cultist's most wounded ally for half the damage.
+  - **Hemomancer** pays its own HP for bigger heals. **Sanguine Bishop** gives big party heals and shields; **Vampire Lord** damages every enemy and heals the party on every kill.
+  - **Plague Doctor** spreads Blight. **Pestilent Saint** puts Blight on every enemy; with **Rot Mother**, every enemy death heals the party and spreads more Blight.
+  - Four signature items, an enemy version (Plague Cultist, from round 3), the Blight glossary entry and its own icon.
+- **Sacred and Profane** synergy (Cleric + Cultist: both +20% ability power), unlocked with the Cultist.
+- **A second favored class** from the **Chosen One** achievement: win a run on tier 5+ with a unit of your favored class at level 10. The setup screen then shows two pickers, and every shop in rounds 1–2 offers both, rerolls included. Dailies keep one.
+- **Unlock everything and the combat lab are gone from the released game** (their code isn't in the download). Both still appear in `npm run dev`. A saved profile with Unlock everything on is ignored in the released game, so you'll see what you've actually earned.
+
+### What to playtest (and how)
+1. **Unlock the Cultist:** win a fight with a Cleric and a Warlock at level 5+. Does the toast appear, and does the Cultist show in the shop next run?
+2. **The Cultist in a party:** does Blight healing read in playback (the 🦠 pips and the heals on enemy turns)? Does it feel like a healer, or like damage that happens to heal?
+3. **Both paths:** a Hemomancer and a Plague Doctor. Pestilent Saint is the one the simulator still rates high.
+4. **Two favored classes:** once Chosen One unlocks (on your next tier 5+ win with your favored class at level 10), pick a tank and a healer.
+5. **Release build:** on the live site after merge, the title screen should have no Unlock everything toggle and no Combat lab link.
+
+### Known issues
+- **Pestilent Saint sits at +11.2 lift** on a small sample (557 fights). Older tertiaries like Firelord and Chronarch are in the same range in this report.
+- **The Cultist wins most 1v1 duels** (alone, it heals itself), though it now loses to the Dark Knight. In 5v5 fights it's mid-pack.
+- **Achievements are checked when a run ends,** so Chosen One unlocks on your next qualifying run, not retroactively from your past tier 10 wins.
+
+### Simulator balance numbers
+- **Full runs** (2,000 per bot, everything unlocked, tier 0): random 4.3%, sensible 19.4%, greedy 23.4%, synergy 8.3% (was 3.9 / 21.8 / 29.5 / 10.3). Partly the new Plague Cultist enemy. No stuck runs, no tick-cap hits.
+- **Cultist:** +4.5 lift (Dark Knight +3.9, Cleric +2.8); Hemomancer +6.1, Plague Doctor +6.1; 53.8% in random 5v5.
+- **First pass was far too strong** (69% in 5v5; Pestilent Saint +24.5); three tuning passes are in BALANCE.md.
+- **Ladder:** not re-run (about 40 minutes); unchanged.
+- Tests: 325 passing.
+
 ## Milestone 8 — Juice (2026-10-28)
 
 ### What was built
