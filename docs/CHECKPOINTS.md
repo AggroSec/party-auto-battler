@@ -2,6 +2,29 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 9 — Ship (2026-10-31)
+
+### What was built
+- **README for 1.0:** a fight GIF and four screenshots (shop with a unit's build, a victory summary, the title screen, the phone layout), all captured from the live site. Also a feature overview, the 1.0 content counts, a "How this was built" section on the process (milestones and PRs, the decision log, simulator-first balancing, the play-log loop, tests), and credits.
+- **Live site checked:** the deployed bundle matches `main` after PR #22. Dev tools are absent, saved games and profiles load, and a full fight plays through on the live site with no errors.
+- **Version 1.0.0**, and the build no longer warns about bundle size: React now ships as its own cached chunk.
+- Already in place from earlier milestones: GitHub Pages deploys on every merge to `main` (since M5), and CI runs on every PR.
+
+### What to playtest (and how)
+1. **Read the README on GitHub** once this is merged: does the GIF play, do the screenshots read well, and is "How this was built" accurate to how you'd describe it?
+2. **The live site after merge:** a quick run on your phone to check it still loads and plays (only the bundle split changed in the code).
+3. **Your call:**
+   - **The name.** The README still says "Party Auto-Battler (working title)".
+   - **Tagging v1.0.0.** Say if you want me to tag it and publish a GitHub release after you merge.
+
+### Known issues
+- **README media will age** as the UI changes; `src/sim` has no capture script checked in (the one I used lives outside the repo). If you'd like it reproducible, it's a small follow-up.
+- **The ladder simulation wasn't re-run** since the Cultist; full-run numbers are in BALANCE.md.
+
+### Simulator balance numbers
+- **No rule or content changes** in this milestone. The latest numbers (after the Cultist) stand: full runs at tier 0 are random 4.3%, sensible 19.4%, greedy 23.4%, synergy 8.3%. No stuck runs, no tick-cap hits.
+- Tests: 325 passing.
+
 ## After M8 — Cultist, a second favored class, release prep (2026-10-31)
 
 Not a numbered milestone: your last requests before shipping 1.0.

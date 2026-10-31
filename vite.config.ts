@@ -46,6 +46,12 @@ export default defineConfig({
   // GitHub Pages serves the site from /party-auto-battler/; dev stays at /.
   base: process.env.GITHUB_PAGES ? '/party-auto-battler/' : '/',
   plugins: [react(), playLog()],
+  build: {
+    rolldownOptions: {
+      // React in its own chunk: it changes far less often than the game, so browsers keep it cached across releases.
+      output: { advancedChunks: { groups: [{ name: 'react', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/ }] } },
+    },
+  },
   test: {
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     environment: 'node',

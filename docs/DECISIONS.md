@@ -2,6 +2,15 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-10-31 — Milestone 9: Ship
+
+Brandon: ship 1.0 as it stands (10 tiers; more tiers and boss changes after release, issue #20). Decided autonomously:
+- **README media is captured from the live site,** not a local build, so it doubles as the final check of what players get. The save behind the screenshots comes from a real greedy-bot run (round 9, five different classes, a won fight next), not a hand-built party.
+- **The GIF is the fight at 2x,** 720 px wide with one shared 128-colour palette: about 1.4 MB, small enough for a README. Screenshots are 256-colour PNGs (30–90 KB each).
+- **React is split into its own chunk** (Rolldown `advancedChunks`). It clears the long-standing 500 kB warning, and since React rarely changes, browsers keep it cached across game releases.
+- **Version 1.0.0** in package.json. The title stays "Party Auto-Battler (working title)" until Brandon names it.
+- **No git tag or GitHub release from Claude Code:** publishing a release is outward-facing, so it's Brandon's call after he merges.
+
 ## 2026-10-31 — Cultist, a second favored class, dev-only testing tools
 
 Brandon approved the evil healer design (renamed the base class Cultist), the Sacred and Profane synergy, and asked for a hard achievement that unlocks a second favored class, and for the testing tools to leave release builds. Decided autonomously:
