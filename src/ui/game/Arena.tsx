@@ -6,7 +6,7 @@ import { className } from './names.ts';
 import type { Fx, Frame, UnitView } from './playback.ts';
 
 /** Glyphs for stacking statuses (post-M7). They stay emoji: icons cover classes, items and stats. */
-const STATUS_ICON: Record<string, string> = { rune: 'ᚱ', searing: '🔥', corruption: '🟣', dread: '😨', hellfire: '♨️', 'deathless-fury': '💢' };
+const STATUS_ICON: Record<string, string> = { rune: 'ᚱ', searing: '🔥', corruption: '🟣', dread: '😨', hellfire: '♨️', blight: '🦠', 'deathless-fury': '💢' };
 
 export interface FloatText {
   text: string;

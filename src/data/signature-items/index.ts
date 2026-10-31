@@ -2,6 +2,7 @@
 import type { ItemDef } from '../../engine/run/content-types.ts';
 import { BARD_SIGNATURES } from './bard.ts';
 import { CLERIC_SIGNATURES } from './cleric.ts';
+import { CULTIST_SIGNATURES } from './cultist.ts';
 import { DARK_KNIGHT_SIGNATURES } from './dark-knight.ts';
 import { DRUID_SIGNATURES } from './druid.ts';
 import { ENGINEER_SIGNATURES } from './engineer.ts';
@@ -28,4 +29,5 @@ export const SIGNATURE_ITEMS: ItemDef[] = [
   ...NECROMANCER_SIGNATURES,
   ...RUNEBLADE_SIGNATURES,
   ...DARK_KNIGHT_SIGNATURES,
+  ...CULTIST_SIGNATURES,
 ];

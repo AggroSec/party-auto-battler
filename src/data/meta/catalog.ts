@@ -28,7 +28,7 @@ const STARTER_ITEMS = [
 ];
 
 /** Synergies locked behind achievements; every other synergy is available from the start. */
-const LOCKED_SYNERGIES = ['light', 'dark', 'twilight', 'rivals'];
+const LOCKED_SYNERGIES = ['light', 'dark', 'twilight', 'rivals', 'sacred-and-profane'];
 
 /**
  * Brandon (M7): new players start with the original five classes and a
@@ -42,10 +42,12 @@ export const META_CATALOG: MetaCatalog = {
     synergies: SYNERGIES.map((s) => s.id).filter((id) => !LOCKED_SYNERGIES.includes(id)),
     perks: ['deep-pockets', 'armory', 'bargain-hunter'],
     perkSlots: 1,
+    favoredSlots: 1,
   },
   achievements: ACHIEVEMENTS,
   all: { classes: CLASS_IDS, items: ITEM_IDS, synergies: SYNERGIES.map((s) => s.id), perks: PERK_IDS },
   maxTier: LADDER.length,
   maxPerkSlots: 3,
+  maxFavoredSlots: 2,
   perkChoiceExtra: 2,
 };

@@ -196,7 +196,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'statuses',
     term: 'Stacking statuses',
-    text: 'Runes, Dread, Corruption, Hellfire and the like stack on a unit; the stack count shows on its card during a fight. The latest unit to apply one owns it.',
+    text: 'Runes, Dread, Blight, Corruption, Hellfire and the like stack on a unit; the stack count shows on its card during a fight. The latest unit to apply one owns it.',
   },
   {
     id: 'rune',
@@ -215,6 +215,12 @@ export const GLOSSARY: readonly Term[] = [
     term: 'Damage over time',
     text: 'Corruption, Hellfire and Searing deal damage at the start of each of the afflicted unit’s turns, per stack, ignoring DEF. They last 3 of its turns; reapplying refreshes the timer.',
     pattern: /\b(?:corruption|hellfire|sear(?:s|ing)?)\b/i,
+  },
+  {
+    id: 'blight',
+    term: 'Blight',
+    text: 'The Cultist’s damage over time (up to 6 stacks, for 3 of the afflicted unit’s turns). Every tick also heals the Cultist’s most wounded ally for the damage dealt, while that Cultist is alive.',
+    pattern: /\bblight\b/i,
   },
   {
     id: 'missing-hp',

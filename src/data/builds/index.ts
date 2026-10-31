@@ -2,6 +2,7 @@ import type { AdvancedClassDef, TalentDef, TertiaryClassDef } from '../../engine
 import type { ClassDef, ClassId } from '../class-types.ts';
 import { bardClass, bardTalents, skald, trickster } from './bard.ts';
 import { blackguard, darkKnightClass, darkKnightTalents, dreadknight } from './dark-knight.ts';
+import { cultistClass, cultistTalents, hemomancer, plagueDoctor } from './cultist.ts';
 import { clericClass, clericTalents, inquisitor, priest } from './cleric.ts';
 import { druidClass, druidTalents, groveWarden, shapeshifter } from './druid.ts';
 import { demolitionist, engineerClass, engineerTalents, machinist } from './engineer.ts';
@@ -14,6 +15,7 @@ import { duskblade, runebladeClass, runebladeTalents, spellblade } from './runeb
 import { demonologist, hexer, warlockClass, warlockTalents } from './warlock.ts';
 import { BARD_TERTIARY } from './tertiary/bard.ts';
 import { CLERIC_TERTIARY } from './tertiary/cleric.ts';
+import { CULTIST_TERTIARY } from './tertiary/cultist.ts';
 import { DARK_KNIGHT_TERTIARY } from './tertiary/dark-knight.ts';
 import { DRUID_TERTIARY } from './tertiary/druid.ts';
 import { ENGINEER_TERTIARY } from './tertiary/engineer.ts';
@@ -41,6 +43,7 @@ export const BASE_CLASSES: Record<ClassId, ClassDef> = {
   necromancer: necromancerClass,
   runeblade: runebladeClass,
   'dark-knight': darkKnightClass,
+  cultist: cultistClass,
 };
 
 /** Level-2 talent pools by base class. */
@@ -58,12 +61,13 @@ export const BASE_TALENTS: Record<ClassId, readonly TalentDef[]> = {
   necromancer: necromancerTalents,
   runeblade: runebladeTalents,
   'dark-knight': darkKnightTalents,
+  cultist: cultistTalents,
 };
 
 const ADVANCED = [
   knight, berserker, assassin, duelist, pyromancer, chronomancer, priest, inquisitor, sharpshooter, beastmaster,
   windwalker, ironFist, skald, trickster, shapeshifter, groveWarden, hexer, demonologist, machinist, demolitionist,
-  lich, plaguelord, spellblade, duskblade, blackguard, dreadknight,
+  lich, plaguelord, spellblade, duskblade, blackguard, dreadknight, hemomancer, plagueDoctor,
 ];
 
 const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
@@ -80,6 +84,7 @@ const TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
   ...NECROMANCER_TERTIARY,
   ...RUNEBLADE_TERTIARY,
   ...DARK_KNIGHT_TERTIARY,
+  ...CULTIST_TERTIARY,
 ];
 
 /** Advanced classes, each listing the tertiary classes that name it as their parent. */

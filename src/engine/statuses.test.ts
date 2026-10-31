@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { simulateCombat } from './combat.ts';
 import { applyEffects, dealDamage } from './effects.ts';
 import { Rng } from './rng.ts';
-import { expireStatuses } from './statuses.ts';
+import { expireStatuses, tickStatuses } from './statuses.ts';
 import { byId, makeState, ofType, party, unit, withTriggers } from './test-helpers.ts';
 import type { Effect, StatusDef, TargetSelector } from './types.ts';
 
@@ -60,6 +60,22 @@ describe('statuses', () => {
     const dots = ofType(r.events, 'damage').filter((d) => d.target === 'e0' && d.value === 10);
     expect(dots).toHaveLength(2);
     expect(ofType(r.events, 'status').at(-1)).toMatchObject({ target: 'e0', stacks: 0 });
+  });
+
+  it('dotHeals: each tick heals the applier’s most wounded ally, only while the applier lives', () => {
+    const BLIGHT: StatusDef = { id: 'blight', name: 'Blight', dot: { atk: 1 }, duration: 3, dotHeals: 0.5 };
+    const s = makeState(party([unit({ stats: { hp: 50, atk: 10 } }), unit({ stats: { hp: 50 } })]), party([tough()]));
+    const [p0, p1, e] = [byId(s, 'p0'), byId(s, 'p1'), byId(s, 'e0')];
+    p1.hp = 20;
+    applyEffects(s, p0, [status(BLIGHT, 2)], {}, 0);
+    tickStatuses(s, e);
+    // 2 stacks × 10 = 20 damage; half of it heals the most wounded ally.
+    expect(e.hp).toBe(180);
+    expect(p1.hp).toBe(30);
+    p0.alive = false;
+    tickStatuses(s, e);
+    expect(e.hp).toBe(160);
+    expect(p1.hp).toBe(30);
   });
 
   it('preventDeath holds the unit at 1 HP while it lasts', () => {

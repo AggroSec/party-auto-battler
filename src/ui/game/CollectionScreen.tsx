@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { META_CATALOG } from '../../data/meta/catalog.ts';
 import { unlockedContent, type AchievementDef, type Unlocks } from '../../engine/meta/index.ts';
+import { DEV_TOOLS } from '../devTools.ts';
 import { Rules } from './Rules.tsx';
 import type { Game } from './useGame.ts';
 
@@ -50,7 +51,7 @@ export function CollectionScreen({ game }: { game: Game }) {
         </button>
         <h1>Collection</h1>
       </header>
-      {profile.unlockAll && <p className="muted small">Unlock everything is on: all content is available, and 🔒 shows what you haven&apos;t earned yet.</p>}
+      {DEV_TOOLS && profile.unlockAll && <p className="muted small">Unlock everything is on: all content is available, and 🔒 shows what you haven&apos;t earned yet.</p>}
       <nav className="tabs" role="tablist">
         {TABS.map((t) => (
           <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>

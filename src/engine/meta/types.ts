@@ -9,12 +9,15 @@ export interface Unlocks {
   perks?: readonly string[];
   /** Raises how many starting perks you keep (Perkception). */
   perkSlots?: number;
+  /** Raises how many favored classes a run can have (Chosen One). */
+  favoredSlots?: number;
 }
 
 /** What earns an achievement. Checked after every fight and at the end of a run. */
 export type AchievementCondition =
   /** Win a run, optionally on at least `minTier`, with at most `maxLives` left, or without losing a life. */
-  | { kind: 'completeRun'; minTier?: number; maxLives?: number; flawless?: boolean }
+  /** …and, with `favoredLevel`, with a unit of one of the run's favored classes at that level or higher. */
+  | { kind: 'completeRun'; minTier?: number; maxLives?: number; flawless?: boolean; favoredLevel?: number }
   | { kind: 'loseRun' }
   | { kind: 'winStreak'; count: number }
   | { kind: 'reachRound'; round: number }
@@ -69,6 +72,7 @@ export interface MetaCatalog {
   all: { classes: readonly string[]; items: readonly string[]; synergies: readonly string[]; perks: readonly string[] };
   maxTier: number;
   maxPerkSlots: number;
+  maxFavoredSlots: number;
   /** Extra perks offered beyond the number kept. */
   perkChoiceExtra: number;
 }
@@ -92,7 +96,7 @@ export interface Profile {
   discovered: string[];
   stats: { runs: number; completed: number; fightsWon: number };
   daily: DailyRecord | null;
-  /** Testing toggle (until 1.0): everything unlocked. Progress still tracks. */
+  /** Testing toggle: everything unlocked. Progress still tracks. Only offered in dev builds since 1.0. */
   unlockAll: boolean;
 }
 
@@ -103,5 +107,7 @@ export interface Unlocked {
   synergies: string[];
   perks: string[];
   perkSlots: number;
+  /** How many favored classes a run can pick. */
+  favoredSlots: number;
   maxTier: number;
 }

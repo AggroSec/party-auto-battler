@@ -21,6 +21,7 @@ const ICON_SOURCES: Record<string, string> = {
   necromancer: 'sbed/death-skull',
   runeblade: 'lorc/rune-sword',
   'dark-knight': 'delapouite/black-knight-helm',
+  cultist: 'lorc/cultist',
   // Summons.
   treant: 'cathelineau/tree-face',
   imp: 'lorc/imp',

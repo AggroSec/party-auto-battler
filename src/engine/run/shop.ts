@@ -4,7 +4,7 @@ import { unitCount } from './board.ts';
 import { boardUnits } from './build.ts';
 import { isMaxLevel } from './progression.ts';
 import { recruitCost } from './setup.ts';
-import type { Board, OwnedUnit, RunContext, ShopOffer } from './types.ts';
+import type { Board, OwnedUnit, RunContext, RunSetup, ShopOffer } from './types.ts';
 
 /** Chance an extra slot offers a tertiary class's signature item while one is missing it (M7). */
 export const TERTIARY_ITEM_CHANCE = 0.3;
@@ -74,27 +74,40 @@ export function rollShop(rng: Rng, ctx: RunContext, board: Board, round = 1): Sh
   return [...units, ...Array.from({ length: extraSlots }, () => rollExtraOffer(rng, ctx, board, round))];
 }
 
-/** Rounds in which a run's favored class is guaranteed a recruit offer. */
+/** Rounds in which a run's favored classes are guaranteed a recruit offer. */
 export const FAVORED_ROUNDS = 2;
 
+/** A setup's favored classes as a list (older saves store a single class). */
+export function favoredClasses(setup: Pick<RunSetup, 'favored'>): string[] {
+  const f = setup.favored;
+  return f === undefined ? [] : typeof f === 'string' ? [f] : [...f];
+}
+
 /**
- * Favored class: in the first FAVORED_ROUNDS rounds, if no recruit offer is
- * that class, the first unlocked recruit offer becomes it. Same name and cost,
- * and no RNG, so the rest of the shop is unchanged.
+ * Favored classes: in the first FAVORED_ROUNDS rounds, each favored class
+ * missing from the recruit offers takes over the first unlocked recruit offer
+ * it can without leaving another favored class with no offer. Same name and
+ * cost, and no RNG, so the rest of the shop is unchanged.
  */
 export function ensureFavored(
   shop: readonly (ShopOffer | null)[],
   locked: readonly number[],
-  favored: string | undefined,
+  setup: Pick<RunSetup, 'favored'>,
   round: number,
   ctx: RunContext,
 ): (ShopOffer | null)[] {
   const out = [...shop];
-  if (!favored || round > FAVORED_ROUNDS || !ctx.content.shopPool.includes(favored)) return out;
-  if (out.some((o) => o?.kind === 'unit' && o.classId === favored)) return out;
-  const i = out.findIndex((o, j) => o?.kind === 'unit' && !locked.includes(j));
-  const offer = out[i];
-  if (offer?.kind === 'unit') out[i] = { ...offer, classId: favored };
+  if (round > FAVORED_ROUNDS) return out;
+  const favored = favoredClasses(setup).filter((c) => ctx.content.shopPool.includes(c));
+  const offersOf = (cls: string) => out.filter((o) => o?.kind === 'unit' && o.classId === cls).length;
+  // An offer can be taken unless it's the last one of a favored class.
+  const spare = (o: ShopOffer | null) => o?.kind === 'unit' && (!favored.includes(o.classId) || offersOf(o.classId) > 1);
+  for (const cls of favored) {
+    if (offersOf(cls) > 0) continue;
+    const i = out.findIndex((o, j) => !locked.includes(j) && spare(o));
+    const offer = out[i];
+    if (offer?.kind === 'unit') out[i] = { ...offer, classId: cls };
+  }
   return out;
 }
 

@@ -13,7 +13,8 @@ export type ClassId =
   | 'warlock'
   | 'engineer'
   | 'runeblade'
-  | 'dark-knight';
+  | 'dark-knight'
+  | 'cultist';
 
 export type ClassRole = 'frontline' | 'striker' | 'caster' | 'support';
 

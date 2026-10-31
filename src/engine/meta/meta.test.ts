@@ -8,7 +8,7 @@ import { dailyRun, newProfile, perkOffer, runSetupFor, unlockedContent } from '.
 import type { MetaCatalog } from './types.ts';
 
 const CATALOG: MetaCatalog = {
-  starter: { classes: ['tank'], items: ['sword'], synergies: ['guards'], perks: ['a', 'b', 'c'], perkSlots: 1 },
+  starter: { classes: ['tank'], items: ['sword'], synergies: ['guards'], perks: ['a', 'b', 'c'], perkSlots: 1, favoredSlots: 1 },
   achievements: [
     { id: 'win', name: 'Win', description: 'Win a run', condition: { kind: 'completeRun' }, reward: { classes: ['archer'], items: ['boots'] } },
     { id: 'streak', name: 'Streak', description: '2 in a row', condition: { kind: 'winStreak', count: 2 }, reward: { perks: ['d'] } },
@@ -20,6 +20,7 @@ const CATALOG: MetaCatalog = {
   all: { classes: ['tank', 'archer'], items: ['sword', 'boots'], synergies: ['guards', 'mixed'], perks: ['a', 'b', 'c', 'd', 'e'] },
   maxTier: 3,
   maxPerkSlots: 3,
+  maxFavoredSlots: 2,
   perkChoiceExtra: 2,
 };
 
@@ -32,7 +33,7 @@ function ended(phase: RunState['phase'], over: Partial<RunState> = {}): RunState
 describe('unlocks', () => {
   it('starts with the starter set and adds achievement rewards', () => {
     const p = newProfile();
-    expect(unlockedContent(p, CATALOG)).toEqual({ classes: ['tank'], items: ['sword'], synergies: ['guards'], perks: ['a', 'b', 'c'], perkSlots: 1, maxTier: 0 });
+    expect(unlockedContent(p, CATALOG)).toEqual({ classes: ['tank'], items: ['sword'], synergies: ['guards'], perks: ['a', 'b', 'c'], perkSlots: 1, favoredSlots: 1, maxTier: 0 });
     const earned = unlockedContent({ ...p, achievements: ['win', 'perk'], maxTier: 2 }, CATALOG);
     expect(earned).toMatchObject({ classes: ['tank', 'archer'], items: ['sword', 'boots'], perkSlots: 2, maxTier: 2 });
   });
@@ -44,6 +45,7 @@ describe('unlocks', () => {
       synergies: ['guards', 'mixed'],
       perks: ['a', 'b', 'c', 'd', 'e'],
       perkSlots: 3,
+      favoredSlots: 2,
       maxTier: 3,
     });
   });
@@ -55,8 +57,8 @@ describe('unlocks', () => {
 
   it('keeps a favored class only if it is unlocked', () => {
     const u = unlockedContent(newProfile(), CATALOG);
-    expect(runSetupFor(u, 0, [], 'tank').favored).toBe('tank');
-    expect(runSetupFor(u, 0, [], 'archer')).not.toHaveProperty('favored');
+    expect(runSetupFor(u, 0, [], ['tank']).favored).toEqual(['tank']);
+    expect(runSetupFor(u, 0, [], ['archer'])).not.toHaveProperty('favored');
   });
 
   it('offers kept + 2 perks, deterministically per seed', () => {
@@ -97,6 +99,24 @@ describe('achievements', () => {
     expect(tier1.earned.map((a) => a.id)).toEqual(['perk']);
     // Winning a lower tier again doesn't move the ladder.
     expect(recordRunEnd(tier1.profile, ended('complete'), CATALOG).profile.maxTier).toBe(2);
+  });
+
+  it('Chosen One: a won run with a favored class at the level unlocks a second favored slot', () => {
+    const catalog: MetaCatalog = {
+      ...CATALOG,
+      achievements: [{ id: 'chosen', name: 'Chosen', description: '', condition: { kind: 'completeRun', favoredLevel: 5 }, reward: { favoredSlots: 1 } }],
+    };
+    const won = (favored: string[], level: number) => {
+      const s = ended('complete', { setup: { ...defaultSetup(ctx), favored } });
+      s.board.front[0] = { ...newUnit(1, 'tank', 'T'), level };
+      return recordRunEnd(newProfile(), s, catalog).earned.map((a) => a.id);
+    };
+    expect(won(['tank'], 5)).toEqual(['chosen']);
+    expect(won(['tank'], 4)).toEqual([]);
+    expect(won(['archer'], 9)).toEqual([]);
+    const p = { ...newProfile(), achievements: ['chosen'] };
+    expect(unlockedContent(p, catalog).favoredSlots).toBe(2);
+    expect(runSetupFor({ ...unlockedContent(p, catalog), classes: ['tank', 'archer'] }, 0, [], ['tank', 'archer', 'tank']).favored).toEqual(['tank', 'archer']);
   });
 
   it('a lost run and a daily run', () => {

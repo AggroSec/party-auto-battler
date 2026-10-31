@@ -276,4 +276,17 @@ export const SYNERGIES: SynergyDef[] = [
       },
     ],
   },
+  {
+    // Brandon (post-M8): the light healer and the dark one, a rival pair like Warrior and Dark Knight.
+    id: 'sacred-and-profane',
+    name: 'Sacred and Profane',
+    tiers: [
+      {
+        requires: [{ kind: 'party', slots: [{ classIds: ['cleric'] }, { classIds: ['cultist'] }], label: 'Cleric and Cultist' }],
+        description: 'Cleric + Cultist: both gain +20% ability power.',
+        modifier: { abilityPower: 0.2 },
+        appliesTo: { filter: { classIds: ['cleric', 'cultist'] } },
+      },
+    ],
+  },
 ];
