@@ -16,7 +16,8 @@
 | Playtest follow-ups: shop locks, stacking statuses, Runeblade, Dark Knight | ✅ After M7 |
 | Playtest follow-ups: favored class, no drag-to-sell, no repeated talents | ✅ After M7 |
 | Juice (icons, sound, animations, credits) | ✅ Milestone 8 |
-| Ship (GitHub Pages, README) | Milestone 9 |
+| Playtest follow-ups: Cultist, second favored class, dev-only testing tools | ✅ After M8 |
+| Ship (GitHub Pages, README, 1.0) | ✅ Milestone 9 |
 
 ## Run structure
 
