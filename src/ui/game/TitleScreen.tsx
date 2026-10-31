@@ -16,7 +16,7 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
   return (
     <div className="screen title-screen">
       <h1 className="game-title">
-        <span aria-hidden>⚔️</span> Party Auto-Battler
+        <span aria-hidden>⚔️</span> Classbound
       </h1>
       <p className="tagline">Draft a party, build it out, and watch it fight.</p>
       <div className="title-actions">

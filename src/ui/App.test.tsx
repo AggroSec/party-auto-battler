@@ -6,7 +6,7 @@ import { CombatLab } from './CombatLab.tsx';
 describe('app shell', () => {
   it('opens on the title screen', () => {
     const html = renderToString(<App />);
-    expect(html).toContain('Party Auto-Battler');
+    expect(html).toContain('Classbound');
     expect(html).toContain('New run');
     expect(html).toContain('Combat lab');
   });

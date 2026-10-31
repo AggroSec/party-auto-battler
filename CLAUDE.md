@@ -1,4 +1,4 @@
-# CLAUDE.md — Party Auto-Battler (working title)
+# CLAUDE.md — Classbound
 
 ## What this project is
 

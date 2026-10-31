@@ -15,7 +15,7 @@ export function PlayLogExport() {
     const file = new File([text], name, { type: 'text/plain' });
     try {
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Party Auto-Battler play log' });
+        await navigator.share({ files: [file], title: 'Classbound play log' });
         return setStatus(`Shared ${runs} run${runs === 1 ? '' : 's'}.`);
       }
     } catch (e) {

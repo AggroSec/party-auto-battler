@@ -1,4 +1,4 @@
-# Party Auto-Battler (working title)
+# Classbound
 
 A browser-playable party auto-battler with RPG classes and builds. You draft a party, position it, equip it and level it up between rounds, then the fight resolves on its own. Think Super Auto Pets or Backpack Battles, with the depth coming from CRPG-style classes, talent choices and advanced-class upgrades.
 
