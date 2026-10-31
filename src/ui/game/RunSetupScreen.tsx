@@ -22,14 +22,18 @@ export function RunSetupScreen({ game }: { game: Game }) {
   const chosen = picked.filter((p) => offer.includes(p));
   const shownTier = isDaily ? daily.setup.tier : tier;
   const classes = isDaily ? daily.setup.classes : unlocked.classes;
-  const [favored, setFavored] = useState('');
+  // One favored class, or two with the Chosen One achievement (dailies: one).
+  const favoredSlots = isDaily ? 1 : unlocked.favoredSlots;
+  const [favored, setFavored] = useState<string[]>([]);
+  const picks = favored.slice(0, favoredSlots).filter((c) => c && classes.includes(c));
+  const setPick = (i: number, id: string) => setFavored((f) => Object.assign([...f], { [i]: id }));
 
   const toggle = (id: string) =>
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : keep === 1 ? [id] : p.length < keep ? [...p, id] : p));
 
   const start = () => {
-    if (isDaily) game.startRun(daily.seed, { ...daily.setup, perks: chosen.slice(0, 1), ...(classes.includes(favored) ? { favored } : {}) });
-    else game.startRun(runSeed, runSetupFor(unlocked, tier, chosen, favored || undefined));
+    if (isDaily) game.startRun(daily.seed, { ...daily.setup, perks: chosen.slice(0, 1), ...(picks.length > 0 ? { favored: picks } : {}) });
+    else game.startRun(runSeed, runSetupFor(unlocked, tier, chosen, picks));
   };
 
   return (
@@ -95,17 +99,26 @@ export function RunSetupScreen({ game }: { game: Game }) {
 
       <section className="setup-section">
         <h2>
-          Favored class <span className="muted small">(optional)</span>
+          Favored class{favoredSlots > 1 ? 'es' : ''} <span className="muted small">(optional)</span>
         </h2>
-        <select value={favored} onChange={(e) => setFavored(e.target.value)} aria-label="Favored class">
-          <option value="">None</option>
-          {classes.map((id) => (
-            <option key={id} value={id}>
-              {baseCtx.content.classes[id]?.name ?? id}
-            </option>
+        <div className="favored-picks">
+          {Array.from({ length: favoredSlots }, (_, i) => (
+            <select key={i} value={favored[i] ?? ''} onChange={(e) => setPick(i, e.target.value)} aria-label={`Favored class ${i + 1}`}>
+              <option value="">None</option>
+              {classes
+                .filter((id) => id === favored[i] || !picks.includes(id))
+                .map((id) => (
+                  <option key={id} value={id}>
+                    {baseCtx.content.classes[id]?.name ?? id}
+                  </option>
+                ))}
+            </select>
           ))}
-        </select>
-        <p className="muted small">Every shop in rounds 1–{FAVORED_ROUNDS}, rerolls included, offers at least one recruit of this class.</p>
+        </div>
+        <p className="muted small">
+          Every shop in rounds 1–{FAVORED_ROUNDS}, rerolls included, offers at least one recruit of {favoredSlots > 1 ? 'each favored class' : 'this class'}.
+          {!isDaily && favoredSlots < 2 && ' The Chosen One achievement lets you favor a second class.'}
+        </p>
       </section>
 
       {!isDaily && (

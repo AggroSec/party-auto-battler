@@ -20,6 +20,9 @@ export const DREAD: StatusDef = { id: 'dread', name: 'Dread', stats: { atk: -1 }
 /** Hellknight: demonic fire that clings to whoever touches it. */
 export const HELLFIRE: StatusDef = { id: 'hellfire', name: 'Hellfire', dot: { atk: 0.2 }, duration: 3, maxStacks: 5 };
 
+/** Cultist: a creeping rot whose every tick heals the Cultist's most wounded ally. */
+export const BLIGHT: StatusDef = { id: 'blight', name: 'Blight', dot: { atk: 0.2 }, duration: 3, maxStacks: 5, dotHeals: 0.5 };
+
 /** Berserker (Deathless Fury): can't drop below 1 HP, and hits harder, for 2 turns. */
 export const DEATHLESS_FURY: StatusDef = {
   id: 'deathless-fury',

@@ -3,6 +3,7 @@
 import type { CombatResult } from '../events.ts';
 import { activeSynergies, boardUnits, matchesFilter } from '../run/build.ts';
 import { runContext } from '../run/setup.ts';
+import { favoredClasses } from '../run/shop.ts';
 import type { RunContext, RunState } from '../run/types.ts';
 import type { AchievementCondition, AchievementDef, MetaCatalog, Profile } from './types.ts';
 
@@ -106,7 +107,9 @@ function runEndMet(cond: AchievementCondition, state: RunState): boolean {
         complete &&
         state.setup.tier >= (cond.minTier ?? 0) &&
         state.lives <= (cond.maxLives ?? Infinity) &&
-        (!cond.flawless || state.losses === 0)
+        (!cond.flawless || state.losses === 0) &&
+        (cond.favoredLevel === undefined ||
+          boardUnits(state.board).some((u) => favoredClasses(state.setup).includes(u.classId) && u.level >= cond.favoredLevel!))
       );
     case 'loseRun':
       return state.phase === 'defeated';

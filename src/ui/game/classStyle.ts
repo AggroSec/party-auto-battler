@@ -19,6 +19,7 @@ const COLORS: Record<string, string> = {
   engineer: '#7aa6c2',
   runeblade: '#5fd4e8',
   'dark-knight': '#a03a4a',
+  cultist: '#a6b83a',
   // Summons take their summoner's colour.
   treant: '#9cc93f',
   imp: '#c0399b',

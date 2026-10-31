@@ -1,8 +1,9 @@
 // Stacking statuses (post-M7): Runes that burst, Dread that saps ATK, damage
 // over time, Undying Rage. See StatusDef for the rules.
 import { resolveAmount } from './damage.ts';
-import { dealDamage } from './hits.ts';
+import { applyHeal, dealDamage } from './hits.ts';
 import { emit, type ActiveStatus, type CombatState, type CombatUnit } from './state.ts';
+import { selectTargets } from './targeting.ts';
 import type { BuffableStat, StatusDef } from './types.ts';
 
 // fireTriggers lives in effects.ts, which imports this file; take it as a parameter to avoid a cycle.
@@ -74,7 +75,14 @@ export function tickStatuses(state: CombatState, unit: CombatUnit): void {
   for (const s of [...unit.statuses.values()]) {
     if (!unit.alive) return;
     const damage = Math.round(s.dotPerStack * s.stacks);
-    if (damage > 0) dealDamage(state, s.source, unit, damage, { pierce: true, dot: true }, 0);
+    if (damage <= 0) continue;
+    const before = unit.hp + unit.shield;
+    dealDamage(state, s.source, unit, damage, { pierce: true, dot: true }, 0);
+    const dealt = before - Math.max(0, unit.hp) - unit.shield;
+    if (s.def.dotHeals && s.source.alive && dealt > 0) {
+      const [ally] = selectTargets(state, s.source, 'lowestHpAlly');
+      if (ally) applyHeal(state, s.source, ally, dealt * s.def.dotHeals);
+    }
   }
 }
 

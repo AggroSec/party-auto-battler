@@ -185,8 +185,12 @@ export interface RunSetup {
   synergies: string[];
   /** Set on a daily run: the date it belongs to (YYYY-MM-DD). */
   daily?: string;
-  /** Favored class (post-M7): guaranteed a recruit offer in every shop of the first rounds. */
-  favored?: string;
+  /**
+   * Favored classes (post-M7): each is guaranteed a recruit offer in every
+   * shop of the first rounds. A single string is a save from before a second
+   * favored class existed; read it with favoredClasses().
+   */
+  favored?: string | string[];
 }
 
 /**

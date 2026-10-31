@@ -32,6 +32,7 @@ describe('glossary', () => {
       'missing-hp:missing HP',
     ]);
     expect(terms('The Runeblade recruits.')).toEqual([]);
+    expect(terms('Basic attacks give 1 Blight.')).toEqual(['blight:Blight']);
   });
 
   it('does not match inside other words', () => {

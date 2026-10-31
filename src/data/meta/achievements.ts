@@ -16,6 +16,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   // Post-M7 classes (Brandon: every new class is unlockable).
   { id: 'spellsword', name: 'Spellsword', description: 'Win a fight with a Warrior and a Mage, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['warrior', 'mage'], minLevel: 5 }, reward: { classes: ['runeblade'] } },
   { id: 'last-one-standing', name: 'Last One Standing', description: 'Win a fight with only one of your units still standing.', condition: { kind: 'lastStanding', survivors: 1 }, reward: { classes: ['dark-knight'], synergies: ['rivals'] } },
+  { id: 'unholy-communion', name: 'Unholy Communion', description: 'Win a fight with a Cleric and a Warlock, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['cleric', 'warlock'], minLevel: 5 }, reward: { classes: ['cultist'], synergies: ['sacred-and-profane'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 
   // Items.
@@ -33,6 +34,9 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'champions', name: 'Champions', description: 'Win a fight with 3 Light (divine) units.', condition: { kind: 'winWithUnits', filter: LIGHT, count: 3 }, reward: { synergies: ['light'] } },
   { id: 'darkness-rising', name: 'Darkness Rising', description: 'Win a fight with 3 Dark (shadow or occult) units.', condition: { kind: 'winWithUnits', filter: DARK, count: 3 }, reward: { synergies: ['dark'] } },
   { id: 'in-harmony', name: 'In Harmony', description: 'Have 4 synergies active at once.', condition: { kind: 'activeSynergies', count: 4 }, reward: { synergies: ['twilight'] } },
+
+  // Favored classes.
+  { id: 'chosen-one', name: 'Chosen One', description: 'Win a run on tier 5 or higher with a unit of your favored class at level 10.', condition: { kind: 'completeRun', minTier: 5, favoredLevel: 10 }, reward: { favoredSlots: 1 } },
 
   // Perks.
   { id: 'first-steps', name: 'First Steps', description: 'Reach round 5.', condition: { kind: 'reachRound', round: 5 }, reward: { perks: ['recruiter'] } },

@@ -17,6 +17,7 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `necromancer`: "Death Skull" by Sbed, https://game-icons.net/1x1/sbed/death-skull.html, CC BY 3.0
 - `runeblade`: "Rune Sword" by Lorc, https://game-icons.net/1x1/lorc/rune-sword.html, CC BY 3.0
 - `dark-knight`: "Black Knight Helm" by Delapouite, https://game-icons.net/1x1/delapouite/black-knight-helm.html, CC BY 3.0
+- `cultist`: "Cultist" by Lorc, https://game-icons.net/1x1/lorc/cultist.html, CC BY 3.0
 - `treant`: "Tree Face" by Cathelineau, https://game-icons.net/1x1/cathelineau/tree-face.html, CC BY 3.0
 - `imp`: "Imp" by Lorc, https://game-icons.net/1x1/lorc/imp.html, CC BY 3.0
 - `turret`: "Turret" by Sbed, https://game-icons.net/1x1/sbed/turret.html, CC BY 3.0

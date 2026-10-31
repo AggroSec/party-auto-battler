@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { META_CATALOG } from '../../data/meta/catalog.ts';
 import { maxLevel } from '../../engine/run/index.ts';
 import { SoundToggle } from '../audio/SoundToggle.tsx';
+import { DEV_TOOLS } from '../devTools.ts';
 import { PlayLogExport } from './PlayLogExport.tsx';
 import { Glossary } from './Rules.tsx';
 import type { Game } from './useGame.ts';
@@ -55,10 +56,12 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
           Best run: {best.completed ? '🏆 completed' : `${best.wins} wins`} in {best.rounds} rounds
         </p>
       )}
-      <label className="unlock-all">
-        <input type="checkbox" checked={profile.unlockAll} onChange={(e) => game.setUnlockAll(e.target.checked)} /> Unlock everything{' '}
-        <span className="muted small">(testing, until 1.0: every class, item, perk and tier; achievements still track)</span>
-      </label>
+      {DEV_TOOLS && (
+        <label className="unlock-all">
+          <input type="checkbox" checked={profile.unlockAll} onChange={(e) => game.setUnlockAll(e.target.checked)} /> Unlock everything{' '}
+          <span className="muted small">(dev builds only: every class, item, perk and tier; achievements still track)</span>
+        </label>
+      )}
       <section className="how-to">
         <h2>How to play</h2>
         <ul>
@@ -79,9 +82,11 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
           <button type="button" className="link" onClick={() => setHelp(true)}>
             Glossary
           </button>
-          <button type="button" className="link" onClick={onOpenLab}>
-            Combat lab
-          </button>
+          {DEV_TOOLS && (
+            <button type="button" className="link" onClick={onOpenLab}>
+              Combat lab
+            </button>
+          )}
           <button type="button" className="link" onClick={game.openCredits}>
             Credits
           </button>

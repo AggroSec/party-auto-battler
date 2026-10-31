@@ -152,8 +152,9 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 | Necromancer 🔒 | Caster | Ranged | 24/5/1/9 | lowest HP | **Drain Life** (3): 150% ATK to the weakest enemy, heal self 100% ATK | **Dark Harvest:** +2 ATK when an ally dies |
 | Runeblade 🔒 | Striker | Melee | 36/6/2/10 | nearest | **Runestrike** (3): 110% ATK to the nearest enemy and carve 2 Runes | **Runic Detonation:** basic attacks carve 1 Rune; 5 Runes detonate for 250% ATK |
 | Dark Knight 🔒 | Frontline | Melee | 40/6/2/8 | nearest | **Blood Price** (3): pay 8% max HP, 130% ATK + 20% missing HP to the nearest enemy, heal 50% ATK | **Dark Resolve:** when bloodied, +3 DEF and +2 ATK |
+| Cultist 🔒 | Support | Ranged | 30/4/1/9 | nearest | **Siphon** (2): 100% ATK to the nearest enemy and 2 Blight, heal the most wounded ally 100% ATK | **Blight:** basic attacks give 1 Blight; every Blight tick heals the Cultist's most wounded ally for half the damage |
 
-🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request; Runeblade and Dark Knight after M7, to his design (see below).
+🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request; Runeblade and Dark Knight after M7, and the Cultist after M8, to his design (see below).
 
 **Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Monk martial + spirit, Bard arcane + spirit, Druid wild + nature, Warlock shadow + occult, Engineer tech, Necromancer arcane + shadow, Runeblade arcane + martial, Dark Knight martial + guardian + shadow. Advanced classes replace their base tags.
 
@@ -301,7 +302,7 @@ M7 synergies count units by **role** (the base class's frontline / striker / cas
 
 ## UI (Milestone 4)
 
-**Screens:** Title → Shop → Combat → (result) → Shop … → Run summary. The combat lab (pick two line-ups, read the event log) is linked from the title screen.
+**Screens:** Title → Shop → Combat → (result) → Shop … → Run summary. The combat lab (pick two line-ups, read the event log) is linked from the title screen in dev builds (`npm run dev`) only, from 1.0.
 
 - **Title:** continue a saved run, start a new one (optional custom seed for a reproducible run), best run, short how-to.
 - **Shop:** HUD (round, gold, lives as hearts, wins progress, streak), the six offers as cards, the party board, a unit inspector (with the stat-point panel when a unit has points; units with points show a gold +N badge), synergy progress and the Fight button. Level-up choices appear as a highlighted panel above the shop; you can keep shopping, but must choose before fighting.
@@ -376,7 +377,7 @@ Two per advanced class, chosen at level 7 *(Brandon: two per advanced class, so 
 
 ## Meta progression (Milestone 7)
 
-Progress lives in a **profile** saved separately from runs (its own storage version, so run-format changes never wipe it). The title screen has **New run**, **Daily run**, **Collection** and an **Unlock everything** toggle *(Brandon: a testing toggle until 1.0; achievements still track while it's on)*.
+Progress lives in a **profile** saved separately from runs (its own storage version, so run-format changes never wipe it). The title screen has **New run**, **Daily run**, **Collection** and, in dev builds only, an **Unlock everything** toggle *(Brandon: a testing toggle until 1.0; from 1.0 players earn their unlocks, and a saved profile with it on is ignored in release builds)*.
 
 **Starting content:** Warrior, Rogue, Mage, Cleric and Ranger; 17 items (the plain and effect items plus those five classes' items); every synergy except Champions of Light, Legion of Night and Twilight Pact; and three perks (Deep Pockets, Armory, Bargain Hunter). Achievements unlock the rest; a class unlock brings its class item. **Enemies use only unlocked classes and items**; bosses appear regardless.
 
@@ -545,6 +546,7 @@ One per tertiary class *(Brandon: unique, pricier, attainable, shown only when t
 ### Favored class (2026-10-27)
 - The run setup screen has an optional **Favored class** picker (any unlocked class; dailies too). In rounds 1 and 2, every shop, rerolls included, offers at least one recruit of that class. If none rolls naturally, the first unlocked recruit slot becomes it, at the normal price. From round 3 the shop is normal.
 - Free for everyone, not a perk, so newly unlocked classes can be tried straight away. Brandon may make the forced offer cost more after testing.
+- **A second favored class** (2026-10-31) comes from the **Chosen One** achievement: win a run on tier 5 or higher with a unit of your favored class at level 10. Brandon: losses came from missing a tank or a healer, and one favored class made him pick between them. With two, each gets its own guaranteed offer. Dailies keep one.
 
 ### Stacking statuses
 A status is a named stack on a unit: it can change a stat per stack, deal damage each of the afflicted unit's turns (ignoring DEF, credited to whoever applied it), last a number of turns, burst at a threshold (firing its applier's `onBurst` effects), or keep the unit above 0 HP. Stack counts show on unit cards during playback.
@@ -642,6 +644,48 @@ Evil tank: pays HP for power, drinks it back, and grows deadlier as it bleeds. T
   - **Undeath:** The first time you would fall, rise at 30% HP; every enemy gains 1 Dread.
   - Talents: **Second Grave** (Rise one more time.); **Wrath of the Grave** (After rising, gain +4 ATK and taunt for 1 turn.); **Cold Iron** (+3 DEF, +10 HP.); **Grave Chill** (New ability. Every 4th turn: every enemy loses 1 SPD and gains 1 Dread.)
   - Signature item: **Gravebound Plate** (7g): +10 HP. Rise one more time, at 30% HP.
+
+#### Cultist (after M8)
+
+Brandon's evil healer: it heals by stealing. Unlocked by **Unholy Communion** (win a fight with a Cleric and a Warlock, both level 5+), which also unlocks the **Sacred and Profane** synergy (Cleric + Cultist: both +20% ability power). Enemy version: Plague Cultist (from round 3).
+
+Evil healer: steals life from the enemy, and its Blight keeps the party standing. Tags: occult, shadow. 30/4/1/9, ranged.
+
+- **Siphon:** Every 2nd turn: deal 100% ATK to the nearest enemy and give it 2 Blight, then heal the most wounded ally for 100% ATK.
+- **Blight:** Basic attacks give 1 Blight: 20% ATK damage per stack each turn (up to 5, for 3 turns), and every tick heals your most wounded ally for half the damage dealt.
+- Talents: **Vile Harvest** (When any enemy falls, heal the most wounded ally for 100% ATK.); **Black Tithe** (Start of combat: pay 10% of max HP and shield all allies for 80% ATK.); **Leeching Hex** (+15% lifesteal.); **Creeping Blight** (Basic attacks give 1 more Blight.)
+
+**Hemomancer** (occult, shadow): Blood mage: pays in its own blood to pour life into the party.
+- **Transfusion:** Every 2nd turn: pay 6% of max HP, deal 80% ATK to the nearest enemy, and heal the most wounded ally for 200% ATK.
+- **Blood Bond:** +15% lifesteal.
+- Talents: **Sanguine Flow** (+30% ability power.); **Bloodletting** (When bloodied, heal all allies for 100% ATK.); **Iron Blood** (+2 DEF, +10 HP.); **Crimson Ward** (After casting, shield the most wounded ally for 60% ATK.)
+
+- **Sanguine Bishop** (occult, shadow): High priest of blood: huge party heals, paid for in its own veins.
+  - **Blood Sacrament:** Every 3rd turn: pay 10% of max HP, heal all allies for 120% ATK, and shield the most wounded ally for 100% ATK.
+  - **Consecrated Blood:** +15% lifesteal. When bloodied, heal all allies for 100% ATK.
+  - Talents: **Holy Wounds** (+30% ability power.); **Last Rites** (When an ally falls, heal all other allies for 150% ATK.); **Red Vestments** (+3 DEF, +10 HP.); **Communion of Blood** (New ability. Every 4th turn: pay 5% of max HP and shield all allies for 80% ATK.)
+  - Signature item: **Reliquary of Blood** (7g): +2 ATK. Start of combat: shield all allies for 60% ATK.
+- **Vampire Lord** (occult, shadow): Feeds on the whole enemy party, and every kill your party lands feeds them too.
+  - **Crimson Feast:** Every 3rd turn: deal 80% ATK to every enemy and heal all allies for 40% ATK.
+  - **Thirst of Ages:** +25% lifesteal. When an ally lands a kill, heal all allies for 30% ATK.
+  - Talents: **Nightstalker** (+3 SPD, +2 ATK.); **Sire’s Bite** (Basic attacks heal the most wounded ally for 30% ATK.); **Eternal Night** (The first time you would fall, rise at 30% HP.); **Bat Swarm** (New ability. Every 4th turn: strike 3 random enemies for 50% ATK, then heal the most wounded ally for 100% ATK.)
+  - Signature item: **Vampire’s Signet** (7g): +15% lifesteal, +2 SPD.
+
+**Plague Doctor** (occult, shadow): Spreads Blight across the enemy front, and every tick of it keeps the party standing.
+- **Miasma:** Every 2nd turn: each enemy in the front row gains 1 Blight; heal the most wounded ally for 100% ATK.
+- **Contagion:** Basic attacks have a 50% chance to give 1 more Blight.
+- Talents: **Virulence** (Start of combat: every enemy gains 1 Blight.); **Plague Mask** (+2 DEF, +8 HP.); **Fever Dream** (When hurt, 30% chance the attacker gains 1 Blight.); **Epidemic** (After casting, a random enemy gains 2 Blight.)
+
+- **Pestilent Saint** (occult, shadow): Blight on every enemy at once: the whole enemy party bleeds life into yours.
+  - **Great Plague:** Every 3rd turn: every enemy gains 1 Blight; heal all allies for 20% ATK.
+  - **Sainted Rot:** Start of combat: every enemy gains 1 Blight.
+  - Talents: **Swarm of Flies** (When hurt, 25% chance every enemy gains 1 Blight.); **Holy Pestilence** (+30% ability power.); **Incense of Decay** (+2 DEF, +10 HP.); **Plague Censer** (New ability. Every 4th turn: every enemy loses 1 SPD and gains 1 Blight.)
+  - Signature item: **Censer of Flies** (7g): +8 HP. Start of combat: every enemy gains 1 Blight.
+- **Rot Mother** (occult, shadow, nature): Smothers one enemy in Blight; every death feeds the party and spreads the rot.
+  - **Brood of Rot:** Every 3rd turn: the nearest enemy gains 3 Blight; heal the most wounded ally for 120% ATK.
+  - **Cycle of Rot:** When any enemy falls, heal all allies for 20% ATK and every enemy gains 1 Blight.
+  - Talents: **Mother’s Embrace** (Start of combat: shield all allies for 60% ATK.); **Fecund Rot** (Basic attacks give 1 more Blight.); **Rotting Grasp** (Basic attacks make the target lose 1 SPD.); **Corpse Bloom** (New ability. Every 4th turn: heal all allies for 80% ATK.)
+  - Signature item: **Mother’s Locket** (7g): +10 HP. When an ally falls, heal all other allies for 100% ATK.
 
 ### Other additions
 - **Berserker: Deathless Fury.** The first time the Berserker would fall, it stays at 1 HP and can't drop below it for 2 turns, with +4 ATK and +4 SPD. Brandon asked for a rage talent that stops it dying and boosts it for a few turns.

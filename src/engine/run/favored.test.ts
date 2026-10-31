@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { applyShopAction, createRun, fight } from './run.ts';
 import { defaultSetup, runContext } from './setup.ts';
-import { ensureFavored, FAVORED_ROUNDS } from './shop.ts';
+import { ensureFavored, FAVORED_ROUNDS, favoredClasses } from './shop.ts';
 import { makeCtx } from './test-fixtures.ts';
 import type { RunState, ShopOffer } from './types.ts';
 
@@ -13,20 +13,20 @@ describe('ensureFavored', () => {
 
   it('turns the first recruit offer into the favored class when none is offered', () => {
     const shop = [unit('tank', 'A'), unit('tank', 'B'), { kind: 'item', itemId: 'sword', cost: 3 } as ShopOffer];
-    expect(ensureFavored(shop, [], 'archer', 1, ctx)).toEqual([unit('archer', 'A'), unit('tank', 'B'), shop[2]]);
+    expect(ensureFavored(shop, [], { favored: 'archer' }, 1, ctx)).toEqual([unit('archer', 'A'), unit('tank', 'B'), shop[2]]);
   });
 
   it('leaves the shop alone when the class is already offered, after the favored rounds, or with no favored class', () => {
     const offered = [unit('tank'), unit('archer')];
-    expect(ensureFavored(offered, [], 'archer', 1, ctx)).toEqual(offered);
+    expect(ensureFavored(offered, [], { favored: 'archer' }, 1, ctx)).toEqual(offered);
     const tanks = [unit('tank'), unit('tank')];
-    expect(ensureFavored(tanks, [], 'archer', FAVORED_ROUNDS + 1, ctx)).toEqual(tanks);
-    expect(ensureFavored(tanks, [], undefined, 1, ctx)).toEqual(tanks);
+    expect(ensureFavored(tanks, [], { favored: 'archer' }, FAVORED_ROUNDS + 1, ctx)).toEqual(tanks);
+    expect(ensureFavored(tanks, [], {}, 1, ctx)).toEqual(tanks);
   });
 
   it('skips locked and bought slots, and ignores classes the run cannot recruit', () => {
-    expect(ensureFavored([unit('tank', 'A'), null, unit('tank', 'B')], [0], 'archer', 2, ctx)).toEqual([unit('tank', 'A'), null, unit('archer', 'B')]);
-    expect(ensureFavored([unit('tank')], [], 'mage', 1, ctx)).toEqual([unit('tank')]);
+    expect(ensureFavored([unit('tank', 'A'), null, unit('tank', 'B')], [0], { favored: 'archer' }, 2, ctx)).toEqual([unit('tank', 'A'), null, unit('archer', 'B')]);
+    expect(ensureFavored([unit('tank')], [], { favored: 'mage' }, 1, ctx)).toEqual([unit('tank')]);
   });
 });
 
@@ -63,5 +63,22 @@ describe('favored class in a run', () => {
     expect(s.round).toBe(2);
     expect(hasArcher(s)).toBe(true);
     expect(runContext(setup, ctx).content.shopPool).toContain('archer');
+  });
+});
+
+describe('two favored classes', () => {
+  const ctx = makeCtx();
+
+  it('guarantees each one, without overwriting the other', () => {
+    const shop = [unit('tank', 'A'), unit('tank', 'B'), unit('tank', 'C')];
+    expect(ensureFavored(shop, [], { favored: ['archer', 'tank'] }, 1, ctx)).toEqual([unit('archer', 'A'), unit('tank', 'B'), unit('tank', 'C')]);
+    const archers = [unit('archer', 'A'), unit('archer', 'B')];
+    expect(ensureFavored(archers, [], { favored: ['archer', 'tank'] }, 1, ctx)).toEqual([unit('tank', 'A'), unit('archer', 'B')]);
+  });
+
+  it('reads a single favored class from older saves', () => {
+    expect(favoredClasses({ favored: 'archer' })).toEqual(['archer']);
+    expect(favoredClasses({ favored: ['archer', 'tank'] })).toEqual(['archer', 'tank']);
+    expect(favoredClasses({})).toEqual([]);
   });
 });

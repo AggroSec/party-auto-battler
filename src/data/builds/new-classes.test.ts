@@ -39,3 +39,26 @@ describe('Berserker: Deathless Fury', () => {
     expect(fury.at(-1)?.stacks).toBe(0);
   });
 });
+
+describe('Cultist', () => {
+  it('Blight ticks heal a wounded ally, and Siphon heals too', () => {
+    const cultist = make('cultist');
+    const tank = { ...make('warrior'), stats: { hp: 200, atk: 1, def: 0, spd: 1 } };
+    const r = simulateCombat({
+      player: { front: [tank], back: [cultist] },
+      enemy: { front: [{ ...dummy(), stats: { hp: 400, atk: 10, def: 0, spd: 8 } }], back: [] },
+      rng: new Rng(1),
+      tickCap: 200,
+    });
+    const blight = statuses(r.events).filter((e) => e.status === 'blight' && e.target === 'e0');
+    expect(Math.max(...blight.map((e) => e.stacks))).toBeGreaterThan(1);
+    const cultistId = r.summary.find((s) => s.name === 'cultist')!.id;
+    expect(r.summary.find((s) => s.id === cultistId)!.healingDone).toBeGreaterThan(0);
+    // A heal from the Cultist with no cast or attack in its own turn: a Blight tick on the enemy's turn.
+    const tickHeals = r.events.filter((e, i) => {
+      const prev = r.events[i - 1];
+      return e.type === 'heal' && e.source === cultistId && prev?.type === 'damage' && prev.target === 'e0';
+    });
+    expect(tickHeals.length).toBeGreaterThan(0);
+  });
+});

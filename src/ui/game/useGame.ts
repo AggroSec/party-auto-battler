@@ -28,6 +28,7 @@ import {
 } from '../../engine/run/index.ts';
 import { play } from '../audio/sfx.ts';
 import type { SoundId } from '../audio/sounds.ts';
+import { DEV_TOOLS } from '../devTools.ts';
 import { logPlay, newRunId } from '../playlog.ts';
 import { levelUps, mergeLevelUps, type LevelUp } from './levelUps.ts';
 import { loadProfile, saveProfile, todayString } from './profileStore.ts';
@@ -99,7 +100,8 @@ export function useGame() {
 
   /** The current run's effective rules (its tier, perks and unlocked content applied). */
   const ctx = useMemo(() => runContext(run.setup, baseCtx), [run.setup, baseCtx]);
-  const unlocked = useMemo(() => unlockedContent(profile, META_CATALOG), [profile]);
+  // Unlock everything is a dev-only testing toggle: a saved profile that has it on is ignored in release builds.
+  const unlocked = useMemo(() => unlockedContent(DEV_TOOLS ? profile : { ...profile, unlockAll: false }, META_CATALOG), [profile]);
   const today = todayString();
   const daily = useMemo(() => dailyRun(today, META_CATALOG), [today]);
 

@@ -17,6 +17,7 @@ export function unlockedContent(profile: Profile, catalog: MetaCatalog): Unlocke
       synergies: [...catalog.all.synergies],
       perks: [...catalog.all.perks],
       perkSlots: catalog.maxPerkSlots,
+      favoredSlots: catalog.maxFavoredSlots,
       maxTier: catalog.maxTier,
     };
   }
@@ -26,13 +27,15 @@ export function unlockedContent(profile: Profile, catalog: MetaCatalog): Unlocke
     const set = new Set(rewards.flatMap((r) => r[key] ?? []));
     return catalog.all[key].filter((id) => set.has(id));
   };
-  const perkSlots = Math.min(catalog.maxPerkSlots, catalog.starter.perkSlots + earned.reduce((s, a) => s + (a.reward.perkSlots ?? 0), 0));
+  const slots = (key: 'perkSlots' | 'favoredSlots', max: number) =>
+    Math.min(max, catalog.starter[key] + earned.reduce((s, a) => s + (a.reward[key] ?? 0), 0));
   return {
     classes: have('classes'),
     items: have('items'),
     synergies: have('synergies'),
     perks: have('perks'),
-    perkSlots,
+    perkSlots: slots('perkSlots', catalog.maxPerkSlots),
+    favoredSlots: slots('favoredSlots', catalog.maxFavoredSlots),
     maxTier: Math.min(catalog.maxTier, profile.maxTier),
   };
 }
@@ -42,15 +45,16 @@ export function perkOffer(seed: string, pool: readonly string[], kept: number, c
   return sample(new Rng(`${seed}:perks`), pool, kept + catalog.perkChoiceExtra);
 }
 
-/** A run's setup from what's unlocked, a chosen tier, chosen perks and an optional favored class. */
-export function runSetupFor(unlocked: Unlocked, tier: number, perks: readonly string[], favored?: string): RunSetup {
+/** A run's setup from what's unlocked, a chosen tier, chosen perks and optional favored classes. */
+export function runSetupFor(unlocked: Unlocked, tier: number, perks: readonly string[], favored: readonly string[] = []): RunSetup {
+  const picks = [...new Set(favored)].filter((c) => unlocked.classes.includes(c)).slice(0, unlocked.favoredSlots);
   return {
     tier: Math.max(0, Math.min(tier, unlocked.maxTier)),
     perks: perks.filter((p) => unlocked.perks.includes(p)).slice(0, unlocked.perkSlots),
     classes: [...unlocked.classes],
     items: [...unlocked.items],
     synergies: [...unlocked.synergies],
-    ...(favored && unlocked.classes.includes(favored) ? { favored } : {}),
+    ...(picks.length > 0 ? { favored: picks } : {}),
   };
 }
 

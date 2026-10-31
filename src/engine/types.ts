@@ -93,6 +93,12 @@ export interface StatusDef {
    * ignoring DEF. Credited to the applier.
    */
   dot?: Amount;
+  /**
+   * Each damage-over-time tick also heals the applier's most wounded ally
+   * (itself included) for this fraction of the damage dealt, while the
+   * applier is alive (Cultist's Blight).
+   */
+  dotHeals?: number;
   /** Lasts this many of the afflicted unit's turns; reapplying refreshes it. Unset = until combat ends or it bursts. */
   duration?: number;
   /** At this many stacks the status bursts: the stacks clear and the applier's onBurst triggers fire (triggerTarget = afflicted). */
