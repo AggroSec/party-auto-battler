@@ -6,7 +6,7 @@ import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
-import { ensureFavored, rollFreeItem, rollShop } from './shop.ts';
+import { ensureFavored, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
 import type {
   ActionResult,
   FightResult,
@@ -122,6 +122,7 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       if (action.to && !isValidSlot(action.to)) return fail('invalidSlot');
 
       if (offer.kind === 'unit') {
+        if (classFor(ctx.content, offer.classId).uniqueInParty && boardUnits(next.board).some((u) => u.classId === offer.classId)) return fail('uniqueClass');
         let slot = action.to;
         if (slot) {
           if (getSlot(next.board, slot) !== null) return fail('slotOccupied');
@@ -208,7 +209,7 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const free = next.shop.filter((o, i) => o?.kind === 'item' && o.cost === 0 && !next.locked?.includes(i));
       const rolled = [...withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), ...free];
       Object.assign(next, keepLocked(state.shop, rolled, state.locked));
-      next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx);
+      next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx, next.board);
       return { ok: true, state: next };
     }
     case 'lock': {
@@ -230,6 +231,10 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const unit = findUnit(next, choice.uid);
       if (!unit || !applyChoice(unit, choice, action.option)) return fail('invalidChoice');
       next.pending.shift();
+      if (choice.kind === 'ascend') {
+        const offer = signatureOffer(unit.tertiaryClassId!, ctx);
+        if (offer) next.shop.push(offer);
+      }
       if (choice.kind === 'talent') {
         // Never offer a talent twice: later choices swap out what was just taken.
         const taken = choice.options[action.option]!;
@@ -335,7 +340,7 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     next.round += 1;
     next.freeRerollUsed = false;
     Object.assign(next, keepLocked(state.shop, withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), state.locked));
-    next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx);
+    next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx, next.board);
   }
   next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income, gold: state.gold });
 

@@ -31,6 +31,17 @@ export interface TalentDef extends UnitModifier {
   id: string;
   name: string;
   description: string;
+  /** The base class it comes from; a class that borrows talents only draws from unlocked ones, and shows this. */
+  sourceClassId?: string;
+  /** Extra synergy tags while the unit has this talent (borrowed abilities). */
+  tags?: readonly string[];
+}
+
+/** A class's passive that a borrowing class picks up once its build uses that class's status. */
+export interface BorrowedPassive {
+  statusId: string;
+  passive: PassiveText;
+  triggers: readonly TriggeredEffect[];
 }
 
 export interface AdvancedClassDef {
@@ -55,6 +66,12 @@ export interface AdvancedClassDef {
   statWeights?: StatWeights;
   /** The two tertiary classes offered at the ascend level (M6). */
   tertiaryClasses?: readonly string[];
+  /** Borrowing classes: by level, the granted-ability talents this tier can choose from. */
+  borrows?: Readonly<Record<number, readonly string[]>>;
+  /** Extra talent options per level-up while this is the unit's class. */
+  extraTalentChoices?: number;
+  /** Talents from this tier come only from the base class of the ability borrowed at the ascend level. */
+  focusBorrowed?: boolean;
 }
 
 /**
@@ -90,6 +107,14 @@ export interface ClassTemplate extends UnitTemplate {
   talents: readonly string[];
   /** The two advanced classes offered at level 3. */
   advancedClasses: readonly string[];
+  /** At most one per party. */
+  uniqueInParty?: boolean;
+  /** Recruits of this class always have this name. */
+  fixedName?: string;
+  /** Levels that also offer a borrowed ability (see AdvancedClassDef.borrows); talents come from other classes. */
+  borrowLevels?: readonly number[];
+  /** Other classes' passives this class picks up when its build needs them. */
+  borrowedPassives?: readonly BorrowedPassive[];
 }
 
 export interface ItemDef {

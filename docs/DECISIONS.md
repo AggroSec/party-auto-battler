@@ -2,6 +2,23 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-02 — One-time signature item offers
+
+Brandon's rule: a signature item shows once when a unit reaches its tertiary class, and a reroll or a fight ends the offer unless it was bought or locked. Decided autonomously:
+- **The offer takes an extra slot on the end of the shop,** so it never pushes out a recruit, item or training offer already on screen.
+- **Each unit that reaches the class gets its own offer,** so a second Paladin still sees Dawnbringer.
+- **No saved-run migration.** A run saved under the old rule keeps any signature offers on screen until the next reroll, and a unit that had already reached its class won't get a new offer.
+
+## 2026-10-31 — Adventurer (Jack)
+
+Brandon's design: one per party, always named Jack, talents and abilities from other classes, deliberately swingy, with the Runeblade passive when his build uses Runes. Decided autonomously:
+- **No balancing beyond sane stats.** Brandon wants high and low rolls, so offers are plain random (the proposed nudge toward what he already has was dropped) and the simulator's high Polymath and Savant numbers are left alone.
+- **Talents that name another class's ability are left out of his pools,** by a check on the data rather than a hand list, so future classes are covered. They'd fire on his abilities but read wrong.
+- **Only Runes need a borrowed passive.** Every other status (Blight, Dread, Corruption and so on) works by itself; Runes are the only one that needs a trigger to do anything. The rule is data (`borrowedPassives`), and applies to items too.
+- **Master of One's focus class is set by the ability he borrows at level 7,** rather than a separate choice. Fewer screens, and the same decision.
+- **Talent and ability offers only draw from classes the run has unlocked,** so unlocking classes widens his pool. Daily runs have everything.
+- **A locked Jack offer stays in the shop if you buy another,** and buying it fails with a message. Shops never roll a second one, so this takes a locked offer plus a reroll.
+
 ## 2026-10-31 — Milestone 9: Ship
 
 Brandon: ship 1.0 as it stands (10 tiers; more tiers and boss changes after release, issue #20). Decided autonomously:

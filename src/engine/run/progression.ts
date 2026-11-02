@@ -81,12 +81,37 @@ export function allocatePoints(unit: OwnedUnit, points: Partial<StatPoints>, cfg
   return true;
 }
 
+/** The class of the ability a focused unit borrowed at the ascend level. */
+function borrowedFocus(unit: OwnedUnit, content: RunContent, cfg: ProgressionConfig): string | undefined {
+  const pool = classTiers(unit, content).tert?.borrows?.[cfg.ascendLevel] ?? [];
+  const id = unit.talents.find((t) => pool.includes(t));
+  return id ? content.talents[id]?.sourceClassId : undefined;
+}
+
+/** Abilities a borrowing unit could take at this level, or null if the class tier that decides them is undecided. */
+function borrowPool(unit: OwnedUnit, level: number, content: RunContent, cfg: ProgressionConfig): string[] | null {
+  const { adv, tert } = classTiers(unit, content);
+  const tier = level >= cfg.ascendLevel ? tert : adv;
+  if (!tier) return null;
+  return (tier.borrows?.[level] ?? []).filter((id) => {
+    const t = content.talents[id];
+    return t && !unit.talents.includes(id) && (!t.sourceClassId || content.shopPool.includes(t.sourceClassId));
+  });
+}
+
+/** Options for a 'borrow' choice, or null if the class tier that decides them is undecided. */
+export function borrowOptions(unit: OwnedUnit, level: number, content: RunContent, cfg: ProgressionConfig, rng: Rng): string[] | null {
+  const pool = borrowPool(unit, level, content, cfg);
+  return pool && sample(rng, pool, cfg.talentChoices);
+}
+
 /**
  * Talent options for a level-up, or null if the class tier the level draws
  * from is still undecided. Levels below the advance level draw from the base
  * class's pool, then the advanced class's, then (from the ascend level) the
  * tertiary class's. When the current pool has fewer unpicked talents than a
- * full offer, it's topped up with unpicked talents from earlier tiers.
+ * full offer, it's topped up with unpicked talents from earlier tiers. A class
+ * that borrows talents only draws from classes the run has unlocked.
  */
 export function talentOptions(
   unit: OwnedUnit,
@@ -106,10 +131,22 @@ export function talentOptions(
     if (!tert) return null;
     tiers.unshift(tert.talents);
   }
-  const fresh = (pool: readonly string[]) => pool.filter((id) => !unit.talents.includes(id) && content.talents[id]);
-  const options = sample(rng, fresh(tiers[0]!), cfg.talentChoices);
+  // A focused tier's talents wait until the ability that decides them is borrowed.
+  const focusing = tert?.focusBorrowed === true && level > cfg.ascendLevel;
+  const focus = focusing ? borrowedFocus(unit, content, cfg) : undefined;
+  if (focusing && !focus && (borrowPool(unit, cfg.ascendLevel, content, cfg)?.length ?? 0) > 0) return null;
+  const borrows = classFor(content, unit.classId).borrowLevels !== undefined;
+  const fresh = (pool: readonly string[]) =>
+    pool.filter((id) => {
+      const t = content.talents[id];
+      if (!t || unit.talents.includes(id)) return false;
+      return !borrows || !t.sourceClassId || content.shopPool.includes(t.sourceClassId);
+    });
+  const count = cfg.talentChoices + (tert?.extraTalentChoices ?? adv?.extraTalentChoices ?? 0);
+  const top = fresh(tiers[0]!).filter((id) => !focus || content.talents[id]?.sourceClassId === focus);
+  const options = sample(rng, top, count);
   const leftovers = tiers.slice(1).flatMap(fresh);
-  return [...options, ...sample(rng, leftovers, cfg.talentChoices - options.length)];
+  return [...options, ...sample(rng, leftovers, count - options.length)];
 }
 
 /**
@@ -139,6 +176,7 @@ export function classOptions(unit: OwnedUnit, kind: 'advance' | 'ascend', conten
 /** Options for a pending choice, rolling them if it was queued before an earlier class choice was made. */
 export function choiceOptions(unit: OwnedUnit, choice: PendingChoice, content: RunContent, cfg: ProgressionConfig, rng: Rng): string[] | null {
   if (choice.options.length > 0) return choice.options;
+  if (choice.kind === 'borrow') return borrowOptions(unit, choice.level, content, cfg, rng);
   return choice.kind === 'talent' ? talentOptions(unit, choice.level, content, cfg, rng) : classOptions(unit, choice.kind, content);
 }
 
@@ -164,6 +202,10 @@ export function grantXp(
     const kind = unit.level === cfg.advanceLevel ? 'advance' : unit.level === cfg.ascendLevel ? 'ascend' : 'talent';
     const options = kind === 'talent' ? talentOptions(unit, unit.level, content, cfg, rng) : classOptions(unit, kind, content);
     if (options === null || options.length > 0) choices.push({ uid: unit.uid, level: unit.level, kind, options: options ?? [] });
+    if (classFor(content, unit.classId).borrowLevels?.includes(unit.level)) {
+      const borrowed = borrowOptions(unit, unit.level, content, cfg, rng);
+      if (borrowed === null || borrowed.length > 0) choices.push({ uid: unit.uid, level: unit.level, kind: 'borrow', options: borrowed ?? [] });
+    }
   }
   return choices;
 }

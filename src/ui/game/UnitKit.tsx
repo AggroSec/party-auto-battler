@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { UnitSetup } from '../../engine/index.ts';
-import { buildSources, classTiers, explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
+import { borrowedPassives, buildSources, classTiers, explainUnit, STATS, type Board, type Contribution, type OwnedUnit, type RunContext } from '../../engine/run/index.ts';
 import { abilityText } from './abilityText.ts';
 import { StatIcon, StatLine } from './Icon.tsx';
 import { Rules } from './Rules.tsx';
@@ -46,6 +46,7 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
   // Passives from earlier class tiers stay; label them with the class they come from.
   const passives: { name: string; description: string; from?: string }[] = [];
   if (base?.passive) passives.push(adv ? { ...base.passive, from: base.name } : base.passive);
+  for (const p of borrowedPassives(unit, content)) passives.push({ ...p.passive, from: 'Borrowed' });
   if (adv?.passive) passives.push(tert ? { ...adv.passive, from: adv.name } : adv.passive);
   if (tert?.passive) passives.push(tert.passive);
   const boss = unit.bossId ? content.bosses.find((b) => b.id === unit.bossId) : undefined;

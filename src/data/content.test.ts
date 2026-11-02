@@ -24,7 +24,8 @@ describe('run content', () => {
 
 describe('build content integrity', () => {
   it('every class has 4 base talents and 2 advanced classes that point back to it', () => {
-    for (const id of CLASS_IDS) {
+    // The Adventurer borrows its talents from the other classes (see adventurer.test.ts).
+    for (const id of CLASS_IDS.filter((c) => c !== 'adventurer')) {
       const c = CLASSES[id];
       expect(c.talents).toHaveLength(4);
       for (const t of c.talents) expect(TALENTS).toHaveProperty([t]);
@@ -35,7 +36,7 @@ describe('build content integrity', () => {
         expect(ADVANCED_CLASSES[a]?.talents).toHaveLength(a === 'berserker' ? 5 : 4);
       }
     }
-    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(28);
+    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(30);
   });
 
   it('every advanced class has 2 tertiary classes that point back to it, each with 4 talents and one granted ability', () => {
@@ -45,11 +46,12 @@ describe('build content integrity', () => {
         const t = TERTIARY_CLASSES[id]!;
         expect(t.advancedClassId, id).toBe(adv.id);
         expect(t.baseClassId, id).toBe(adv.baseClassId);
+        if (t.baseClassId === 'adventurer') continue;
         expect(t.talents, id).toHaveLength(4);
         expect(t.talents.filter((tid) => TALENTS[tid]?.grantAbility), id).toHaveLength(1);
       }
     }
-    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(56);
+    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(60);
   });
 
   it('class ids are unique across tiers', () => {
@@ -57,15 +59,15 @@ describe('build content integrity', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('every talent belongs to exactly one pool', () => {
+  it('every talent belongs to exactly one pool, besides the Adventurer\'s borrowed ones', () => {
     const pools = [
-      ...CLASS_IDS.map((id) => CLASSES[id].talents),
-      ...Object.values(ADVANCED_CLASSES).map((a) => a.talents),
-      ...Object.values(TERTIARY_CLASSES).map((t) => t.talents),
+      ...CLASS_IDS.filter((id) => id !== 'adventurer').map((id) => CLASSES[id].talents),
+      ...Object.values(ADVANCED_CLASSES).filter((a) => a.baseClassId !== 'adventurer').map((a) => a.talents),
+      ...Object.values(TERTIARY_CLASSES).filter((t) => t.baseClassId !== 'adventurer').map((t) => t.talents),
     ].flat();
     expect(pools).toHaveLength(393);
     expect(new Set(pools).size).toBe(393);
-    expect(Object.keys(TALENTS).sort()).toEqual([...pools].sort());
+    expect(Object.keys(TALENTS).filter((id) => !id.startsWith('borrow/')).sort()).toEqual([...pools].sort());
   });
 
   it('recommended stat spreads are valid and lean toward class identity', () => {

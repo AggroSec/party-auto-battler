@@ -20,6 +20,7 @@ const COLORS: Record<string, string> = {
   runeblade: '#5fd4e8',
   'dark-knight': '#a03a4a',
   cultist: '#a6b83a',
+  adventurer: '#d9a441',
   // Summons take their summoner's colour.
   treant: '#9cc93f',
   imp: '#c0399b',

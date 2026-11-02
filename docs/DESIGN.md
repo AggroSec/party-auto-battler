@@ -18,6 +18,7 @@
 | Juice (icons, sound, animations, credits) | ✅ Milestone 8 |
 | Playtest follow-ups: Cultist, second favored class, dev-only testing tools | ✅ After M8 |
 | Ship (GitHub Pages, README, 1.0) | ✅ Milestone 9 |
+| After 1.0: Adventurer (Jack) | ✅ After M9 |
 
 ## Run structure
 
@@ -155,7 +156,7 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 | Dark Knight 🔒 | Frontline | Melee | 40/6/2/8 | nearest | **Blood Price** (3): pay 8% max HP, 130% ATK + 20% missing HP to the nearest enemy, heal 50% ATK | **Dark Resolve:** when bloodied, +3 DEF and +2 ATK |
 | Cultist 🔒 | Support | Ranged | 30/4/1/9 | nearest | **Siphon** (2): 100% ATK to the nearest enemy and 2 Blight, heal the most wounded ally 100% ATK | **Blight:** basic attacks give 1 Blight; every Blight tick heals the Cultist's most wounded ally for half the damage |
 
-🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request; Runeblade and Dark Knight after M7, and the Cultist after M8, to his design (see below).
+🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request; Runeblade and Dark Knight after M7, the Cultist after M8, and the Adventurer after M9, to his design (see below).
 
 **Tags** (for synergies): Warrior martial + guardian, Rogue martial + shadow, Mage arcane, Cleric divine, Ranger martial + wild, Monk martial + spirit, Bard arcane + spirit, Druid wild + nature, Warlock shadow + occult, Engineer tech, Necromancer arcane + shadow, Runeblade arcane + martial, Dark Knight martial + guardian + shadow. Advanced classes replace their base tags.
 
@@ -483,7 +484,7 @@ The seed comes from the date (`daily-YYYY-MM-DD`). The tier rotates through 2–
 
 ### Signature items
 
-One per tertiary class *(Brandon: unique, pricier, attainable, shown only when the class is in the party)*. Only that class can equip it, a unit holds one at most, and it never enters the random item pool. While a tertiary unit lacks its item, each item/training shop slot has a 30% chance to offer it. Reaching the class is the unlock; the Collection lists each one once discovered.
+One per tertiary class *(Brandon: unique, pricier, attainable, shown only when the class is in the party)*. Only that class can equip it, a unit holds one at most, and it never enters the random item pool. *(Brandon, 2026-11-02)* The shop offers it once, in an extra slot, when a unit reaches the class. A reroll or a fight ends the offer unless it was bought or locked, so it never takes a normal slot. Reaching the class is the unlock; the Collection lists each one once discovered.
 
 | Tertiary class | Signature item | Cost | Effect |
 |---|---|---:|---|
@@ -645,6 +646,24 @@ Evil tank: pays HP for power, drinks it back, and grows deadlier as it bleeds. T
   - **Undeath:** The first time you would fall, rise at 30% HP; every enemy gains 1 Dread.
   - Talents: **Second Grave** (Rise one more time.); **Wrath of the Grave** (After rising, gain +4 ATK and taunt for 1 turn.); **Cold Iron** (+3 DEF, +10 HP.); **Grave Chill** (New ability. Every 4th turn: every enemy loses 1 SPD and gains 1 Dread.)
   - Signature item: **Gravebound Plate** (7g): +10 HP. Rise one more time, at 30% HP.
+
+#### Adventurer (after M9)
+
+Brandon's jack of all trades. The class is the Adventurer and the character is always **Jack**, with **one per party** (the shop stops offering him while you have him; selling him brings him back; enemy parties follow the same rule). Every talent and borrowed ability comes from another class, so he is meant to be swingy: some Jacks roll great, some don't. Offers are plain random, on purpose. Unlocked by **Jack of All Trades** (win a run with 5 different classes in your party). Enemy version: Jack (from round 3).
+
+Tags: wanderer, plus the tags of each class whose ability he borrows. 32/5/1/10, melee. **Odd Job** (3): 130% ATK to the nearest enemy.
+
+- **Talents** follow the usual power curve: level 2 from other classes' base talents, levels 4 to 6 from advanced talents, levels 8 to 10 from tertiary talents. Only unlocked classes count. Talents that name another class's ability ("After Cleave...") are left out.
+- **Borrowed abilities:** at level 3 he picks an advanced class's ability and at level 7 a tertiary class's, cast alongside his own.
+- **Runes:** the moment anything in his build uses Runes, he also gets the Runeblade's **Runic Detonation** (basic attacks carve 1 Rune; 5 Runes detonate for 250% ATK). Without it his Runes would do nothing. Runes are the only class mechanic that needs this.
+
+**Journeyman** (martial, HP+6 ATK+2) borrows from frontline and striker classes. **Hard-Won Lesson** (3): 150% ATK to the nearest enemy, shield yourself for 50% ATK.
+- **Master of None** (HP+4 ATK+1): talents from any class, and a third borrowed ability at level 10. **Bit of Everything** (3): 80% ATK, shield 40% ATK, heal 40% ATK. Signature item: **Bag of Odds and Ends** (7g): +6 HP, +1 ATK, +1 DEF, +1 SPD.
+- **Master of One** (HP+14 ATK+4 DEF+1): the ability borrowed at level 7 decides the one class his later talents come from. **Perfected Strike** (3): 200% ATK. Signature item: **Trusty Old Tool** (7g): +4 ATK, +10% ability power.
+
+**Hedge Wizard** (arcane, HP+4 ATK+1, full strength from the back row) borrows from caster and support classes. **Cantrip** (3): 120% ATK to a random enemy, heal the most wounded ally for 40% ATK.
+- **Polymath** (HP+8 ATK+2): one more talent option on every level-up. **Wild Theory** (3): 100% ATK to 2 random enemies, shield the most wounded ally for 60% ATK. Signature item: **Dog-Eared Notebook** (7g): +1 SPD, +20% ability power.
+- **Savant** (HP+6, +40% ability power). **Grand Thesis** (3): 70% ATK to every enemy. Signature item: **Unfinished Thesis** (7g): +30% ability power.
 
 #### Cultist (after M8)
 

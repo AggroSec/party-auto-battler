@@ -246,7 +246,7 @@ export const synergyBot: Bot = {
     return s;
   },
   choose(state, choice, ctx, rng) {
-    if (choice.kind !== 'talent') {
+    if (choice.kind === 'advance' || choice.kind === 'ascend') {
       const tag = synergyTagOf(state, ctx);
       const tags = (id: string) => (choice.kind === 'advance' ? ctx.content.advancedClasses[id] : ctx.content.tertiaryClasses[id])?.tags;
       const idx = choice.options.findIndex((id) => tags(id)?.includes(tag));

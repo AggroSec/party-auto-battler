@@ -12,6 +12,7 @@ export const ERROR_TEXT: Record<RunError, string> = {
   needsTarget: 'Drag it onto a unit, or select a unit first.',
   itemSlotsFull: 'That unit already has 2 items. Sell or move one first.',
   wrongClass: 'That is for a different class.',
+  uniqueClass: 'You can only have one of those in your party.',
   noSuchItem: 'No such item.',
   pendingChoice: 'Choose your level-up rewards before fighting.',
   noPendingChoice: 'Nothing to choose.',

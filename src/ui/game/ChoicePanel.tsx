@@ -25,7 +25,7 @@ export function StatBonus({ stats }: { stats: Partial<Record<StatKey, number>> |
 }
 
 /** Level-up decision for the first pending choice. */
-const CHOOSE = { talent: 'choose a talent', advance: 'choose an advanced class', ascend: 'choose a tertiary class' } as const;
+const CHOOSE = { talent: 'choose a talent', advance: 'choose an advanced class', ascend: 'choose a tertiary class', borrow: 'choose an ability to borrow' } as const;
 
 export function ChoicePanel({
   choice,
@@ -55,7 +55,7 @@ export function ChoicePanel({
       {levelUp && <LevelUpGains levelUp={levelUp} />}
       <div className="choice-options">
         {choice.options.map((id, i) => {
-          if (choice.kind !== 'talent') {
+          if (choice.kind === 'advance' || choice.kind === 'ascend') {
             const adv = choice.kind === 'advance' ? content.advancedClasses[id] : content.tertiaryClasses[id];
             return (
               <button key={id} type="button" className="choice-card" onClick={() => onChoose(i)}>
@@ -78,9 +78,14 @@ export function ChoicePanel({
             );
           }
           const t = content.talents[id];
+          // A borrowing class shows where each option comes from.
+          const from = unit && content.classes[unit.classId]?.borrowLevels && t?.sourceClassId;
           return (
             <button key={id} type="button" className="choice-card" onClick={() => onChoose(i)}>
-              <strong className="choice-title">{t?.name ?? id}</strong>
+              <strong className="choice-title">
+                {from && <Icon id={classStyle(content, from).icon} />} {t?.name ?? id}
+              </strong>
+              {from && <span className="muted small">From the {className(content, from)}</span>}
               <span>
                 <Rules text={t?.description ?? ''} />
               </span>

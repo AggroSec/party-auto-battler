@@ -1,7 +1,7 @@
 // Resolve a unit's build (class + stat points + advanced class + talents + items +
 // synergies) into the UnitSetup the combat engine consumes.
-import type { AbilityDef, Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
-import type { ClassTemplate, SynergyDef, SynergyTier, UnitFilter, UnitModifier } from './content-types.ts';
+import type { AbilityDef, Effect, Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
+import type { BorrowedPassive, ClassTemplate, SynergyDef, SynergyTier, UnitFilter, UnitModifier } from './content-types.ts';
 import type { Board, OwnedUnit, RunContent } from './types.ts';
 
 export const ZERO_STATS: Stats = { hp: 0, atk: 0, def: 0, spd: 0 };
@@ -27,7 +27,9 @@ export function classTiers(unit: OwnedUnit, content: RunContent) {
 
 export function unitTags(unit: OwnedUnit, content: RunContent): readonly string[] {
   const { adv, tert } = classTiers(unit, content);
-  return tert?.tags ?? adv?.tags ?? classFor(content, unit.classId).tags;
+  const own = tert?.tags ?? adv?.tags ?? classFor(content, unit.classId).tags;
+  const borrowed = unit.talents.flatMap((id) => content.talents[id]?.tags ?? []);
+  return borrowed.length > 0 ? [...new Set([...own, ...borrowed])] : own;
 }
 
 /** A modifier and where it came from, for explaining a build in the UI. */
@@ -61,6 +63,28 @@ export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSour
     }
   }
   return sources;
+}
+
+function effectUsesStatus(effect: Effect, statusId: string): boolean {
+  if (effect.kind === 'status') return effect.status.id === statusId;
+  if (effect.kind !== 'summon') return false;
+  const nested = [...(effect.fallback ?? []), ...(effect.summon.ability?.effects ?? []), ...(effect.summon.triggers ?? []).flatMap((t) => t.effects)];
+  return nested.some((e) => effectUsesStatus(e, statusId));
+}
+
+function modifierUsesStatus(m: UnitModifier, statusId: string): boolean {
+  return (
+    (m.triggers ?? []).some((t) => t.status === statusId || t.effects.some((e) => effectUsesStatus(e, statusId))) ||
+    (m.grantAbility?.effects ?? []).some((e) => effectUsesStatus(e, statusId))
+  );
+}
+
+/** Other classes' passives this unit has picked up, because something in its build uses their status. */
+export function borrowedPassives(unit: OwnedUnit, content: RunContent): readonly BorrowedPassive[] {
+  const all = classFor(content, unit.classId).borrowedPassives;
+  if (!all) return [];
+  const mods = buildModifiers(unit, content);
+  return all.filter((p) => mods.some((m) => modifierUsesStatus(m, p.statusId)));
 }
 
 /** Modifiers from the unit's own build: advanced class, talents and items. */
@@ -175,7 +199,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
 
   const stat = (k: keyof Stats) =>
     Math.max(k === 'hp' || k === 'spd' ? 1 : 0, base.baseStats[k] + unit.growth[k] + mods.reduce((s, m) => s + (m.stats?.[k] ?? 0), 0));
-  const triggers: TriggeredEffect[] = [...base.triggers, ...mods.flatMap((m) => m.triggers ?? [])];
+  const borrowed = borrowedPassives(unit, content).flatMap((p) => p.triggers);
+  const triggers: TriggeredEffect[] = [...base.triggers, ...borrowed, ...mods.flatMap((m) => m.triggers ?? [])];
   const ability = tert?.ability ?? adv?.ability ?? base.ability;
   const granted = mods.flatMap((m) => (m.grantAbility ? [m.grantAbility] : []));
   const cdDelta = mods.reduce((s, m) => s + (m.abilityCooldown ?? 0), 0);

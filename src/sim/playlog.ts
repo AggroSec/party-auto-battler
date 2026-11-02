@@ -83,14 +83,14 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       const p = state.pending[0];
       const pick = p?.options[action.option];
       const unit = boardUnits(state.board).find((u) => u.uid === p?.uid)?.name ?? '?';
-      const label = p?.kind === 'talent' ? (ctx.content.talents[pick ?? '']?.name ?? pick) : nameOf(ctx, pick ?? '');
+      const label = p?.kind === 'talent' || p?.kind === 'borrow' ? (ctx.content.talents[pick ?? '']?.name ?? pick) : nameOf(ctx, pick ?? '');
       return `${unit} took ${label}`;
     }
   }
 }
 
 /** Content added in M7 (and the post-M7 classes); logs from before it never had these in the shop. */
-const M7_CLASSES = ['necromancer', 'runeblade', 'dark-knight', 'cultist'];
+const M7_CLASSES = ['necromancer', 'runeblade', 'dark-knight', 'cultist', 'adventurer'];
 const M7_ITEMS = ['phoenix-feather', 'war-banner', 'gamblers-coin', 'executioners-axe', 'mirror-shard', 'soulstone'];
 const M7_SYNERGIES = ['holy-trinity', 'light', 'dark', 'twilight', 'life-and-death', 'mad-science', 'wild-hunt', 'battle-hymn', 'rivals', 'sacred-and-profane'];
 

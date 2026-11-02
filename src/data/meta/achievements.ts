@@ -17,6 +17,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'spellsword', name: 'Spellsword', description: 'Win a fight with a Warrior and a Mage, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['warrior', 'mage'], minLevel: 5 }, reward: { classes: ['runeblade'] } },
   { id: 'last-one-standing', name: 'Last One Standing', description: 'Win a fight with only one of your units still standing.', condition: { kind: 'lastStanding', survivors: 1 }, reward: { classes: ['dark-knight'], synergies: ['rivals'] } },
   { id: 'unholy-communion', name: 'Unholy Communion', description: 'Win a fight with a Cleric and a Warlock, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['cleric', 'warlock'], minLevel: 5 }, reward: { classes: ['cultist'], synergies: ['sacred-and-profane'] } },
+  { id: 'jack-of-all-trades', name: 'Jack of All Trades', description: 'Win a run with 5 different classes in your party.', condition: { kind: 'completeRun', distinctClasses: 5 }, reward: { classes: ['adventurer'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 
   // Items.
