@@ -2,6 +2,13 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-02 — One-time signature item offers
+
+Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0). Signature items no longer take item/training slots, so those slots offer training at the full 35%.
+
+- **Bots:** completion random 3.5%, sensible 19.9%, greedy 27.9%, synergy 10.7%. No stuck runs or tick-cap fights.
+- No tuning: the changes are within what a rule like this should move.
+
 ## 2026-10-31 — Adventurer
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0). No tuning passes: Brandon wants Jack swingy.

@@ -24,6 +24,7 @@ export function rewardText(reward: Unlocks, game: Game): string {
     ...(reward.perks ?? []).map((id) => `${content.perks[id]?.name ?? id} (perk)`),
   ];
   if (reward.perkSlots) parts.push(`keep ${reward.perkSlots} more starting perk`);
+  if (reward.favoredSlots) parts.push(`favor ${reward.favoredSlots} more class`);
   return parts.length > 0 ? parts.join(', ') : 'Bragging rights';
 }
 
@@ -116,7 +117,7 @@ export function CollectionScreen({ game }: { game: Game }) {
             })}
           </ul>
           <h2>Signature items</h2>
-          <p className="muted small">Each tertiary class has one. It shows up in the shop while that class is in your party; only that class can equip it.</p>
+          <p className="muted small">Each tertiary class has one. The shop offers it once, when a unit reaches that class; only that class can equip it. Buy or lock it before you reroll or fight, or it&apos;s gone.</p>
           <ul className="collection-list">
             {signatures
               .filter((item) => profile.discovered.includes(item.tertiaryClassId!))

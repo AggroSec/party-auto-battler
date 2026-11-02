@@ -170,7 +170,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'signature',
     term: 'Signature item',
-    text: 'Each tertiary class has one. It shows up in the shop while that class is in your party, only that class can equip it, and a unit holds one at most.',
+    text: 'Each tertiary class has one. The shop offers it once, when a unit reaches that class: buy or lock it before you reroll or fight, or it\'s gone. Only that class can equip it, and a unit holds one at most.',
     pattern: /\bsignature items?\b/i,
   },
   {

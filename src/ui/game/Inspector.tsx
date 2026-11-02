@@ -148,7 +148,7 @@ export function Inspector({
       </ul>
       {signature && !unit.items.includes(signature.id) && (
         <p className="signature-hint muted small">
-          <Icon id="signature" /> Signature item: <strong>{signature.name}</strong> ({signature.cost}g) can show up in the shop while {tert?.name} is in your party.{' '}
+          <Icon id="signature" /> Signature item: <strong>{signature.name}</strong> ({signature.cost}g) is offered once, when a unit reaches {tert?.name}.{' '}
           <Rules text={signature.description} />
         </p>
       )}

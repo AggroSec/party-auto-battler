@@ -484,7 +484,7 @@ The seed comes from the date (`daily-YYYY-MM-DD`). The tier rotates through 2–
 
 ### Signature items
 
-One per tertiary class *(Brandon: unique, pricier, attainable, shown only when the class is in the party)*. Only that class can equip it, a unit holds one at most, and it never enters the random item pool. While a tertiary unit lacks its item, each item/training shop slot has a 30% chance to offer it. Reaching the class is the unlock; the Collection lists each one once discovered.
+One per tertiary class *(Brandon: unique, pricier, attainable, shown only when the class is in the party)*. Only that class can equip it, a unit holds one at most, and it never enters the random item pool. *(Brandon, 2026-11-02)* The shop offers it once, in an extra slot, when a unit reaches the class. A reroll or a fight ends the offer unless it was bought or locked, so it never takes a normal slot. Reaching the class is the unlock; the Collection lists each one once discovered.
 
 | Tertiary class | Signature item | Cost | Effect |
 |---|---|---:|---|

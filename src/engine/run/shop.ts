@@ -4,23 +4,21 @@ import { unitCount } from './board.ts';
 import { boardUnits } from './build.ts';
 import { isMaxLevel } from './progression.ts';
 import { recruitCost } from './setup.ts';
-import type { Board, OwnedUnit, RunContext, RunSetup, ShopOffer } from './types.ts';
-
-/** Chance an extra slot offers a tertiary class's signature item while one is missing it (M7). */
-export const TERTIARY_ITEM_CHANCE = 0.3;
+import type { Board, RunContext, RunSetup, ShopOffer } from './types.ts';
 
 /** The signature item of a tertiary class, if it has one. */
 export function tertiaryItemFor(tertiaryClassId: string, ctx: RunContext): string | undefined {
   return Object.values(ctx.content.items).find((i) => i.tertiaryClassId === tertiaryClassId)?.id;
 }
 
-/** Signature items the party could use: one per tertiary unit that doesn't hold its own yet. */
-export function wantedTertiaryItems(board: Board, ctx: RunContext): string[] {
-  const ids = boardUnits(board).flatMap((u: OwnedUnit) => {
-    const item = u.tertiaryClassId ? tertiaryItemFor(u.tertiaryClassId, ctx) : undefined;
-    return item && !u.items.includes(item) ? [item] : [];
-  });
-  return [...new Set(ids)];
+/**
+ * The one-time offer a unit gets on reaching a tertiary class. It takes its own
+ * slot on the end of the shop and never rolls again, so a reroll or a fight
+ * ends it unless it's bought or locked.
+ */
+export function signatureOffer(tertiaryClassId: string, ctx: RunContext): ShopOffer | null {
+  const itemId = tertiaryItemFor(tertiaryClassId, ctx);
+  return itemId ? { kind: 'item', itemId, cost: ctx.content.items[itemId]?.cost ?? ctx.config.unitCost } : null;
 }
 
 /** One-per-party classes this board already has. */
@@ -46,11 +44,6 @@ export function rollUnitOffer(rng: Rng, ctx: RunContext, taken: ReadonlySet<stri
  * you reroll to chase the class you want), otherwise an item.
  */
 export function rollExtraOffer(rng: Rng, ctx: RunContext, board: Board, round = 1): ShopOffer {
-  const signature = wantedTertiaryItems(board, ctx);
-  if (signature.length > 0 && rng.chance(TERTIARY_ITEM_CHANCE)) {
-    const itemId = rng.pick(signature);
-    return { kind: 'item', itemId, cost: ctx.content.items[itemId]?.cost ?? ctx.config.unitCost };
-  }
   // Only classes with a unit below the level cap: training a maxed class would be wasted.
   const owned = [...new Set(boardUnits(board).filter((u) => !isMaxLevel(u, ctx.config.progression)).map((u) => u.classId))];
   const { trainingChance } = ctx.config.shop;

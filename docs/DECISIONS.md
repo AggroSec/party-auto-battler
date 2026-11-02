@@ -2,6 +2,13 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-02 — One-time signature item offers
+
+Brandon's rule: a signature item shows once when a unit reaches its tertiary class, and a reroll or a fight ends the offer unless it was bought or locked. Decided autonomously:
+- **The offer takes an extra slot on the end of the shop,** so it never pushes out a recruit, item or training offer already on screen.
+- **Each unit that reaches the class gets its own offer,** so a second Paladin still sees Dawnbringer.
+- **No saved-run migration.** A run saved under the old rule keeps any signature offers on screen until the next reroll, and a unit that had already reached its class won't get a new offer.
+
 ## 2026-10-31 — Adventurer (Jack)
 
 Brandon's design: one per party, always named Jack, talents and abilities from other classes, deliberately swingy, with the Runeblade passive when his build uses Runes. Decided autonomously:

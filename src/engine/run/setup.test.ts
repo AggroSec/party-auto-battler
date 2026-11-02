@@ -6,7 +6,7 @@ import { generateEnemy } from './enemies.ts';
 import { applyShopAction, createRun, fight, rerollCost } from './run.ts';
 import { defaultSetup, mergeRunModifiers, recruitCost, runContext } from './setup.ts';
 import { makeCtx } from './test-fixtures.ts';
-import type { RunContext, RunSetup, RunState, ShopAction } from './types.ts';
+import type { RunContext, RunSetup, RunState, ShopAction, ShopOffer } from './types.ts';
 
 const LADDER: LadderTier[] = [
   { tier: 1, description: 'stronger', modifier: { enemyStats: 0.5 } },
@@ -146,7 +146,7 @@ describe('items with run effects', () => {
     expect(r.income).toMatchObject({ items: 1 });
   });
 
-  it('signature items: only their tertiary class can hold one, one per unit, offered while wanted', () => {
+  it('signature items: only their tertiary class can hold one, one per unit', () => {
     const ctx = makeCtx({ config: { shop: { unitSlots: 0, extraSlots: 30, trainingChance: 0, fullPartyUnitSlots: 0 } }, content: { items: { ...makeCtx().content.items, halo: SIGNATURE } } });
     const s = createRun('s', ctx);
     s.board.front[0] = { ...newUnit(1, 'tank', 'Templar'), advancedClassId: 'paladin', tertiaryClassId: 'templar' };
@@ -156,11 +156,55 @@ describe('items with run effects', () => {
     expect(applyShopAction(s, { type: 'buy', offer: 0, to: { row: 'front', col: 1 } }, ctx)).toEqual({ ok: false, error: 'wrongClass' });
     const bought = act(s, { type: 'buy', offer: 0, to: { row: 'front', col: 0 } }, ctx);
     expect(applyShopAction(bought, { type: 'buy', offer: 1, to: { row: 'front', col: 0 } }, ctx)).toEqual({ ok: false, error: 'alreadyEquipped' });
-    // The shop offers it only while a templar lacks it.
-    const rolled = act({ ...s, gold: 20 }, { type: 'reroll' }, ctx);
-    expect(rolled.shop.some((o) => o?.kind === 'item' && o.itemId === 'halo')).toBe(true);
-    const after = act({ ...bought, gold: 20 }, { type: 'reroll' }, ctx);
-    expect(after.shop.some((o) => o?.kind === 'item' && o.itemId === 'halo')).toBe(false);
+  });
+
+  describe('signature item offer', () => {
+    const ctx = makeCtx({ config: { startingGold: 50, shop: { unitSlots: 0, extraSlots: 8, trainingChance: 0, fullPartyUnitSlots: 0 } }, content: { items: { ...makeCtx().content.items, halo: SIGNATURE } } });
+    const isHalo = (o: ShopOffer | null) => o?.kind === 'item' && o.itemId === 'halo';
+    /** A shop right after a unit ascends into the templar. */
+    const ascended = () => {
+      const s = createRun('s', ctx);
+      s.board.front[0] = { ...newUnit(1, 'tank', 'Templar'), advancedClassId: 'paladin' };
+      s.pending = [{ uid: 1, level: 7, kind: 'ascend', options: ['templar'] }];
+      return s;
+    };
+
+    it('appears once in its own slot when a unit reaches the class', () => {
+      const s = ascended();
+      const next = act(s, { type: 'choose', option: 0 }, ctx);
+      expect(next.shop).toHaveLength(s.shop.length + 1);
+      expect(next.shop.filter(isHalo)).toHaveLength(1);
+      expect(next.shop.slice(0, s.shop.length)).toEqual(s.shop);
+    });
+
+    it('is gone after a reroll or a fight if neither bought nor locked', () => {
+      const s = act(ascended(), { type: 'choose', option: 0 }, ctx);
+      expect(act(s, { type: 'reroll' }, ctx).shop.some(isHalo)).toBe(false);
+      const fought = fight(s, ctx);
+      if (!fought.ok) throw new Error(fought.error);
+      expect(fought.state.shop.some(isHalo)).toBe(false);
+    });
+
+    it('never rolls on its own, even for a unit that still lacks it', () => {
+      let s = createRun('s', ctx);
+      s.board.front[0] = { ...newUnit(1, 'tank', 'Templar'), advancedClassId: 'paladin', tertiaryClassId: 'templar' };
+      for (let i = 0; i < 20; i++) {
+        s = act({ ...s, gold: 50 }, { type: 'reroll' }, ctx);
+        expect(s.shop.some(isHalo)).toBe(false);
+      }
+    });
+
+    it('stays through rerolls and fights once locked, and can still be bought', () => {
+      const s = act(ascended(), { type: 'choose', option: 0 }, ctx);
+      const locked = act(s, { type: 'lock', offer: s.shop.findIndex(isHalo) }, ctx);
+      const rerolled = act({ ...locked, gold: 50 }, { type: 'reroll' }, ctx);
+      expect(rerolled.shop.filter(isHalo)).toHaveLength(1);
+      const fought = fight(rerolled, ctx);
+      if (!fought.ok) throw new Error(fought.error);
+      expect(fought.state.shop.filter(isHalo)).toHaveLength(1);
+      const bought = act({ ...fought.state, gold: 50, pending: [] }, { type: 'buy', offer: fought.state.shop.findIndex(isHalo), to: { row: 'front', col: 0 } }, ctx);
+      expect(bought.board.front[0]?.items).toContain('halo');
+    });
   });
 });
 

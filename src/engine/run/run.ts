@@ -6,7 +6,7 @@ import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
-import { ensureFavored, rollFreeItem, rollShop } from './shop.ts';
+import { ensureFavored, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
 import type {
   ActionResult,
   FightResult,
@@ -231,6 +231,10 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const unit = findUnit(next, choice.uid);
       if (!unit || !applyChoice(unit, choice, action.option)) return fail('invalidChoice');
       next.pending.shift();
+      if (choice.kind === 'ascend') {
+        const offer = signatureOffer(unit.tertiaryClassId!, ctx);
+        if (offer) next.shop.push(offer);
+      }
       if (choice.kind === 'talent') {
         // Never offer a talent twice: later choices swap out what was just taken.
         const taken = choice.options[action.option]!;
