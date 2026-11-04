@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { RunContext, RunState } from '../../engine/run/index.ts';
+import { lifeCost, type RunContext, type RunState } from '../../engine/run/index.ts';
 import { SoundToggle } from '../audio/SoundToggle.tsx';
 import { Glossary } from './Rules.tsx';
 
@@ -43,6 +43,11 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
           <span style={{ width: `${(run.wins / winsToComplete) * 100}%` }} />
         </span>
       </span>
+      {ctx.run?.bossRounds?.includes(run.round) && (
+        <span className="hud-boss" title="A boss replaces one enemy this round.">
+          👑 Boss fight{lifeCost(run.round, ctx) > 1 ? `: losing costs ${lifeCost(run.round, ctx)} lives` : ''}
+        </span>
+      )}
       {(run.winStreak > 1 || run.lossStreak > 1) && (
         <span className="hud-streak">{run.winStreak > 1 ? `🔥 ${run.winStreak} win streak` : `${run.lossStreak} loss streak`}</span>
       )}

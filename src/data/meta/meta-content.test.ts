@@ -51,10 +51,14 @@ describe('meta content', () => {
     expect(start.maxTier).toBe(0);
   });
 
-  it('the ladder runs tiers 1–10 in order; perks and bosses are well formed', () => {
-    expect(LADDER.map((l) => l.tier)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  it('the ladder runs tiers 1–15 in order; perks and bosses are well formed', () => {
+    expect(LADDER.map((l) => l.tier)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
     expect(PERK_IDS).toHaveLength(14);
-    for (const b of BOSSES) expect(CLASSES).toHaveProperty(b.classId);
+    const { classes } = buildRunContext().content;
+    for (const b of BOSSES) expect(classes).toHaveProperty(b.classId);
+    // Unique bosses cover every boss round (5, 10 and 15) and never reach the shop.
+    for (const round of [5, 10, 15]) expect(BOSSES.some((b) => b.unique && b.minRound <= round)).toBe(true);
+    for (const b of BOSSES.filter((x) => x.unique)) expect(CLASSES).not.toHaveProperty(b.classId);
   });
 
   it('a starter run and a tier-10 run with everything both play', () => {

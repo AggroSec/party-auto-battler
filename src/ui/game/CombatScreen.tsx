@@ -120,7 +120,8 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
             {' '}
             · 💰 +{fight.income.total}g (base {fight.income.base}
             {fight.income.interest ? `, interest ${fight.income.interest}` : ''}
-            {fight.income.streak ? `, streak ${fight.income.streak}` : ''})
+            {fight.income.streak ? `, streak ${fight.income.streak}` : ''}
+            {fight.income.items ? `, per-win bonus ${fight.income.items}` : ''})
           </span>
         )}
       </p>

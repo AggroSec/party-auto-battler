@@ -4,6 +4,7 @@ import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, unitCount } f
 import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from './build.ts';
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
+import { equipError } from './items.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
 import { ensureFavored, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
@@ -63,15 +64,6 @@ export function rerollCost(state: RunState, baseCtx: RunContext): number {
   return ctx.run?.freeReroll && !state.freeRerollUsed ? 0 : ctx.config.rerollCost;
 }
 
-/** Why `unit` can't hold `itemId` (signature items belong to one tertiary class, one per unit), or null. */
-export function equipError(unit: OwnedUnit, itemId: string, ctx: RunContext): RunError | null {
-  const item = ctx.content.items[itemId];
-  if (!item?.tertiaryClassId) return null;
-  if (unit.tertiaryClassId !== item.tertiaryClassId) return 'wrongClass';
-  if (unit.items.includes(itemId)) return 'alreadyEquipped';
-  return null;
-}
-
 const fail = (error: RunError): { ok: false; error: RunError } => ({ ok: false, error });
 
 /** Lay a freshly rolled shop over the old one, keeping locked offers in their slots. */
@@ -105,6 +97,11 @@ function findUnit(state: RunState, uid: number): OwnedUnit | undefined {
 function addXp(state: RunState, unit: OwnedUnit, amount: number, ctx: RunContext): void {
   const choices = withRng(state, (rng) => grantXp(unit, amount, ctx.content, ctx.config.progression, rng));
   state.pending.push(...choices);
+}
+
+/** Lives a lost fight in this round costs: boss rounds can cost more on high ladder tiers. */
+export function lifeCost(round: number, ctx: RunContext): number {
+  return ctx.run?.bossRounds?.includes(round) ? (ctx.run.bossLossLives ?? 1) : 1;
 }
 
 /** Apply a shop-phase action. Never mutates `state`. */
@@ -142,7 +139,6 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
         if (offer.kind === 'item') {
           const err = equipError(unit, offer.itemId, ctx);
           if (err) return fail(err);
-          if (unit.items.length >= progression.maxItemsPerUnit) return fail('itemSlotsFull');
           unit.items.push(offer.itemId);
         } else {
           if (unit.classId !== offer.classId) return fail('wrongClass');
@@ -186,7 +182,6 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       if (from === to) return { ok: true, state: next };
       const err = equipError(to, itemId, ctx);
       if (err) return fail(err);
-      if (to.items.length >= progression.maxItemsPerUnit) return fail('itemSlotsFull');
       from.items.splice(action.item, 1);
       to.items.push(itemId);
       return { ok: true, state: next };
@@ -310,9 +305,9 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     xp = progression.xpPerWin;
   } else if (combat.winner === 'enemy') {
     next.losses += 1;
-    // Second Wind perk: the first loss costs no life.
+    // Second Wind perk: the first loss costs no life. Past tier 10 a lost boss fight costs more.
     if (ctx.run?.secondWind && !next.secondWindUsed) next.secondWindUsed = true;
-    else next.lives -= 1;
+    else next.lives = Math.max(0, next.lives - lifeCost(state.round, ctx));
     next.lossStreak += 1;
     next.winStreak = 0;
     xp = progression.xpPerLoss;
@@ -331,10 +326,9 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     next.phase = 'defeated';
   } else {
     for (const unit of boardUnits(next.board)) addXp(next, unit, xp, ctx);
-    const itemGold =
-      combat.winner === 'player'
-        ? boardUnits(next.board).reduce((sum, u) => sum + u.items.reduce((s, id) => s + (ctx.content.items[id]?.goldPerWin ?? 0), 0), 0)
-        : 0;
+    // Gold per win from items (Gambler's Coin) and classes (Mercenary's Hazard Pay).
+    const unitGold = (u: OwnedUnit) => (classFor(ctx.content, u.classId).goldPerWin ?? 0) + u.items.reduce((s, id) => s + (ctx.content.items[id]?.goldPerWin ?? 0), 0);
+    const itemGold = combat.winner === 'player' ? boardUnits(next.board).reduce((sum, u) => sum + unitGold(u), 0) : 0;
     income = roundIncome(next.gold, next.winStreak, next.lossStreak, ctx.config, itemGold);
     next.gold += income.total;
     next.round += 1;

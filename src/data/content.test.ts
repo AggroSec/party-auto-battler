@@ -36,7 +36,7 @@ describe('build content integrity', () => {
         expect(ADVANCED_CLASSES[a]?.talents).toHaveLength(a === 'berserker' ? 5 : 4);
       }
     }
-    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(30);
+    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(32);
   });
 
   it('every advanced class has 2 tertiary classes that point back to it, each with 4 talents and one granted ability', () => {
@@ -51,7 +51,7 @@ describe('build content integrity', () => {
         expect(t.talents.filter((tid) => TALENTS[tid]?.grantAbility), id).toHaveLength(1);
       }
     }
-    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(60);
+    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(64);
   });
 
   it('class ids are unique across tiers', () => {
@@ -65,8 +65,8 @@ describe('build content integrity', () => {
       ...Object.values(ADVANCED_CLASSES).filter((a) => a.baseClassId !== 'adventurer').map((a) => a.talents),
       ...Object.values(TERTIARY_CLASSES).filter((t) => t.baseClassId !== 'adventurer').map((t) => t.talents),
     ].flat();
-    expect(pools).toHaveLength(393);
-    expect(new Set(pools).size).toBe(393);
+    expect(pools).toHaveLength(421);
+    expect(new Set(pools).size).toBe(421);
     expect(Object.keys(TALENTS).filter((id) => !id.startsWith('borrow/')).sort()).toEqual([...pools].sort());
   });
 
@@ -100,12 +100,13 @@ describe('build content integrity', () => {
 
   it('every class passive has rules text named after its trigger', () => {
     for (const c of Object.values(CLASSES)) {
-      expect(Boolean(c.passive), c.id).toBe(c.triggers.length > 0);
-      if (c.passive) expect(c.triggers.map((t) => t.label), c.id).toContain(c.passive.name);
+      // Hazard Pay (gold per win) is a passive with no trigger.
+      expect(Boolean(c.passive), c.id).toBe(c.triggers.length > 0 || Boolean(c.goldPerWin));
+      if (c.passive && c.triggers.length > 0) expect(c.triggers.map((t) => t.label), c.id).toContain(c.passive.name);
     }
     for (const adv of [...Object.values(ADVANCED_CLASSES), ...Object.values(TERTIARY_CLASSES)]) {
       const m = adv.modifier;
-      expect(Boolean(adv.passive), adv.id).toBe(Boolean(m.triggers?.length || m.reach || m.lifesteal || m.abilityPower || m.abilityCooldown));
+      expect(Boolean(adv.passive), adv.id).toBe(Boolean(m.triggers?.length || m.reach || m.lifesteal || m.abilityPower || m.abilityCooldown || m.critChance || adv.items));
       if (adv.passive && m.triggers?.length) expect(m.triggers.map((t) => t.label), adv.id).toContain(adv.passive.name);
     }
   });

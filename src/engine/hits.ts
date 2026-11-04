@@ -9,6 +9,9 @@ import { cannotDie } from './statuses.ts';
 /** Damage multiplier for melee units attacking from the back row while their front row stands. */
 export const BACKLINE_MELEE_MULTIPLIER = 0.5;
 
+/** Damage multiplier of a critical hit. */
+export const CRIT_MULTIPLIER = 2;
+
 /** HP fraction below which a unit becomes bloodied (fires onBloodied once). */
 export const BLOODIED_THRESHOLD = 0.5;
 
@@ -58,13 +61,19 @@ export function dealDamage(
   if (!target.alive) return;
   let scaled = source && !opts.dot && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
   if (!opts.dot && source?.setup.executeBonus && target.hp < target.maxHp * BLOODIED_THRESHOLD) scaled *= 1 + source.setup.executeBonus;
+  // Only units with a crit chance roll, so everyone else's fights use the RNG exactly as before.
+  const crit = !opts.dot && !opts.true && !!source?.setup.critChance && state.rng.chance(source.setup.critChance);
+  if (crit) scaled *= CRIT_MULTIPLIER;
   const damage = mitigate(scaled, target.def, opts.pierce === true || opts.true === true);
   const { toShield, toHp } = opts.true ? { toShield: 0, toHp: damage } : absorb(damage, target.shield);
   // Undying Rage and the like: the unit holds at 1 HP.
   const hpLost = Math.max(0, Math.min(target.hp - (cannotDie(target) ? 1 : 0), toHp));
   target.shield -= toShield;
   target.hp -= hpLost;
-  if (source) source.stats.damageDealt += hpLost + toShield;
+  if (source) {
+    source.stats.damageDealt += hpLost + toShield;
+    source.lastHit = hpLost + toShield;
+  }
   target.stats.damageTaken += hpLost + toShield;
   emit(state, {
     tick: state.tick,
@@ -74,6 +83,7 @@ export function dealDamage(
     value: hpLost,
     absorbed: toShield,
     hpAfter: target.hp,
+    ...(crit ? { crit: true as const } : {}),
   });
 
   if (source?.alive && source.setup.lifesteal && hpLost + toShield > 0) {

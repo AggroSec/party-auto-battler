@@ -18,6 +18,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'last-one-standing', name: 'Last One Standing', description: 'Win a fight with only one of your units still standing.', condition: { kind: 'lastStanding', survivors: 1 }, reward: { classes: ['dark-knight'], synergies: ['rivals'] } },
   { id: 'unholy-communion', name: 'Unholy Communion', description: 'Win a fight with a Cleric and a Warlock, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['cleric', 'warlock'], minLevel: 5 }, reward: { classes: ['cultist'], synergies: ['sacred-and-profane'] } },
   { id: 'jack-of-all-trades', name: 'Jack of All Trades', description: 'Win a run with 5 different classes in your party.', condition: { kind: 'completeRun', distinctClasses: 5 }, reward: { classes: ['adventurer'] } },
+  { id: 'arms-race', name: 'Arms Race', description: 'Go into a fight with 4 weapons equipped across your party.', condition: { kind: 'weaponsEquipped', count: 4 }, reward: { classes: ['mercenary'], items: ['war-hammer', 'throwing-axes', 'halberd'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 
   // Items.
@@ -54,4 +55,5 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'high-climber', name: 'High Climber', description: 'Win a run on tier 5 or higher.', condition: { kind: 'completeRun', minTier: 5 }, reward: { perks: ['investor'] } },
   { id: 'perkception-2', name: 'Perkception II', description: 'Win a run on tier 7 or higher.', condition: { kind: 'completeRun', minTier: 7 }, reward: { perkSlots: 1 } },
   { id: 'legend', name: 'Legend', description: 'Win a run on tier 10.', condition: { kind: 'completeRun', minTier: 10 }, reward: {} },
+  { id: 'mythic', name: 'Mythic', description: 'Win a run on tier 15.', condition: { kind: 'completeRun', minTier: 15 }, reward: {} },
 ];

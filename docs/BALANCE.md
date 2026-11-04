@@ -2,7 +2,40 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
-## 2026-11-02 — One-time signature item offers
+## 2026-11-03 — Milestone 10: Mercenary and ladder tiers 11–15
+
+Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0), after one Brute and one Man-at-Arms buff.
+
+- **Bots:** completion random 4.0%, sensible 18.3%, greedy 27.7%, synergy 10.1%. No stuck runs or tick-cap fights.
+- **Lift vs round average:** Mercenary −4.1 (between the Adventurer and the Engineer). Man-at-Arms −2.8, Brute −8.9. The previous run had Brute −2.1 and Man-at-Arms −9.9: the bots pick whichever looks stronger, so the two trade places, and I stopped after one buff each. Tertiaries on small samples: Maimer +0.5, Oathsworn −1.3, Walking Armory −2.7, Headsman −10.2. Bots don't chase weapons, so the Man-at-Arms line is likely stronger for players.
+- **New weapons:** Halberd +2.3, War Hammer −0.8, Throwing Axes −1.0.
+- **Random 5v5:** Mercenary 42.6% (no outlier); 1v1 overall 57.8%.
+
+### Ladder (`npm run sim -- --only ladder --runs 400`)
+
+| Tier | sensible completion | sensible avg wins | greedy completion | greedy avg wins |
+|---|---|---|---|---|
+| 10 | 0.3% | 3.5 | 0.0% | 3.9 |
+| 11 | 0.0% | 3.3 | 0.0% | 3.7 |
+| 12 | 0.0% | 1.9 | 0.0% | 2.2 |
+| 13 | 0.0% | 2.0 | 0.0% | 2.2 |
+| 14 | 0.0% | 2.0 | 0.0% | 2.2 |
+| 15 | 0.0% | 1.5 | 0.0% | 1.6 |
+
+The bots already stall on tier 8+, while Brandon wins tier 10 with lives to spare, so these tiers are tuned for him rather than for the bots. Tier 12's extra level is the biggest step.
+
+### Unique bosses vs class bosses
+
+Party-vs-party: 300 enemy parties per round with a boss, against a regular party three rounds ahead. Share of fights the boss's side wins, after tuning (×3.4 HP, ×2.3 ATK):
+
+| Round | Tier 12 (class bosses) | Tier 13 (unique bosses) |
+|---:|---:|---:|
+| 5 | 82% | 81% (Mordrake 85%, Pale Choir 78%) |
+| 10 | 90% | 90% (Gristle) |
+| 15 | 73% | 75% (Vharoth) |
+
+At the class bosses' ×1.5 HP / ×1.1 ATK, the unique bosses' side won only 41–61%.
+
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0). Signature items no longer take item/training slots, so those slots offer training at the full 35%.
 

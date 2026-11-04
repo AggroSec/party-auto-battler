@@ -42,7 +42,7 @@ export function targetsFor(s: RunState, i: number, ctx: RunContext): SlotRef[] {
   if (offer.kind === 'unit') return emptySlots(s);
   return filledSlots(s).filter((slot) => {
     const u = getSlot(s.board, slot)!;
-    if (offer.kind === 'item') return u.items.length < ctx.config.progression.maxItemsPerUnit && equipError(u, offer.itemId, ctx) === null;
+    if (offer.kind === 'item') return equipError(u, offer.itemId, ctx) === null;
     return u.classId === offer.classId;
   });
 }

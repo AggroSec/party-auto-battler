@@ -2,6 +2,7 @@
 // return the updated profile and any newly earned achievements.
 import type { CombatResult } from '../events.ts';
 import { activeSynergies, boardUnits, matchesFilter } from '../run/build.ts';
+import { weaponCount } from '../run/items.ts';
 import { runContext } from '../run/setup.ts';
 import { favoredClasses } from '../run/shop.ts';
 import type { RunContext, RunState } from '../run/types.ts';
@@ -81,6 +82,8 @@ function fightMet(cond: AchievementCondition, info: FightInfo, ctx: RunContext):
       return (before.lockedBought ?? 0) >= cond.count;
     case 'fullyEquipped':
       return units.length >= 5 && units.every((u) => u.items.length >= ctx.config.progression.maxItemsPerUnit);
+    case 'weaponsEquipped':
+      return units.reduce((n, u) => n + weaponCount(u, ctx.content), 0) >= cond.count;
     default:
       return false;
   }

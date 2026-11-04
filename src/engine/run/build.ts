@@ -54,10 +54,13 @@ export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSour
     const t = content.talents[id];
     if (t) sources.push({ kind: 'talent', name: t.name, modifier: t });
   }
+  // Oathsworn: the first weapon is the sworn weapon and counts twice.
+  const sworn = (tert?.items ?? adv?.items)?.doubleFirstWeapon ? unit.items.find((id) => content.items[id]?.weapon) : undefined;
   for (const id of unit.items) {
     const item = content.items[id];
     if (!item) continue;
     sources.push({ kind: 'item', name: item.name, modifier: item.modifier });
+    if (id === sworn) sources.push({ kind: 'item', name: `${item.name} (sworn weapon)`, modifier: item.modifier });
     if (item.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId)) {
       sources.push({ kind: 'classBonus', name: item.name, modifier: item.classBonus.modifier });
     }
@@ -208,6 +211,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   const abilityPower = 1 + mods.reduce((s, m) => s + (m.abilityPower ?? 0), 0);
   const executeBonus = mods.reduce((s, m) => s + (m.executeBonus ?? 0), 0);
   const revives = mods.flatMap((m) => (m.revive ? [m.revive] : []));
+  const critChance = mods.reduce((s, m) => s + (m.critChance ?? 0), 0);
+  const weapons = unit.items.filter((id) => content.items[id]?.weapon).length;
 
   const setup: UnitSetup = {
     name: unit.name,
@@ -224,6 +229,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   if (abilityPower !== 1) setup.abilityPower = Math.max(0, abilityPower);
   if (executeBonus > 0) setup.executeBonus = executeBonus;
   if (revives.length > 0) setup.revive = { hp: Math.max(...revives), times: revives.length };
+  if (critChance > 0) setup.critChance = Math.min(1, critChance);
+  if (weapons > 0) setup.weapons = weapons;
   return setup;
 }
 

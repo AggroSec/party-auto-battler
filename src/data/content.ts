@@ -4,7 +4,7 @@ import { RUN_CONFIG } from './economy.ts';
 import { ADVANCED_CLASSES, TALENTS, TERTIARY_CLASSES } from './builds/index.ts';
 import { ENEMY_ARCHETYPES, ENEMY_PROGRESSION, ENEMY_SCALING } from './enemies.ts';
 import { ITEMS, ITEM_IDS } from './items.ts';
-import { BOSSES } from './meta/bosses.ts';
+import { BOSS_CLASSES, BOSSES } from './meta/bosses.ts';
 import { ELITE, LADDER } from './meta/ladder.ts';
 import { PERKS } from './meta/perks.ts';
 import { UNIT_NAMES } from './names.ts';
@@ -17,7 +17,8 @@ import { SYNERGIES } from './synergies.ts';
  */
 export function buildRunContent(): RunContent {
   return {
-    classes: CLASSES,
+    // Unique bosses fight as their own classes, which never reach the shop.
+    classes: { ...CLASSES, ...BOSS_CLASSES },
     advancedClasses: ADVANCED_CLASSES,
     tertiaryClasses: TERTIARY_CLASSES,
     talents: TALENTS,

@@ -3,10 +3,10 @@
 import { resolveAmount } from './damage.ts';
 import { applyHeal, dealDamage } from './hits.ts';
 import { emit, type CombatState, type CombatUnit } from './state.ts';
-import { applyStatus } from './statuses.ts';
+import { applyStatus, clearStatus } from './statuses.ts';
 import { summonUnit } from './summon.ts';
 import { rowNeighbours, selectTargets, type TargetContext } from './targeting.ts';
-import type { Effect, TriggerEvent } from './types.ts';
+import type { BuffableStat, Effect, TriggerEvent } from './types.ts';
 
 export { BACKLINE_MELEE_MULTIPLIER, BLOODIED_THRESHOLD, dealDamage, isBacklineMelee, type DamageOptions } from './hits.ts';
 
@@ -16,6 +16,9 @@ export { BACKLINE_MELEE_MULTIPLIER, BLOODIED_THRESHOLD, dealDamage, isBacklineMe
  * pair of reactive effects can never loop forever.
  */
 export const MAX_TRIGGER_DEPTH = 4;
+
+/** The stats a 'random' debuff picks from. */
+const RANDOM_STATS: readonly BuffableStat[] = ['atk', 'def', 'spd'];
 
 export function fireTriggers(
   state: CombatState,
@@ -66,6 +69,11 @@ function applyEffect(
       const hits = effect.hits ?? 1;
       for (let i = 0; i < hits; i++) {
         for (const target of selectTargets(state, source, effect.target, ctx)) {
+          const req = effect.requires;
+          if (req) {
+            if ((target.statuses.get(req.status)?.stacks ?? 0) < req.stacks) continue;
+            if (req.consume) clearStatus(state, target, req.status);
+          }
           const raw = resolveAmount(effect.amount, source) * power;
           // Capture neighbours before the primary hit, in case it kills the target.
           const neighbours = effect.splash ? rowNeighbours(state, target) : [];
@@ -103,16 +111,17 @@ function applyEffect(
     case 'debuff': {
       const magnitude = Math.round(resolveAmount(effect.amount, source));
       for (const target of selectTargets(state, source, effect.target, ctx)) {
-        const before = target[effect.stat];
-        target[effect.stat] = effect.kind === 'buff' ? before + magnitude : Math.max(0, before - magnitude);
+        const stat = effect.stat === 'random' ? state.rng.pick(RANDOM_STATS) : effect.stat;
+        const before = target[stat];
+        target[stat] = effect.kind === 'buff' ? before + magnitude : Math.max(0, before - magnitude);
         emit(state, {
           tick: state.tick,
           type: 'buff',
           source: source.id,
           target: target.id,
-          stat: effect.stat,
-          value: target[effect.stat] - before,
-          statAfter: target[effect.stat],
+          stat,
+          value: target[stat] - before,
+          statAfter: target[stat],
         });
       }
       return;

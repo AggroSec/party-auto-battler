@@ -61,6 +61,8 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
         {setup.reach ? ' · 🏹 reach' : ''}
         {setup.executeBonus ? ` · 🪓 +${pct(setup.executeBonus)} vs wounded` : ''}
         {setup.revive ? ` · 🪶 revive${setup.revive.times > 1 ? ` ×${setup.revive.times}` : ''}` : ''}
+        {setup.critChance ? ` · 🎯 ${pct(setup.critChance)} crit` : ''}
+        {setup.weapons ? ` · ⚔️ ${setup.weapons} weapon${setup.weapons > 1 ? 's' : ''}` : ''}
         <span className="muted small"> {open ? '▴ hide' : '▾ breakdown'}</span>
       </button>
       {open && (

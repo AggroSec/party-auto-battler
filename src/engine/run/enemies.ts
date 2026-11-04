@@ -2,6 +2,7 @@ import { Rng } from '../rng.ts';
 import { BACK_SLOTS, FRONT_SLOTS, type Party, type Stats } from '../types.ts';
 import { autoPlaceSlot, emptyBoard, setSlot } from './board.ts';
 import { classFor, newUnit, resolveBoard } from './build.ts';
+import { equipError, itemRules } from './items.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, recommendedAllocation } from './progression.ts';
 import type { Board, EnemyArchetype, OwnedUnit, RunContent, RunContext } from './types.ts';
 
@@ -47,8 +48,11 @@ function developEnemy(unit: OwnedUnit, round: number, ctx: RunContext, rng: Rng,
   allocatePoints(unit, recommendedAllocation(unit, ctx.content, cfg), cfg);
   const extraItem = ctx.run?.enemyExtraItemFrom !== undefined && round >= ctx.run.enemyExtraItemFrom ? 1 : 0;
   const items = stochasticRound(tableAt(ctx.content.enemyProgression.itemsByRound, round), rng) + extraItem;
-  for (let i = 0; i < Math.min(items, cfg.maxItemsPerUnit) && ctx.content.itemPool.length > 0; i++) {
-    unit.items.push(rng.pick(ctx.content.itemPool));
+  for (let i = 0; i < Math.min(items, cfg.maxItemsPerUnit); i++) {
+    // Classes with weapon-only slots carry only what they could equip.
+    const allowed = itemRules(unit, ctx.content, cfg.maxItemsPerUnit).maxNonWeapons === undefined ? ctx.content.itemPool : ctx.content.itemPool.filter((id) => equipError(unit, id, ctx) === null);
+    if (allowed.length === 0) break;
+    unit.items.push(rng.pick(allowed));
   }
 }
 
@@ -65,7 +69,10 @@ function addBossAndElite(picks: Pick[], round: number, ctx: RunContext, rng: Rng
   const { run, content } = ctx;
   if (!run || picks.length === 0) return;
   let bossAt = -1;
-  const bosses = content.bosses.filter((b) => b.minRound <= round);
+  // Tier 13+: the unique bosses take over boss rounds, each round with its own (the latest that has arrived).
+  const eligible = content.bosses.filter((b) => b.minRound <= round && !b.unique === !run.uniqueBosses);
+  const latest = Math.max(...eligible.map((b) => b.minRound));
+  const bosses = run.uniqueBosses ? eligible.filter((b) => b.minRound === latest) : eligible;
   if (run.bossRounds?.includes(round) && bosses.length > 0) {
     const boss = rng.pick(bosses);
     bossAt = rng.int(picks.length);
@@ -75,8 +82,9 @@ function addBossAndElite(picks: Pick[], round: number, ctx: RunContext, rng: Rng
       levels: 1,
     };
   }
-  if (run.elitesFrom !== undefined && round >= run.elitesFrom) {
-    const candidates = picks.map((_, i) => i).filter((i) => i !== bossAt);
+  const elites = (run.elitesFrom !== undefined && round >= run.elitesFrom ? 1 : 0) + (run.secondEliteFrom !== undefined && round >= run.secondEliteFrom ? 1 : 0);
+  for (let n = 0; n < elites; n++) {
+    const candidates = picks.map((_, i) => i).filter((i) => i !== bossAt && !picks[i]!.elite);
     if (candidates.length === 0) return;
     const i = rng.pick(candidates);
     const { archetype } = picks[i]!;

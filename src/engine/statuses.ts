@@ -70,6 +70,12 @@ export function applyStatus(
   if (leftover > 0 && target.alive) applyStatus(state, source, target, def, leftover, power, depth, fireBurst);
 }
 
+/** Remove a status entirely (Headsman's execution uses up Broken Limbs). */
+export function clearStatus(state: CombatState, unit: CombatUnit, statusId: string): void {
+  const s = unit.statuses.get(statusId);
+  if (s) setStacks(state, unit, s, 0);
+}
+
 /** Start of the unit's turn: its damage-over-time statuses deal their damage. */
 export function tickStatuses(state: CombatState, unit: CombatUnit): void {
   for (const s of [...unit.statuses.values()]) {

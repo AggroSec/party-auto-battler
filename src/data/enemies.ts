@@ -19,6 +19,7 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
   { id: 'hexblade', name: 'Hexblade Sellsword', classId: 'runeblade', minRound: 3 },
   { id: 'jack', name: 'Jack', classId: 'adventurer', minRound: 3 },
   { id: 'plague-cultist', name: 'Plague Cultist', classId: 'cultist', minRound: 3, statMultiplier: { hp: 0.95 } },
+  { id: 'bounty-hunter', name: 'Bounty Hunter', classId: 'mercenary', minRound: 3 },
   { id: 'fallen-knight', name: 'Fallen Knight', classId: 'dark-knight', minRound: 2, statMultiplier: { hp: 1.05, atk: 0.9 } },
 ];
 

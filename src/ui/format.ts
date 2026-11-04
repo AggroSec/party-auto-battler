@@ -29,7 +29,7 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
     case 'trigger':
       return `${n(e.source)}: ${e.label} (${e.on})`;
     case 'damage':
-      return `  ${n(e.target)} takes ${e.value}${e.absorbed ? ` (+${e.absorbed} absorbed)` : ''} → ${e.hpAfter} HP`;
+      return `  ${n(e.target)} takes ${e.value}${e.absorbed ? ` (+${e.absorbed} absorbed)` : ''}${e.crit ? ' (critical hit)' : ''} → ${e.hpAfter} HP`;
     case 'heal':
       return `  ${n(e.target)} heals ${e.value} → ${e.hpAfter} HP`;
     case 'shield':

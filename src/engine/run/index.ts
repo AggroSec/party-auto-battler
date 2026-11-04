@@ -1,4 +1,5 @@
-export { applyShopAction, autoAllocate, createRun, equipError, fight, rerollCost } from './run.ts';
+export { applyShopAction, autoAllocate, createRun, fight, lifeCost, rerollCost } from './run.ts';
+export { equipError, itemRules, weaponCount } from './items.ts';
 export {
   allSlots,
   autoPlaceSlot,

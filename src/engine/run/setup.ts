@@ -39,6 +39,9 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
     if (m.secondWind) out.secondWind = true;
     if (m.freeItem) out.freeItem = true;
     if (m.empoweredBosses) out.empoweredBosses = true;
+    if (m.uniqueBosses) out.uniqueBosses = true;
+    if (m.bossLossLives !== undefined) out.bossLossLives = Math.max(out.bossLossLives ?? 1, m.bossLossLives);
+    if (m.secondEliteFrom !== undefined) out.secondEliteFrom = Math.min(out.secondEliteFrom ?? Infinity, m.secondEliteFrom);
     if (m.earlyRecruitCost) {
       const e = out.earlyRecruitCost;
       out.earlyRecruitCost = e

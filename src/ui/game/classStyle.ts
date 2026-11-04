@@ -21,6 +21,12 @@ const COLORS: Record<string, string> = {
   'dark-knight': '#a03a4a',
   cultist: '#a6b83a',
   adventurer: '#d9a441',
+  mercenary: '#b5784a',
+  // Unique bosses.
+  'chain-warden': '#7d8794',
+  'pale-choir': '#c9d6e8',
+  bonesaw: '#b8423a',
+  'ashen-wyrm': '#e0703a',
   // Summons take their summoner's colour.
   treant: '#9cc93f',
   imp: '#c0399b',

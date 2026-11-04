@@ -23,6 +23,12 @@ const ICON_SOURCES: Record<string, string> = {
   'dark-knight': 'delapouite/black-knight-helm',
   cultist: 'lorc/cultist',
   adventurer: 'delapouite/backpack',
+  mercenary: 'lorc/crossed-axes',
+  // Unique bosses.
+  'chain-warden': 'lorc/manacles',
+  'pale-choir': 'lorc/ghost',
+  bonesaw: 'lorc/battered-axe',
+  'ashen-wyrm': 'lorc/dragon-head',
   // Summons.
   treant: 'cathelineau/tree-face',
   imp: 'lorc/imp',
@@ -41,6 +47,7 @@ const ICON_SOURCES: Record<string, string> = {
   spd: 'lorc/wingfoot',
   // Shop offers.
   item: 'lorc/knapsack',
+  weapon: 'lorc/crossed-swords',
   signature: 'delapouite/round-star',
   training: 'delapouite/upgrade',
   // Settings.
