@@ -2,6 +2,69 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 10 — Ladder + Mercenary (2026-11-03)
+
+### What was built
+- **Mercenary** (Brandon's design), unlocked by **Arms Race**: go into a fight with 4 weapons equipped across your party. A melee striker with **Hazard Pay** (+1 gold after every won fight) who **breaks limbs**: Broken Limb is a new status, −1 SPD per limb, up to 4.
+  - **Brute** → **Headsman** (a basic attack on an enemy with 4 broken limbs uses them up for another 400% ATK) or **Maimer** (each limb he breaks also lowers a random stat by 1 + 10% of the hit).
+  - **Man-at-Arms** (your Weapon Specialist) → **Oathsworn** (a third, weapon-only slot; his first weapon counts twice; 15% critical hits) or **Walking Armory** (4 weapon-only slots; +1 ATK per weapon on each of his first 4 turns as he switches weapons).
+  - Seven existing items are now **weapons**, and there are three new ones: War Hammer, Throwing Axes and Halberd, which unlock with the Mercenary. Each tertiary class has a signature item; three of the four are weapons.
+  - Enemy version: **Bounty Hunter** (from round 3).
+- **Ladder tiers 11–15** (issue #20):
+  - **11:** a lost boss fight costs 2 lives.
+  - **12:** enemies are 1 level higher.
+  - **13:** unique bosses take over.
+  - **14:** a second Elite from round 10.
+  - **15:** another enemy level and +5% HP/ATK.
+  - **Mythic** is earned for a tier-15 win.
+- **Four unique bosses** with their own classes: **Mordrake the Chain Warden** or **the Pale Choir** (round 5), **Gristle the Bonesaw** (round 10) and **Vharoth the Ashen Wyrm** (round 15).
+- **UI:**
+  - A 👑 boss-fight badge in the HUD, showing the life cost when it's more than 1.
+  - Weapon labels and icons.
+  - The inspector shows weapon-only slots.
+  - Crit and weapon-count tags in a unit's kit.
+  - "Crit!" damage numbers in fights and a 🦴 limb counter.
+  - The income line now shows per-win gold. Before, Gambler's Coin gold was silently left out of the breakdown.
+- **Engine additions** (general rules, not Mercenary-only code):
+  - A hit can require and use up stacks of a status.
+  - A debuff can target a random stat.
+  - Amounts can scale with the source's last hit or with its weapon count.
+  - Critical hits, rolled only for units that have a crit chance, so no other fight changes.
+
+### What to playtest
+1. **Unlock the Mercenary:** have 4 weapons equipped across your party at the start of a fight. Iron Sword, Long Spear, Hunting Bow, Rage Gauntlets and Assassin's Dagger are all starter items.
+2. **Brute line:** do broken limbs pile up fast enough for the Headsman to execute? Does the Maimer's stat drop feel noticeable?
+3. **Man-at-Arms line:** chase weapons and try both tertiaries. Watch for the "Crit!" numbers and the ⚔️ weapon count in the unit's kit.
+4. **Hazard Pay:** after a win, the result's income line shows the bonus gold.
+5. **Ladder:** you've won tier 10, so tier 11 should be open. Do boss rounds feel scary now that a loss costs 2 lives? Is tier 12's extra enemy level the right jump? At tier 13, do the unique bosses feel like bosses?
+
+### Known issues
+- **Bots undervalue weapons**, so the simulator likely makes the Man-at-Arms line look weaker than it plays. The Brute and Man-at-Arms numbers swap from run to run, depending on which one the bots prefer.
+- **Headsman sample is small** (−10.2 lift, 337 fights). Worth a look in play.
+- **Enemies carry at most 2 items**, so enemy Oathsworn and Walking Armories don't fill their extra slots.
+- **Unique bosses:** rounds 10 and 15 have one each for now (Gristle, Vharoth). More can be added per round.
+- **Only part of the UI was tested in a browser.** A production build ran in headless Chrome: a tier-11 boss round with all four tertiaries, the shop, the inspector and a fight, with no errors. No full run was played.
+
+### Simulator balance numbers
+Command: `npm run sim` (seed `m3`, 2,000 runs per bot, tier 0, everything unlocked).
+- **Run completion:** random 4.0%, sensible 18.3%, greedy 27.7%, synergy 10.1%. No stuck runs or tick-cap fights.
+- **Mercenary lift:** −4.1, between the Adventurer and the Engineer.
+  - **Advanced classes:** Man-at-Arms −2.8, Brute −8.9.
+  - **Tertiaries:** Maimer +0.5, Oathsworn −1.3, Walking Armory −2.7, Headsman −10.2.
+- **Random 5v5:** Mercenary 42.6%.
+- **Ladder:** bots already stall from tier 8, so tiers 11–15 mostly show the steps. Tier 12 is the biggest one: sensible bot average wins drop from 3.3 to 1.9.
+- **Unique bosses vs class bosses**, in party-vs-party sims (share of fights the boss's side wins):
+
+  | Round | Unique bosses | Class bosses |
+  |---:|---:|---:|
+  | 5 | 81% | 82% |
+  | 10 | 90% | 90% |
+  | 15 | 75% | 73% |
+
+  They need ×3.4 HP and ×2.3 ATK to get there, because they have no talents or advanced class.
+
+Full details are in [BALANCE.md](BALANCE.md) and [DECISIONS.md](DECISIONS.md).
+
 ## Milestone 9 — Ship (2026-10-31)
 
 ### What was built
