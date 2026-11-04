@@ -69,8 +69,10 @@ function addBossAndElite(picks: Pick[], round: number, ctx: RunContext, rng: Rng
   const { run, content } = ctx;
   if (!run || picks.length === 0) return;
   let bossAt = -1;
-  // Tier 13+: the unique bosses take over boss rounds.
-  const bosses = content.bosses.filter((b) => b.minRound <= round && !b.unique === !run.uniqueBosses);
+  // Tier 13+: the unique bosses take over boss rounds, each round with its own (the latest that has arrived).
+  const eligible = content.bosses.filter((b) => b.minRound <= round && !b.unique === !run.uniqueBosses);
+  const latest = Math.max(...eligible.map((b) => b.minRound));
+  const bosses = run.uniqueBosses ? eligible.filter((b) => b.minRound === latest) : eligible;
   if (run.bossRounds?.includes(round) && bosses.length > 0) {
     const boss = rng.pick(bosses);
     bossAt = rng.int(picks.length);

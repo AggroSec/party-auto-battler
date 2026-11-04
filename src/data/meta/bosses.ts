@@ -172,10 +172,10 @@ export const BOSS_CLASSES: Record<string, ClassTemplate> = Object.fromEntries(
     bossClass('pale-choir', 'Pale Choir', { hp: 40, atk: 7, def: 1, spd: 9 }, 'ranged', 4, {
       id: 'requiem',
       name: 'Requiem',
-      description: 'Every 3rd turn: deal 60% ATK to every enemy and heal all allies for 40% ATK.',
+      description: 'Every 3rd turn: deal 80% ATK to every enemy and heal all allies for 40% ATK.',
       cooldown: 3,
       effects: [
-        { kind: 'damage', target: 'allEnemies', amount: { atk: 0.6 } },
+        { kind: 'damage', target: 'allEnemies', amount: { atk: 0.8 } },
         { kind: 'heal', target: 'allAllies', amount: { atk: 0.4 } },
       ],
     }),
@@ -204,8 +204,17 @@ export const BOSS_CLASSES: Record<string, ClassTemplate> = Object.fromEntries(
 
 /**
  * Unique bosses (ladder tier 13+): characters with their own class, not boss
- * versions of a regular class. They take over boss rounds on those tiers.
+ * versions of a regular class. They take over boss rounds on those tiers;
+ * each boss round draws from the bosses with the latest `minRound` that has
+ * arrived (round 5: Mordrake or the Pale Choir; 10: Gristle; 15: Vharoth).
  */
+/**
+ * Unique bosses have no advanced class or talents, so they get bigger
+ * multipliers than class bosses to stay at least as dangerous. Tuned with a
+ * party-vs-party comparison against the class bosses (see docs/BALANCE.md).
+ */
+const UNIQUE_MULT = { hp: 3.4, atk: 2.3 };
+
 export const UNIQUE_BOSSES: BossDef[] = [
   {
     id: 'mordrake',
@@ -213,7 +222,7 @@ export const UNIQUE_BOSSES: BossDef[] = [
     classId: 'chain-warden',
     minRound: 5,
     unique: true,
-    statMultiplier: { hp: 1.5, atk: 1.1 },
+    statMultiplier: UNIQUE_MULT,
     passive: { name: 'Iron Shackles', description: 'Start of combat: taunt for 2 turns. When hurt, 30% chance the attacker loses 1 SPD.' },
     modifier: {
       triggers: [
@@ -235,7 +244,7 @@ export const UNIQUE_BOSSES: BossDef[] = [
     classId: 'pale-choir',
     minRound: 5,
     unique: true,
-    statMultiplier: { hp: 1.5, atk: 1.1 },
+    statMultiplier: UNIQUE_MULT,
     passive: { name: 'Echoing Dirge', description: 'When an ally falls, all allies gain +2 ATK and the Choir shields itself for 100% ATK.' },
     modifier: {
       triggers: [
@@ -259,7 +268,7 @@ export const UNIQUE_BOSSES: BossDef[] = [
     classId: 'bonesaw',
     minRound: 10,
     unique: true,
-    statMultiplier: { hp: 1.5, atk: 1.1 },
+    statMultiplier: UNIQUE_MULT,
     passive: { name: "Butcher's Frenzy", description: '+15% lifesteal. On kill, heal 30% of max HP.' },
     modifier: {
       lifesteal: 0.15,
@@ -279,7 +288,7 @@ export const UNIQUE_BOSSES: BossDef[] = [
     classId: 'ashen-wyrm',
     minRound: 15,
     unique: true,
-    statMultiplier: { hp: 1.6, atk: 1.1 },
+    statMultiplier: { hp: UNIQUE_MULT.hp * 1.15, atk: UNIQUE_MULT.atk * 1.1 },
     passive: { name: 'Ancient Scales', description: '+4 DEF. When bloodied, gain +6 ATK and +3 SPD.' },
     modifier: {
       stats: { def: 4 },

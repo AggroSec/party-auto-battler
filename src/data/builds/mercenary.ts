@@ -30,18 +30,18 @@ export const brute = advanced({
   ability: {
     id: 'crushing-blow',
     name: 'Crushing Blow',
-    description: 'Every 3rd turn: deal 160% ATK to the nearest enemy and break 2 of its limbs.',
+    description: 'Every 3rd turn: deal 180% ATK to the nearest enemy and break 2 of its limbs.',
     cooldown: 3,
     effects: [
-      { kind: 'damage', target: 'nearest', amount: { atk: 1.6 } },
+      { kind: 'damage', target: 'nearest', amount: { atk: 1.8 } },
       breakLimb('nearest', 2),
     ],
   },
   statWeights: { hp: 4, atk: 4, def: 1, spd: 1 },
-  passive: { name: 'Bonebreaker', description: 'Basic attacks have a 20% chance to break a limb.' },
+  passive: { name: 'Bonebreaker', description: 'Basic attacks have a 30% chance to break a limb.' },
   modifier: {
-    stats: { hp: 10, atk: 2 },
-    triggers: [on('onAttack', 'Bonebreaker', [breakLimb('triggerTarget')], { chance: 0.2 })],
+    stats: { hp: 14, atk: 3 },
+    triggers: [on('onAttack', 'Bonebreaker', [breakLimb('triggerTarget')], { chance: 0.3 })],
   },
   talents: [
     talent('brute/heavy-hands', 'Heavy Hands', '+3 ATK.', { stats: { atk: 3 } }),
@@ -64,14 +64,14 @@ export const manAtArms = advanced({
   ability: {
     id: 'weapon-flurry',
     name: 'Weapon Flurry',
-    description: 'Every 3rd turn: hit the nearest enemy twice for 70% ATK + 2 per weapon you carry.',
+    description: 'Every 3rd turn: hit the nearest enemy twice for 85% ATK + 2 per weapon you carry.',
     cooldown: 3,
-    effects: [{ kind: 'damage', target: 'nearest', amount: { atk: 0.7, weapons: 2 }, hits: 2 }],
+    effects: [{ kind: 'damage', target: 'nearest', amount: { atk: 0.85, weapons: 2 }, hits: 2 }],
   },
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
   passive: { name: 'Drilled', description: 'Start of combat: gain +1 ATK per weapon you carry.' },
   modifier: {
-    stats: { hp: 6, atk: 2, spd: 1 },
+    stats: { hp: 10, atk: 3, spd: 1 },
     triggers: [on('startOfCombat', 'Drilled', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { weapons: 1 } }])],
   },
   talents: [
