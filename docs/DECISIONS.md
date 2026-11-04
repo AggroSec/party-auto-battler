@@ -2,6 +2,20 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-03 — Milestone 10: ladder tiers 11–15 and the Mercenary
+
+Brandon's calls: 5 new tiers; past tier 10 a lost boss fight costs 2 lives (instead of a rematch); the Mercenary with Hazard Pay, Broken Limbs, Brute (Headsman, Maimer) and Man-at-Arms (Oathsworn, Walking Armory); crits only on the Oathsworn line; Walking Armory keeps all four weapons active and gains from switching. Decided autonomously:
+- **Tier contents.** 11: boss losses cost 2 lives. 12: +1 enemy level (his tier-10 logs had enemies 2–3 levels behind by the late rounds). 13: unique bosses. 14: a second Elite from round 10. 15: another level and +5% HP/ATK.
+- **Unique bosses get their own classes** (`bossOnly`, kept out of the shop and the regular enemy pool) rather than a new kind of unit, so the engine builds them like any enemy. With no advanced class or talents they came out far weaker than class bosses, so they get bigger multipliers, tuned until party-vs-party sims put them level with the class bosses they replace. Each boss round draws from its own bosses (5: Mordrake or the Pale Choir; 10: Gristle; 15: Vharoth); more can be added per round later.
+- **Headsman's execution fires on basic attacks** that hit an enemy with 4 broken limbs, using them up for 400% ATK. This is a general rule (a hit can require and consume stacks), not Headsman-only code.
+- **Maimer's stat drop** is 1 + 10% of the hit that just landed, on a random one of ATK, DEF or SPD.
+- **Weapons are a tag on items.** Seven existing items count (Iron Sword, Quicksilver Rapier, Long Spear, Hunting Bow, Rage Gauntlets, Assassin's Dagger, Executioner's Axe); three new ones come with the Mercenary. The Maimer's, Oathsworn's and Walking Armory's signature items are weapons.
+- **Oathsworn's sworn weapon is simply his first weapon** and counts twice (its stats and effects). His third slot takes only weapons (at most 2 non-weapons).
+- **Walking Armory's switching bonus** is +1 ATK per weapon on each of his first 4 turns. Items that aren't weapons stay if he had them before ascending; he just can't add more.
+- **Crit is double damage**, rolled only for units with a crit chance, so every other fight uses the RNG exactly as before.
+- **Unlock: Arms Race** (4 weapons equipped across the party). "Armed to the Teeth" already covered a full item load, so this one is about weapons.
+- **Balance:** Brute and Man-at-Arms got one modest buff each after the first sim. The bots swing between the two depending on which looks stronger, so I stopped there; the Mercenary overall sits with the Engineer and Adventurer.
+
 ## 2026-11-02 — One-time signature item offers
 
 Brandon's rule: a signature item shows once when a unit reaches its tertiary class, and a reroll or a fight ends the offer unless it was bought or locked. Decided autonomously:

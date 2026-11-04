@@ -54,7 +54,7 @@ export function UnitCard({
       <div className="badges">
         {unit.items.map((id, i) => (
           <span key={i} className="badge item-pip" title={content.items[id]?.name}>
-            <Icon id={content.items[id]?.tertiaryClassId ? 'signature' : 'item'} />
+            <Icon id={content.items[id]?.tertiaryClassId ? 'signature' : content.items[id]?.weapon ? 'weapon' : 'item'} />
           </span>
         ))}
         {unit.statPoints > 0 && (

@@ -19,6 +19,7 @@
 | Playtest follow-ups: Cultist, second favored class, dev-only testing tools | ✅ After M8 |
 | Ship (GitHub Pages, README, 1.0) | ✅ Milestone 9 |
 | After 1.0: Adventurer (Jack) | ✅ After M9 |
+| After 1.0: Mercenary, ladder tiers 11–15, unique bosses | ✅ Milestone 10 |
 
 ## Run structure
 
@@ -225,7 +226,7 @@ Some advanced classes override their base spread (e.g. Knight leans HP/DEF, Wind
 
 ## Items
 
-Up to 2 per unit, bought from the shop's extra slots. **Anyone can equip anything.** Class-tied items give their classes an *extra* effect rather than being locked to them, in keeping with the build-variety principle.
+Up to 2 per unit (the Oathsworn and Walking Armory get more, for weapons), bought from the shop's extra slots. **Anyone can equip anything.** Class-tied items give their classes an *extra* effect rather than being locked to them, in keeping with the build-variety principle.
 
 | Item | Cost | Effect | Class bonus |
 |---|---|---|---|
@@ -401,6 +402,13 @@ Tier 0 is the base game. Winning a run on your highest tier unlocks the next. Ea
 | 8 | Rounds 5, 10 and 15 are **boss** fights |
 | 9 | Elites from round 5 |
 | 10 | Enemies +5% more HP and ATK; bosses cast a second ability |
+| 11 | Losing a boss fight costs **2 lives** *(Brandon, post-1.0)* |
+| 12 | Enemies are 1 level higher |
+| 13 | **Unique bosses** take over the boss fights |
+| 14 | From round 10, a second enemy per fight is an Elite |
+| 15 | Enemies gain another level and +5% more HP and ATK |
+
+Tiers 11–15 came after 1.0 ([#20](https://github.com/AggroSec/party-auto-battler/issues/20)). Winning on tier 15 earns **Mythic** (bragging rights). The shop shows a 👑 badge on boss rounds, with the life cost when it's more than 1.
 
 **Bosses** replace one enemy on their round, a level ahead and with ×1.6 HP and ×1.15 ATK (Colossus ×1.9 HP):
 
@@ -412,6 +420,15 @@ Tier 0 is the base game. Winning a run on your highest tier unlocks the next. Ea
 | The Hollow King | Necromancer | 10 | Deathless Court: Revives once at 50% HP. When an ally dies, all allies heal for 100% ATK. | Soul Rend: Every 4th turn: deal 220% ATK to the weakest enemy and heal yourself for 100% ATK. |
 | Mother Thornroot | Druid | 10 | Overgrowth: +3 DEF. At the start of each of her turns, all allies heal 4. | Strangling Roots: Every 4th turn: deal 120% ATK to each enemy in the front row; they lose 2 SPD. |
 | The Iron Colossus | Engineer | 15 | Reinforced: +4 DEF. When hurt, 25% chance to shield itself for 10. | Overload: Every 4th turn: deal 60% ATK to every enemy, twice. |
+
+**Unique bosses** (tier 13+) are characters with their own class, never seen in the shop or among regular enemies. With no advanced class or talents to grow into, they get ×3.4 HP and ×2.3 ATK (Vharoth ×3.9 HP, ×2.5 ATK), which puts them level with the class bosses they replace in party-vs-party sims. Each boss round has its own: round 5 Mordrake or the Pale Choir, round 10 Gristle, round 15 Vharoth.
+
+| Boss | Class (stats) | Round | Ability | Passive | Second ability (tier 10+) |
+|---|---|---:|---|---|---|
+| Mordrake the Chain Warden | Chain Warden, melee (52/6/4/7) | 5 | Chain Pull (3): 140% ATK to the weakest back-row enemy (else nearest); it loses 2 SPD | Iron Shackles: start of combat taunt 2 turns; when hurt, 30% chance the attacker loses 1 SPD | Chain Lash (4): 80% ATK to every enemy |
+| The Pale Choir | Pale Choir, ranged (40/7/1/9) | 5 | Requiem (3): 80% ATK to every enemy, heal all allies 40% ATK | Echoing Dirge: when an ally falls, all allies +2 ATK and the Choir shields itself for 100% ATK | Lament (4): every enemy gains 1 Dread |
+| Gristle the Bonesaw | Bonesaw, melee (46/8/2/11) | 10 | Bonesaw (3): 50% ATK to the nearest enemy 4 times, break 2 of its limbs | Butcher's Frenzy: +15% lifesteal; on kill, heal 30% max HP | Carve Up (4): 160% ATK to the weakest enemy |
+| Vharoth the Ashen Wyrm | Ashen Wyrm, ranged (80/8/3/8) | 15 | Ashen Breath (3): 70% ATK to every enemy, 2 Hellfire each | Ancient Scales: +4 DEF; when bloodied, +6 ATK and +3 SPD | Tail Sweep (4): 130% ATK to the enemy front row |
 
 ### Starting perks
 
@@ -466,6 +483,8 @@ You're offered your kept count + 2 perks from your unlocked pool and keep 1 (2 w
 | High Climber | Win a run on tier 5 or higher. | Investor |
 | Perkception II | Win a run on tier 7 or higher. | +1 perk kept |
 | Legend | Win a run on tier 10. | — |
+| Arms Race | Go into a fight with 4 weapons equipped across your party. | Mercenary, War Hammer, Throwing Axes, Halberd |
+| Mythic | Win a run on tier 15. | — |
 
 ### Daily run
 
@@ -561,8 +580,9 @@ A status is a named stack on a unit: it can change a stat per stack, deal damage
 | Dread | −1 ATK per stack, up to 2, rest of the fight | Dark Knight line |
 | Hellfire | 20% ATK per stack per turn, up to 5, 3 turns | Hellknight |
 | Deathless Fury | Can't drop below 1 HP, +4 ATK, +4 SPD, 2 turns | Berserker |
+| Broken Limb | −1 SPD per stack, up to 4 (one per limb), rest of the fight | Mercenary line, War Hammer |
 
-Amounts can also scale with the source's **missing HP** (Dark Knight).
+Amounts can also scale with the source's **missing HP** (Dark Knight), the damage of its **last hit** (Maimer) or the number of **weapons** it carries (Mercenary). A hit can require a number of stacks on its target and use them up (Headsman's Execution), and a debuff can hit a **random** stat (ATK, DEF or SPD).
 
 ### New classes (Brandon's design)
 Both are unlockable, like every new class from now on: **Spellsword** (win a fight with a Warrior and a Mage, both level 5+) unlocks the Runeblade; **Last One Standing** (win a fight with only one unit left) unlocks the Dark Knight and the Rivals synergy. Enemy versions: Hexblade Sellsword (from round 3) and Fallen Knight (from round 2).
@@ -665,6 +685,24 @@ Tags: wanderer, plus the tags of each class whose ability he borrows. 32/5/1/10,
 - **Polymath** (HP+8 ATK+2): one more talent option on every level-up. **Wild Theory** (3): 100% ATK to 2 random enemies, shield the most wounded ally for 60% ATK. Signature item: **Dog-Eared Notebook** (7g): +1 SPD, +20% ability power.
 - **Savant** (HP+6, +40% ability power). **Grand Thesis** (3): 70% ATK to every enemy. Signature item: **Unfinished Thesis** (7g): +30% ability power.
 
+#### Mercenary (Milestone 10)
+
+Brandon's hired blade. 36/6/1/9, melee striker, martial. Unlocked by **Arms Race** (go into a fight with 4 weapons equipped), which also unlocks three new weapons. Enemy version: Bounty Hunter (from round 3).
+
+- **Low Blow** (3): 120% ATK to the nearest enemy and break one of its limbs.
+- **Hazard Pay:** +1 gold after every won fight (it shows in the income line as bonus gold).
+- **Broken Limb:** −1 SPD per limb, up to 4, for the rest of the fight. A minor effect on its own; the Brute line builds on it.
+- **Weapons:** Iron Sword, Quicksilver Rapier, Long Spear, Hunting Bow, Rage Gauntlets, Assassin's Dagger and Executioner's Axe are weapons, plus the new **War Hammer** (4g, +2 ATK, 25% on attack: break a limb), **Throwing Axes** (4g, +1 ATK, start of combat: 100% ATK to a random enemy) and **Halberd** (4g, +2 ATK, +2 DEF). Each has a small Mercenary class bonus. Anyone can use weapons; the Man-at-Arms line scales with them.
+- Level-2 talents: Bone Crusher (25% on attack: break a limb), Dirty Fighting (start of combat: break a limb on the nearest enemy), Hardened (+2 DEF, +8 HP), Weapon Familiarity (start of combat: +1 ATK per weapon).
+
+**Brute** (HP+14 ATK+3). **Crushing Blow** (3): 180% ATK to the nearest enemy, break 2 of its limbs. **Bonebreaker:** 30% on attack: break a limb.
+- **Headsman** (HP+12 ATK+3). **Hamstring** (3): 150% ATK, break 2 limbs. **Execution:** when a basic attack hits an enemy with 4 broken limbs, it uses them up to deal another 400% ATK. Signature item: **Executioner's Hood** (7g): +2 ATK, +6 HP; start of combat: break a limb on every enemy.
+- **Maimer** (HP+12 ATK+2 DEF+1). **Shatter** (3): 140% ATK, break a limb, and the target loses a random stat (ATK, DEF or SPD) of 1 + 10% of the damage dealt. **Crippling Blows:** 35% on attack: the same, from a basic attack. Signature item (a weapon): **Spiked Knuckles** (7g): +3 ATK, 25% on attack: break a limb.
+
+**Man-at-Arms** (HP+10 ATK+3 SPD+1), Brandon's Weapon Specialist. **Weapon Flurry** (3): hit the nearest enemy twice for 85% ATK + 2 per weapon. **Drilled:** start of combat: +1 ATK per weapon.
+- **Oathsworn** (HP+10 ATK+2), Brandon's "master weapon user". A **third item slot for weapons** (at most 2 non-weapons). His first weapon is his **sworn weapon and counts twice**. **Critical hits:** 15% chance per hit to deal double damage (only this line crits; damage over time never does). **Oath Strike** (3): 180% ATK + 3 per weapon. Signature item (a weapon): **Oathblade** (7g): +4 ATK, +10% crit chance.
+- **Walking Armory** (HP+12 ATK+1). **Four item slots, weapons only** (non-weapons he carried before stay). **Weapon Swap:** each of his first 4 turns he switches weapons and gains +1 ATK per weapon carried. **Arsenal** (3): 4 hits on random enemies for 50% ATK + 1 per weapon. Signature item (a weapon): **Bandolier of Blades** (7g): +2 ATK; start of combat: 40% ATK to every enemy.
+
 #### Cultist (after M8)
 
 Brandon's evil healer: it heals by stealing. Unlocked by **Unholy Communion** (win a fight with a Cleric and a Warlock, both level 5+), which also unlocks the **Sacred and Profane** synergy (Cleric + Cultist: both +20% ability power). Enemy version: Plague Cultist (from round 3).
@@ -739,9 +777,9 @@ Linked from the title screen: who made the game (Brandon designed and directed i
 
 None blocking. Things to look at when playtesting M7:
 
-1. **Ladder steepness.** Settled for 1.0: the 10 tiers stay as they are. More tiers, unique bosses and must-beat boss rounds come after release ([#20](https://github.com/AggroSec/party-auto-battler/issues/20)).
+1. **Ladder steepness.** Tiers 11–15 and unique bosses came after 1.0; Brandon chose a 2-life boss loss over must-beat rematches ([#20](https://github.com/AggroSec/party-auto-battler/issues/20)).
 2. **Unlock pacing.** Do the starting five classes feel too thin, or about right, and do the achievements come at a good rate? (Play with Unlock everything off to judge.)
-3. **Signature items.** Are they findable often enough (30% per item slot while wanted) and worth 7–8 gold?
+3. **Signature items.** Now offered once, in their own slot, when a unit reaches the class (Brandon, 2026-11-02). Worth 7–8 gold?
 4. **Enemy preview.** Should the shop show the next enemy, fully or partly (say, its classes), before you fight? Still open from M4, and more relevant now with bosses.
 5. **Runeblade and Dark Knight.** Does the Rune rhythm read well in playback, and do the four paths feel distinct? Is Dread (−1 ATK per stack, up to 2) noticeable without being oppressive?
 6. **By a Thread.** Is winning a run at 1 life a fair Warlock unlock, or should it become "win a fight at 1 life"?
