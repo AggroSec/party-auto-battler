@@ -6,7 +6,7 @@ import { className } from './names.ts';
 import type { Fx, Frame, UnitView } from './playback.ts';
 
 /** Glyphs for stacking statuses (post-M7). They stay emoji: icons cover classes, items and stats. */
-const STATUS_ICON: Record<string, string> = { rune: 'ᚱ', searing: '🔥', corruption: '🟣', dread: '😨', hellfire: '♨️', blight: '🦠', 'deathless-fury': '💢' };
+const STATUS_ICON: Record<string, string> = { rune: 'ᚱ', searing: '🔥', corruption: '🟣', dread: '😨', hellfire: '♨️', blight: '🦠', 'deathless-fury': '💢', 'broken-limb': '🦴' };
 
 export interface FloatText {
   text: string;
@@ -17,7 +17,7 @@ export interface FloatText {
 
 /** Floating text for a unit's effects this frame, merged so busy frames stay readable. */
 export function floatsFor(fx: Fx[]): FloatText[] {
-  let damage = 0, absorbed = 0, heal = 0, shield = 0, taunt = false, hasDamage = false;
+  let damage = 0, absorbed = 0, heal = 0, shield = 0, taunt = false, hasDamage = false, crit = false;
   const bursts: string[] = [];
   const stats = new Map<BuffableStat, number>();
   let cooldown = 0;
@@ -26,6 +26,7 @@ export function floatsFor(fx: Fx[]): FloatText[] {
       hasDamage = true;
       damage += f.value;
       absorbed += f.absorbed;
+      if (f.crit) crit = true;
     } else if (f.kind === 'heal') heal += f.value;
     else if (f.kind === 'shield') shield += f.value;
     else if (f.kind === 'stat') stats.set(f.stat, (stats.get(f.stat) ?? 0) + f.value);
@@ -34,7 +35,7 @@ export function floatsFor(fx: Fx[]): FloatText[] {
     else if (f.kind === 'burst') bursts.push(f.name);
   }
   const out: FloatText[] = [];
-  if (hasDamage) out.push({ text: damage > 0 ? `-${damage}` : `(${absorbed})`, cls: 'dmg' });
+  if (hasDamage) out.push({ text: `${crit ? 'Crit! ' : ''}${damage > 0 ? `-${damage}` : `(${absorbed})`}`, cls: crit ? 'dmg crit' : 'dmg' });
   if (heal > 0) out.push({ text: `+${heal}`, cls: 'heal' });
   if (shield > 0) out.push({ text: `🛡${shield}`, cls: 'shield' });
   if (taunt) out.push({ text: 'Taunt!', cls: 'taunt' });

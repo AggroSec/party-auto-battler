@@ -25,6 +25,20 @@ export interface UnitModifier {
   revive?: number;
   /** Additive extra damage against targets below 50% HP (0.5 = +50%) (M7). */
   executeBonus?: number;
+  /** Additive chance of critical hits (0.15 = 15%) (Mercenary). */
+  critChance?: number;
+}
+
+/**
+ * How many items a class tier can carry, if not the usual (Mercenary). A unit
+ * keeps what it already holds when it changes class; the rules apply to new items.
+ */
+export interface ItemRules {
+  slots: number;
+  /** At most this many items that aren't weapons (Walking Armory: 0). */
+  maxNonWeapons?: number;
+  /** The first weapon counts twice (Oathsworn's sworn weapon). */
+  doubleFirstWeapon?: boolean;
 }
 
 export interface TalentDef extends UnitModifier {
@@ -72,6 +86,8 @@ export interface AdvancedClassDef {
   extraTalentChoices?: number;
   /** Talents from this tier come only from the base class of the ability borrowed at the ascend level. */
   focusBorrowed?: boolean;
+  /** Item slots, if not the usual. */
+  items?: ItemRules;
 }
 
 /**
@@ -115,6 +131,10 @@ export interface ClassTemplate extends UnitTemplate {
   borrowLevels?: readonly number[];
   /** Other classes' passives this class picks up when its build needs them. */
   borrowedPassives?: readonly BorrowedPassive[];
+  /** Gold earned after every won fight per unit of this class (Mercenary's Hazard Pay). */
+  goldPerWin?: number;
+  /** A boss's own class: never offered in the shop or used by regular enemies. */
+  bossOnly?: boolean;
 }
 
 export interface ItemDef {
@@ -135,6 +155,8 @@ export interface ItemDef {
   tertiaryClassId?: string;
   /** Gold earned after every won fight while equipped (M7). */
   goldPerWin?: number;
+  /** A weapon: counts for weapon slots and per-weapon effects (Mercenary). */
+  weapon?: boolean;
 }
 
 /**
@@ -262,6 +284,12 @@ export interface RunModifier {
   bossRounds?: readonly number[];
   /** Bosses also cast their second ability. */
   empoweredBosses?: boolean;
+  /** Lives a lost boss fight costs (instead of 1). The largest value wins. */
+  bossLossLives?: number;
+  /** Boss rounds field the unique bosses instead of the class-based ones. */
+  uniqueBosses?: boolean;
+  /** From this round, a second enemy per fight is an Elite. */
+  secondEliteFrom?: number;
 }
 
 /** One rung of the difficulty ladder; tier N applies tiers 1..N. */
@@ -295,6 +323,8 @@ export interface BossDef {
   modifier: UnitModifier;
   /** Granted when bosses are empowered. */
   ability: AbilityDef;
+  /** A unique boss with its own class (ladder tier 13+), not a boss version of a regular class. */
+  unique?: boolean;
 }
 
 /** How much stronger an Elite enemy is than its peers. */

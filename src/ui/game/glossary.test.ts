@@ -35,6 +35,11 @@ describe('glossary', () => {
     expect(terms('Basic attacks give 1 Blight.')).toEqual(['blight:Blight']);
   });
 
+  it('links Mercenary terms', () => {
+    expect(terms('Deal 120% ATK and break one of its limbs. Enemies with 4 broken limbs.')).toEqual(['broken-limb:limbs', 'broken-limb:broken limbs']);
+    expect(terms('Gain +1 ATK per weapon you carry. 15% chance for a critical hit.')).toEqual(['weapons:per weapon', 'crit:critical hit']);
+  });
+
   it('does not match inside other words', () => {
     expect(terms('Each preacher teaches the breach.')).toEqual([]);
   });

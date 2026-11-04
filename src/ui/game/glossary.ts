@@ -174,14 +174,32 @@ export const GLOSSARY: readonly Term[] = [
     pattern: /\bsignature items?\b/i,
   },
   {
+    id: 'broken-limb',
+    term: 'Broken Limb',
+    text: 'A stacking status from the Mercenary: −1 SPD per broken limb, up to 4, for the rest of the fight. The Headsman executes enemies with 4; the Maimer saps a stat with each.',
+    pattern: /\b(?:broken )?limbs?\b/i,
+  },
+  {
+    id: 'weapons',
+    term: 'Weapons',
+    text: 'Swords, spears, bows, axes, daggers, hammers and gauntlets. Anyone can use them; the Mercenary scales with how many he carries, and the Oathsworn and Walking Armory get extra weapon-only slots.',
+    pattern: /\bper weapon\b|\bweapons? only\b/i,
+  },
+  {
+    id: 'crit',
+    term: 'Critical hit',
+    text: 'A hit that deals double damage. Only the Oathsworn line lands them. Damage over time never crits.',
+    pattern: /\bcritical(?: hit)?\b/i,
+  },
+  {
     id: 'ladder',
     term: 'Ladder tiers',
-    text: 'Winning a run unlocks the next difficulty tier. Each tier adds one modifier on top of all the earlier ones (tier 10 has all ten).',
+    text: 'Winning a run unlocks the next difficulty tier. Each tier adds one modifier on top of all the earlier ones (tier 15 has all fifteen).',
   },
   {
     id: 'elite',
     term: 'Elites and bosses',
-    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability.',
+    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability. From tier 11 a lost boss fight costs 2 lives, and from tier 13 unique bosses with their own classes take over.',
   },
   {
     id: 'perks',
@@ -196,7 +214,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'statuses',
     term: 'Stacking statuses',
-    text: 'Runes, Dread, Blight, Corruption, Hellfire and the like stack on a unit; the stack count shows on its card during a fight. The latest unit to apply one owns it.',
+    text: 'Runes, Dread, Blight, Corruption, Hellfire, Broken Limbs and the like stack on a unit; the stack count shows on its card during a fight. The latest unit to apply one owns it.',
   },
   {
     id: 'rune',

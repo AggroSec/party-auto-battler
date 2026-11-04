@@ -31,3 +31,9 @@ export const DEATHLESS_FURY: StatusDef = {
   duration: 2,
   stats: { atk: 4, spd: 4 },
 };
+
+/**
+ * Mercenary: one per limb, so up to 4, for the rest of the fight. Each is a
+ * small SPD loss on its own; the Headsman and Maimer build on them.
+ */
+export const BROKEN_LIMB: StatusDef = { id: 'broken-limb', name: 'Broken Limb', stats: { spd: -1 }, maxStacks: 4 };

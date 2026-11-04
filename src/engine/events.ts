@@ -39,6 +39,8 @@ export type CombatEvent =
       /** Damage soaked by shields. */
       absorbed: number;
       hpAfter: number;
+      /** A critical hit. */
+      crit?: true;
     }
   | { tick: number; type: 'heal'; source: UnitId; target: UnitId; value: number; hpAfter: number }
   | { tick: number; type: 'shield'; source: UnitId; target: UnitId; value: number; shieldAfter: number }

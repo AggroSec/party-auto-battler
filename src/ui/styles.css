@@ -358,6 +358,7 @@ button.stats-line { display: block; width: 100%; text-align: left; margin: 6px 0
 .floats { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 4; }
 .float { font-weight: 800; font-size: 1rem; text-shadow: 0 1px 3px #000, 0 0 2px #000; opacity: 0; animation: float-up calc(var(--beat) * 1.1) ease-out forwards; }
 .float.dmg { color: #ff8a80; font-size: 1.15rem; }
+.float.dmg.crit { color: #ffd54f; font-size: 1.35rem; font-weight: 800; }
 .float.heal { color: var(--heal); }
 .float.shield { color: var(--shield); }
 .float.buff { color: var(--gold); font-size: 0.85rem; }

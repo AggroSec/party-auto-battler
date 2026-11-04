@@ -71,6 +71,10 @@ export interface Amount {
   maxHp?: number;
   /** Scales with the source's missing HP (post-M7: Dark Knight). */
   missingHp?: number;
+  /** Scales with the damage the source's most recent hit dealt (Maimer). */
+  lastHit?: number;
+  /** Per weapon the source carries (Mercenary). */
+  weapons?: number;
 }
 
 /**
@@ -118,13 +122,18 @@ export type Effect =
       splash?: number;
       /** Ignore the target's DEF. */
       pierce?: boolean;
+      /**
+       * Only hits targets with at least `stacks` of this status; with `consume`
+       * those stacks are used up (Headsman's execution).
+       */
+      requires?: { status: string; stacks: number; consume?: boolean };
     }
   | { kind: 'heal'; target: TargetSelector; amount: Amount }
   | { kind: 'shield'; target: TargetSelector; amount: Amount }
   /** Lasts until the end of combat. */
   | { kind: 'buff'; target: TargetSelector; stat: BuffableStat; amount: Amount }
-  /** Lowers a stat for the rest of combat (never below 0). */
-  | { kind: 'debuff'; target: TargetSelector; stat: BuffableStat; amount: Amount }
+  /** Lowers a stat for the rest of combat (never below 0). 'random' picks ATK, DEF or SPD per target. */
+  | { kind: 'debuff'; target: TargetSelector; stat: BuffableStat | 'random'; amount: Amount }
   /**
    * Shifts the target's ability cooldown by `turns`: negative = cast sooner
    * (haste), positive = delay. Haste never takes a cooldown below `min`
@@ -242,6 +251,10 @@ export interface UnitSetup {
   executeBonus?: number;
   /** The first `times` times the unit would fall, it survives at `hp` × max HP instead. */
   revive?: { hp: number; times: number };
+  /** Chance (0..1) that a hit is critical: double damage (Oathsworn). Damage over time never crits. */
+  critChance?: number;
+  /** Weapons the unit carries, for amounts that scale per weapon. */
+  weapons?: number;
 }
 
 export type Range = 'melee' | 'ranged';

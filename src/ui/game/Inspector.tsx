@@ -1,5 +1,5 @@
 import type { UnitSetup } from '../../engine/index.ts';
-import { classTiers, effectiveClassId, maxLevel, tertiaryItemFor, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
+import { classTiers, effectiveClassId, itemRules, maxLevel, tertiaryItemFor, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
 import { Icon } from './Icon.tsx';
@@ -28,7 +28,11 @@ function ItemRow({
   const id = unit.items[index]!;
   const item = ctx.content.items[id];
   const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId);
-  const chip = <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}><Icon id={item?.tertiaryClassId ? 'signature' : 'item'} /> {item?.name ?? id}</span>;
+  const chip = (
+    <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}>
+      <Icon id={item?.tertiaryClassId ? 'signature' : item?.weapon ? 'weapon' : 'item'} /> {item?.name ?? id}
+    </span>
+  );
   const drag = useDraggable({ kind: 'item', slot, index }, chip);
   return (
     <li className={`item-row ${drag.dragging ? 'is-dragging' : ''}`}>
@@ -95,6 +99,7 @@ export function Inspector({
   const lineage = [base?.name, tert && adv?.name].filter(Boolean).join(' → ');
   const signatureId = tert ? tertiaryItemFor(tert.id, ctx) : undefined;
   const signature = signatureId ? content.items[signatureId] : undefined;
+  const rules = itemRules(unit, content, prog.maxItemsPerUnit);
   return (
     <section className="inspector" style={{ '--class-color': style.color } as React.CSSProperties} aria-label={`${unit.name} details`}>
       <header className="inspector-head">
@@ -142,8 +147,11 @@ export function Inspector({
             onSell={() => onSellItem(i)}
           />
         ))}
-        {unit.items.length < prog.maxItemsPerUnit && (
-          <li className="muted">{prog.maxItemsPerUnit - unit.items.length} free item slot(s)</li>
+        {unit.items.length < rules.slots && (
+          <li className="muted">
+            {rules.slots - unit.items.length} free item slot(s)
+            {rules.maxNonWeapons === 0 ? ', weapons only' : rules.maxNonWeapons !== undefined ? ` (only ${rules.maxNonWeapons} can be non-weapons)` : ''}
+          </li>
         )}
       </ul>
       {signature && !unit.items.includes(signature.id) && (

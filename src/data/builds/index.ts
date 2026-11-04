@@ -9,6 +9,7 @@ import { druidClass, druidTalents, groveWarden, shapeshifter } from './druid.ts'
 import { demolitionist, engineerClass, engineerTalents, machinist } from './engineer.ts';
 import { chronomancer, mageClass, mageTalents, pyromancer } from './mage.ts';
 import { ironFist, monkClass, monkTalents, windwalker } from './monk.ts';
+import { brute, manAtArms, mercenaryClass, mercenaryTalents } from './mercenary.ts';
 import { lich, necromancerClass, necromancerTalents, plaguelord } from './necromancer.ts';
 import { beastmaster, rangerClass, rangerTalents, sharpshooter } from './ranger.ts';
 import { assassin, duelist, rogueClass, rogueTalents } from './rogue.ts';
@@ -21,6 +22,7 @@ import { DARK_KNIGHT_TERTIARY } from './tertiary/dark-knight.ts';
 import { DRUID_TERTIARY } from './tertiary/druid.ts';
 import { ENGINEER_TERTIARY } from './tertiary/engineer.ts';
 import { MAGE_TERTIARY } from './tertiary/mage.ts';
+import { MERCENARY_TERTIARY } from './tertiary/mercenary.ts';
 import { MONK_TERTIARY } from './tertiary/monk.ts';
 import { NECROMANCER_TERTIARY } from './tertiary/necromancer.ts';
 import { RANGER_TERTIARY } from './tertiary/ranger.ts';
@@ -45,6 +47,7 @@ const OTHER_CLASSES: Record<Exclude<ClassId, 'adventurer'>, ClassDef> = {
   runeblade: runebladeClass,
   'dark-knight': darkKnightClass,
   cultist: cultistClass,
+  mercenary: mercenaryClass,
 };
 
 const OTHER_TALENTS: Record<Exclude<ClassId, 'adventurer'>, readonly TalentDef[]> = {
@@ -62,12 +65,13 @@ const OTHER_TALENTS: Record<Exclude<ClassId, 'adventurer'>, readonly TalentDef[]
   runeblade: runebladeTalents,
   'dark-knight': darkKnightTalents,
   cultist: cultistTalents,
+  mercenary: mercenaryTalents,
 };
 
 const OTHER_ADVANCED = [
   knight, berserker, assassin, duelist, pyromancer, chronomancer, priest, inquisitor, sharpshooter, beastmaster,
   windwalker, ironFist, skald, trickster, shapeshifter, groveWarden, hexer, demonologist, machinist, demolitionist,
-  lich, plaguelord, spellblade, duskblade, blackguard, dreadknight, hemomancer, plagueDoctor,
+  lich, plaguelord, spellblade, duskblade, blackguard, dreadknight, hemomancer, plagueDoctor, brute, manAtArms,
 ];
 
 const OTHER_TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
@@ -85,6 +89,7 @@ const OTHER_TERTIARY: { cls: TertiaryClassDef; talents: TalentDef[] }[] = [
   ...RUNEBLADE_TERTIARY,
   ...DARK_KNIGHT_TERTIARY,
   ...CULTIST_TERTIARY,
+  ...MERCENARY_TERTIARY,
 ];
 
 const adventurer = buildAdventurer({ classes: Object.values(OTHER_CLASSES), baseTalents: OTHER_TALENTS, advanced: OTHER_ADVANCED, tertiary: OTHER_TERTIARY });

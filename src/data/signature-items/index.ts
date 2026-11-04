@@ -8,6 +8,7 @@ import { DARK_KNIGHT_SIGNATURES } from './dark-knight.ts';
 import { DRUID_SIGNATURES } from './druid.ts';
 import { ENGINEER_SIGNATURES } from './engineer.ts';
 import { MAGE_SIGNATURES } from './mage.ts';
+import { MERCENARY_SIGNATURES } from './mercenary.ts';
 import { MONK_SIGNATURES } from './monk.ts';
 import { NECROMANCER_SIGNATURES } from './necromancer.ts';
 import { RANGER_SIGNATURES } from './ranger.ts';
@@ -32,4 +33,5 @@ export const SIGNATURE_ITEMS: ItemDef[] = [
   ...DARK_KNIGHT_SIGNATURES,
   ...CULTIST_SIGNATURES,
   ...ADVENTURER_SIGNATURES,
+  ...MERCENARY_SIGNATURES,
 ];

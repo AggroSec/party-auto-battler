@@ -1,6 +1,7 @@
 import type { ItemDef } from '../engine/run/content-types.ts';
 import { on } from './builds/dsl.ts';
 import { SIGNATURE_ITEMS } from './signature-items/index.ts';
+import { BROKEN_LIMB } from './statuses.ts';
 
 const WARRIORS = ['warrior', 'knight', 'berserker'];
 const ROGUES = ['rogue', 'assassin', 'duelist'];
@@ -13,14 +14,16 @@ const BARDS = ['bard', 'skald', 'trickster'];
 const DRUIDS = ['druid', 'shapeshifter', 'grove-warden'];
 const WARLOCKS = ['warlock', 'hexer', 'demonologist'];
 const ENGINEERS = ['engineer', 'machinist', 'demolitionist'];
+const MERCENARIES = ['mercenary', 'brute', 'man-at-arms'];
 
 /**
  * Up to 2 per unit. Anyone can equip anything; class-tied items give their
  * tied classes an extra effect, which is where build-defining combos live.
+ * Weapons (`weapon: true`) also fill the Mercenary's weapon slots.
  */
 const ITEM_LIST: ItemDef[] = [
   // Plain stat items.
-  { id: 'iron-sword', name: 'Iron Sword', description: '+3 ATK.', cost: 3, modifier: { stats: { atk: 3 } } },
+  { id: 'iron-sword', name: 'Iron Sword', description: '+3 ATK.', cost: 3, weapon: true, modifier: { stats: { atk: 3 } } },
   { id: 'chainmail', name: 'Chainmail', description: '+2 DEF, +4 HP.', cost: 3, modifier: { stats: { def: 2, hp: 4 } } },
   { id: 'swift-boots', name: 'Swift Boots', description: '+2 SPD.', cost: 3, modifier: { stats: { spd: 2 } } },
   { id: 'giants-belt', name: "Giant's Belt", description: '+12 HP.', cost: 3, modifier: { stats: { hp: 12 } } },
@@ -30,7 +33,7 @@ const ITEM_LIST: ItemDef[] = [
     id: 'quicksilver-rapier',
     name: 'Quicksilver Rapier',
     description: '+2 ATK, +2 SPD.',
-    cost: 5,
+    cost: 5, weapon: true,
     modifier: { stats: { atk: 2, spd: 2 } },
   },
   { id: 'featherweight-charm', name: 'Featherweight Charm', description: '+4 SPD, −6 HP.', cost: 3, modifier: { stats: { spd: 4, hp: -6 } } },
@@ -72,7 +75,7 @@ const ITEM_LIST: ItemDef[] = [
     id: 'long-spear',
     name: 'Long Spear',
     description: 'Fight at full strength from the back row. +1 ATK.',
-    cost: 3,
+    cost: 3, weapon: true,
     modifier: { reach: true, stats: { atk: 1 } },
     classBonus: { classIds: WARRIORS, description: 'Warriors: +2 more ATK.', modifier: { stats: { atk: 2 } } },
   },
@@ -120,7 +123,7 @@ const ITEM_LIST: ItemDef[] = [
     id: 'hunting-bow',
     name: 'Hunting Bow',
     description: '25% on attack: strike again for 50% ATK.',
-    cost: 4,
+    cost: 4, weapon: true,
     modifier: {
       triggers: [on('onAttack', 'Hunting Bow', [{ kind: 'damage', target: 'triggerTarget', amount: { atk: 0.5 } }], { chance: 0.25 })],
     },
@@ -142,7 +145,7 @@ const ITEM_LIST: ItemDef[] = [
     id: 'rage-gauntlets',
     name: 'Rage Gauntlets',
     description: 'When bloodied, gain +4 ATK.',
-    cost: 4,
+    cost: 4, weapon: true,
     modifier: { triggers: [on('onBloodied', 'Rage Gauntlets', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 4 } }])] },
     classBonus: { classIds: ['berserker'], description: 'Berserkers: +15% lifesteal.', modifier: { lifesteal: 0.15 } },
   },
@@ -150,7 +153,7 @@ const ITEM_LIST: ItemDef[] = [
     id: 'assassins-dagger',
     name: "Assassin's Dagger",
     description: 'On kill, your next ability comes a turn sooner.',
-    cost: 4,
+    cost: 4, weapon: true,
     modifier: { triggers: [on('onKill', "Assassin's Dagger", [{ kind: 'cooldown', target: 'self', turns: -1 }])] },
     classBonus: { classIds: ROGUES, description: 'Rogues: +30% ability power.', modifier: { abilityPower: 0.3 } },
   },
@@ -246,7 +249,7 @@ const ITEM_LIST: ItemDef[] = [
     id: 'executioners-axe',
     name: "Executioner's Axe",
     description: '+2 ATK. Deal 50% more damage to enemies below half HP.',
-    cost: 5,
+    cost: 5, weapon: true,
     modifier: { stats: { atk: 2 }, executeBonus: 0.5 },
   },
   {
@@ -269,6 +272,34 @@ const ITEM_LIST: ItemDef[] = [
         ]),
       ],
     },
+  },
+  // Weapons that come with the Mercenary (Arms Race).
+  {
+    id: 'war-hammer',
+    name: 'War Hammer',
+    description: '+2 ATK. Basic attacks have a 25% chance to break a limb.',
+    cost: 4,
+    weapon: true,
+    modifier: { stats: { atk: 2 }, triggers: [on('onAttack', 'War Hammer', [{ kind: 'status', target: 'triggerTarget', status: BROKEN_LIMB, stacks: 1 }], { chance: 0.25 })] },
+    classBonus: { classIds: MERCENARIES, description: 'Mercenaries: +6 HP.', modifier: { stats: { hp: 6 } } },
+  },
+  {
+    id: 'throwing-axes',
+    name: 'Throwing Axes',
+    description: '+1 ATK. Start of combat: deal 100% ATK to a random enemy.',
+    cost: 4,
+    weapon: true,
+    modifier: { stats: { atk: 1 }, triggers: [on('startOfCombat', 'Throwing Axes', [{ kind: 'damage', target: 'randomEnemy', amount: { atk: 1 } }])] },
+    classBonus: { classIds: MERCENARIES, description: 'Mercenaries: +1 SPD.', modifier: { stats: { spd: 1 } } },
+  },
+  {
+    id: 'halberd',
+    name: 'Halberd',
+    description: '+2 ATK, +2 DEF.',
+    cost: 4,
+    weapon: true,
+    modifier: { stats: { atk: 2, def: 2 } },
+    classBonus: { classIds: MERCENARIES, description: 'Mercenaries: +1 more ATK.', modifier: { stats: { atk: 1 } } },
   },
 ];
 

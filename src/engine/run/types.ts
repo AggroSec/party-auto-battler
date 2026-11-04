@@ -265,7 +265,8 @@ export type RunError =
   | 'maxLevel'
   | 'invalidAllocation'
   | 'notEnoughPoints'
-  | 'alreadyEquipped';
+  | 'alreadyEquipped'
+  | 'weaponsOnly';
 
 export type ActionResult = { ok: true; state: RunState } | { ok: false; error: RunError };
 

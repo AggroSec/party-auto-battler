@@ -49,6 +49,8 @@ export type AchievementCondition =
   | { kind: 'lockedBought'; count: number }
   /** Go into a fight with 5 units holding 2 items each. */
   | { kind: 'fullyEquipped' }
+  /** Go into a fight with this many weapons equipped across the party. */
+  | { kind: 'weaponsEquipped'; count: number }
   /** Reach this many different tertiary classes across all runs. */
   | { kind: 'tertiaryDiscovered'; count: number }
   /** Lifetime totals. */

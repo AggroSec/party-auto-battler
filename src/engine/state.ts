@@ -58,6 +58,10 @@ export interface CombatUnit {
   summonedBy?: UnitId;
   /** Statuses by id (post-M7). */
   statuses: Map<string, ActiveStatus>;
+  /** Damage (to HP and shields) dealt by this unit's most recent hit. */
+  lastHit: number;
+  /** Weapons carried (UnitSetup.weapons). */
+  weapons: number;
 }
 
 export interface CombatState {
@@ -118,6 +122,8 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     revives: setup.revive?.times ?? 0,
     triggerFires: new Map(),
     statuses: new Map(),
+    lastHit: 0,
+    weapons: setup.weapons ?? 0,
     stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0 },
   };
 }

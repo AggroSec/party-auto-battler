@@ -33,7 +33,7 @@ export interface UnitView {
 
 /** Something to animate on a unit during a frame. */
 export type Fx =
-  | { kind: 'damage'; target: UnitId; value: number; absorbed: number }
+  | { kind: 'damage'; target: UnitId; value: number; absorbed: number; crit?: boolean }
   | { kind: 'heal'; target: UnitId; value: number }
   | { kind: 'shield'; target: UnitId; value: number }
   | { kind: 'stat'; target: UnitId; stat: BuffableStat; value: number }
@@ -110,7 +110,7 @@ function apply(frame: Frame, e: CombatEvent): void {
         t.hp = e.hpAfter;
         t.shield = Math.max(0, t.shield - e.absorbed);
       }
-      frame.fx.push({ kind: 'damage', target: e.target, value: e.value, absorbed: e.absorbed });
+      frame.fx.push({ kind: 'damage', target: e.target, value: e.value, absorbed: e.absorbed, ...(e.crit ? { crit: true } : {}) });
       return;
     }
     case 'heal': {
