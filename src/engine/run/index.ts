@@ -14,6 +14,7 @@ export {
   unitSkills,
   validRules,
 } from './rule-lists.ts';
+export { breakdownRows, passText, type BreakdownRow } from './breakdown.ts';
 export { rollConsumable, rollConsumableDrop } from './shop.ts';
 export {
   allSlots,
@@ -47,7 +48,7 @@ export {
 } from './build.ts';
 export { explainUnit, type Contribution, type UnitExplanation } from './explain.ts';
 export { interestFor, roundIncome, streakBonusFor } from './economy.ts';
-export { enemyCount, generateEnemy, roundScaling, type EnemyParty } from './enemies.ts';
+export { enemyConsumableCount, enemyCount, generateEnemy, roundScaling, type EnemyParty } from './enemies.ts';
 export {
   allocatePoints,
   choiceOptions,

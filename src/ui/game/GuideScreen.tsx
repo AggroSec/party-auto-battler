@@ -44,7 +44,7 @@ const SECTIONS: Section[] = [
           <strong>Mix roles.</strong> A sturdy front-liner (Warrior), a damage dealer (Rogue, Ranger or Mage) and a healer (Cleric) beat three of the same.
         </li>
         <li>
-          <strong>Press Fight.</strong> Watch who hits whom. The fight report afterwards shows damage dealt and taken for every unit.
+          <strong>Press Fight.</strong> Watch who hits whom. The fight report afterwards shows damage dealt and taken for every unit; tap a unit to see what its ability, attacks and items did.
         </li>
         <li>
           <strong>Spend your new gold.</strong> Fill the board up to five, then buy <em>training</em> (XP) and <em>items</em> for your best units.
@@ -166,6 +166,10 @@ const SECTIONS: Section[] = [
             cure them, so keep them up.
           </li>
           <li>Each class splits at level 3 and 7 like in classic runs. Talents are skill augments: more power or a shorter cooldown for one skill.</li>
+          <li>
+            <strong>Check your rules after a fight:</strong> tap a unit in the fight report to see how often each rule fired, what it did, and why the others didn&apos;t
+            (condition not met, on cooldown, or a rule above always fired first).
+          </li>
           <li>Reset to class defaults any time. Enemies fight by their class defaults.</li>
         </ul>
       </>

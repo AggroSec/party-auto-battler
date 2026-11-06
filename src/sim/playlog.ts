@@ -5,6 +5,7 @@ import type { CombatEvent, Winner } from '../engine/index.ts';
 import {
   applyShopAction,
   boardUnits,
+  breakdownRows,
   createRun,
   defaultSetup,
   fight,
@@ -12,6 +13,7 @@ import {
   resolveBoard,
   ruleLabel,
   type Board,
+  type BreakdownRow,
   type FightResult,
   type OwnedUnit,
   type PlayLogEntry,
@@ -223,9 +225,25 @@ function boardLines(board: Board, fought: Fought, side: 'player' | 'enemy', ctx:
       const s = fought.combat.summary.find((x) => x.id === id);
       const stats = s ? ` — dealt ${s.damageDealt}, took ${s.damageTaken}${s.healingDone ? `, healed ${s.healingDone}` : ''}${s.shieldingDone ? `, shielded ${s.shieldingDone}` : ''}${s.survived ? '' : ', died'}` : '';
       lines.push(`    ${row} ${col + 1}: ${unitLine(u, ctx)}${stats}`);
+      // Your units: what each rule (or ability, attack, trigger, consumable) did.
+      if (side === 'player' && s?.actions) {
+        const rules = resolveBoard(board, ctx.content)[row][col]?.rules;
+        for (const r of breakdownRows(s.actions, rules, ctx.content)) lines.push(`      · ${breakdownLine(r)}`);
+      }
     }),
   );
   return lines;
+}
+
+/** "1. Ward ×13: shielded 702" or "2. Heal ×0 (never fired: a rule above fired first ×13)". */
+function breakdownLine(r: BreakdownRow): string {
+  const parts = [
+    r.damage ? `dealt ${r.damage}` : '',
+    r.support ? `healed/shielded ${r.support}` : '',
+    r.afflictions ? `${r.afflictions} afflictions` : '',
+    r.kills ? `${r.kills} kill${r.kills === 1 ? '' : 's'}` : '',
+  ].filter(Boolean);
+  return `${r.label} ×${r.uses}${parts.length ? `: ${parts.join(', ')}` : ''}${r.note ? ` (${r.note})` : ''}`;
 }
 
 function countLabels(labels: string[]): string {

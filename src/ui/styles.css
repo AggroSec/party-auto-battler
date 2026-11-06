@@ -386,6 +386,18 @@ button.stats-line { display: block; width: 100%; text-align: left; margin: 6px 0
 .summary-table td:not(:first-child) { position: relative; min-width: 4.5em; }
 .summary-table td.actions-cell { min-width: 3.5em; white-space: nowrap; }
 .summary-table tr.summon-row { font-style: italic; opacity: 0.85; }
+.summary-hint { grid-column: 1 / -1; margin: 0; }
+.unit-toggle { background: none; border: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.unit-toggle:hover, .unit-toggle:focus-visible { text-decoration: underline; }
+.toggle-caret { color: var(--muted); margin-right: 3px; }
+@media (max-width: 560px) { .summary-table td:not(:first-child) { min-width: 3em; } .summary-table th, .summary-table td { padding: 4px 4px; } }
+.fight-summary { align-items: start; }
+.summary-table tr.breakdown-row > td { padding: 2px 0 10px 1.2em; }
+.breakdown { list-style: none; margin: 0; padding: 0; font-size: 0.85em; display: grid; gap: 6px; }
+.breakdown li { border-left: 2px solid var(--muted); padding-left: 8px; }
+.breakdown li.never { opacity: 0.75; border-left-style: dashed; }
+.bd-head { display: flex; justify-content: space-between; gap: 8px; }
+.bd-uses { font-weight: 700; white-space: nowrap; }
 .summary-table .bar { position: absolute; right: 4px; top: 50%; height: 60%; transform: translateY(-50%); border-radius: 3px; opacity: 0.25; }
 .bar.b0 { background: var(--enemy); }
 .bar.b1 { background: var(--muted); }
