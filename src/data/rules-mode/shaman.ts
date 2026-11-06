@@ -80,7 +80,7 @@ export const doomspeaker = tertiaryTier({
   modifier: { stats: { atk: 3, hp: 8 } },
   skills: [
     skill('rot-curse', 'Rot Curse', 2, 'enemy', '2 Rot (damage each turn, up to 3).', [afflict(ROT, 2)]),
-    skill('cataclysm', 'Cataclysm', 4, null, 'Each enemy takes 30% ATK + 30% ATK per affliction on it.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.3 }, perAffliction: 0.3 }]),
+    skill('cataclysm', 'Cataclysm', 4, null, 'Each enemy takes 40% ATK + 35% ATK per affliction on it.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.4 }, perAffliction: 0.35 }]),
   ],
   rules: [rule('cataclysm', { kind: 'enemiesAtLeast', count: 3 }), rule('rot-curse', lacks(ROT), 'mostAfflicted')],
 });
@@ -93,10 +93,10 @@ export const witchDoctor = tertiaryTier({
   description: 'Afflicts for the whole party: fevers stop healing, and hex totems mark every enemy.',
   tags: SPIRIT,
   statWeights: { hp: 4, atk: 4, def: 1, spd: 1 },
-  modifier: { stats: { hp: 12, atk: 3 } },
+  modifier: { stats: { hp: 10, atk: 2 } },
   skills: [
     skill('fever-curse', 'Fever Curse', 2, 'enemy', '60% ATK and Fever (heals on it are halved).', [hit(0.6), afflict(FEVER)]),
-    skill('hex-totem', 'Hex Totem', 3, null, 'Every enemy is Marked: +25% damage taken for 3 turns.', [afflict(MARKED, 1, 'allEnemies')]),
+    skill('hex-totem', 'Hex Totem', 4, null, 'Every enemy is Marked: +25% damage taken for 3 turns.', [afflict(MARKED, 1, 'allEnemies')]),
   ],
   rules: [rule('hex-totem', lacks(MARKED)), rule('fever-curse', lacks(FEVER), 'mostAfflicted')],
 });

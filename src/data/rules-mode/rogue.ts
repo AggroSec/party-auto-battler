@@ -76,7 +76,7 @@ export const phantom = tertiaryTier({
   description: 'Everywhere at once: knives for everyone, and blinding speed.',
   tags: ['shadow'],
   statWeights: { hp: 2, atk: 4, def: 1, spd: 3 },
-  modifier: { stats: { atk: 3, spd: 2, hp: 6 } },
+  modifier: { stats: { atk: 4, spd: 2, hp: 8 } },
   skills: [
     skill('fan-of-knives', 'Fan of Knives', 3, null, '85% ATK to every enemy.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.85 } }]),
     skill('shadow-dance', 'Shadow Dance', 4, null, 'Hasted: +4 SPD for 3 turns.', [selfStatus(HASTED)]),
@@ -92,9 +92,9 @@ export const plaguebringer = tertiaryTier({
   description: 'Spreads poison and fever through the whole enemy line.',
   tags: ['shadow'],
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
-  modifier: { stats: { hp: 10, atk: 3 } },
+  modifier: { stats: { hp: 8, atk: 1 } },
   skills: [
-    skill('toxic-cloud', 'Toxic Cloud', 4, null, '45% ATK and Poison to every enemy.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.45 } }, afflict(POISON, 1, 'allEnemies')]),
+    skill('toxic-cloud', 'Toxic Cloud', 4, null, '30% ATK and Poison to every enemy.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.3 } }, afflict(POISON, 1, 'allEnemies')]),
     skill('fever-dart', 'Fever Dart', 2, 'enemy', '40% ATK and Fever (heals on it are halved).', [hit(0.4), afflict(FEVER)]),
   ],
   rules: [rule('toxic-cloud'), rule('fever-dart', lacks(FEVER), 'mostAfflicted')],
@@ -108,8 +108,8 @@ export const envenomer = tertiaryTier({
   description: 'Lets the venom work, then strikes for every affliction it finds.',
   tags: ['shadow'],
   statWeights: { hp: 2, atk: 5, def: 1, spd: 2 },
-  modifier: { stats: { atk: 3 } },
-  skills: [skill('virulent-strike', 'Virulent Strike', 3, 'enemy', '90% ATK + 60% ATK per affliction on the target.', [hit(0.9, { perAffliction: 0.6 })])],
+  modifier: { stats: { atk: 4, hp: 6 } },
+  skills: [skill('virulent-strike', 'Virulent Strike', 3, 'enemy', '100% ATK + 70% ATK per affliction on the target.', [hit(1, { perAffliction: 0.7 })])],
   rules: [rule('virulent-strike', afflictions(2), 'mostAfflicted')],
 });
 

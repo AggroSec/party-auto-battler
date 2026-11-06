@@ -92,9 +92,9 @@ export const timeweaver = tertiaryTier({
   description: 'Speeds up the whole party and rewinds wounds.',
   tags: ['arcane'],
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
-  modifier: { stats: { spd: 2, hp: 8 } },
+  modifier: { stats: { spd: 1, hp: 6 } },
   skills: [
-    skill('time-warp', 'Time Warp', 4, null, 'Every ally is Hasted: +4 SPD for 3 turns.', [afflict(HASTED, 1, 'allAllies')]),
+    skill('time-warp', 'Time Warp', 5, null, 'Every ally is Hasted: +4 SPD for 3 turns.', [afflict(HASTED, 1, 'allAllies')]),
     skill('rewind', 'Rewind', 3, 'ally', 'Heal an ally for 160% ATK.', [{ kind: 'heal', target: 'focus', amount: { atk: 1.6 } }]),
   ],
   rules: [rule('rewind', allyBelow(50)), rule('time-warp', { kind: 'targetLacks', status: HASTED.id }, 'self')],

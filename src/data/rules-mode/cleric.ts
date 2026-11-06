@@ -65,7 +65,7 @@ export const oracle = tertiaryTier({
   description: 'Sees harm coming: shields the party and cleanses everyone at once.',
   tags: ['divine'],
   statWeights: { hp: 3, atk: 4, def: 2, spd: 1 },
-  modifier: { stats: { hp: 10, def: 1 } },
+  modifier: { stats: { hp: 12, def: 1, atk: 1 } },
   skills: [
     skill('sanctuary', 'Sanctuary', 4, null, 'Shield every ally for 90% ATK.', [{ kind: 'shield', target: 'allAllies', amount: { atk: 0.9 } }]),
     skill('cleanse', 'Cleanse', 3, null, 'Remove an affliction from every ally.', [{ kind: 'cure', target: 'allAllies', count: 1 }]),
