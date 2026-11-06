@@ -50,7 +50,9 @@ export function baseClass(
   input: TierInput & { baseStats: Stats; range: Range; placement: number; role: string; look: string; advancedClasses: string[] },
 ): Built<ClassTemplate> {
   const talents = augments(input.skills);
-  const { modifier: _m, ...rest } = input;
+  // A base class's stats are its base stats; it has no modifier.
+  const rest: Omit<typeof input, 'modifier'> = { ...input };
+  delete (rest as Partial<typeof input>).modifier;
   return {
     cls: { ...rest, attackTarget: 'nearest', ability: input.skills[0]!, triggers: [], talents: talents.map((t) => t.id) },
     talents,
