@@ -129,6 +129,8 @@ export function RuleEditor({ unit, setup, ctx, onChange }: { unit: OwnedUnit; se
       <ol className="rule-list">
         {rules.map((rule, i) => {
           const skill = byId(rule.skill);
+          // Self and area skills only need a target when a condition checks one.
+          const aims = !skill || !!skill.aim || rule.when?.kind.startsWith('target') === true;
           return (
             <li key={i} className="rule-row">
               <span className="rule-main">
@@ -140,20 +142,22 @@ export function RuleEditor({ unit, setup, ctx, onChange }: { unit: OwnedUnit; se
                   ))}
                   <option value={BASIC_ATTACK}>Attack</option>
                 </select>
-                <select
-                  value={rule.target ?? ''}
-                  onChange={(e) => set(i, e.target.value ? { ...without(rule, 'target'), target: e.target.value as TargetSelector } : without(rule, 'target'))}
-                  aria-label={`Rule ${i + 1} target`}
-                >
-                  <option value="">{skill?.aim === 'ally' ? 'most wounded ally' : 'nearest enemy'}</option>
-                  {targetsFor(skill)
-                    .filter((t) => t !== (skill?.aim === 'ally' ? 'lowestHpAlly' : 'nearest'))
-                    .map((t) => (
-                      <option key={t} value={t}>
-                        {TARGET_LABEL[t] ?? t}
-                      </option>
-                    ))}
-                </select>
+                {aims && (
+                  <select
+                    value={rule.target ?? ''}
+                    onChange={(e) => set(i, e.target.value ? { ...without(rule, 'target'), target: e.target.value as TargetSelector } : without(rule, 'target'))}
+                    aria-label={`Rule ${i + 1} target`}
+                  >
+                    <option value="">{skill?.aim === 'ally' ? 'most wounded ally' : 'nearest enemy'}</option>
+                    {targetsFor(skill)
+                      .filter((t) => t !== (skill?.aim === 'ally' ? 'lowestHpAlly' : 'nearest'))
+                      .map((t) => (
+                        <option key={t} value={t}>
+                          {TARGET_LABEL[t] ?? t}
+                        </option>
+                      ))}
+                  </select>
+                )}
               </span>
               <ConditionPicker
                 when={rule.when}

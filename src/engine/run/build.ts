@@ -62,7 +62,9 @@ export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSour
     if (!item) continue;
     sources.push({ kind: 'item', name: item.name, modifier: item.modifier });
     if (id === sworn) sources.push({ kind: 'item', name: `${item.name} (sworn weapon)`, modifier: item.modifier });
-    if (item.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId)) {
+    // Rules-mode classes count as their classic namesake for class-tied items.
+    const look = content.classes[unit.classId]?.look;
+    if (item.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId || c === look)) {
       sources.push({ kind: 'classBonus', name: item.name, modifier: item.classBonus.modifier });
     }
   }

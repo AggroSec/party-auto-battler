@@ -28,7 +28,8 @@ function ItemRow({
 }) {
   const id = unit.items[index]!;
   const item = ctx.content.items[id];
-  const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId);
+  const look = ctx.content.classes[unit.classId]?.look;
+  const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId || c === look);
   const chip = (
     <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}>
       <Icon id={item?.tertiaryClassId ? 'signature' : item?.weapon ? 'weapon' : 'item'} /> {item?.name ?? id}
