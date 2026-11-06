@@ -26,3 +26,6 @@ npm-debug.log*
 
 # dev play logs (npm run dev → npm run playlog)
 playlogs/
+
+# Brandon's local notes
+milestone-5-notes
