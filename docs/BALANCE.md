@@ -2,6 +2,13 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-06 — Milestone 12: fight breakdown, tier 14 consumables
+
+Command: `npm run sim -- --only ladder --runs 400`, run before and after the change.
+
+- **The breakdown doesn't change fights.** It uses no RNG and adds no events. Tiers 0–13 and 15 came out identical before and after.
+- **Tier 14** (sensible / greedy avg wins): 2.6 / 2.9 → 2.6 / 3.0. Bots rarely reach round 5 on tier 14, so the simulator barely sees enemy consumables. The change is aimed at Brandon's round 9 tick-0 death, which only a strong player's late rounds show.
+
 ## 2026-11-05 — Milestone 11: rules mode, consumables, tier 11–12 fix
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot, tier 0), `npm run sim -- --only runs --mode rules`, and `npm run sim -- --only ladder --runs 200`.

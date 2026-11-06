@@ -2,6 +2,39 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 12 — Fight breakdown (2026-11-06)
+
+### What was built
+- **Fight breakdown** (your idea, from the first rules-mode playtest): in the fight summary, tap a unit (yours or the enemy's) to see what it did.
+  - **Rules mode:** every rule in list order, including rules that never fired. Each shows how often it fired, what it did (damage, healing + shielding, affliction stacks, kills), and why it was passed over: *condition not met*, *on cooldown*, *a rule above fired first* or *silenced*. Turns when no rule fired show as "Basic attack (no rule fired)".
+  - **Classic:** the ability, basic attacks, and every passive, talent, item and consumable that went off. This also covers your old request in `milestone-5-notes` for a count of each unit's attacks.
+  - **Damage over time counts toward whatever applied it,** so Poison Blade's poison ticks are credited to Poison Blade, not to the next thing the rogue did.
+  - **Several units can be open at once.** The breakdown is a compact list and fits a 360px phone.
+  - **The play log prints it too,** so I see the same thing when I read your logs.
+- **Softer tier 14 enemy consumables:** one enemy carries a consumable from round 5, two from round 10 and three from round 15. Before, every enemy carried one. In your round 9 loss, a Fire Bomb plus two Throwing Knives killed Vesna at tick 0.
+- **Hourglass is unchanged,** as you decided.
+- **The guide and README** mention the breakdown.
+
+### What it would have shown in your tier-14 loss
+Replaying your run with the new play log:
+- **Round 9, Dax (Priest with Hourglass):** "1. Ward ×13: healed/shielded 702", then "2. Heal ×0 (never fired: a rule above fired first ×13)", and the same for every rule below it.
+- **Round 9, Sable:** "3. Frost Hex → most afflicted enemy ×26 … (skipped: a rule above fired first ×14)". Frost Hex had no "lacks Frostbite" condition, so it re-applied Frostbite instead of building more afflictions, and Wither and Brittle Curse never fired.
+
+### What to playtest
+1. Play a rules-mode fight, then tap your units in the result screen. Can you tell which rules are firing and why the others aren't? Is it readable on your phone?
+2. Tap an enemy unit to see how the default rules play out.
+3. In classic mode, tap a unit to check that the ability, item and consumable rows make sense.
+4. On tier 14 from round 5, check that fights no longer open with a pile of bombs.
+
+### Known issues
+- Fights saved before this update show "No breakdown for this fight". Only the last fight is affected.
+- Kills credit whichever action dealt the final blow.
+- Revives aren't listed in the breakdown.
+
+### Simulator balance
+- **The breakdown is bookkeeping only:** it uses no RNG and adds no events. Ladder runs before and after are identical on every tier except 14.
+- **Tier 14:** sensible / greedy average wins went from 2.6 / 2.9 to 2.6 / 3.0. Bots rarely reach the rounds where this change applies.
+
 ## Milestone 11 — Rules mode, consumables, the guide (2026-11-05)
 
 ### What was built

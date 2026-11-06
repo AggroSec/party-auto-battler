@@ -150,6 +150,7 @@ docs/
 9. **Ship:** GitHub Pages deploy, README with screenshots/GIF, and a "How this was built" section.
 10. **Ladder + Mercenary (post-1.0):** ladder tiers 11–15 with unique bosses, and the Mercenary class.
 11. **Rules mode, consumables and the guide (post-1.0):** an optional run mode where units act by priority lists the player writes, skill kits for six classes (including the new Shaman), consumable items, an in-depth guide with one-time tips, and the tier 11–12 difficulty fix.
+12. **Fight breakdown (post-1.0):** tap a unit in the fight summary to see what each rule (or ability, attack, trigger and consumable) did and why rules didn't fire; softer tier 14 enemy consumables.
 
 ## README requirements
 
