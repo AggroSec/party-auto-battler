@@ -22,6 +22,7 @@ const COLORS: Record<string, string> = {
   cultist: '#a6b83a',
   adventurer: '#d9a441',
   mercenary: '#b5784a',
+  shaman: '#3fb8a0',
   // Unique bosses.
   'chain-warden': '#7d8794',
   'pale-choir': '#c9d6e8',
@@ -53,9 +54,15 @@ export function baseClassOf(content: RunContent, classId: string): string {
   return content.advancedClasses[classId]?.baseClassId ?? content.tertiaryClasses[classId]?.baseClassId ?? classId;
 }
 
+/** The class whose look a class uses: rules-mode classes share their classic namesake's. */
+function lookOf(content: RunContent, classId: string): string {
+  const base = baseClassOf(content, classId);
+  return content.classes[base]?.look ?? base;
+}
+
 const isIcon = (id: string): id is IconId => id in ICONS;
 
 export function classStyle(content: RunContent | null, classId: string): ClassLook {
-  const base = content ? baseClassOf(content, classId) : classId;
+  const base = content ? lookOf(content, classId) : classId;
   return { color: COLORS[base] ?? FALLBACK_COLOR, icon: isIcon(base) ? base : null };
 }

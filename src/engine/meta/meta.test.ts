@@ -33,7 +33,7 @@ function ended(phase: RunState['phase'], over: Partial<RunState> = {}): RunState
 describe('unlocks', () => {
   it('starts with the starter set and adds achievement rewards', () => {
     const p = newProfile();
-    expect(unlockedContent(p, CATALOG)).toEqual({ classes: ['tank'], items: ['sword'], synergies: ['guards'], perks: ['a', 'b', 'c'], perkSlots: 1, favoredSlots: 1, maxTier: 0 });
+    expect(unlockedContent(p, CATALOG)).toEqual({ classes: ['tank'], rulesClasses: [], items: ['sword'], synergies: ['guards'], perks: ['a', 'b', 'c'], perkSlots: 1, favoredSlots: 1, maxTier: 0 });
     const earned = unlockedContent({ ...p, achievements: ['win', 'perk'], maxTier: 2 }, CATALOG);
     expect(earned).toMatchObject({ classes: ['tank', 'archer'], items: ['sword', 'boots'], perkSlots: 2, maxTier: 2 });
   });
@@ -41,6 +41,7 @@ describe('unlocks', () => {
   it('unlock-all opens everything', () => {
     expect(unlockedContent({ ...newProfile(), unlockAll: true }, CATALOG)).toEqual({
       classes: ['tank', 'archer'],
+      rulesClasses: [],
       items: ['sword', 'boots'],
       synergies: ['guards', 'mixed'],
       perks: ['a', 'b', 'c', 'd', 'e'],

@@ -9,6 +9,7 @@ import { BOSS_CLASSES, BOSSES } from './meta/bosses.ts';
 import { ELITE, LADDER } from './meta/ladder.ts';
 import { PERKS } from './meta/perks.ts';
 import { UNIT_NAMES } from './names.ts';
+import { RULES_ADVANCED, RULES_CLASSES, RULES_ENEMIES, RULES_STATUSES, RULES_TALENTS, RULES_TERTIARY } from './rules-mode/index.ts';
 import { SYNERGIES } from './synergies.ts';
 
 /**
@@ -19,16 +20,18 @@ import { SYNERGIES } from './synergies.ts';
 export function buildRunContent(): RunContent {
   return {
     // Unique bosses fight as their own classes, which never reach the shop.
-    classes: { ...CLASSES, ...BOSS_CLASSES },
-    advancedClasses: ADVANCED_CLASSES,
-    tertiaryClasses: TERTIARY_CLASSES,
-    talents: TALENTS,
+    // Rules-mode classes (post-1.0) live alongside; a run's setup picks which it can recruit.
+    classes: { ...CLASSES, ...BOSS_CLASSES, ...RULES_CLASSES },
+    advancedClasses: { ...ADVANCED_CLASSES, ...RULES_ADVANCED },
+    tertiaryClasses: { ...TERTIARY_CLASSES, ...RULES_TERTIARY },
+    talents: { ...TALENTS, ...RULES_TALENTS },
+    statuses: RULES_STATUSES,
     items: ITEMS,
     synergies: SYNERGIES,
     shopPool: CLASS_IDS,
     itemPool: ITEM_IDS,
     consumablePool: CONSUMABLE_IDS,
-    enemies: ENEMY_ARCHETYPES,
+    enemies: [...ENEMY_ARCHETYPES, ...RULES_ENEMIES],
     enemyScaling: ENEMY_SCALING,
     enemyProgression: ENEMY_PROGRESSION,
     unitNames: UNIT_NAMES,

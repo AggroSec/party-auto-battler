@@ -13,6 +13,7 @@ export function unlockedContent(profile: Profile, catalog: MetaCatalog): Unlocke
   if (profile.unlockAll) {
     return {
       classes: [...catalog.all.classes],
+      rulesClasses: [...(catalog.all.rulesClasses ?? [])],
       items: [...catalog.all.items],
       synergies: [...catalog.all.synergies],
       perks: [...catalog.all.perks],
@@ -29,8 +30,10 @@ export function unlockedContent(profile: Profile, catalog: MetaCatalog): Unlocke
   };
   const slots = (key: 'perkSlots' | 'favoredSlots', max: number) =>
     Math.min(max, catalog.starter[key] + earned.reduce((s, a) => s + (a.reward[key] ?? 0), 0));
+  const rulesHave = new Set([...(catalog.rulesStarter ?? []), ...earned.flatMap((a) => a.reward.classes ?? [])]);
   return {
     classes: have('classes'),
+    rulesClasses: (catalog.all.rulesClasses ?? []).filter((id) => rulesHave.has(id)),
     items: have('items'),
     synergies: have('synergies'),
     perks: have('perks'),
@@ -46,12 +49,14 @@ export function perkOffer(seed: string, pool: readonly string[], kept: number, c
 }
 
 /** A run's setup from what's unlocked, a chosen tier, chosen perks and optional favored classes. */
-export function runSetupFor(unlocked: Unlocked, tier: number, perks: readonly string[], favored: readonly string[] = []): RunSetup {
-  const picks = [...new Set(favored)].filter((c) => unlocked.classes.includes(c)).slice(0, unlocked.favoredSlots);
+export function runSetupFor(unlocked: Unlocked, tier: number, perks: readonly string[], favored: readonly string[] = [], mode?: 'rules'): RunSetup {
+  const classes = mode === 'rules' ? unlocked.rulesClasses : unlocked.classes;
+  const picks = [...new Set(favored)].filter((c) => classes.includes(c)).slice(0, unlocked.favoredSlots);
   return {
     tier: Math.max(0, Math.min(tier, unlocked.maxTier)),
     perks: perks.filter((p) => unlocked.perks.includes(p)).slice(0, unlocked.perkSlots),
-    classes: [...unlocked.classes],
+    classes: [...classes],
+    ...(mode ? { mode } : {}),
     items: [...unlocked.items],
     synergies: [...unlocked.synergies],
     ...(picks.length > 0 ? { favored: picks } : {}),

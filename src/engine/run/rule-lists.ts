@@ -31,9 +31,14 @@ export function unitRules(unit: OwnedUnit, content: RunContent): Rule[] {
 export const ENEMY_TARGETS: readonly TargetSelector[] = ['nearest', 'mostAfflicted', 'lowestHp', 'highestAtk', 'backlineFirst', 'randomEnemy'];
 export const ALLY_TARGETS: readonly TargetSelector[] = ['lowestHpAlly', 'mostAfflictedAlly', 'self'];
 
-/** The targets a rule for this skill may choose (basic attacks and area skills aim like enemy skills). */
+/**
+ * The targets a rule for this skill may choose. Basic attacks aim at enemies;
+ * a skill that doesn't aim uses its rule's target only for conditions, so any.
+ */
 export function targetsFor(skill: AbilityDef | undefined): readonly TargetSelector[] {
-  return skill?.aim === 'ally' ? ALLY_TARGETS : ENEMY_TARGETS;
+  if (!skill) return ENEMY_TARGETS;
+  if (!skill.aim) return [...ENEMY_TARGETS, ...ALLY_TARGETS];
+  return skill.aim === 'ally' ? ALLY_TARGETS : ENEMY_TARGETS;
 }
 
 const inRange = (n: unknown, lo: number, hi: number) => typeof n === 'number' && Number.isInteger(n) && n >= lo && n <= hi;

@@ -3,6 +3,7 @@ import { newProfile, runSetupFor, unlockedContent } from '../../engine/meta/inde
 import { createRun, fight, newUnit } from '../../engine/run/index.ts';
 import { TERTIARY_CLASSES } from '../builds/index.ts';
 import { CLASSES } from '../classes.ts';
+import { RULES_CLASSES } from '../rules-mode/index.ts';
 import { buildRunContext } from '../content.ts';
 import { ITEMS, ITEM_IDS } from '../items.ts';
 import { SYNERGIES } from '../synergies.ts';
@@ -31,7 +32,7 @@ describe('meta content', () => {
     expect(new Set(ACHIEVEMENTS.map((a) => a.id)).size).toBe(ACHIEVEMENTS.length);
     const synergyIds = SYNERGIES.map((s) => s.id);
     for (const a of ACHIEVEMENTS) {
-      for (const id of a.reward.classes ?? []) expect(CLASSES).toHaveProperty(id);
+      for (const id of a.reward.classes ?? []) expect({ ...CLASSES, ...RULES_CLASSES }).toHaveProperty(id);
       for (const id of a.reward.items ?? []) expect(ITEM_IDS).toContain(id);
       for (const id of a.reward.synergies ?? []) expect(synergyIds).toContain(id);
       for (const id of a.reward.perks ?? []) expect(PERKS).toHaveProperty(id);

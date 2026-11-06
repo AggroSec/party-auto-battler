@@ -122,8 +122,9 @@ function runEndMet(cond: AchievementCondition, state: RunState): boolean {
   }
 }
 
-function award(profile: Profile, catalog: MetaCatalog, met: (a: AchievementDef) => boolean): AchievementDef[] {
-  const earned = catalog.achievements.filter((a) => !profile.achievements.includes(a.id) && met(a));
+function award(profile: Profile, catalog: MetaCatalog, met: (a: AchievementDef) => boolean, mode?: 'rules'): AchievementDef[] {
+  // A mode's achievements count only in runs of that mode.
+  const earned = catalog.achievements.filter((a) => !profile.achievements.includes(a.id) && (a.mode === undefined || a.mode === mode) && met(a));
   profile.achievements.push(...earned.map((a) => a.id));
   return earned;
 }
@@ -138,7 +139,7 @@ export function recordFight(profile: Profile, info: FightInfo, base: RunContext,
   for (const u of boardUnits(info.after.board)) {
     if (u.tertiaryClassId && !next.discovered.includes(u.tertiaryClassId)) next.discovered.push(u.tertiaryClassId);
   }
-  const earned = award(next, catalog, (a) => fightMet(a.condition, info, ctx) || lifetimeMet(a.condition, next));
+  const earned = award(next, catalog, (a) => fightMet(a.condition, info, ctx) || lifetimeMet(a.condition, next), info.before.setup.mode);
   return { profile: next, earned };
 }
 
@@ -149,7 +150,7 @@ export function recordDiscovery(profile: Profile, state: RunState, catalog: Meta
   if (fresh.length === 0) return { profile, earned: [] };
   const next = structuredClone(profile);
   next.discovered.push(...new Set(fresh));
-  return { profile: next, earned: award(next, catalog, (a) => lifetimeMet(a.condition, next)) };
+  return { profile: next, earned: award(next, catalog, (a) => lifetimeMet(a.condition, next), state.setup.mode) };
 }
 
 /** After a run ends: totals, the next ladder tier, the daily record and run achievements. */
@@ -166,6 +167,6 @@ export function recordRunEnd(profile: Profile, state: RunState, catalog: MetaCat
   if (complete && state.setup.tier >= next.maxTier) {
     next.maxTier = Math.min(catalog.maxTier, state.setup.tier + 1);
   }
-  const earned = award(next, catalog, (a) => runEndMet(a.condition, state) || lifetimeMet(a.condition, next));
+  const earned = award(next, catalog, (a) => runEndMet(a.condition, state) || lifetimeMet(a.condition, next), state.setup.mode);
   return { profile: next, earned };
 }
