@@ -115,7 +115,10 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     spd: s.spd,
     shield: 0,
     gauge: 0,
-    cooldowns: [setup.ability, ...(setup.extraAbilities ?? [])].map((a) => a.initialCooldown ?? a.cooldown),
+    // Rules-mode skills are ready from the first turn unless they say otherwise.
+    cooldowns: setup.skills
+      ? setup.skills.map((a) => a.initialCooldown ?? 0)
+      : [setup.ability, ...(setup.extraAbilities ?? [])].map((a) => a.initialCooldown ?? a.cooldown),
     taunt: 0,
     alive: true,
     bloodied: false,

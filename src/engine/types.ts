@@ -58,7 +58,13 @@ export type TargetSelector =
   /** Every living ally in the source side's frontmost row. */
   | 'allyFrontRow'
   | 'triggerSource'
-  | 'triggerTarget';
+  | 'triggerTarget'
+  /** Rules mode: the enemy with the most afflictions (taunt applies), then board order. */
+  | 'mostAfflicted'
+  /** Rules mode: the ally with the most afflictions. */
+  | 'mostAfflictedAlly'
+  /** Rules mode: the target the unit's rule picked for this skill. */
+  | 'focus';
 
 /**
  * A number derived from the source unit's current stats:
@@ -109,6 +115,16 @@ export interface StatusDef {
   burstAt?: number;
   /** While active, the unit can't drop below 1 HP (Undying Rage). */
   preventDeath?: boolean;
+  /** Harmful: counts as an affliction (rules mode: affliction counts, cures). */
+  affliction?: boolean;
+  /** While active, the unit can't use its abilities or skills, only basic attacks. */
+  silence?: boolean;
+  /** While active, the unit loses its turns. */
+  stun?: boolean;
+  /** Multiplies healing the unit receives (0.5 = half). */
+  healingTaken?: number;
+  /** Multiplies damage the unit takes before DEF (1.25 = +25%). */
+  damageTaken?: number;
 }
 
 export type Effect =
@@ -127,6 +143,10 @@ export type Effect =
        * those stacks are used up (Headsman's execution).
        */
       requires?: { status: string; stacks: number; consume?: boolean };
+      /** Rules mode: + this × ATK per affliction on the target (damage per affliction). */
+      perAffliction?: number;
+      /** + `atk` × ATK per stack of `status` on the target; `consume` clears the stacks. */
+      perStack?: { status: string; atk: number; consume?: boolean };
     }
   | { kind: 'heal'; target: TargetSelector; amount: Amount }
   | { kind: 'shield'; target: TargetSelector; amount: Amount }
@@ -159,7 +179,14 @@ export type Effect =
    */
   | { kind: 'summon'; summon: SummonDef; fallback?: Effect[] }
   /** Give the target `stacks` stacks of a status (post-M7). */
-  | { kind: 'status'; target: TargetSelector; status: StatusDef; stacks: number };
+  | { kind: 'status'; target: TargetSelector; status: StatusDef; stacks: number }
+  /** Rules mode: remove up to `count` random afflictions from each target. */
+  | { kind: 'cure'; target: TargetSelector; count: number }
+  /**
+   * Rules mode: if the target has every status in `requires`, it dies outright
+   * (true damage equal to its HP and shield). Bosses take `bossMaxHp` × max HP instead.
+   */
+  | { kind: 'execute'; target: TargetSelector; requires: readonly string[]; bossMaxHp: number };
 
 /** A combat-only unit created by a summon effect. It never joins the run's board. */
 export interface SummonDef {
@@ -207,6 +234,8 @@ export interface TriggeredEffect {
   limit?: number;
   /** onBurst only: fire just for this status id. */
   status?: string;
+  /** A consumable's trigger: firing it uses the consumable up (logged as a 'consume' event). */
+  consumable?: boolean;
 }
 
 export interface AbilityDef {
@@ -215,10 +244,38 @@ export interface AbilityDef {
   description: string;
   /** The unit casts this on every Nth turn instead of a basic attack. */
   cooldown: number;
-  /** Turns until the first cast. Defaults to `cooldown`. */
+  /** Turns until the first cast. Defaults to `cooldown` (rules-mode skills: 0, ready at once). */
   initialCooldown?: number;
   effects: Effect[];
+  /** Rules-mode skills: whom a rule aims it at (effects target 'focus'). Unset = it needs no aim. */
+  aim?: 'enemy' | 'ally';
 }
+
+/** Rules mode: when a rule may fire. Percentages are 0-100. */
+export type RuleCondition =
+  | { kind: 'targetAfflictions'; atLeast: number }
+  | { kind: 'targetLacks'; status: string }
+  | { kind: 'targetHas'; status: string }
+  | { kind: 'targetHpBelow'; percent: number }
+  | { kind: 'selfHpBelow'; percent: number }
+  | { kind: 'allyHpBelow'; percent: number }
+  | { kind: 'enemiesAtLeast'; count: number }
+  | { kind: 'selfLacks'; status: string };
+
+/**
+ * Rules mode: one line of a unit's priority list. Each turn the unit uses the
+ * first rule whose skill is ready and whose condition holds for its target.
+ */
+export interface Rule {
+  /** A skill id, or BASIC_ATTACK. */
+  skill: string;
+  /** Whom the skill aims at, and whom target conditions check. Defaults by the skill's aim. */
+  target?: TargetSelector;
+  when?: RuleCondition;
+}
+
+/** The rule id of a plain basic attack. */
+export const BASIC_ATTACK = 'attack';
 
 /**
  * Everything the combat engine needs to know about a unit. The run loop
@@ -255,6 +312,16 @@ export interface UnitSetup {
   critChance?: number;
   /** Weapons the unit carries, for amounts that scale per weapon. */
   weapons?: number;
+  /**
+   * Rules mode: the unit's skills and its priority list. With these set the
+   * unit ignores `ability`/`extraAbilities` and acts by its rules (see tactics.ts).
+   */
+  skills?: readonly AbilityDef[];
+  rules?: readonly Rule[];
+  /** Per-skill bonus power (skill augments): added to abilityPower for that skill. */
+  skillPower?: Readonly<Record<string, number>>;
+  /** A boss: executions only take a share of its HP. */
+  boss?: boolean;
 }
 
 export type Range = 'melee' | 'ranged';

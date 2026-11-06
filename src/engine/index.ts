@@ -10,6 +10,7 @@ export {
 export { mitigate, resolveAmount, DEF_SCALE } from './damage.ts';
 export { MAX_TRIGGER_DEPTH, BACKLINE_MELEE_MULTIPLIER, BLOODIED_THRESHOLD } from './effects.ts';
 export { Rng, hashSeed } from './rng.ts';
+export { MAX_RULES, defaultTarget } from './tactics.ts';
 export { OVERTIME_SOURCE } from './events.ts';
 export type * from './events.ts';
 export * from './types.ts';

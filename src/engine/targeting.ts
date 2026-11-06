@@ -7,6 +7,15 @@ export interface TargetContext {
   triggerTarget?: CombatUnit;
   /** onBurst: the status that burst. */
   status?: string;
+  /** Rules mode: the target the rule picked. */
+  focus?: CombatUnit;
+}
+
+/** Afflictions on a unit: each harmful status counts once, whatever its stacks. */
+export function afflictionCount(unit: CombatUnit): number {
+  let n = 0;
+  for (const s of unit.statuses.values()) if (s.def.affliction) n += 1;
+  return n;
 }
 
 /**
@@ -89,6 +98,12 @@ export function selectTargets(
       return ctx.triggerSource?.alive ? [ctx.triggerSource] : [];
     case 'triggerTarget':
       return ctx.triggerTarget?.alive ? [ctx.triggerTarget] : [];
+    case 'mostAfflicted':
+      return one(minBy(pool, (u) => -afflictionCount(u)));
+    case 'mostAfflictedAlly':
+      return one(minBy(allies, (u) => -afflictionCount(u)));
+    case 'focus':
+      return ctx.focus?.alive ? [ctx.focus] : [];
   }
 }
 
