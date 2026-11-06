@@ -1,7 +1,9 @@
 import { applyEffects, dealDamage, fireTriggers } from './effects.ts';
-import type { CombatResult, UnitId, Winner } from './events.ts';
+import type { ActionTally, CombatResult, UnitId, Winner } from './events.ts';
 import type { Rng } from './rng.ts';
 import {
+  ATTACK_KEY,
+  beginAction,
   createCombatUnits,
   emit,
   living,
@@ -82,9 +84,19 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
       side: u.side,
       survived: u.alive,
       ...u.stats,
+      actions: tallies(u),
       ...(u.summonedBy ? { summonedBy: u.summonedBy } : {}),
     })),
   };
+}
+
+/** The unit's breakdown, with each rule's "a rule above it fired first" count filled in. */
+function tallies(unit: CombatUnit): ActionTally[] {
+  return [...unit.tallies.values()].map((t) => {
+    if (!t.passed) return { ...t };
+    const { cooldown, unmet, silenced } = t.passed;
+    return { ...t, passed: { cooldown, unmet, silenced, above: unit.ruleTurns - t.uses - cooldown - unmet - silenced } };
+  });
 }
 
 /**
@@ -169,31 +181,41 @@ function act(state: CombatState, unit: CombatUnit): void {
   // Rules mode: the unit's priority list decides.
   if (unit.setup.skills) {
     const choice = chooseRule(state, unit);
-    if (choice.kind === 'skill') cast(state, unit, choice.index, choice.skill, choice.focus);
-    else basicAttack(state, unit, choice.target);
+    unit.ruleTurns += 1;
+    choice.passed.forEach((why, i) => {
+      const row = unit.tallies.get(`rule:${i}`);
+      if (row?.passed) row.passed[why] += 1;
+    });
+    const key = choice.rule === undefined ? ATTACK_KEY : `rule:${choice.rule}`;
+    if (choice.kind === 'skill') cast(state, unit, choice.index, choice.skill, choice.focus, key);
+    else basicAttack(state, unit, choice.target, key);
     return;
   }
 
   const ready = isSilenced(unit) ? null : readyAbility(unit);
   if (ready !== null) {
-    cast(state, unit, ready, ready === 0 ? unit.setup.ability : unit.setup.extraAbilities![ready - 1]!, undefined);
+    const ability = ready === 0 ? unit.setup.ability : unit.setup.extraAbilities![ready - 1]!;
+    cast(state, unit, ready, ability, undefined, `ability:${ability.id}`);
     return;
   }
-  basicAttack(state, unit, selectTargets(state, unit, unit.setup.attackTarget)[0]);
+  basicAttack(state, unit, selectTargets(state, unit, unit.setup.attackTarget)[0], ATTACK_KEY);
 }
 
-function cast(state: CombatState, unit: CombatUnit, index: number, ability: AbilityDef, focus: CombatUnit | undefined): void {
+/** `key`: the ActionTally the cast counts toward (its rule, or the ability). */
+function cast(state: CombatState, unit: CombatUnit, index: number, ability: AbilityDef, focus: CombatUnit | undefined, key: string): void {
   unit.cooldowns[index] = ability.cooldown;
   unit.stats.abilities += 1;
+  beginAction(unit, key, 'ability', ability.name);
   emit(state, { tick: state.tick, type: 'ability', source: unit.id, abilityId: ability.id, name: ability.name, ...(focus ? { target: focus.id } : {}) });
   const power = (unit.setup.abilityPower ?? 1) + (unit.setup.skillPower?.[ability.id] ?? 0);
   applyEffects(state, unit, ability.effects, focus ? { focus } : {}, 0, power);
   fireTriggers(state, unit, 'onAbility', {}, 0);
 }
 
-function basicAttack(state: CombatState, unit: CombatUnit, target: CombatUnit | undefined): void {
+function basicAttack(state: CombatState, unit: CombatUnit, target: CombatUnit | undefined, key: string): void {
   if (!target) return;
   unit.stats.attacks += 1;
+  beginAction(unit, key, 'attack', 'Basic attack');
   emit(state, { tick: state.tick, type: 'attack', source: unit.id, target: target.id });
   dealDamage(state, unit, target, unit.atk, {}, 0);
   fireTriggers(state, unit, 'onAttack', { triggerTarget: target }, 0);

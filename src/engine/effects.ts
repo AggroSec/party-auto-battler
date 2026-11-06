@@ -2,7 +2,7 @@
 // talents, items and synergies.
 import { resolveAmount } from './damage.ts';
 import { applyHeal, dealDamage } from './hits.ts';
-import { emit, type CombatState, type CombatUnit } from './state.ts';
+import { beginAction, credit, emit, type CombatState, type CombatUnit } from './state.ts';
 import { applyStatus, clearStatus } from './statuses.ts';
 import { summonUnit } from './summon.ts';
 import { afflictionCount, rowNeighbours, selectTargets, type TargetContext } from './targeting.ts';
@@ -37,7 +37,10 @@ export function fireTriggers(
     unit.triggerFires.set(trigger, fired + 1);
     emit(state, { tick: state.tick, type: 'trigger', source: unit.id, label: trigger.label, on });
     if (trigger.consumable) emit(state, { tick: state.tick, type: 'consume', source: unit.id, label: trigger.label });
+    const kind = trigger.consumable ? 'consumable' : 'trigger';
+    const previous = beginAction(unit, `${kind}:${trigger.label}`, kind, trigger.label);
     applyEffects(state, unit, trigger.effects, ctx, depth + 1);
+    unit.via = previous;
     if (!unit.alive) return;
   }
 }
@@ -104,6 +107,7 @@ function applyEffect(
       for (const target of selectTargets(state, source, effect.target, ctx)) {
         target.shield += value;
         source.stats.shieldingDone += value;
+        credit(source, 'shielding', value);
         emit(state, {
           tick: state.tick,
           type: 'shield',
