@@ -65,6 +65,8 @@ export function buildSources(unit: OwnedUnit, content: RunContent): ModifierSour
       sources.push({ kind: 'classBonus', name: item.name, modifier: item.classBonus.modifier });
     }
   }
+  const consumable = unit.consumable ? content.items[unit.consumable] : undefined;
+  if (consumable) sources.push({ kind: 'item', name: consumable.name, modifier: consumable.modifier });
   return sources;
 }
 

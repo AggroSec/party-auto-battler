@@ -21,6 +21,8 @@ export function weaponCount(unit: OwnedUnit, content: RunContent): number {
  */
 export function equipError(unit: OwnedUnit, itemId: string, ctx: RunContext): RunError | null {
   const item = ctx.content.items[itemId];
+  // A consumable takes the consumable slot, replacing whatever was there.
+  if (item?.consumable) return null;
   if (item?.tertiaryClassId) {
     if (unit.tertiaryClassId !== item.tertiaryClassId) return 'wrongClass';
     if (unit.items.includes(itemId)) return 'alreadyEquipped';

@@ -25,7 +25,11 @@ export function describeEvent(e: CombatEvent, units: Map<string, UnitSnapshot>):
     case 'attack':
       return `${n(e.source)} attacks ${n(e.target)}.`;
     case 'ability':
-      return `${n(e.source)} casts ${e.name}!`;
+      return `${n(e.source)} casts ${e.name}${e.target ? ` on ${n(e.target)}` : ''}!`;
+    case 'consume':
+      return `${n(e.source)} uses ${e.label}.`;
+    case 'stunned':
+      return `${n(e.source)} is ${e.name.toLowerCase()} and loses the turn.`;
     case 'trigger':
       return `${n(e.source)}: ${e.label} (${e.on})`;
     case 'damage':

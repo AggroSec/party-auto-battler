@@ -1,13 +1,14 @@
 import { simulateCombat } from '../combat.ts';
 import { Rng } from '../rng.ts';
-import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, unitCount } from './board.ts';
+import { boardOrder } from '../state.ts';
+import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, slotOf, unitCount } from './board.ts';
 import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from './build.ts';
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
 import { equipError } from './items.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
-import { ensureFavored, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
+import { ensureFavored, rollConsumableDrop, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
 import type {
   ActionResult,
   FightResult,
@@ -140,7 +141,8 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
         if (offer.kind === 'item') {
           const err = equipError(unit, offer.itemId, ctx);
           if (err) return fail(err);
-          unit.items.push(offer.itemId);
+          if (ctx.content.items[offer.itemId]?.consumable) unit.consumable = offer.itemId;
+          else unit.items.push(offer.itemId);
         } else {
           if (unit.classId !== offer.classId) return fail('wrongClass');
           if (isMaxLevel(unit, progression)) return fail('maxLevel');
@@ -297,6 +299,13 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     rng: new Rng(`${next.seed}:combat:${next.round}`),
   });
 
+  // Consumables that fired are used up (combat ids follow board order: p0..p4).
+  const used = new Set(combat.events.flatMap((e) => (e.type === 'consume' ? [e.source] : [])));
+  for (const unit of boardUnits(next.board)) {
+    const slot = slotOf(next.board, unit);
+    if (unit.consumable && slot && used.has(`p${boardOrder(slot)}`)) unit.consumable = null;
+  }
+
   const { progression } = ctx.config;
   let xp: number;
   if (combat.winner === 'player') {
@@ -336,6 +345,10 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     next.freeRerollUsed = false;
     Object.assign(next, keepLocked(state.shop, withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), state.locked));
     next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx, next.board);
+    if (combat.winner === 'player') {
+      const drop = withRng(next, (rng) => rollConsumableDrop(rng, ctx));
+      if (drop) next.shop.push(drop);
+    }
   }
   next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income, gold: state.gold });
 

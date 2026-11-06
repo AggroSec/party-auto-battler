@@ -157,6 +157,8 @@ export interface ItemDef {
   goldPerWin?: number;
   /** A weapon: counts for weapon slots and per-weapon effects (Mercenary). */
   weapon?: boolean;
+  /** A consumable: goes in the unit's consumable slot and is used up when its trigger fires. */
+  consumable?: boolean;
 }
 
 /**
@@ -230,6 +232,10 @@ export interface ShopLayout {
   trainingChance: number;
   /** Recruit slots once the board is full; the rest go to items and training. */
   fullPartyUnitSlots: number;
+  /** Slots that always offer a consumable (default 0). */
+  consumableSlots?: number;
+  /** Chance a won fight drops a free consumable into the next shop (default 0). */
+  consumableDropChance?: number;
 }
 
 /**
@@ -292,6 +298,8 @@ export interface RunModifier {
   uniqueBosses?: boolean;
   /** From this round, a second enemy per fight is an Elite. */
   secondEliteFrom?: number;
+  /** From this round, enemies carry consumables. */
+  enemyConsumablesFrom?: number;
 }
 
 /** One rung of the difficulty ladder; tier N applies tiers 1..N. */

@@ -21,7 +21,7 @@ export const LADDER: LadderTier[] = [
   { tier: 11, description: 'Losing the round 10 or 15 boss fight costs 2 lives.', modifier: { bossLossLives: 2, bossLossFrom: 10 } },
   { tier: 12, description: 'Enemies gain a level, ramping in by round 10.', modifier: { enemyLevels: 1 } },
   { tier: 13, description: 'Unique bosses take over the boss fights.', modifier: { uniqueBosses: true } },
-  { tier: 14, description: 'From round 10, a second enemy per fight is an Elite.', modifier: { secondEliteFrom: 10 } },
+  { tier: 14, description: 'From round 10, a second enemy per fight is an Elite; from round 5, enemies carry consumables.', modifier: { secondEliteFrom: 10, enemyConsumablesFrom: 5 } },
   { tier: 15, description: 'Enemies gain another level and +5% more HP and ATK.', modifier: { enemyLevels: 1, enemyStats: 0.05 } },
 ];
 

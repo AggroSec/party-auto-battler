@@ -58,6 +58,9 @@ function developEnemy(unit: OwnedUnit, round: number, ctx: RunContext, rng: Rng,
     if (allowed.length === 0) break;
     unit.items.push(rng.pick(allowed));
   }
+  // High ladder tiers: enemies carry a consumable too.
+  const consumables = ctx.content.consumablePool ?? [];
+  if (ctx.run?.enemyConsumablesFrom !== undefined && round >= ctx.run.enemyConsumablesFrom && consumables.length > 0) unit.consumable = rng.pick(consumables);
 }
 
 interface Pick {

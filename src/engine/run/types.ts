@@ -1,5 +1,5 @@
 import type { CombatResult, Winner } from '../events.ts';
-import type { BoardPos, Party, StatKey, Stats } from '../types.ts';
+import type { BoardPos, Party, Rule, StatKey, Stats } from '../types.ts';
 import type {
   AdvancedClassDef,
   BossDef,
@@ -80,6 +80,8 @@ export interface RunContent {
   shopPool: readonly string[];
   /** Item ids the shop can offer. */
   itemPool: readonly string[];
+  /** Consumable ids the shop's consumable slot (and won fights) can offer. */
+  consumablePool?: readonly string[];
   enemies: readonly EnemyArchetype[];
   enemyScaling: EnemyScaling;
   enemyProgression: EnemyProgression;
@@ -113,6 +115,10 @@ export interface OwnedUnit {
   tertiaryClassId: string | null;
   talents: string[];
   items: string[];
+  /** The consumable slot (post-1.0): an item used up when it fires. Optional so older saves load. */
+  consumable?: string | null;
+  /** Rules mode: the unit's priority list; unset = its class's default rules. */
+  rules?: Rule[];
   /** Stats bought with stat points (in stat units, e.g. +6 HP). */
   growth: Stats;
   /** Stat points not yet spent. Any left at fight time are spent on the recommended spread. */

@@ -3,6 +3,7 @@ import { CLASSES, CLASS_IDS } from './classes.ts';
 import { RUN_CONFIG } from './economy.ts';
 import { ADVANCED_CLASSES, TALENTS, TERTIARY_CLASSES } from './builds/index.ts';
 import { ENEMY_ARCHETYPES, ENEMY_PROGRESSION, ENEMY_SCALING } from './enemies.ts';
+import { CONSUMABLE_IDS } from './consumables.ts';
 import { ITEMS, ITEM_IDS } from './items.ts';
 import { BOSS_CLASSES, BOSSES } from './meta/bosses.ts';
 import { ELITE, LADDER } from './meta/ladder.ts';
@@ -26,6 +27,7 @@ export function buildRunContent(): RunContent {
     synergies: SYNERGIES,
     shopPool: CLASS_IDS,
     itemPool: ITEM_IDS,
+    consumablePool: CONSUMABLE_IDS,
     enemies: ENEMY_ARCHETYPES,
     enemyScaling: ENEMY_SCALING,
     enemyProgression: ENEMY_PROGRESSION,
