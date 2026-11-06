@@ -11,13 +11,14 @@ const at = (n: number) => runContext(tier(n), ctx);
 const unique = new Set(BOSSES.filter((b) => b.unique).map((b) => b.id));
 
 describe('ladder tiers 11–15', () => {
-  it('past tier 10, a lost boss fight costs 2 lives; other fights still cost 1', () => {
+  it('past tier 10, a lost late boss fight costs 2 lives; other fights still cost 1', () => {
     expect(lifeCost(5, at(10))).toBe(1);
-    expect(lifeCost(5, at(11))).toBe(2);
+    expect(lifeCost(5, at(11))).toBe(1);
+    expect(lifeCost(10, at(11))).toBe(2);
     expect(lifeCost(6, at(11))).toBe(1);
 
     const s = createRun('boss', ctx, tier(11));
-    s.round = 5;
+    s.round = 10;
     s.lives = 3;
     s.board.front[0] = newUnit(1, 'bard', 'Lute');
     const r = fight(s, ctx);
@@ -28,7 +29,7 @@ describe('ladder tiers 11–15', () => {
 
   it('a boss loss never takes lives below 0', () => {
     const s = createRun('boss', ctx, tier(11));
-    s.round = 5;
+    s.round = 10;
     s.lives = 1;
     s.board.front[0] = newUnit(1, 'bard', 'Lute');
     const r = fight(s, ctx);

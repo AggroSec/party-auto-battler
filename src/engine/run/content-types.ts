@@ -286,6 +286,8 @@ export interface RunModifier {
   empoweredBosses?: boolean;
   /** Lives a lost boss fight costs (instead of 1). The largest value wins. */
   bossLossLives?: number;
+  /** bossLossLives applies only to boss rounds from this round on (tier 11: the late bosses). */
+  bossLossFrom?: number;
   /** Boss rounds field the unique bosses instead of the class-based ones. */
   uniqueBosses?: boolean;
   /** From this round, a second enemy per fight is an Elite. */

@@ -199,7 +199,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'elite',
     term: 'Elites and bosses',
-    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability. From tier 11 a lost boss fight costs 2 lives, and from tier 13 unique bosses with their own classes take over.',
+    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability. From tier 11 losing the round 10 or 15 boss costs 2 lives, and from tier 13 unique bosses with their own classes take over.',
   },
   {
     id: 'perks',

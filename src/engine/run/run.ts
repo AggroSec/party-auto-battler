@@ -101,7 +101,8 @@ function addXp(state: RunState, unit: OwnedUnit, amount: number, ctx: RunContext
 
 /** Lives a lost fight in this round costs: boss rounds can cost more on high ladder tiers. */
 export function lifeCost(round: number, ctx: RunContext): number {
-  return ctx.run?.bossRounds?.includes(round) ? (ctx.run.bossLossLives ?? 1) : 1;
+  const run = ctx.run;
+  return run?.bossRounds?.includes(round) && round >= (run.bossLossFrom ?? 0) ? (run.bossLossLives ?? 1) : 1;
 }
 
 /** Apply a shop-phase action. Never mutates `state`. */

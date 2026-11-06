@@ -402,8 +402,8 @@ Tier 0 is the base game. Winning a run on your highest tier unlocks the next. Ea
 | 8 | Rounds 5, 10 and 15 are **boss** fights |
 | 9 | Elites from round 5 |
 | 10 | Enemies +5% more HP and ATK; bosses cast a second ability |
-| 11 | Losing a boss fight costs **2 lives** *(Brandon, post-1.0)* |
-| 12 | Enemies are 1 level higher |
+| 11 | Losing the round 10 or 15 boss fight costs **2 lives** *(Brandon, post-1.0; the round 5 boss costs 1 since Milestone 11)* |
+| 12 | Enemies are 1 level higher (ramping in by round 10, so it lands on the late game) |
 | 13 | **Unique bosses** take over the boss fights |
 | 14 | From round 10, a second enemy per fight is an Elite |
 | 15 | Enemies gain another level and +5% more HP and ATK |

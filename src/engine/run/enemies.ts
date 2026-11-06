@@ -24,8 +24,12 @@ export function roundScaling(round: number, content: RunContent, bonus = 0): Par
   return { hp: (baseMultiplier + hpGrowthPerRound * r) * (1 + bonus), atk: (baseMultiplier + atkGrowthPerRound * r) * (1 + bonus) };
 }
 
-/** Rounds over which the ladder's extra enemy levels ramp in. */
-const LEVEL_RAMP_ROUNDS = 4;
+/**
+ * Rounds over which the ladder's extra enemy levels ramp in. Long, so the
+ * extra levels land on the late game rather than rounds 3-6, where one level
+ * is the difference between a base and an advanced class (playtest, post-1.0).
+ */
+const LEVEL_RAMP_ROUNDS = 9;
 
 /** Round a fractional value up with probability equal to its fraction. */
 function stochasticRound(value: number, rng: Rng): number {
