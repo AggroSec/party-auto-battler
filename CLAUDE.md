@@ -94,7 +94,7 @@ docs/
 - Party size is 5, in a **front row (3) and back row (2)**. Melee targets the front row first; position matters.
 
 **Units, classes and builds (the core fantasy)**
-- Classes: Warrior, Rogue, Mage, Cleric, Ranger, Monk, Bard, Druid, Warlock, Engineer, Necromancer, Runeblade, Dark Knight, Cultist, Adventurer and Mercenary. New players start with the first five; achievements unlock the rest (Milestone 7), and every new class is unlockable. Brandon chooses and designs new classes (Runeblade and Dark Knight were added after Milestone 7, Cultist after Milestone 8, Adventurer after Milestone 9, Mercenary in Milestone 10).
+- Classes: Warrior, Rogue, Mage, Cleric, Ranger, Monk, Bard, Druid, Warlock, Engineer, Necromancer, Runeblade, Dark Knight, Cultist, Adventurer and Mercenary. New players start with the first five; achievements unlock the rest (Milestone 7), and every new class is unlockable. Brandon chooses and designs new classes (Runeblade and Dark Knight were added after Milestone 7, Cultist after Milestone 8, Adventurer after Milestone 9, Mercenary in Milestone 10). Rules mode (Milestone 11) has its own class set: Warrior, Cleric, Rogue, Mage and Runeblade kits, plus the Shaman, unlocked by an achievement.
 - Stats: HP, ATK, DEF, SPD, plus a class ability on a cooldown or resource.
 - Units gain XP from combat. **Every level-up offers a choice of 2–3 talents** from that class's talent pool. Meaningful choices, not flat stat bumps.
 - **Every level-up also grants stat points the player distributes freely** (more at levels 3 and 5), with a recommended spread per class for players who don't want to min-max.
@@ -149,6 +149,7 @@ docs/
 8. **Juice:** icons, animations, sound toggle, credits screen.
 9. **Ship:** GitHub Pages deploy, README with screenshots/GIF, and a "How this was built" section.
 10. **Ladder + Mercenary (post-1.0):** ladder tiers 11–15 with unique bosses, and the Mercenary class.
+11. **Rules mode, consumables and the guide (post-1.0):** an optional run mode where units act by priority lists the player writes, skill kits for six classes (including the new Shaman), consumable items, an in-depth guide with one-time tips, and the tier 11–12 difficulty fix.
 
 ## README requirements
 

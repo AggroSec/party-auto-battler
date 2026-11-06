@@ -20,6 +20,7 @@
 | Ship (GitHub Pages, README, 1.0) | ✅ Milestone 9 |
 | After 1.0: Adventurer (Jack) | ✅ After M9 |
 | After 1.0: Mercenary, ladder tiers 11–15, unique bosses | ✅ Milestone 10 |
+| After 1.0: rules mode (Shaman + five class kits), consumables, guide and tips | ✅ Milestone 11 |
 
 ## Run structure
 
@@ -405,7 +406,7 @@ Tier 0 is the base game. Winning a run on your highest tier unlocks the next. Ea
 | 11 | Losing the round 10 or 15 boss fight costs **2 lives** *(Brandon, post-1.0; the round 5 boss costs 1 since Milestone 11)* |
 | 12 | Enemies are 1 level higher (ramping in by round 10, so it lands on the late game) |
 | 13 | **Unique bosses** take over the boss fights |
-| 14 | From round 10, a second enemy per fight is an Elite |
+| 14 | From round 10, a second enemy per fight is an Elite; from round 5 every enemy carries a consumable *(Milestone 11)* |
 | 15 | Enemies gain another level and +5% more HP and ATK |
 
 Tiers 11–15 came after 1.0 ([#20](https://github.com/AggroSec/party-auto-battler/issues/20)). Winning on tier 15 earns **Mythic** (bragging rights). The shop shows a 👑 badge on boss rounds, with the life cost when it's more than 1.
@@ -772,6 +773,52 @@ Brandon's calls: sounds made in code with a retro feel, and icons for the 13 bas
 
 ### Credits screen
 Linked from the title screen: who made the game (Brandon designed and directed it; Claude Code wrote the code), every icon with its author and link, and how the sound is made.
+
+## Rules mode (Milestone 11)
+
+*Brandon's design: "rework skills so that picking rules is meaningful", modelled on building an affliction lock in Imperian (damage per affliction) or Achaea (an instant kill). Standard parties, nuke teams and affliction teams should all be buildable.*
+
+- **An optional run mode**, picked on the setup screen. It has its own classes: kits for the Warrior, Cleric, Rogue, Mage and Runeblade, plus the new **Shaman** (unlocked by **Rulebreaker**: reach round 4 in rules mode). Shop, gold, items, consumables, synergies, the ladder and achievements work as in classic runs.
+- **Skills instead of one ability.** A base class has 3 skills; each advanced class adds 2; each tertiary class adds 1–2. Every skill has its own cooldown and is ready from the first turn.
+- **Rules.** Each unit has a priority list of up to 8 rules. A rule is a skill, a target and an optional condition. Each turn the unit uses the first rule whose skill is ready and whose condition holds for its target; with none, it basic-attacks. A silenced unit (Hush) skips skill rules.
+  - **Targets:** nearest, most afflicted, weakest, strongest, back row or random enemy; most wounded ally, most afflicted ally or self.
+  - **Conditions:** target has N+ afflictions; target lacks/has a status; target has N+ stacks of a status; target, self or any ally below N% HP; N+ enemies standing; self lacks a status.
+  - Every class tier has **default rules**, which enemies always use. A player's custom list keeps working when the unit advances: the new tier's default rules go on top. "Reset to class defaults" goes back.
+- **Afflictions** (rules-mode statuses): Frostbite (−3 SPD), Weakness (−3 ATK), Brittle (−3 DEF), Hush (no skills or abilities), Rot, Bleed, Poison and Burn (damage over time), Fever (heals halved), Bind (lose a turn), Marked (+25% damage taken), Slowed (−4 SPD) and Runes. Most last a few of the afflicted unit's turns and refresh when reapplied. Each counts once toward **damage per affliction**, whoever applied it, so a party can feed one finisher. **Cures** remove afflictions one at a time.
+- **Talents are skill augments:** +35% power for one skill, or −1 cooldown for a skill whose cooldown is 3+.
+
+| Class | Advanced (level 3) | Tertiary (level 7) |
+|---|---|---|
+| Warrior | Guardian (tank) | Bulwark (party shields), Warden (Shield Bash binds) |
+| | Berserker (damage) | Reaver (bleeds + damage per affliction), Slayer (more damage) |
+| Cleric | Priest (healer) | Oracle (shields, cleanse all), Saint (big heals, Guardian Angel) |
+| | Inquisitor (damage + afflictions) | Zealot (wrath per affliction), Templar (Hush, Marked) |
+| Rogue | Assassin (nuke) | Nightblade (one huge strike), Phantom (knives for everyone, haste) |
+| | Venomancer (afflictions) | Plaguebringer (poison everyone, Fever), Envenomer (strike per affliction) |
+| Mage | Pyromancer (fire, area) | Flamecaller (Meteor), Ashbringer (Brittle + Combust per affliction) |
+| | Chronomancer (control) | Timeweaver (haste the party, Rewind), Riftmage (Time Stop, Unravel) |
+| Runeblade | Spellblade (damage) | Stormblade (Chain Lightning), Blademaster (Thousand Cuts) |
+| | Runecarver (afflictions) | Runelord (detonate every Rune), Spellbreaker (damage per affliction) |
+| Shaman | **Hexcaller** (Imperian: build, then damage per affliction) | Doomspeaker (Rot, Cataclysm on everyone), Witch Doctor (Fever, Hex Totem marks everyone) |
+| | **Spiritbinder** (Achaea: Frostbite + Weakness + Hush, then **Sever Soul** kills outright; bosses lose 25% max HP) | Soulreaver (Spirit Chains bind), Spirit Warden (wards and cures allies) |
+
+- Class-tied items count rules-mode classes as their classic namesakes (Spellbook's Mage bonus works on a rules-mode Mage).
+- **Tuning:** rules-mode enemies have −12% HP and ATK, so the bots finish runs about as often as in classic.
+
+## Consumables (Milestone 11)
+
+*Brandon's idea, with my recommendations he approved: priced, used only when they fire, sometimes dropped by wins, enemies get them on high tiers.*
+
+- Every unit has **one consumable slot** beside its items. Buying a consumable puts it there, replacing the old one.
+- A consumable has one trigger that fires once (start of combat, dropping below 50% HP, after the first ability, an ally falling). When it fires it's **used up**; if it never fires, it stays for the next fight.
+- **The shop's last slot is always a consumable** (1–2 gold). A won fight has a **35% chance** to drop a free one into the next shop; like the Armory's free item, it stays through rerolls until taken.
+- **Tier 14:** from round 5, every enemy carries one.
+- Nine consumables: Healing Potion, Swiftness Draught, Ironskin Tonic, Throwing Knives, Purifying Salts (cures 2 afflictions), Fire Bomb, Elixir of Fury, Focus Draught and Last Rites.
+
+## Guide and tips (Milestone 11, issue #28)
+
+- **How to play** opens a guide from the title screen (highlighted until you've played a run). It has ten short sections, each collapsible for phones: a primer for players new to auto-battlers, your first run step by step, the shop and interest, positioning, stats and combat, levels and classes, items and consumables, synergies, rules mode, and meta progression.
+- **One-time tips** appear in the shop the first time something comes up: recruiting, the first level-up, stat points, round 2's economy, the first synergy, the first lost fight, and rules mode's rule editor. "Got it" dismisses one; "No more tips" turns them off. The guide can turn them back on and reset them. Tips never show in daily runs.
 
 ## Open design questions (for Brandon)
 
