@@ -101,7 +101,7 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
           )}
         </dl>
       )}
-      {abilities.map(({ actual, text, tag }, i) => (
+      {!setup.skills && abilities.map(({ actual, text, tag }, i) => (
         <p key={`${actual.id}${i}`} className="kit-ability">
           {tag && <span className="kit-tag">{tag}</span>} <strong>{actual.name}</strong>{' '}
           <span className={text.was ? 'cadence changed' : 'cadence'}>
@@ -112,7 +112,7 @@ export function UnitKit({ unit, setup, board, ctx }: { unit: OwnedUnit; setup: U
           {power !== 1 && <span className="muted"> Amounts ×{pct(power)} from ability power.</span>}
         </p>
       ))}
-      {abilities.length > 1 && (
+      {!setup.skills && abilities.length > 1 && (
         <p className="muted small">One ability per turn: if several are ready, the one that has waited longest goes first.</p>
       )}
       {passives.map((p) => (

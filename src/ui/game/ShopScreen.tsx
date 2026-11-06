@@ -120,6 +120,7 @@ export function ShopScreen({ game }: { game: Game }) {
                 movingUnit={mode.kind === 'moveUnit'}
                 onMoveItem={(index) => setMode(index === null ? { kind: 'select' } : { kind: 'moveItem', index })}
                 onAllocate={(points) => act({ type: 'allocate', at: selected, points })}
+                onSetRules={(rules) => act({ type: 'setRules', at: selected, rules })}
                 onSellItem={(item) => {
                   act({ type: 'sellItem', from: selected, item });
                   setMode({ kind: 'select' });

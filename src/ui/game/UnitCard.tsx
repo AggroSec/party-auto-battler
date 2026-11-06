@@ -57,6 +57,11 @@ export function UnitCard({
             <Icon id={content.items[id]?.tertiaryClassId ? 'signature' : content.items[id]?.weapon ? 'weapon' : 'item'} />
           </span>
         ))}
+        {unit.consumable && (
+          <span className="badge item-pip consumable-pip" title={content.items[unit.consumable]?.name}>
+            <Icon id="consumable" />
+          </span>
+        )}
         {unit.statPoints > 0 && (
           <span className="badge points" title={`${unit.statPoints} stat points to spend (click the unit)`}>
             +{unit.statPoints}

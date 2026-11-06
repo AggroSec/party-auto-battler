@@ -506,3 +506,18 @@ button.stats-line { display: block; width: 100%; text-align: left; margin: 6px 0
   .shop-head .hint, .party-head .hint { display: none; }
   .drag-ghost { width: 9em; }
 }
+
+/* Rules mode: the priority list editor. */
+.rule-editor { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+.rule-editor h4 { margin: 4px 0; font-size: 0.9rem; }
+.rule-list { margin: 4px 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; }
+.rule-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.rule-row.fallback { list-style: none; margin-left: -1.4em; }
+.rule-row select { font-size: 0.8rem; padding: 2px 4px; max-width: 100%; }
+.rule-main, .rule-when { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.rule-actions { margin-left: auto; display: inline-flex; gap: 2px; }
+.rule-actions button { padding: 1px 6px; font-size: 0.75rem; }
+.rule-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.skill-list { margin: 6px 0 0; padding: 0; list-style: none; font-size: 0.82rem; display: flex; flex-direction: column; gap: 3px; }
+.consumable-slot { display: flex; gap: 4px; align-items: baseline; flex-wrap: wrap; }
+.consumable-pip { color: #5fc28a; }

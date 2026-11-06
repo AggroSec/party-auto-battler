@@ -8,7 +8,7 @@ export function className(content: RunContent, id: string): string {
 export function offerLabel(content: RunContent, offer: ShopOffer): { title: string; detail: string } {
   switch (offer.kind) {
     case 'unit':
-      return { title: `${offer.name} the ${className(content, offer.classId)}`, detail: content.classes[offer.classId]?.ability.name ?? '' };
+      return { title: `${offer.name} the ${className(content, offer.classId)}`, detail: classSkillsLabel(content, offer.classId) };
     case 'item': {
       const item = content.items[offer.itemId];
       if (!item) return { title: offer.itemId, detail: '' };
@@ -17,6 +17,12 @@ export function offerLabel(content: RunContent, offer: ShopOffer): { title: stri
     case 'training':
       return { title: `${className(content, offer.classId)} Training`, detail: `+${offer.xp} XP to one ${className(content, offer.classId)}.` };
   }
+}
+
+/** A recruit's ability, or a rules-mode class's skills. */
+function classSkillsLabel(content: RunContent, classId: string): string {
+  const cls = content.classes[classId];
+  return cls?.skills ? cls.skills.map((s) => s.name).join(', ') : (cls?.ability.name ?? '');
 }
 
 /** "HP 4 · ATK 6 · SPD 3": points spent so far, for the inspector. */
