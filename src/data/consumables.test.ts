@@ -51,11 +51,11 @@ describe('consumables', () => {
     expect(drops).toBeLessThan(25);
   });
 
-  it('enemies carry consumables from round 5 on tier 14', () => {
+  it('on tier 14, one enemy carries a consumable from round 5, one more every 5 rounds', () => {
     const at = (tier: number) => runContext({ ...defaultSetup(ctx), tier }, ctx);
     const carried = (tier: number, round: number) => boardUnits(generateEnemy('e', round, at(tier)).builds).filter((u) => u.consumable).length;
     expect(carried(13, 6)).toBe(0);
     expect(carried(14, 4)).toBe(0);
-    expect(carried(14, 5)).toBeGreaterThan(0);
+    expect([5, 9, 10, 14, 15].map((r) => carried(14, r))).toEqual([1, 1, 2, 2, 3]);
   });
 });

@@ -72,6 +72,33 @@ export type CombatEvent =
 
 export type CombatEventType = CombatEvent['type'];
 
+/** Why a rule that was reached didn't fire. */
+export type RulePass = 'cooldown' | 'unmet' | 'silenced';
+
+/**
+ * What one source of a unit's actions did over a fight: a rule (rules mode),
+ * the ability, basic attacks, a trigger (passive, talent or item) or a
+ * consumable. Damage over time counts toward whatever applied the status.
+ */
+export interface ActionTally {
+  /** 'rule:<i>', 'ability:<id>', 'attack', 'trigger:<label>' or 'consumable:<label>'. */
+  key: string;
+  kind: 'rule' | 'ability' | 'attack' | 'trigger' | 'consumable';
+  label: string;
+  /** Rules mode: index in the unit's rule list. */
+  rule?: number;
+  /** Times it fired (turns, for rules, abilities and attacks). */
+  uses: number;
+  damage: number;
+  healing: number;
+  shielding: number;
+  /** Affliction stacks applied. */
+  afflictions: number;
+  kills: number;
+  /** Rules only: turns the rule was reached and passed over, by reason, and turns a rule above it fired first. */
+  passed?: Record<RulePass, number> & { above: number };
+}
+
 export interface UnitSummary {
   id: UnitId;
   name: string;
@@ -86,6 +113,11 @@ export interface UnitSummary {
   /** Turns spent casting the ability. */
   abilities: number;
   survived: boolean;
+  /**
+   * Per-source breakdown: rules (in list order) or the ability, then basic
+   * attacks, triggers and consumables. Absent on fights saved before it existed.
+   */
+  actions?: ActionTally[];
   /** Set on summoned units: who summoned them. */
   summonedBy?: UnitId;
 }

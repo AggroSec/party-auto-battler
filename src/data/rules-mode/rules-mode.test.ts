@@ -90,6 +90,11 @@ describe('a rules-mode run', () => {
       const f = fight(s, ctx);
       if (!f.ok) throw new Error(f.error);
       expect(f.combat.events.some((e) => e.type === 'ability' && e.source === 'p3')).toBe(true);
+      // The per-rule breakdown accounts for everything each unit did.
+      for (const u of f.combat.summary) {
+        const sum = (k: 'damage' | 'healing' | 'shielding' | 'kills') => (u.actions ?? []).reduce((n, a) => n + a[k], 0);
+        expect([sum('damage'), sum('healing'), sum('shielding'), sum('kills')]).toEqual([u.damageDealt, u.healingDone, u.shieldingDone, u.kills]);
+      }
       s = f.state;
       if (s.phase !== 'shop') break;
       s.pending = [];

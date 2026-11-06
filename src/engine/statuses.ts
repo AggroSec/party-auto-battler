@@ -2,7 +2,7 @@
 // over time, Undying Rage. See StatusDef for the rules.
 import { resolveAmount } from './damage.ts';
 import { applyHeal, dealDamage } from './hits.ts';
-import { emit, type ActiveStatus, type CombatState, type CombatUnit } from './state.ts';
+import { credit, emit, type ActiveStatus, type CombatState, type CombatUnit } from './state.ts';
 import { selectTargets } from './targeting.ts';
 import type { BuffableStat, StatusDef } from './types.ts';
 
@@ -49,15 +49,17 @@ export function applyStatus(
   if (!target.alive || stacks <= 0) return;
   let s = target.statuses.get(def.id);
   if (!s) {
-    s = { def, stacks: 0, source, dotPerStack: 0, applied: {} };
+    s = { def, stacks: 0, source, dotPerStack: 0, applied: {}, via: source.via };
     target.statuses.set(def.id, s);
   }
   s.def = def;
   s.source = source;
+  s.via = source.via;
   if (def.dot) s.dotPerStack = resolveAmount(def.dot, source) * power;
   if (def.duration !== undefined) s.turns = def.duration;
   const next = Math.min(def.maxStacks ?? Infinity, s.stacks + stacks);
   if (next === s.stacks) return;
+  if (def.affliction) credit(source, 'afflictions', next - s.stacks);
   if (def.burstAt === undefined || next < def.burstAt) {
     setStacks(state, target, s, next);
     return;
@@ -83,12 +85,16 @@ export function tickStatuses(state: CombatState, unit: CombatUnit): void {
     const damage = Math.round(s.dotPerStack * s.stacks);
     if (damage <= 0) continue;
     const before = unit.hp + unit.shield;
+    // Credit the action that applied it, not whatever the applier did last.
+    const previous = s.source.via;
+    s.source.via = s.via;
     dealDamage(state, s.source, unit, damage, { pierce: true, dot: true }, 0);
     const dealt = before - Math.max(0, unit.hp) - unit.shield;
     if (s.def.dotHeals && s.source.alive && dealt > 0) {
       const [ally] = selectTargets(state, s.source, 'lowestHpAlly');
       if (ally) applyHeal(state, s.source, ally, dealt * s.def.dotHeals);
     }
+    s.source.via = previous;
   }
 }
 

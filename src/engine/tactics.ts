@@ -1,6 +1,7 @@
 // Rules mode: a unit with skills acts by its priority list. Each turn it walks
 // its rules top to bottom and uses the first one whose skill is ready and
 // whose condition holds for the rule's target; with none, it basic-attacks.
+import type { RulePass } from './events.ts';
 import { living, opponent, type CombatState, type CombatUnit } from './state.ts';
 import { afflictionCount, selectTargets } from './targeting.ts';
 import { BASIC_ATTACK, type AbilityDef, type Rule, type RuleCondition, type TargetSelector } from './types.ts';
@@ -51,10 +52,15 @@ export function conditionHolds(state: CombatState, unit: CombatUnit, when: RuleC
   }
 }
 
-/** What the unit does this turn: a ready skill and its focus, or a basic attack at a target (or nothing). */
-export type RuleChoice =
+/**
+ * What the unit does this turn: a ready skill and its focus, or a basic
+ * attack at a target (or nothing). `rule` is the rule that fired (none for
+ * the fallback attack); `passed` says why each rule above it didn't.
+ */
+export type RuleChoice = (
   | { kind: 'skill'; index: number; skill: AbilityDef; focus: CombatUnit | undefined }
-  | { kind: 'attack'; target: CombatUnit | undefined };
+  | { kind: 'attack'; target: CombatUnit | undefined }
+) & { rule?: number; passed: RulePass[] };
 
 /**
  * Pick this turn's action from the unit's rules. A silenced unit skips skill
@@ -64,23 +70,29 @@ export type RuleChoice =
 export function chooseRule(state: CombatState, unit: CombatUnit): RuleChoice {
   const skills = unit.setup.skills ?? [];
   const silenced = isSilenced(unit);
-  for (const rule of unit.setup.rules ?? []) {
+  const passed: RulePass[] = [];
+  for (const [i, rule] of (unit.setup.rules ?? []).entries()) {
     const choice = tryRule(state, unit, rule, skills, silenced);
-    if (choice) return choice;
+    if (typeof choice !== 'string') return { ...choice, rule: i, passed };
+    passed.push(choice);
   }
-  return { kind: 'attack', target: selectTargets(state, unit, unit.setup.attackTarget)[0] };
+  return { kind: 'attack', target: selectTargets(state, unit, unit.setup.attackTarget)[0], passed };
 }
 
-function tryRule(state: CombatState, unit: CombatUnit, rule: Rule, skills: readonly AbilityDef[], silenced: boolean): RuleChoice | null {
+type Pick = { kind: 'skill'; index: number; skill: AbilityDef; focus: CombatUnit | undefined } | { kind: 'attack'; target: CombatUnit | undefined };
+
+/** The rule's action, or why it was passed over. */
+function tryRule(state: CombatState, unit: CombatUnit, rule: Rule, skills: readonly AbilityDef[], silenced: boolean): Pick | RulePass {
   if (rule.skill === BASIC_ATTACK) {
     const [target] = selectTargets(state, unit, rule.target ?? unit.setup.attackTarget);
-    return target && conditionHolds(state, unit, rule.when, target) ? { kind: 'attack', target } : null;
+    return target && conditionHolds(state, unit, rule.when, target) ? { kind: 'attack', target } : 'unmet';
   }
-  if (silenced) return null;
+  if (silenced) return 'silenced';
   const index = skills.findIndex((s) => s.id === rule.skill);
   const skill = skills[index];
-  if (!skill || (unit.cooldowns[index] ?? 0) > 0) return null;
+  if (!skill) return 'unmet';
+  if ((unit.cooldowns[index] ?? 0) > 0) return 'cooldown';
   const [focus] = selectTargets(state, unit, rule.target ?? defaultTarget(skill));
-  if (skill.aim && !focus) return null;
-  return conditionHolds(state, unit, rule.when, focus) ? { kind: 'skill', index, skill, focus: skill.aim ? focus : undefined } : null;
+  if (skill.aim && !focus) return 'unmet';
+  return conditionHolds(state, unit, rule.when, focus) ? { kind: 'skill', index, skill, focus: skill.aim ? focus : undefined } : 'unmet';
 }

@@ -21,6 +21,7 @@
 | After 1.0: Adventurer (Jack) | ✅ After M9 |
 | After 1.0: Mercenary, ladder tiers 11–15, unique bosses | ✅ Milestone 10 |
 | After 1.0: rules mode (Shaman + five class kits), consumables, guide and tips | ✅ Milestone 11 |
+| After 1.0: fight breakdown per rule / ability, softer tier 14 enemy consumables | 🔄 Milestone 12 |
 
 ## Run structure
 
@@ -406,7 +407,7 @@ Tier 0 is the base game. Winning a run on your highest tier unlocks the next. Ea
 | 11 | Losing the round 10 or 15 boss fight costs **2 lives** *(Brandon, post-1.0; the round 5 boss costs 1 since Milestone 11)* |
 | 12 | Enemies are 1 level higher (ramping in by round 10, so it lands on the late game) |
 | 13 | **Unique bosses** take over the boss fights |
-| 14 | From round 10, a second enemy per fight is an Elite; from round 5 every enemy carries a consumable *(Milestone 11)* |
+| 14 | From round 10, a second enemy per fight is an Elite; from round 5 one enemy carries a consumable, two from round 10, three from round 15 *(Milestone 11; softened in Milestone 12)* |
 | 15 | Enemies gain another level and +5% more HP and ATK |
 
 Tiers 11–15 came after 1.0 ([#20](https://github.com/AggroSec/party-auto-battler/issues/20)). Winning on tier 15 earns **Mythic** (bragging rights). The shop shows a 👑 badge on boss rounds, with the life cost when it's more than 1.
@@ -812,8 +813,18 @@ Linked from the title screen: who made the game (Brandon designed and directed i
 - Every unit has **one consumable slot** beside its items. Buying a consumable puts it there, replacing the old one.
 - A consumable has one trigger that fires once (start of combat, dropping below 50% HP, after the first ability, an ally falling). When it fires it's **used up**; if it never fires, it stays for the next fight.
 - **The shop's last slot is always a consumable** (1–2 gold). A won fight has a **35% chance** to drop a free one into the next shop; like the Armory's free item, it stays through rerolls until taken.
-- **Tier 14:** from round 5, every enemy carries one.
+- **Tier 14:** from round 5, one enemy carries one; two from round 10, three from round 15. *(Milestone 12: every enemy carrying one let start-of-combat bombs kill a unit before it acted.)*
 - Nine consumables: Healing Potion, Swiftness Draught, Ironskin Tonic, Throwing Knives, Purifying Salts (cures 2 afflictions), Fire Bomb, Elixir of Fury, Focus Draught and Last Rites.
+
+## Fight breakdown (Milestone 12)
+
+*Brandon's idea, from his first rules-mode playtest: on a phone you can't tell whether your rules are firing.*
+
+- In the fight summary, **tap a unit** (yours or the enemy's) to open its breakdown. Several can be open at once.
+- **Rules mode:** one row per rule, in list order, even rules that never fired. Each shows how many times it fired and what it did (damage, healing + shielding, affliction stacks, kills), plus why it was passed over when it didn't fire: *condition not met*, *on cooldown*, *a rule above fired first* or *silenced*. Turns when no rule fired show as "Basic attack (no rule fired)".
+- **Classic:** the ability, basic attacks, and each passive, talent, item trigger and consumable that went off, with the same numbers.
+- **Damage over time counts toward whatever applied it** (Poison Blade's poison ticks are Poison Blade's), and lifesteal counts toward the hit that caused it.
+- The play log (`npm run playlog`) prints the same breakdown for the player's units.
 
 ## Guide and tips (Milestone 11, issue #28)
 

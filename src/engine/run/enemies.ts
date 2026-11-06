@@ -58,9 +58,30 @@ function developEnemy(unit: OwnedUnit, round: number, ctx: RunContext, rng: Rng,
     if (allowed.length === 0) break;
     unit.items.push(rng.pick(allowed));
   }
-  // High ladder tiers: enemies carry a consumable too.
-  const consumables = ctx.content.consumablePool ?? [];
-  if (ctx.run?.enemyConsumablesFrom !== undefined && round >= ctx.run.enemyConsumablesFrom && consumables.length > 0) unit.consumable = rng.pick(consumables);
+}
+
+/** Rounds between each extra enemy consumable on high ladder tiers. */
+const CONSUMABLE_STEP_ROUNDS = 5;
+
+/**
+ * High ladder tiers: how many enemies carry a consumable. One at first, one
+ * more every CONSUMABLE_STEP_ROUNDS, so a whole party's start-of-combat bombs
+ * can't wipe a unit before it acts (playtest, Milestone 12).
+ */
+export function enemyConsumableCount(round: number, ctx: RunContext): number {
+  const from = ctx.run?.enemyConsumablesFrom;
+  if (from === undefined || round < from || (ctx.content.consumablePool ?? []).length === 0) return 0;
+  return 1 + Math.floor((round - from) / CONSUMABLE_STEP_ROUNDS);
+}
+
+/** Give `count` different enemies a random consumable each. */
+function giveConsumables(units: OwnedUnit[], count: number, ctx: RunContext, rng: Rng): void {
+  const pool = ctx.content.consumablePool ?? [];
+  const open = [...units];
+  for (let n = 0; n < count && open.length > 0; n++) {
+    const [unit] = open.splice(rng.int(open.length), 1);
+    unit!.consumable = rng.pick(pool);
+  }
 }
 
 interface Pick {
@@ -147,6 +168,7 @@ export function generateEnemy(seed: string, round: number, ctx: RunContext): Ene
     setSlot(builds, slot, unit);
     archetypeAt.set(unit, pick);
   });
+  giveConsumables([...archetypeAt.keys()], enemyConsumableCount(round, ctx), ctx, rng);
 
   const resolved = resolveBoard(builds, content);
   const scale = roundScaling(round, content, ctx.run?.enemyStats ?? 0);

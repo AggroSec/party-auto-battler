@@ -1,4 +1,4 @@
-import type { CombatEvent, UnitId, UnitSnapshot, UnitSummary } from './events.ts';
+import type { ActionTally, CombatEvent, UnitId, UnitSnapshot, UnitSummary } from './events.ts';
 import type { Rng } from './rng.ts';
 import {
   BACK_SLOTS,
@@ -25,6 +25,8 @@ export interface ActiveStatus {
   dotPerStack: number;
   /** Stat changes currently applied by this status (so they undo exactly). */
   applied: Partial<Record<BuffableStat, number>>;
+  /** The applier's action that put it on (ActionTally key): credited for its damage. */
+  via: string;
 }
 
 /** Mutable per-combat state of one unit. Lives only inside a simulateCombat call. */
@@ -53,7 +55,13 @@ export interface CombatUnit {
   revives: number;
   /** Fire counts per trigger, for TriggeredEffect.limit. */
   triggerFires: Map<TriggeredEffect, number>;
-  stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived' | 'summonedBy'>;
+  stats: Omit<UnitSummary, 'id' | 'name' | 'side' | 'survived' | 'summonedBy' | 'actions'>;
+  /** Per-source breakdown, keyed by ActionTally key (insertion order is display order). */
+  tallies: Map<string, ActionTally>;
+  /** The action whose effects are resolving now (an ActionTally key). */
+  via: string;
+  /** Rules mode: turns the unit walked its rule list. */
+  ruleTurns: number;
   /** Set on summoned units. */
   summonedBy?: UnitId;
   /** Statuses by id (post-M7). */
@@ -128,7 +136,57 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     lastHit: 0,
     weapons: setup.weapons ?? 0,
     stats: { damageDealt: 0, damageTaken: 0, healingDone: 0, shieldingDone: 0, kills: 0, attacks: 0, abilities: 0 },
+    tallies: initialTallies(setup),
+    via: ATTACK_KEY,
+    ruleTurns: 0,
   };
+}
+
+/** ActionTally key for basic attacks. */
+export const ATTACK_KEY = 'attack';
+
+const blankTally = (key: string, kind: ActionTally['kind'], label: string): ActionTally => ({
+  key,
+  kind,
+  label,
+  uses: 0,
+  damage: 0,
+  healing: 0,
+  shielding: 0,
+  afflictions: 0,
+  kills: 0,
+});
+
+/** Every rule (or the abilities) and basic attacks get a row up front, so ones that never fire still show. */
+function initialTallies(setup: UnitSetup): Map<string, ActionTally> {
+  const rows: ActionTally[] = setup.skills
+    ? (setup.rules ?? []).map((r, i) => ({
+        ...blankTally(`rule:${i}`, 'rule', setup.skills!.find((s) => s.id === r.skill)?.name ?? 'Attack'),
+        rule: i,
+        passed: { cooldown: 0, unmet: 0, silenced: 0, above: 0 },
+      }))
+    : [setup.ability, ...(setup.extraAbilities ?? [])].map((a) => blankTally(`ability:${a.id}`, 'ability', a.name));
+  rows.push(blankTally(ATTACK_KEY, 'attack', 'Basic attack'));
+  return new Map(rows.map((r) => [r.key, r]));
+}
+
+/** Make `key` the unit's current action (adding its row if new), counting a use. Returns the previous one, to restore. */
+export function beginAction(unit: CombatUnit, key: string, kind: ActionTally['kind'], label: string): string {
+  let row = unit.tallies.get(key);
+  if (!row) {
+    row = blankTally(key, kind, label);
+    unit.tallies.set(key, row);
+  }
+  row.uses += 1;
+  const previous = unit.via;
+  unit.via = key;
+  return previous;
+}
+
+/** Credit an amount to the unit's current action. */
+export function credit(unit: CombatUnit, field: 'damage' | 'healing' | 'shielding' | 'afflictions' | 'kills', amount: number, via = unit.via): void {
+  const row = unit.tallies.get(via);
+  if (row && amount > 0) row[field] += amount;
 }
 
 export function snapshot(unit: CombatUnit): UnitSnapshot {

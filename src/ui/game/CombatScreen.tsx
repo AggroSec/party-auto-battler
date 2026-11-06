@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { play, playAll } from '../audio/sfx.ts';
 import { frameSounds } from '../audio/sounds.ts';
 import { SoundToggle } from '../audio/SoundToggle.tsx';
-import type { CombatResult } from '../../engine/index.ts';
-import { boardUnits, isMaxLevel, type RunContent } from '../../engine/run/index.ts';
+import type { CombatResult, UnitSetup, UnitSummary } from '../../engine/index.ts';
+import { boardUnits, breakdownRows, isMaxLevel, resolveBoard, type Board, type RunContent } from '../../engine/run/index.ts';
 import { combatUnits, describeEvent } from '../format.ts';
 import { Arena } from './Arena.tsx';
 import { LevelUpGains } from './ChoicePanel.tsx';
@@ -37,11 +37,62 @@ function caption(frame: Frame | undefined): string {
   }
 }
 
-function FightSummary({ combat, content }: { combat: CombatResult; content: RunContent }) {
+/** Each unit as it fought, by combat id ("p0".."p4", "e0".."e4"), for its rules. */
+function setupsById(board: Board, enemy: Board, content: RunContent): Map<string, UnitSetup> {
+  const out = new Map<string, UnitSetup>();
+  ([['p', board], ['e', enemy]] as const).forEach(([prefix, b]) => {
+    const party = resolveBoard(b, content);
+    party.front.forEach((u, col) => u && out.set(`${prefix}${col}`, u));
+    party.back.forEach((u, col) => u && out.set(`${prefix}${3 + col}`, u));
+  });
+  return out;
+}
+
+/** What one unit's rules (or ability, attacks, triggers and consumables) did this fight. */
+function Breakdown({ summary, setup, content }: { summary: UnitSummary; setup: UnitSetup | undefined; content: RunContent }) {
+  const rows = breakdownRows(summary.actions ?? [], setup?.rules, content);
+  if (rows.length === 0) return <p className="muted small">No breakdown for this fight.</p>;
+  return (
+    <ul className="breakdown">
+      {rows.map((r) => {
+        const stats = [
+          r.damage ? `${r.damage} dealt` : '',
+          r.support ? `${r.support} healed + shielded` : '',
+          r.afflictions ? `${r.afflictions} affliction${r.afflictions === 1 ? '' : 's'}` : '',
+          r.kills ? `${r.kills}💀` : '',
+        ].filter(Boolean);
+        return (
+          <li key={r.key} className={r.uses === 0 ? 'never' : ''}>
+            <div className="bd-head">
+              <span>{r.label}</span>
+              <span className="bd-uses" title="Times it fired">
+                ×{r.uses}
+              </span>
+            </div>
+            {stats.length > 0 && <div className="bd-stats">{stats.join(' · ')}</div>}
+            {r.note && <div className="muted small">{r.note}</div>}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function FightSummary({ fight, content }: { fight: FightView; content: RunContent }) {
+  const { combat } = fight;
+  const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
+  const toggle = (id: string) =>
+    setOpen((o) => {
+      const next = new Set(o);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
   const classOf = new Map([...combatUnits(combat.events).values()].map((u) => [u.id, u.classId]));
+  const setups = useMemo(() => setupsById(fight.board, fight.enemy, content), [fight, content]);
   const max = Math.max(1, ...combat.summary.map((s) => Math.max(s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone)));
   return (
     <div className="fight-summary">
+      <p className="muted small summary-hint">Tap a unit to see what each {setups.values().next().value?.rules ? 'rule' : 'ability, attack and item'} did.</p>
       {(['player', 'enemy'] as const).map((side) => (
         <table key={side} className={`summary-table ${side}`}>
           <caption>{side === 'player' ? 'Your party' : 'Enemy'}</caption>
@@ -57,25 +108,41 @@ function FightSummary({ combat, content }: { combat: CombatResult; content: RunC
           <tbody>
             {combat.summary
               .filter((s) => s.side === side)
-              .map((s) => (
-                <tr key={s.id} className={`${s.survived ? '' : 'dead'}${s.summonedBy ? ' summon-row' : ''}`}>
-                  <td>
-                    <Icon id={classStyle(content, classOf.get(s.id) ?? '').icon} className="row-icon" /> {s.name}
-                    {s.summonedBy && <span className="muted"> (summon)</span>}
-                    {s.kills > 0 && <span className="muted"> · {s.kills}💀</span>}
-                  </td>
-                  <td className="actions-cell">
-                    {s.attacks + s.abilities}
-                    {s.abilities > 0 && <span className="muted"> ({s.abilities}✨)</span>}
-                  </td>
-                  {[s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone].map((v, i) => (
-                    <td key={i}>
-                      <span className={`bar b${i}`} style={{ width: `${(v / max) * 100}%` }} />
-                      <span className="bar-value">{v}</span>
+              .flatMap((s) => {
+                const isOpen = open.has(s.id);
+                const row = (
+                  <tr key={s.id} className={`${s.survived ? '' : 'dead'}${s.summonedBy ? ' summon-row' : ''}`}>
+                    <td>
+                      <button type="button" className="unit-toggle" aria-expanded={isOpen} onClick={() => toggle(s.id)}>
+                        <span className="toggle-caret">{isOpen ? '▾' : '▸'}</span>
+                        <Icon id={classStyle(content, classOf.get(s.id) ?? '').icon} className="row-icon" /> {s.name}
+                      </button>
+                      {s.summonedBy && <span className="muted"> (summon)</span>}
+                      {s.kills > 0 && <span className="muted"> · {s.kills}💀</span>}
                     </td>
-                  ))}
-                </tr>
-              ))}
+                    <td className="actions-cell">
+                      {s.attacks + s.abilities}
+                      {s.abilities > 0 && <span className="muted"> ({s.abilities}✨)</span>}
+                    </td>
+                    {[s.damageDealt, s.damageTaken, s.healingDone + s.shieldingDone].map((v, i) => (
+                      <td key={i}>
+                        <span className={`bar b${i}`} style={{ width: `${(v / max) * 100}%` }} />
+                        <span className="bar-value">{v}</span>
+                      </td>
+                    ))}
+                  </tr>
+                );
+                return isOpen
+                  ? [
+                      row,
+                      <tr key={`${s.id}-breakdown`} className="breakdown-row">
+                        <td colSpan={5}>
+                          <Breakdown summary={s} setup={setups.get(s.id)} content={content} />
+                        </td>
+                      </tr>,
+                    ]
+                  : [row];
+              })}
           </tbody>
         </table>
       ))}
@@ -133,7 +200,7 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
           ))}
         </div>
       )}
-      <FightSummary combat={fight.combat} content={game.ctx.content} />
+      <FightSummary fight={fight} content={game.ctx.content} />
       <div className="result-actions">
         <button type="button" onClick={() => setShowLog((s) => !s)}>
           {showLog ? 'Hide combat log' : 'Show combat log'}

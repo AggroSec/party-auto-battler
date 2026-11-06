@@ -3,7 +3,7 @@
 import { absorb, mitigate } from './damage.ts';
 import { fireTriggers } from './effects.ts';
 import { OVERTIME_SOURCE } from './events.ts';
-import { emit, living, type CombatState, type CombatUnit } from './state.ts';
+import { credit, emit, living, type CombatState, type CombatUnit } from './state.ts';
 import { cannotDie } from './statuses.ts';
 
 /** Damage multiplier for melee units attacking from the back row while their front row stands. */
@@ -48,6 +48,7 @@ export function applyHeal(state: CombatState, source: CombatUnit, target: Combat
   const value = Math.max(0, Math.min(Math.round(amount * statusFactor(target, 'healingTaken')), target.maxHp - target.hp));
   target.hp += value;
   source.stats.healingDone += value;
+  credit(source, 'healing', value);
   emit(state, { tick: state.tick, type: 'heal', source: source.id, target: target.id, value, hpAfter: target.hp });
   return value;
 }
@@ -82,6 +83,7 @@ export function dealDamage(
   target.hp -= hpLost;
   if (source) {
     source.stats.damageDealt += hpLost + toShield;
+    credit(source, 'damage', hpLost + toShield);
     source.lastHit = hpLost + toShield;
   }
   target.stats.damageTaken += hpLost + toShield;
@@ -132,7 +134,10 @@ function kill(state: CombatState, target: CombatUnit, killer: CombatUnit | null,
   target.alive = false;
   emit(state, { tick: state.tick, type: 'death', target: target.id, source: killer?.id ?? by ?? OVERTIME_SOURCE });
   if (killer) {
-    if (killer !== target && killer.side !== target.side) killer.stats.kills += 1;
+    if (killer !== target && killer.side !== target.side) {
+      killer.stats.kills += 1;
+      credit(killer, 'kills', 1);
+    }
     fireTriggers(state, killer, 'onKill', { triggerTarget: target }, depth);
     if (killer.side !== target.side) {
       for (const ally of living(state, killer.side)) {

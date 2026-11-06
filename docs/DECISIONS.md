@@ -2,6 +2,14 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-06 — Milestone 12: fight breakdown and softer tier 14 consumables
+
+Brandon's calls: a per-unit breakdown in the fight summary showing which rules fired and what they did; Hourglass stays as is (−1 cooldown on every skill: players account for it); bundle the enemy-consumable change. Decided autonomously:
+- **Attribution lives in the engine,** not reconstructed from the event log. Each unit tracks the action it's resolving (a rule, the ability, a basic attack, a trigger or a consumable), and every damage, heal, shield, affliction stack and kill is credited to it. Statuses remember the action that applied them, so damage over time is credited correctly turns later. The breakdown is in each unit's fight summary (`actions`); the event log is unchanged and no RNG is used, so fights are identical to before.
+- **"Why didn't it fire"** is counted for free while walking the list: each rule reached and passed over records its reason (cooldown, condition not met or no target, silenced). Turns when a higher rule fired are the remainder. Lower rules are never test-evaluated, since that could draw on the RNG (random targets) and change fights.
+- **Shown for both modes and both sides,** tap to expand, several at once, as a compact list (not a nested table) so it fits a 360px phone.
+- **Tier 14 enemy consumables:** one enemy from round 5, plus one every 5 rounds (2 at 10, 3 at 15). Brandon's round 9 loss had a Rogue killed at tick 0 by a Fire Bomb and two Throwing Knives.
+
 ## 2026-11-05 — Milestone 11: rules mode, consumables, the guide and the tier 11–12 fix
 
 Brandon's calls: the tier 12 extra level ramps in by round 10 and the 2-life boss cost applies only at rounds 10 and 15; consumables are priced, used only when they fire, sometimes dropped by wins, and given to enemies on high tiers; rules mode reworks skills so picking rules matters, starting with a few classes, each split like classic (e.g. Warrior: tank | damage, with damage splitting into a damage/affliction hybrid or more damage); the Shaman's advanced split is the two kill styles (Imperian scaling damage, Achaea instant kill); the Runeblade is in the first set. Decided autonomously:
