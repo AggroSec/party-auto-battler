@@ -9,7 +9,7 @@ import { BOSS_CLASSES, BOSSES } from './meta/bosses.ts';
 import { ELITE, LADDER } from './meta/ladder.ts';
 import { PERKS } from './meta/perks.ts';
 import { UNIT_NAMES } from './names.ts';
-import { RULES_ADVANCED, RULES_CLASSES, RULES_ENEMIES, RULES_STATUSES, RULES_TALENTS, RULES_TERTIARY } from './rules-mode/index.ts';
+import { RULES_ADVANCED, RULES_CLASSES, RULES_ENEMIES, RULES_MODE_MODIFIER, RULES_STATUSES, RULES_TALENTS, RULES_TERTIARY } from './rules-mode/index.ts';
 import { SYNERGIES } from './synergies.ts';
 
 /**
@@ -36,6 +36,7 @@ export function buildRunContent(): RunContent {
     enemyProgression: ENEMY_PROGRESSION,
     unitNames: UNIT_NAMES,
     ladder: LADDER,
+    modes: { rules: RULES_MODE_MODIFIER },
     perks: PERKS,
     bosses: BOSSES,
     elite: ELITE,

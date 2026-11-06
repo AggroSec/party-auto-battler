@@ -51,7 +51,7 @@ export const runecarver = advancedTier({
   tags: ['martial', 'arcane'],
   tertiaryClasses: ['runelord', 'r-spellbreaker'],
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
-  modifier: { stats: { hp: 8, def: 1 } },
+  modifier: { stats: { hp: 12, def: 2, atk: 1 } },
   skills: [
     skill('sigil-of-frailty', 'Sigil of Frailty', 2, 'enemy', '40% ATK, Brittle (−3 DEF) and a Rune.', [hit(0.4), afflict(BRITTLE), afflict(RUNE_MARK)]),
     skill('binding-rune', 'Binding Rune', 4, 'enemy', 'Hush (no skills or abilities for 2 turns) and a Rune.', [afflict(HUSH), afflict(RUNE_MARK)]),

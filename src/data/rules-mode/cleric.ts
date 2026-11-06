@@ -33,10 +33,10 @@ export const priest = advancedTier({
   tags: ['divine'],
   tertiaryClasses: ['r-oracle', 'saint'],
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
-  modifier: { stats: { hp: 8 }, abilityPower: 0.15 },
+  modifier: { stats: { hp: 10, atk: 1 }, abilityPower: 0.2 },
   skills: [
-    skill('mend', 'Mend', 3, null, 'Heal every ally for 60% ATK.', [{ kind: 'heal', target: 'allAllies', amount: { atk: 0.6 } }]),
-    skill('ward', 'Ward', 2, 'ally', 'Shield an ally for 150% ATK.', [{ kind: 'shield', target: 'focus', amount: { atk: 1.5 } }]),
+    skill('mend', 'Mend', 3, null, 'Heal every ally for 80% ATK.', [{ kind: 'heal', target: 'allAllies', amount: { atk: 0.8 } }]),
+    skill('ward', 'Ward', 2, 'ally', 'Shield an ally for 4 + 170% ATK.', [{ kind: 'shield', target: 'focus', amount: { flat: 4, atk: 1.7 } }]),
   ],
   rules: [rule('mend', allyBelow(70)), rule('ward', allyBelow(85))],
 });
@@ -49,10 +49,10 @@ export const inquisitor = advancedTier({
   tags: ['divine'],
   tertiaryClasses: ['zealot', 'r-templar'],
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
-  modifier: { stats: { atk: 2, hp: 6 } },
+  modifier: { stats: { atk: 3, hp: 10 } },
   skills: [
-    skill('condemn', 'Condemn', 2, 'enemy', '70% ATK and Brittle (−3 DEF).', [hit(0.7), afflict(BRITTLE)]),
-    skill('holy-fire', 'Holy Fire', 2, 'enemy', '50% ATK and Burn.', [hit(0.5), afflict(BURN)]),
+    skill('condemn', 'Condemn', 2, 'enemy', '90% ATK and Brittle (−3 DEF).', [hit(0.9), afflict(BRITTLE)]),
+    skill('holy-fire', 'Holy Fire', 2, 'enemy', '70% ATK and Burn.', [hit(0.7), afflict(BURN)]),
   ],
   rules: [rule('condemn', lacks(BRITTLE), 'mostAfflicted'), rule('holy-fire', lacks(BURN), 'mostAfflicted')],
 });
@@ -97,9 +97,9 @@ export const zealot = tertiaryTier({
   description: 'Righteous wrath that grows with every sin on the target.',
   tags: ['divine'],
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
-  modifier: { stats: { atk: 3, hp: 6 } },
+  modifier: { stats: { atk: 4, hp: 10 } },
   skills: [
-    skill('wrath', 'Wrath', 3, 'enemy', '120% ATK + 40% ATK per affliction on the target.', [hit(1.2, { perAffliction: 0.4 })]),
+    skill('wrath', 'Wrath', 3, 'enemy', '140% ATK + 60% ATK per affliction on the target.', [hit(1.4, { perAffliction: 0.6 })]),
     skill('judgment', 'Judgment', 4, null, '60% ATK to every enemy.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.6 } }]),
   ],
   rules: [rule('wrath', afflictions(2), 'mostAfflicted'), rule('judgment', { kind: 'enemiesAtLeast', count: 3 })],

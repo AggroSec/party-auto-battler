@@ -1,9 +1,10 @@
 // Headless balance simulator.
-// Usage: npm run sim -- [--runs 2000] [--fights 2000] [--duels 200] [--seed m2] [--only runs|combat|ladder] [--tier 0] [--out file.md]
+// Usage: npm run sim -- [--runs 2000] [--fights 2000] [--duels 200] [--seed m2] [--only runs|combat|ladder] [--tier 0] [--mode rules] [--out file.md]
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { buildRunContext } from '../data/content.ts';
-import { defaultSetup } from '../engine/run/index.ts';
+import { RULES_CLASS_IDS } from '../data/rules-mode/index.ts';
+import { defaultSetup, type RunSetup } from '../engine/run/index.ts';
 import { BOTS } from './bots.ts';
 import { formatReport, runDuels, runTeamFights } from './combat-report.ts';
 import { formatRunReports } from './run-format.ts';
@@ -18,8 +19,13 @@ const { values } = parseArgs({
     only: { type: 'string' },
     tier: { type: 'string', default: '0' },
     out: { type: 'string' },
+    mode: { type: 'string' },
   },
 });
+
+/** The setup for a tier: classic (every class), or rules mode (every rules-mode class, default rules). */
+const setupFor = (ctx: ReturnType<typeof buildRunContext>, tier: number): RunSetup =>
+  values.mode === 'rules' ? { ...defaultSetup(ctx), tier, classes: [...RULES_CLASS_IDS], mode: 'rules' } : { ...defaultSetup(ctx), tier };
 
 const seed = values.seed;
 const sections: string[] = [`Seed \`${seed}\`. Draws count as half a win.`];
@@ -28,8 +34,8 @@ if (values.only === undefined || values.only === 'runs') {
   const runs = Number(values.runs);
   const ctx = buildRunContext();
   const tier = Number(values.tier);
-  const reports = BOTS.map((bot) => runBot(bot, ctx, runs, `${seed}:runs`, { ...defaultSetup(ctx), tier }));
-  sections.push(`### Full runs (${runs} per bot, all content, ladder tier ${tier})`, formatRunReports(reports, BOTS, ctx.content));
+  const reports = BOTS.map((bot) => runBot(bot, ctx, runs, `${seed}:runs`, setupFor(ctx, tier)));
+  sections.push(`### Full runs (${runs} per bot, all content, ladder tier ${tier}${values.mode ? `, ${values.mode} mode` : ''})`, formatRunReports(reports, BOTS, ctx.content));
 }
 
 if (values.only === 'ladder') {
@@ -39,7 +45,7 @@ if (values.only === 'ladder') {
   const bots = BOTS.filter((b) => b.name === 'sensible' || b.name === 'greedy');
   const rows = ['| Tier | ' + bots.map((b) => `${b.name} completion | ${b.name} avg wins`).join(' | ') + ' |', '|---|' + bots.map(() => '---|---').join('|') + '|'];
   for (let tier = 0; tier <= ctx.content.ladder.length; tier++) {
-    const reports = bots.map((bot) => runBot(bot, ctx, runs, `${seed}:ladder${tier}`, { ...defaultSetup(ctx), tier }));
+    const reports = bots.map((bot) => runBot(bot, ctx, runs, `${seed}:ladder${tier}`, setupFor(ctx, tier)));
     rows.push(`| ${tier} | ` + reports.map((r) => `${(r.completionRate * 100).toFixed(1)}% | ${r.avgWins.toFixed(1)}`).join(' | ') + ' |');
     console.error(`tier ${tier} done`);
   }

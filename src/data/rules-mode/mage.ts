@@ -47,9 +47,9 @@ export const chronomancer = advancedTier({
   tags: ['arcane'],
   tertiaryClasses: ['timeweaver', 'riftmage'],
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
-  modifier: { stats: { spd: 3, hp: 6 } },
+  modifier: { stats: { spd: 3, hp: 10, atk: 1 } },
   skills: [
-    skill('slow', 'Slow', 2, 'enemy', '40% ATK and Slowed (−4 SPD).', [hit(0.4), afflict(SLOWED)]),
+    skill('slow', 'Slow', 2, 'enemy', '60% ATK and Slowed (−4 SPD).', [hit(0.6), afflict(SLOWED)]),
     skill('haste', 'Haste', 3, 'ally', 'Hasted: +4 SPD for 3 turns.', [afflict(HASTED)]),
   ],
   rules: [rule('haste', { kind: 'targetLacks', status: HASTED.id }, 'self'), rule('slow', lacks(SLOWED), 'highestAtk')],
@@ -79,7 +79,7 @@ export const ashbringer = tertiaryTier({
   modifier: { stats: { atk: 2, hp: 6 } },
   skills: [
     skill('scorch', 'Scorch', 2, 'enemy', '40% ATK and Brittle (−3 DEF).', [hit(0.4), afflict(BRITTLE)]),
-    skill('combust', 'Combust', 3, 'enemy', '60% ATK + 45% ATK per affliction on the target.', [hit(0.6, { perAffliction: 0.45 })]),
+    skill('combust', 'Combust', 3, 'enemy', '70% ATK + 60% ATK per affliction on the target.', [hit(0.7, { perAffliction: 0.6 })]),
   ],
   rules: [rule('combust', afflictions(3), 'mostAfflicted'), rule('scorch', lacks(BRITTLE), 'mostAfflicted')],
 });

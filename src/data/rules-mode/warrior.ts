@@ -47,9 +47,9 @@ export const berserker = advancedTier({
   tags: ['martial'],
   tertiaryClasses: ['reaver', 'slayer'],
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
-  modifier: { stats: { atk: 3, hp: 8 } },
+  modifier: { stats: { atk: 4, hp: 12 } },
   skills: [
-    skill('rampage', 'Rampage', 2, 'enemy', '140% ATK.', [hit(1.4)]),
+    skill('rampage', 'Rampage', 2, 'enemy', '160% ATK.', [hit(1.6)]),
     skill('blood-rage', 'Blood Rage', 4, null, 'Lose 10% max HP; Enraged: +4 ATK for 3 turns.', [{ kind: 'payHp', amount: { maxHp: 0.1 } }, selfStatus(ENRAGED)]),
   ],
   rules: [rule('blood-rage', selfLacks(ENRAGED)), rule('rampage')],
@@ -76,7 +76,7 @@ export const warden = tertiaryTier({
   description: 'A tank that controls: bashes the biggest threat off its feet.',
   tags: ['martial', 'guardian'],
   statWeights: { hp: 4, atk: 2, def: 3, spd: 1 },
-  modifier: { stats: { hp: 12, def: 2, atk: 2 } },
+  modifier: { stats: { hp: 14, def: 2, atk: 4 } },
   skills: [skill('shield-bash', 'Shield Bash', 4, 'enemy', '80% ATK and Bind: it loses its next turn.', [hit(0.8), afflict(BIND)])],
   rules: [rule('shield-bash', undefined, 'highestAtk')],
 });

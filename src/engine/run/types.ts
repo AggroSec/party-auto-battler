@@ -88,6 +88,8 @@ export interface RunContent {
   enemyScaling: EnemyScaling;
   enemyProgression: EnemyProgression;
   unitNames: readonly string[];
+  /** Extra rules per run mode, applied before the ladder (rules mode's own tuning). */
+  modes?: Readonly<Partial<Record<'rules', RunModifier>>>;
   /** Difficulty ladder: index 0 = tier 1 (M7). */
   ladder: readonly LadderTier[];
   perks: Readonly<Record<string, PerkDef>>;

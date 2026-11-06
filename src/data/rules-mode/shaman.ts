@@ -55,10 +55,10 @@ export const spiritbinder = advancedTier({
   tags: SPIRIT,
   tertiaryClasses: ['soulreaver', 'spirit-warden'],
   statWeights: { hp: 4, atk: 3, def: 1, spd: 2 },
-  modifier: { stats: { hp: 8, spd: 1 } },
+  modifier: { stats: { hp: 10, atk: 1, spd: 1 } },
   skills: [
     skill('hush', 'Hush', 3, 'enemy', '30% ATK and Hush: no skills or abilities for 2 turns.', [hit(0.3), afflict(HUSH)]),
-    skill('sever-soul', 'Sever Soul', 4, 'enemy', '40% ATK. If the target has Frostbite, Weakness and Hush, it dies outright (bosses lose 25% max HP).', [
+    skill('sever-soul', 'Sever Soul', 3, 'enemy', '40% ATK. If the target has Frostbite, Weakness and Hush, it dies outright (bosses lose 25% max HP).', [
       hit(0.4),
       { kind: 'execute', target: 'focus', requires: [FROSTBITE.id, WEAKNESS.id, HUSH.id], bossMaxHp: 0.25 },
     ]),
@@ -93,10 +93,10 @@ export const witchDoctor = tertiaryTier({
   description: 'Afflicts for the whole party: fevers stop healing, and hex totems mark every enemy.',
   tags: SPIRIT,
   statWeights: { hp: 4, atk: 4, def: 1, spd: 1 },
-  modifier: { stats: { hp: 12, atk: 1 } },
+  modifier: { stats: { hp: 12, atk: 3 } },
   skills: [
-    skill('fever-curse', 'Fever Curse', 2, 'enemy', '30% ATK and Fever (heals on it are halved).', [hit(0.3), afflict(FEVER)]),
-    skill('hex-totem', 'Hex Totem', 4, null, 'Every enemy is Marked: +25% damage taken for 3 turns.', [afflict(MARKED, 1, 'allEnemies')]),
+    skill('fever-curse', 'Fever Curse', 2, 'enemy', '60% ATK and Fever (heals on it are halved).', [hit(0.6), afflict(FEVER)]),
+    skill('hex-totem', 'Hex Totem', 3, null, 'Every enemy is Marked: +25% damage taken for 3 turns.', [afflict(MARKED, 1, 'allEnemies')]),
   ],
   rules: [rule('hex-totem', lacks(MARKED)), rule('fever-curse', lacks(FEVER), 'mostAfflicted')],
 });

@@ -1,6 +1,6 @@
 // Rules mode (post-1.0): its classes, assembled for the run content.
 import type { AdvancedClassDef, ClassTemplate, TalentDef, TertiaryClassDef } from '../../engine/run/content-types.ts';
-import type { EnemyArchetype } from '../../engine/run/types.ts';
+import type { EnemyArchetype, RunModifier } from '../../engine/run/types.ts';
 import { CLERIC_TREE } from './cleric.ts';
 import type { Built } from './dsl.ts';
 import { MAGE_TREE } from './mage.ts';
@@ -23,6 +23,12 @@ export const RULES_TALENTS: Record<string, TalentDef> = Object.fromEntries(TREES
 /** Rules-mode classes in display order; the Shaman is unlocked by an achievement. */
 export const RULES_CLASS_IDS = Object.keys(RULES_CLASSES);
 export const RULES_STARTER_IDS = RULES_CLASS_IDS.filter((id) => id !== 'shaman');
+
+/**
+ * Rules mode's own tuning: enemies fight by tuned default rules every time,
+ * so they're a little weaker than in classic runs (simulator, post-1.0).
+ */
+export const RULES_MODE_MODIFIER: RunModifier = { enemyStats: -0.12 };
 
 /** Rules-mode enemies: they fight by their classes' default rules. */
 export const RULES_ENEMIES: EnemyArchetype[] = [

@@ -59,9 +59,10 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
 
 /** The modifiers a setup applies: ladder tiers 1..tier, then the chosen perks. */
 export function setupModifiers(setup: RunSetup, content: RunContent): RunModifier[] {
+  const mode = setup.mode ? content.modes?.[setup.mode] : undefined;
   const tiers = content.ladder.filter((t) => t.tier <= setup.tier).map((t) => t.modifier);
   const perks = setup.perks.flatMap((id) => (content.perks[id] ? [content.perks[id].modifier] : []));
-  return [...tiers, ...perks];
+  return [...(mode ? [mode] : []), ...tiers, ...perks];
 }
 
 function applyToConfig(config: RunConfig, m: RunModifier): RunConfig {
