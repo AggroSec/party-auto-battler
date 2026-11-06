@@ -10,8 +10,9 @@ const content = buildRunContext().content;
 describe('icons', () => {
   it('gives every base, advanced and tertiary class its base class icon', () => {
     for (const id of CLASS_IDS) expect(classStyle(content, id).icon).toBe(id);
-    for (const [id, adv] of Object.entries(content.advancedClasses)) expect(classStyle(content, id).icon).toBe(adv.baseClassId);
-    for (const [id, tert] of Object.entries(content.tertiaryClasses)) expect(classStyle(content, id).icon).toBe(tert.baseClassId);
+    const look = (base: string) => content.classes[base]?.look ?? base;
+    for (const [id, adv] of Object.entries(content.advancedClasses)) expect(classStyle(content, id).icon).toBe(look(adv.baseClassId));
+    for (const [id, tert] of Object.entries(content.tertiaryClasses)) expect(classStyle(content, id).icon).toBe(look(tert.baseClassId));
   });
 
   it('credits every icon in ATTRIBUTION.md', () => {

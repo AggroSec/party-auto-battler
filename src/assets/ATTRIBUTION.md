@@ -20,6 +20,7 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `cultist`: "Cultist" by Lorc, https://game-icons.net/1x1/lorc/cultist.html, CC BY 3.0
 - `adventurer`: "Backpack" by Delapouite, https://game-icons.net/1x1/delapouite/backpack.html, CC BY 3.0
 - `mercenary`: "Crossed Axes" by Lorc, https://game-icons.net/1x1/lorc/crossed-axes.html, CC BY 3.0
+- `shaman`: "Totem Mask" by Lorc, https://game-icons.net/1x1/lorc/totem-mask.html, CC BY 3.0
 - `chain-warden`: "Manacles" by Lorc, https://game-icons.net/1x1/lorc/manacles.html, CC BY 3.0
 - `pale-choir`: "Ghost" by Lorc, https://game-icons.net/1x1/lorc/ghost.html, CC BY 3.0
 - `bonesaw`: "Battered Axe" by Lorc, https://game-icons.net/1x1/lorc/battered-axe.html, CC BY 3.0
@@ -40,6 +41,7 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `spd`: "Wingfoot" by Lorc, https://game-icons.net/1x1/lorc/wingfoot.html, CC BY 3.0
 - `item`: "Knapsack" by Lorc, https://game-icons.net/1x1/lorc/knapsack.html, CC BY 3.0
 - `weapon`: "Crossed Swords" by Lorc, https://game-icons.net/1x1/lorc/crossed-swords.html, CC BY 3.0
+- `consumable`: "Round Bottom Flask" by Lorc, https://game-icons.net/1x1/lorc/round-bottom-flask.html, CC BY 3.0
 - `signature`: "Round Star" by Delapouite, https://game-icons.net/1x1/delapouite/round-star.html, CC BY 3.0
 - `training`: "Upgrade" by Delapouite, https://game-icons.net/1x1/delapouite/upgrade.html, CC BY 3.0
 - `sound-on`: "Sound On" by Delapouite, https://game-icons.net/1x1/delapouite/sound-on.html, CC BY 3.0

@@ -100,6 +100,10 @@ function apply(frame: Frame, e: CombatEvent): void {
       return;
     case 'ability':
       frame.ability = e.name;
+      if (e.target) frame.attacked.push(e.target);
+      return;
+    case 'stunned':
+      frame.fx.push({ kind: 'trigger', target: e.source, label: e.name });
       return;
     case 'trigger':
       frame.fx.push({ kind: 'trigger', target: e.source, label: e.label });

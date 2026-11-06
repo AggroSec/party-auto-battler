@@ -1,5 +1,6 @@
 import type { ItemDef } from '../engine/run/content-types.ts';
 import { on } from './builds/dsl.ts';
+import { CONSUMABLE_LIST } from './consumables.ts';
 import { SIGNATURE_ITEMS } from './signature-items/index.ts';
 import { BROKEN_LIMB } from './statuses.ts';
 
@@ -304,6 +305,6 @@ const ITEM_LIST: ItemDef[] = [
 ];
 
 /** Every item, including the tertiary classes' signature items (M7). */
-export const ITEMS: Record<string, ItemDef> = Object.fromEntries([...ITEM_LIST, ...SIGNATURE_ITEMS].map((i) => [i.id, i]));
+export const ITEMS: Record<string, ItemDef> = Object.fromEntries([...ITEM_LIST, ...SIGNATURE_ITEMS, ...CONSUMABLE_LIST].map((i) => [i.id, i]));
 /** Items the shop and enemies roll (signature items are offered separately). */
 export const ITEM_IDS = ITEM_LIST.map((i) => i.id);

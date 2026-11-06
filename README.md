@@ -12,7 +12,10 @@ A browser-playable party auto-battler with RPG classes and builds. You draft a p
 - **Build every unit.** Units level up to 10. Every level is a choice: a talent from the class's pool, stat points you spend yourself, an **advanced class** at level 3 and a **tertiary class** at level 7. Some late talents grant a second ability.
 - **Watch it fight.** Combat is fully automatic and deterministic: a tick timeline driven by speed, played back turn by turn with pause, 2x and skip, then a per-unit summary.
 - **Synergies and items.** Class tags and specific pairs unlock party synergies; every tertiary class has a signature item worth chasing.
-- **Meta progression.** Achievements unlock classes, items, synergies and starting perks. Winning a run opens the next of 10 ladder tiers, with Elites and bosses higher up. There's also a daily run with the same seed for everyone.
+- **Meta progression.** Achievements unlock classes, items, synergies and starting perks. Winning a run opens the next of 15 ladder tiers, with Elites, bosses and unique bosses higher up. There's also a daily run with the same seed for everyone.
+- **Rules mode.** An optional run type where every class has a kit of skills and you write each unit's priority list: "if the target has 3+ afflictions, Spirit Lash; if it lacks Frostbite, Frost Hex…". Build a standard party, a nuke team or an affliction lock with the Shaman.
+- **Consumables.** One slot per unit for a potion, bomb or tonic that fires once when its trigger comes up.
+- **New to the genre?** The in-game guide walks through a first run, and one-time tips explain things as they happen.
 
 | | |
 |---|---|

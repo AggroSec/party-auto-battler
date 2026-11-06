@@ -62,6 +62,8 @@ export interface AchievementDef {
   name: string;
   description: string;
   condition: AchievementCondition;
+  /** Only counts in runs of this mode. */
+  mode?: 'rules';
   reward: Unlocks;
 }
 
@@ -71,7 +73,9 @@ export interface MetaCatalog {
   starter: Required<Unlocks>;
   achievements: readonly AchievementDef[];
   /** Every unlockable thing, in display order. */
-  all: { classes: readonly string[]; items: readonly string[]; synergies: readonly string[]; perks: readonly string[] };
+  all: { classes: readonly string[]; items: readonly string[]; synergies: readonly string[]; perks: readonly string[]; rulesClasses?: readonly string[] };
+  /** Rules-mode classes a new player starts with. */
+  rulesStarter?: readonly string[];
   maxTier: number;
   maxPerkSlots: number;
   maxFavoredSlots: number;
@@ -105,6 +109,8 @@ export interface Profile {
 /** What the player can use right now. */
 export interface Unlocked {
   classes: string[];
+  /** Rules-mode classes (post-1.0). */
+  rulesClasses: string[];
   items: string[];
   synergies: string[];
   perks: string[];

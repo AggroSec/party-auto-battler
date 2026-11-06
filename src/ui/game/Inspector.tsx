@@ -1,9 +1,10 @@
-import type { UnitSetup } from '../../engine/index.ts';
+import type { Rule, UnitSetup } from '../../engine/index.ts';
 import { classTiers, effectiveClassId, itemRules, maxLevel, tertiaryItemFor, unitTags, type Board, type OwnedUnit, type RunContext, type SlotRef, type StatPoints } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { useDraggable } from './drag.tsx';
 import { Icon } from './Icon.tsx';
 import { className, spentSummary } from './names.ts';
+import { RuleEditor } from './RuleEditor.tsx';
 import { Rules } from './Rules.tsx';
 import { StatPanel } from './StatPanel.tsx';
 import { UnitKit } from './UnitKit.tsx';
@@ -27,7 +28,8 @@ function ItemRow({
 }) {
   const id = unit.items[index]!;
   const item = ctx.content.items[id];
-  const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId);
+  const look = ctx.content.classes[unit.classId]?.look;
+  const bonus = item?.classBonus?.classIds.some((c) => c === unit.classId || c === unit.advancedClassId || c === look);
   const chip = (
     <span className={`item-chip${item?.tertiaryClassId ? ' signature' : ''}`}>
       <Icon id={item?.tertiaryClassId ? 'signature' : item?.weapon ? 'weapon' : 'item'} /> {item?.name ?? id}
@@ -74,6 +76,7 @@ export function Inspector({
   onMoveUnit,
   onSell,
   onAllocate,
+  onSetRules,
   onClose,
 }: {
   unit: OwnedUnit;
@@ -88,6 +91,7 @@ export function Inspector({
   onMoveUnit: () => void;
   onSell: () => void;
   onAllocate: (points: StatPoints) => void;
+  onSetRules: (rules: Rule[] | null) => void;
   onClose: () => void;
 }) {
   const { content, config } = ctx;
@@ -100,6 +104,7 @@ export function Inspector({
   const signatureId = tert ? tertiaryItemFor(tert.id, ctx) : undefined;
   const signature = signatureId ? content.items[signatureId] : undefined;
   const rules = itemRules(unit, content, prog.maxItemsPerUnit);
+  const consumable = unit.consumable ? content.items[unit.consumable] : undefined;
   return (
     <section className="inspector" style={{ '--class-color': style.color } as React.CSSProperties} aria-label={`${unit.name} details`}>
       <header className="inspector-head">
@@ -125,6 +130,7 @@ export function Inspector({
       {unit.statPoints > 0 && <StatPanel key={`${unit.uid}:${unit.statPoints}`} unit={unit} ctx={ctx} onConfirm={onAllocate} />}
       {(tert ?? adv) && <p className="muted">{(tert ?? adv)!.description}</p>}
       {setup && <UnitKit unit={unit} setup={setup} board={board} ctx={ctx} />}
+      {setup?.skills && <RuleEditor unit={unit} setup={setup} ctx={ctx} onChange={onSetRules} />}
       {unit.talents.length > 0 && (
         <ul className="talent-list">
           {unit.talents.map((id) => (
@@ -154,6 +160,16 @@ export function Inspector({
           </li>
         )}
       </ul>
+      <p className="consumable-slot small">
+        <Icon id="consumable" /> Consumable:{' '}
+        {consumable ? (
+          <>
+            <strong>{consumable.name}</strong> <Rules text={consumable.description} /> <span className="muted">(used up when it fires)</span>
+          </>
+        ) : (
+          <span className="muted">empty. The shop always has one; won fights sometimes drop one for free.</span>
+        )}
+      </p>
       {signature && !unit.items.includes(signature.id) && (
         <p className="signature-hint muted small">
           <Icon id="signature" /> Signature item: <strong>{signature.name}</strong> ({signature.cost}g) is offered once, when a unit reaches {tert?.name}.{' '}

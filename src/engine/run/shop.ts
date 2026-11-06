@@ -75,7 +75,22 @@ export function rollShop(rng: Rng, ctx: RunContext, board: Board, round = 1): Sh
     }
     return offer;
   });
-  return [...units, ...Array.from({ length: extraSlots }, () => rollExtraOffer(rng, ctx, board, round))];
+  const extras = Array.from({ length: extraSlots }, () => rollExtraOffer(rng, ctx, board, round));
+  return [...units, ...extras, ...Array.from({ length: shop.consumableSlots ?? 0 }, () => rollConsumable(rng, ctx)).filter((o) => o !== null)];
+}
+
+/** A consumable offer at its price, or null with no consumables in the content. */
+export function rollConsumable(rng: Rng, ctx: RunContext, cost?: number): ShopOffer | null {
+  const pool = ctx.content.consumablePool ?? [];
+  if (pool.length === 0) return null;
+  const itemId = rng.pick(pool);
+  return { kind: 'item', itemId, cost: cost ?? ctx.content.items[itemId]?.cost ?? 1 };
+}
+
+/** After a won fight: maybe a free consumable for the next shop (it stays through rerolls until taken). */
+export function rollConsumableDrop(rng: Rng, ctx: RunContext): ShopOffer | null {
+  const chance = ctx.config.shop.consumableDropChance ?? 0;
+  return chance > 0 && rng.chance(chance) ? rollConsumable(rng, ctx, 0) : null;
 }
 
 /** Rounds in which a run's favored classes are guaranteed a recruit offer. */

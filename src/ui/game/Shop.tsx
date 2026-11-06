@@ -27,15 +27,18 @@ function OfferCard({
   const cls = offer.kind === 'item' ? null : content.classes[offer.classId];
   const signature = offer.kind === 'item' ? content.items[offer.itemId]?.tertiaryClassId : undefined;
   const weapon = offer.kind === 'item' && content.items[offer.itemId]?.weapon;
+  const consumable = offer.kind === 'item' && content.items[offer.itemId]?.consumable;
   const style: ClassLook =
-    offer.kind === 'item' ? { color: signature ? '#e0a526' : '#c9a227', icon: signature ? 'signature' : weapon ? 'weapon' : 'item' } : classStyle(content, offer.classId);
+    offer.kind === 'item'
+      ? { color: signature ? '#e0a526' : consumable ? '#5fc28a' : '#c9a227', icon: signature ? 'signature' : weapon ? 'weapon' : consumable ? 'consumable' : 'item' }
+      : classStyle(content, offer.classId);
   const body = (
     <div className={`offer-card ${offer.kind}${signature ? ' signature' : ''}${offer.cost === 0 ? ' free' : ''}`} style={{ '--class-color': style.color } as React.CSSProperties}>
       <div className="offer-top">
         <span className="avatar small" aria-hidden>
           <Icon id={offer.kind === 'training' ? 'training' : style.icon} />
         </span>
-        <span className="offer-kind">{signature ? `${content.tertiaryClasses[signature]?.name ?? ''} only` : weapon ? 'Weapon' : KIND_LABEL[offer.kind]}</span>
+        <span className="offer-kind">{signature ? `${content.tertiaryClasses[signature]?.name ?? ''} only` : weapon ? 'Weapon' : consumable ? 'Consumable' : KIND_LABEL[offer.kind]}</span>
         <span className={`cost ${gold < offer.cost ? 'short' : ''}`}>{offer.cost}g</span>
       </div>
       <strong className="offer-title">{title}</strong>

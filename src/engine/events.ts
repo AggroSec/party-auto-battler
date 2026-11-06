@@ -26,7 +26,12 @@ export type CombatEvent =
   /** `gauges`: every living unit's action gauge as the turn starts (the actor's is still full). */
   | { tick: number; type: 'turn'; source: UnitId; gauges: Record<UnitId, number> }
   | { tick: number; type: 'attack'; source: UnitId; target: UnitId }
-  | { tick: number; type: 'ability'; source: UnitId; abilityId: string; name: string }
+  /** `target`: the rule's focus, for rules-mode skills that aim. */
+  | { tick: number; type: 'ability'; source: UnitId; abilityId: string; name: string; target?: UnitId }
+  /** A consumable fired and was used up. */
+  | { tick: number; type: 'consume'; source: UnitId; label: string }
+  /** The unit lost its turn (a stun). */
+  | { tick: number; type: 'stunned'; source: UnitId; name: string }
   | { tick: number; type: 'trigger'; source: UnitId; label: string; on: TriggerEvent }
   | {
       tick: number;

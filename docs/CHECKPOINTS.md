@@ -2,6 +2,63 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 11 — Rules mode, consumables, the guide (2026-11-05)
+
+### What was built
+- **Tier 11–12 fix** (from your tier-12 play logs, where every lost run died in rounds 3–6):
+  - Tier 12's extra enemy level now ramps in by round 10 instead of round 4.
+  - Tier 11's 2-life boss cost now applies only to the round 10 and 15 bosses.
+- **Rules mode**, an optional run type picked on the setup screen:
+  - Every class has a **kit of skills** (3 at base, +2 at level 3, +1–2 at level 7), each with its own cooldown.
+  - Each unit has a **priority list** of up to 8 rules: a skill, a target (nearest, most afflicted, weakest, strongest, back row, most wounded ally, self…) and an optional condition (target has N+ afflictions, lacks or has a status, N+ stacks; self, target or ally below N% HP; N+ enemies; self lacks a buff). Each turn the unit uses the first rule that can fire, otherwise it basic-attacks.
+  - **Six classes**, each with two advanced and four tertiary classes:
+    - **Warrior:** Guardian (tank: Bulwark, Warden) or Berserker (damage: Reaver, the bleed and per-affliction hybrid, or Slayer, more damage).
+    - **Cleric:** Priest (Oracle, Saint) or Inquisitor (Zealot, Templar).
+    - **Rogue:** Assassin (Nightblade, Phantom) or Venomancer (Plaguebringer, Envenomer).
+    - **Mage:** Pyromancer (Flamecaller, Ashbringer) or Chronomancer (Timeweaver, Riftmage).
+    - **Runeblade:** Spellblade (Stormblade, Blademaster) or Runecarver (Runelord, Spellbreaker).
+    - **Shaman** (new): **Hexcaller** (Imperian: build afflictions, then Soul Rend for damage per affliction) or **Spiritbinder** (Achaea: Frostbite + Weakness + Hush, then Sever Soul kills outright; bosses lose 25%).
+  - **Afflictions:** 13 timed statuses (Frostbite, Weakness, Brittle, Hush, Rot, Fever, Bind, Bleed, Poison, Burn, Marked, Slowed, Runes). Each counts once toward per-affliction damage, whoever applied it, so a party can stack them for one finisher. Cures strip them one at a time.
+  - **Talents are skill augments:** +35% power or −1 cooldown for one skill.
+  - **Enemies** use each class's default rules, which are also every unit's starting list. When a unit advances, a custom list gets the new skills' rules on top.
+  - **Unlocks:** the Shaman unlocks with **Rulebreaker** (reach round 4 in rules mode); the other five are available from the start.
+- **Consumables:**
+  - Every unit has one consumable slot. A consumable fires once on its trigger and is then used up; if it never fires, it stays.
+  - The shop's last slot is always a consumable (1–2g), and won fights have a 35% chance to drop a free one.
+  - Tier 14 enemies carry them from round 5.
+  - Nine to start: Healing Potion, Swiftness Draught, Ironskin Tonic, Throwing Knives, Purifying Salts, Fire Bomb, Elixir of Fury, Focus Draught and Last Rites.
+- **Guide and tips** (closes #28):
+  - **How to play** opens a ten-section guide from the title screen, starting with a primer on auto-battlers. It's highlighted for new players.
+  - Seven **one-time tips** appear in the shop, and you can turn them off.
+- **Engine additions** (general rules, data-driven):
+  - Rule lists and skill kits.
+  - New targets: most afflicted, and the rule's focus.
+  - Status flags: affliction, silence, stun, healing-taken and damage-taken multipliers.
+  - New effects: cure and execute.
+  - Damage can scale per affliction or per stack.
+  - Consumable triggers.
+  - A per-mode run modifier, and `npm run sim -- --mode rules`.
+
+### What to playtest
+1. **Rules mode:** New run → Rules mode. Click a unit to see its skills and rules. Try writing a lock, for example a Shaman with "Spirit Lash if the target has 3+ afflictions", then "Frost Hex if it lacks Frostbite", then "Wither if it lacks Weakness". Do the choices feel meaningful? Is the editor usable on your phone?
+2. **Team shapes:** try a standard party, a nuke team (Assassin, Pyromancer, Slayer) and an affliction team (Venomancer, Inquisitor, Hexcaller, Runecarver), and see if all three can win.
+3. **Shaman:** reach round 4 in rules mode to unlock it. Compare Hexcaller and Spiritbinder.
+4. **Consumables:** are they worth 1–2 gold? Do the free drops feel good?
+5. **Tier 12:** does the middle of the run feel fair now?
+6. **Guide:** read it as if you were new.
+
+### Known issues
+- The simulator bots never edit rules, so the rules-mode numbers are for default rules only. Good custom rules should beat them.
+- Bots buy consumables without valuing them, which lowered classic bot completion (sensible 18.3% → 15.8%).
+- The rule editor uses dropdowns. It works at phone width, but a drag-to-reorder list would be nicer later.
+- A rules-mode recruit card shows only its first skill; click the unit after recruiting to see the full kit.
+- Rules-mode runs share the ladder with classic runs, so your tier unlocks carry over.
+
+### Simulator balance
+- **Classic** (2,000 runs per bot): random 1.2%, sensible 15.8%, greedy 24.4%, synergy 7.5%. No stuck runs or tick-cap fights.
+- **Rules mode** (2,000 runs per bot): random 2.7%, sensible 10.7%, greedy 15.0%, synergy 8.1%. Classes between +3.4 (Rogue) and +0.6 (Warrior) lift; no tertiary flagged.
+- **Ladder** (sensible avg wins): tier 11 3.5, tier 12 2.7 (was 3.3 and 1.9).
+
 ## Milestone 10 — Ladder + Mercenary (2026-11-03)
 
 ### What was built

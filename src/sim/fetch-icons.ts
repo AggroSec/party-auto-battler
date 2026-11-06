@@ -24,6 +24,7 @@ const ICON_SOURCES: Record<string, string> = {
   cultist: 'lorc/cultist',
   adventurer: 'delapouite/backpack',
   mercenary: 'lorc/crossed-axes',
+  shaman: 'lorc/totem-mask',
   // Unique bosses.
   'chain-warden': 'lorc/manacles',
   'pale-choir': 'lorc/ghost',
@@ -48,6 +49,7 @@ const ICON_SOURCES: Record<string, string> = {
   // Shop offers.
   item: 'lorc/knapsack',
   weapon: 'lorc/crossed-swords',
+  consumable: 'lorc/round-bottom-flask',
   signature: 'delapouite/round-star',
   training: 'delapouite/upgrade',
   // Settings.

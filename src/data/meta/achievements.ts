@@ -19,6 +19,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'unholy-communion', name: 'Unholy Communion', description: 'Win a fight with a Cleric and a Warlock, both level 5 or higher.', condition: { kind: 'winWithClasses', classIds: ['cleric', 'warlock'], minLevel: 5 }, reward: { classes: ['cultist'], synergies: ['sacred-and-profane'] } },
   { id: 'jack-of-all-trades', name: 'Jack of All Trades', description: 'Win a run with 5 different classes in your party.', condition: { kind: 'completeRun', distinctClasses: 5 }, reward: { classes: ['adventurer'] } },
   { id: 'arms-race', name: 'Arms Race', description: 'Go into a fight with 4 weapons equipped across your party.', condition: { kind: 'weaponsEquipped', count: 4 }, reward: { classes: ['mercenary'], items: ['war-hammer', 'throwing-axes', 'halberd'] } },
+  // Rules mode (post-1.0).
+  { id: 'rulebreaker', name: 'Rulebreaker', description: 'Reach round 4 in rules mode.', mode: 'rules', condition: { kind: 'reachRound', round: 4 }, reward: { classes: ['shaman'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 
   // Items.

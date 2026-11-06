@@ -63,3 +63,8 @@ export function instantiate(
     triggers: template.triggers,
   };
 }
+
+/** Where a unit stands on the board, if it's there. */
+export function slotOf<T>(board: { front: T[]; back: T[] }, unit: T): SlotRef | undefined {
+  return allSlots().find((s) => getSlot(board, s) === unit);
+}

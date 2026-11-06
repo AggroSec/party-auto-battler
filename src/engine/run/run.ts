@@ -1,13 +1,15 @@
 import { simulateCombat } from '../combat.ts';
 import { Rng } from '../rng.ts';
-import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, unitCount } from './board.ts';
+import { boardOrder } from '../state.ts';
+import { autoPlaceSlot, emptyBoard, getSlot, isValidSlot, setSlot, slotOf, unitCount } from './board.ts';
 import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from './build.ts';
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
 import { equipError } from './items.ts';
+import { isRulesUnit, unitSkills, validRules, withNewTierRules } from './rule-lists.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
-import { ensureFavored, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
+import { ensureFavored, rollConsumableDrop, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
 import type {
   ActionResult,
   FightResult,
@@ -101,7 +103,8 @@ function addXp(state: RunState, unit: OwnedUnit, amount: number, ctx: RunContext
 
 /** Lives a lost fight in this round costs: boss rounds can cost more on high ladder tiers. */
 export function lifeCost(round: number, ctx: RunContext): number {
-  return ctx.run?.bossRounds?.includes(round) ? (ctx.run.bossLossLives ?? 1) : 1;
+  const run = ctx.run;
+  return run?.bossRounds?.includes(round) && round >= (run.bossLossFrom ?? 0) ? (run.bossLossLives ?? 1) : 1;
 }
 
 /** Apply a shop-phase action. Never mutates `state`. */
@@ -139,7 +142,8 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
         if (offer.kind === 'item') {
           const err = equipError(unit, offer.itemId, ctx);
           if (err) return fail(err);
-          unit.items.push(offer.itemId);
+          if (ctx.content.items[offer.itemId]?.consumable) unit.consumable = offer.itemId;
+          else unit.items.push(offer.itemId);
         } else {
           if (unit.classId !== offer.classId) return fail('wrongClass');
           if (isMaxLevel(unit, progression)) return fail('maxLevel');
@@ -226,6 +230,11 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const unit = findUnit(next, choice.uid);
       if (!unit || !applyChoice(unit, choice, action.option)) return fail('invalidChoice');
       next.pending.shift();
+      // Rules mode: a custom list picks up the new class tier's default rules.
+      if (unit.rules && (choice.kind === 'advance' || choice.kind === 'ascend')) {
+        const tier = choice.kind === 'advance' ? ctx.content.advancedClasses[unit.advancedClassId!] : ctx.content.tertiaryClasses[unit.tertiaryClassId!];
+        unit.rules = withNewTierRules(unit.rules, tier?.rules ?? []);
+      }
       if (choice.kind === 'ascend') {
         const offer = signatureOffer(unit.tertiaryClassId!, ctx);
         if (offer) next.shop.push(offer);
@@ -264,6 +273,19 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       if (!allocatePoints(unit, action.points, progression)) return fail('invalidAllocation');
       return { ok: true, state: next };
     }
+    case 'setRules': {
+      if (!isValidSlot(action.at)) return fail('invalidSlot');
+      const unit = getSlot(next.board, action.at);
+      if (!unit) return fail('emptySlot');
+      if (!isRulesUnit(unit, ctx.content)) return fail('invalidRules');
+      if (action.rules === null) {
+        delete unit.rules;
+        return { ok: true, state: next };
+      }
+      if (!validRules(action.rules, unitSkills(unit, ctx.content))) return fail('invalidRules');
+      unit.rules = structuredClone(action.rules);
+      return { ok: true, state: next };
+    }
   }
 }
 
@@ -295,6 +317,13 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     enemy: enemy.party,
     rng: new Rng(`${next.seed}:combat:${next.round}`),
   });
+
+  // Consumables that fired are used up (combat ids follow board order: p0..p4).
+  const used = new Set(combat.events.flatMap((e) => (e.type === 'consume' ? [e.source] : [])));
+  for (const unit of boardUnits(next.board)) {
+    const slot = slotOf(next.board, unit);
+    if (unit.consumable && slot && used.has(`p${boardOrder(slot)}`)) unit.consumable = null;
+  }
 
   const { progression } = ctx.config;
   let xp: number;
@@ -335,6 +364,10 @@ export function fight(state: RunState, baseCtx: RunContext): FightResult {
     next.freeRerollUsed = false;
     Object.assign(next, keepLocked(state.shop, withRng(next, (rng) => rollShop(rng, ctx, next.board, next.round)), state.locked));
     next.shop = ensureFavored(next.shop, next.locked ?? [], next.setup, next.round, ctx, next.board);
+    if (combat.winner === 'player') {
+      const drop = withRng(next, (rng) => rollConsumableDrop(rng, ctx));
+      if (drop) next.shop.push(drop);
+    }
   }
   next.history.push({ round: state.round, result: combat.winner, enemy: enemyIds, income, gold: state.gold });
 

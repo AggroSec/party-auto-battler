@@ -41,6 +41,8 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
     if (m.empoweredBosses) out.empoweredBosses = true;
     if (m.uniqueBosses) out.uniqueBosses = true;
     if (m.bossLossLives !== undefined) out.bossLossLives = Math.max(out.bossLossLives ?? 1, m.bossLossLives);
+    if (m.bossLossFrom !== undefined) out.bossLossFrom = Math.min(out.bossLossFrom ?? Infinity, m.bossLossFrom);
+    if (m.enemyConsumablesFrom !== undefined) out.enemyConsumablesFrom = Math.min(out.enemyConsumablesFrom ?? Infinity, m.enemyConsumablesFrom);
     if (m.secondEliteFrom !== undefined) out.secondEliteFrom = Math.min(out.secondEliteFrom ?? Infinity, m.secondEliteFrom);
     if (m.earlyRecruitCost) {
       const e = out.earlyRecruitCost;
@@ -57,9 +59,10 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
 
 /** The modifiers a setup applies: ladder tiers 1..tier, then the chosen perks. */
 export function setupModifiers(setup: RunSetup, content: RunContent): RunModifier[] {
+  const mode = setup.mode ? content.modes?.[setup.mode] : undefined;
   const tiers = content.ladder.filter((t) => t.tier <= setup.tier).map((t) => t.modifier);
   const perks = setup.perks.flatMap((id) => (content.perks[id] ? [content.perks[id].modifier] : []));
-  return [...tiers, ...perks];
+  return [...(mode ? [mode] : []), ...tiers, ...perks];
 }
 
 function applyToConfig(config: RunConfig, m: RunModifier): RunConfig {

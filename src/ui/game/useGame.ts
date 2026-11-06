@@ -57,7 +57,7 @@ export interface FightView {
   levelUps: LevelUp[];
 }
 
-export type Screen = 'title' | 'setup' | 'collection' | 'credits' | 'shop' | 'combat' | 'summary';
+export type Screen = 'title' | 'setup' | 'collection' | 'credits' | 'guide' | 'shop' | 'combat' | 'summary';
 
 /** What each successful shop action sounds like (a level-up overrides it). */
 const ACTION_SOUND: Record<ShopAction['type'], SoundId | null> = {
@@ -68,6 +68,7 @@ const ACTION_SOUND: Record<ShopAction['type'], SoundId | null> = {
   lock: 'lock',
   choose: 'choose',
   allocate: 'choose',
+  setRules: null,
   move: null,
   moveItem: null,
 };
@@ -107,7 +108,7 @@ export function useGame() {
 
   // Save after every change while a run is in its shop phase.
   useEffect(() => {
-    if (screen === 'title' || screen === 'setup' || screen === 'collection' || screen === 'credits') return;
+    if (screen === 'title' || screen === 'setup' || screen === 'collection' || screen === 'credits' || screen === 'guide') return;
     if (run.phase === 'shop') save(RUN_KEY, { runId, run, stats } satisfies SavedRun);
     else remove(RUN_KEY);
   }, [screen, runId, run, stats]);
@@ -260,6 +261,7 @@ export function useGame() {
     openSetup,
     openCollection: () => setScreen('collection'),
     openCredits: () => setScreen('credits'),
+    openGuide: () => setScreen('guide'),
     continueRun,
     dispatch,
     fight,

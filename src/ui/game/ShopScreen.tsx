@@ -9,6 +9,7 @@ import { Hud } from './Hud.tsx';
 import { Inspector } from './Inspector.tsx';
 import { ShopRow } from './Shop.tsx';
 import { SynergyList } from './SynergyList.tsx';
+import { TipBanner } from './TipBanner.tsx';
 import type { Game } from './useGame.ts';
 
 /** Click-mode for moving things without dragging (keyboard and accessibility fallback). */
@@ -78,6 +79,7 @@ export function ShopScreen({ game }: { game: Game }) {
     <DragProvider canDrop={(s, t) => dropAction(s, t, run) !== null} onDrop={onDrop}>
       <div className="screen shop-screen">
         <Hud run={run} ctx={ctx} onMenu={game.toTitle} />
+        <TipBanner run={run} ctx={ctx} />
         {pending && (
           <ChoicePanel
             choice={pending}
@@ -120,6 +122,7 @@ export function ShopScreen({ game }: { game: Game }) {
                 movingUnit={mode.kind === 'moveUnit'}
                 onMoveItem={(index) => setMode(index === null ? { kind: 'select' } : { kind: 'moveItem', index })}
                 onAllocate={(points) => act({ type: 'allocate', at: selected, points })}
+                onSetRules={(rules) => act({ type: 'setRules', at: selected, rules })}
                 onSellItem={(item) => {
                   act({ type: 'sellItem', from: selected, item });
                   setMode({ kind: 'select' });

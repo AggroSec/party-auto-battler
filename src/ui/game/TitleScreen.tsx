@@ -64,6 +64,10 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
       )}
       <section className="how-to">
         <h2>How to play</h2>
+        {profile.stats.runs === 0 && <p className="new-player">New to Classbound, or to auto-battlers? The guide walks you through your first run.</p>}
+        <button type="button" className={profile.stats.runs === 0 ? 'primary' : ''} onClick={game.openGuide}>
+          Open the guide
+        </button>
         <ul>
           <li>Each round, spend gold in the shop: recruit units, buy items and training, then fight.</li>
           <li>Drag units to position them. The front row (3) takes the hits; the back row (2) is safer.</li>

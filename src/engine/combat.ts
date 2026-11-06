@@ -10,8 +10,9 @@ import {
   type CombatUnit,
 } from './state.ts';
 import { expireStatuses, tickStatuses } from './statuses.ts';
+import { chooseRule, isSilenced, stunOf } from './tactics.ts';
 import { selectTargets } from './targeting.ts';
-import type { Party } from './types.ts';
+import type { AbilityDef, Party } from './types.ts';
 
 /** A unit acts each time its gauge reaches this value. Gauge fills by SPD per tick. */
 export const ACTION_THRESHOLD = 100;
@@ -158,20 +159,39 @@ function takeTurn(state: CombatState, unit: CombatUnit): void {
 }
 
 function act(state: CombatState, unit: CombatUnit): void {
-
   unit.cooldowns = unit.cooldowns.map((cd) => cd - 1);
-  const ready = readyAbility(unit);
-  if (ready !== null) {
-    const ability = ready === 0 ? unit.setup.ability : unit.setup.extraAbilities![ready - 1]!;
-    unit.cooldowns[ready] = ability.cooldown;
-    unit.stats.abilities += 1;
-    emit(state, { tick: state.tick, type: 'ability', source: unit.id, abilityId: ability.id, name: ability.name });
-    applyEffects(state, unit, ability.effects, {}, 0, unit.setup.abilityPower ?? 1);
-    fireTriggers(state, unit, 'onAbility', {}, 0);
+  const stun = stunOf(unit);
+  if (stun) {
+    emit(state, { tick: state.tick, type: 'stunned', source: unit.id, name: stun });
     return;
   }
 
-  const [target] = selectTargets(state, unit, unit.setup.attackTarget);
+  // Rules mode: the unit's priority list decides.
+  if (unit.setup.skills) {
+    const choice = chooseRule(state, unit);
+    if (choice.kind === 'skill') cast(state, unit, choice.index, choice.skill, choice.focus);
+    else basicAttack(state, unit, choice.target);
+    return;
+  }
+
+  const ready = isSilenced(unit) ? null : readyAbility(unit);
+  if (ready !== null) {
+    cast(state, unit, ready, ready === 0 ? unit.setup.ability : unit.setup.extraAbilities![ready - 1]!, undefined);
+    return;
+  }
+  basicAttack(state, unit, selectTargets(state, unit, unit.setup.attackTarget)[0]);
+}
+
+function cast(state: CombatState, unit: CombatUnit, index: number, ability: AbilityDef, focus: CombatUnit | undefined): void {
+  unit.cooldowns[index] = ability.cooldown;
+  unit.stats.abilities += 1;
+  emit(state, { tick: state.tick, type: 'ability', source: unit.id, abilityId: ability.id, name: ability.name, ...(focus ? { target: focus.id } : {}) });
+  const power = (unit.setup.abilityPower ?? 1) + (unit.setup.skillPower?.[ability.id] ?? 0);
+  applyEffects(state, unit, ability.effects, focus ? { focus } : {}, 0, power);
+  fireTriggers(state, unit, 'onAbility', {}, 0);
+}
+
+function basicAttack(state: CombatState, unit: CombatUnit, target: CombatUnit | undefined): void {
   if (!target) return;
   unit.stats.attacks += 1;
   emit(state, { tick: state.tick, type: 'attack', source: unit.id, target: target.id });

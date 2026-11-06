@@ -2,6 +2,7 @@ import type { MetaCatalog } from '../../engine/meta/types.ts';
 import { CLASS_IDS, STARTER_CLASS_IDS } from '../classes.ts';
 import { ITEM_IDS } from '../items.ts';
 import { SYNERGIES } from '../synergies.ts';
+import { RULES_CLASS_IDS, RULES_STARTER_IDS } from '../rules-mode/index.ts';
 import { ACHIEVEMENTS } from './achievements.ts';
 import { LADDER } from './ladder.ts';
 import { PERK_IDS } from './perks.ts';
@@ -45,7 +46,8 @@ export const META_CATALOG: MetaCatalog = {
     favoredSlots: 1,
   },
   achievements: ACHIEVEMENTS,
-  all: { classes: CLASS_IDS, items: ITEM_IDS, synergies: SYNERGIES.map((s) => s.id), perks: PERK_IDS },
+  all: { classes: CLASS_IDS, items: ITEM_IDS, synergies: SYNERGIES.map((s) => s.id), perks: PERK_IDS, rulesClasses: RULES_CLASS_IDS },
+  rulesStarter: RULES_STARTER_IDS,
   maxTier: LADDER.length,
   maxPerkSlots: 3,
   maxFavoredSlots: 2,

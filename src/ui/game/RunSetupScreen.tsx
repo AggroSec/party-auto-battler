@@ -21,7 +21,9 @@ export function RunSetupScreen({ game }: { game: Game }) {
   const [picked, setPicked] = useState<string[]>([]);
   const chosen = picked.filter((p) => offer.includes(p));
   const shownTier = isDaily ? daily.setup.tier : tier;
-  const classes = isDaily ? daily.setup.classes : unlocked.classes;
+  const [mode, setMode] = useState<'classic' | 'rules'>('classic');
+  const rulesMode = !isDaily && mode === 'rules';
+  const classes = isDaily ? daily.setup.classes : rulesMode ? unlocked.rulesClasses : unlocked.classes;
   // One favored class, or two with the Chosen One achievement (dailies: one).
   const favoredSlots = isDaily ? 1 : unlocked.favoredSlots;
   const [favored, setFavored] = useState<string[]>([]);
@@ -33,7 +35,7 @@ export function RunSetupScreen({ game }: { game: Game }) {
 
   const start = () => {
     if (isDaily) game.startRun(daily.seed, { ...daily.setup, perks: chosen.slice(0, 1), ...(picks.length > 0 ? { favored: picks } : {}) });
-    else game.startRun(runSeed, runSetupFor(unlocked, tier, chosen, picks));
+    else game.startRun(runSeed, runSetupFor(unlocked, tier, chosen, picks, rulesMode ? 'rules' : undefined));
   };
 
   return (
@@ -44,6 +46,25 @@ export function RunSetupScreen({ game }: { game: Game }) {
         </button>
         <h1>{isDaily ? `Daily run · ${game.today}` : 'New run'}</h1>
       </header>
+
+      {!isDaily && (
+        <section className="setup-section">
+          <h2>Mode</h2>
+          <div className="tier-picker" role="radiogroup" aria-label="Mode">
+            {(['classic', 'rules'] as const).map((m) => (
+              <button key={m} type="button" role="radio" aria-checked={mode === m} className={mode === m ? 'active' : ''} onClick={() => setMode(m)}>
+                {m === 'classic' ? 'Classic' : 'Rules mode'}
+              </button>
+            ))}
+          </div>
+          <p className="muted small">
+            {rulesMode
+              ? 'Rules mode: every class has a kit of skills, and you write each unit’s priority list ("if the target has 3+ afflictions, use Spirit Lash; if it lacks Frostbite, use Frost Hex…"). Classes: Warrior, Cleric, Rogue, Mage, Runeblade' +
+                (unlocked.rulesClasses.includes('shaman') ? ' and Shaman.' : '. Reach round 4 in rules mode to unlock the Shaman.')
+              : 'Classic: each unit casts its one ability on a timer.'}
+          </p>
+        </section>
+      )}
 
       <section className="setup-section">
         <h2>Difficulty</h2>

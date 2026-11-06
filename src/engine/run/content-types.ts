@@ -1,6 +1,6 @@
 // Shapes for build content: talents, advanced classes, items and synergies.
 // All of it is data (src/data); special behaviour goes through UnitModifier.
-import type { AbilityDef, StatKey, Stats, TargetSelector, TriggeredEffect, UnitTemplate } from '../types.ts';
+import type { AbilityDef, Rule, StatKey, Stats, TargetSelector, TriggeredEffect, UnitTemplate } from '../types.ts';
 
 /**
  * A bundle of changes to a unit. Talents, items, advanced classes and
@@ -27,6 +27,18 @@ export interface UnitModifier {
   executeBonus?: number;
   /** Additive chance of critical hits (0.15 = 15%) (Mercenary). */
   critChance?: number;
+  /** Rules mode (skill augments): extra power for one skill, by skill id (0.3 = +30%). */
+  skillPower?: Readonly<Record<string, number>>;
+  /** Rules mode (skill augments): cooldown change for one skill, by skill id. */
+  skillCooldown?: Readonly<Record<string, number>>;
+}
+
+/** Rules mode: a class tier's skills and the default rules that use them. */
+export interface SkillKit {
+  /** Skills this tier adds to the unit's kit. */
+  skills?: readonly AbilityDef[];
+  /** Default rules for them, tried before the earlier tiers' defaults. */
+  rules?: readonly Rule[];
 }
 
 /**
@@ -58,7 +70,7 @@ export interface BorrowedPassive {
   triggers: readonly TriggeredEffect[];
 }
 
-export interface AdvancedClassDef {
+export interface AdvancedClassDef extends SkillKit {
   id: string;
   name: string;
   /** The base class this advances from. */
@@ -112,7 +124,7 @@ export interface PassiveText {
 }
 
 /** A playable class as the run layer sees it. */
-export interface ClassTemplate extends UnitTemplate {
+export interface ClassTemplate extends UnitTemplate, SkillKit {
   tags: readonly string[];
   /** Party role ('frontline', 'striker', 'caster', 'support'), for role synergies. */
   role?: string;
@@ -135,6 +147,8 @@ export interface ClassTemplate extends UnitTemplate {
   goldPerWin?: number;
   /** A boss's own class: never offered in the shop or used by regular enemies. */
   bossOnly?: boolean;
+  /** Rules-mode classes: the class whose colour and icon it shares (e.g. 'warrior'). */
+  look?: string;
 }
 
 export interface ItemDef {
@@ -157,6 +171,8 @@ export interface ItemDef {
   goldPerWin?: number;
   /** A weapon: counts for weapon slots and per-weapon effects (Mercenary). */
   weapon?: boolean;
+  /** A consumable: goes in the unit's consumable slot and is used up when its trigger fires. */
+  consumable?: boolean;
 }
 
 /**
@@ -230,6 +246,10 @@ export interface ShopLayout {
   trainingChance: number;
   /** Recruit slots once the board is full; the rest go to items and training. */
   fullPartyUnitSlots: number;
+  /** Slots that always offer a consumable (default 0). */
+  consumableSlots?: number;
+  /** Chance a won fight drops a free consumable into the next shop (default 0). */
+  consumableDropChance?: number;
 }
 
 /**
@@ -286,10 +306,14 @@ export interface RunModifier {
   empoweredBosses?: boolean;
   /** Lives a lost boss fight costs (instead of 1). The largest value wins. */
   bossLossLives?: number;
+  /** bossLossLives applies only to boss rounds from this round on (tier 11: the late bosses). */
+  bossLossFrom?: number;
   /** Boss rounds field the unique bosses instead of the class-based ones. */
   uniqueBosses?: boolean;
   /** From this round, a second enemy per fight is an Elite. */
   secondEliteFrom?: number;
+  /** From this round, enemies carry consumables. */
+  enemyConsumablesFrom?: number;
 }
 
 /** One rung of the difficulty ladder; tier N applies tiers 1..N. */

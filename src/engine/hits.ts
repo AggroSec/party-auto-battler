@@ -12,6 +12,13 @@ export const BACKLINE_MELEE_MULTIPLIER = 0.5;
 /** Damage multiplier of a critical hit. */
 export const CRIT_MULTIPLIER = 2;
 
+/** The product of a multiplier across the unit's statuses (1 with none). */
+function statusFactor(unit: CombatUnit, key: 'healingTaken' | 'damageTaken'): number {
+  let f = 1;
+  for (const s of unit.statuses.values()) f *= s.def[key] ?? 1;
+  return f;
+}
+
 /** HP fraction below which a unit becomes bloodied (fires onBloodied once). */
 export const BLOODIED_THRESHOLD = 0.5;
 
@@ -38,7 +45,7 @@ export interface DamageOptions {
 
 /** Restore HP to `target`, capped at max HP. Returns the amount actually healed. */
 export function applyHeal(state: CombatState, source: CombatUnit, target: CombatUnit, amount: number): number {
-  const value = Math.max(0, Math.min(Math.round(amount), target.maxHp - target.hp));
+  const value = Math.max(0, Math.min(Math.round(amount * statusFactor(target, 'healingTaken')), target.maxHp - target.hp));
   target.hp += value;
   source.stats.healingDone += value;
   emit(state, { tick: state.tick, type: 'heal', source: source.id, target: target.id, value, hpAfter: target.hp });
@@ -59,11 +66,14 @@ export function dealDamage(
   depth: number,
 ): void {
   if (!target.alive) return;
-  let scaled = source && !opts.dot && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
-  if (!opts.dot && source?.setup.executeBonus && target.hp < target.maxHp * BLOODIED_THRESHOLD) scaled *= 1 + source.setup.executeBonus;
+  // Damage over time and true damage (sudden death, executions) skip the hit modifiers.
+  const hit = !opts.dot && !opts.true;
+  let scaled = source && hit && isBacklineMelee(state, source) ? raw * BACKLINE_MELEE_MULTIPLIER : raw;
+  if (hit && source?.setup.executeBonus && target.hp < target.maxHp * BLOODIED_THRESHOLD) scaled *= 1 + source.setup.executeBonus;
   // Only units with a crit chance roll, so everyone else's fights use the RNG exactly as before.
   const crit = !opts.dot && !opts.true && !!source?.setup.critChance && state.rng.chance(source.setup.critChance);
   if (crit) scaled *= CRIT_MULTIPLIER;
+  if (!opts.true) scaled *= statusFactor(target, 'damageTaken');
   const damage = mitigate(scaled, target.def, opts.pierce === true || opts.true === true);
   const { toShield, toHp } = opts.true ? { toShield: 0, toHp: damage } : absorb(damage, target.shield);
   // Undying Rage and the like: the unit holds at 1 HP.

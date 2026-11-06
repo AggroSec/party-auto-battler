@@ -2,6 +2,21 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-05 — Milestone 11: rules mode, consumables, the guide and the tier 11–12 fix
+
+Brandon's calls: the tier 12 extra level ramps in by round 10 and the 2-life boss cost applies only at rounds 10 and 15; consumables are priced, used only when they fire, sometimes dropped by wins, and given to enemies on high tiers; rules mode reworks skills so picking rules matters, starting with a few classes, each split like classic (e.g. Warrior: tank | damage, with damage splitting into a damage/affliction hybrid or more damage); the Shaman's advanced split is the two kill styles (Imperian scaling damage, Achaea instant kill); the Runeblade is in the first set. Decided autonomously:
+- **One PR for everything** (tier fix, consumables, rules mode, guide) so he has one thing to merge and test tonight, under the one-PR-at-a-time rule.
+- **Rules-mode classes are separate content** (`r-warrior`, …, `shaman`) in the same run content, picked by the run's class list. Classic classes and saves are untouched, and the shop, items, synergies, ladder and achievements work unchanged. A `look` field gives them their classic namesake's colour and icon, and class-tied items count the namesake.
+- **Rule semantics:** a rule's target is chosen first, and its condition is checked on that target (not used to filter targets). That's what makes a lock work: "Frost Hex if the target lacks Frostbite" falls through to the next rule when the focused victim already has it, instead of hexing someone else. Skills are ready on turn 1 and have their own cooldowns; up to 8 rules; basic attack is the fallback.
+- **Affliction count** counts distinct afflictions (each status once, whatever its stacks), from any source, so affliction teams feed each other's finishers. Afflictions are timed so locks must be maintained, and cures remove one at random.
+- **Execution** (Spiritbinder's Sever Soul) needs all three lock afflictions at once; bosses lose 25% max HP instead of dying.
+- **Talents in rules mode are generated skill augments** (+35% power, or −1 cooldown on 3+ cooldown skills) rather than 42 hand-written pools. It ties into the looter-mode idea of skill augments.
+- **Default rules per class tier**, used by enemies and as the starting list; a custom list gets the new tier's rules on top when the unit advances, so new skills are never silently missing.
+- **Rules-mode enemies have −12% HP and ATK** (a per-mode run modifier): with identical default rules on both sides the bots completed far fewer runs than in classic (greedy 6.5% vs 27.7%); after it they're close (15–22%).
+- **Consumables:** one slot per unit (buying replaces), 1–2 gold, 35% drop chance after a win, the drop stays through rerolls like the Armory's free item. Tier 14 gets enemy consumables from round 5, joining its existing second-Elite rule.
+- **Guide and tips:** a collapsible ten-section guide (genre primer first) and seven one-time tips stored in localStorage, never in dailies.
+- **Shaman icon:** Totem Mask (Lorc); consumable icon: Round Bottom Flask (Lorc), both game-icons.net CC BY 3.0.
+
 ## 2026-11-03 — Milestone 10: ladder tiers 11–15 and the Mercenary
 
 Brandon's calls: 5 new tiers; past tier 10 a lost boss fight costs 2 lives (instead of a rematch); the Mercenary with Hazard Pay, Broken Limbs, Brute (Headsman, Maimer) and Man-at-Arms (Oathsworn, Walking Armory); crits only on the Oathsworn line; Walking Armory keeps all four weapons active and gains from switching. Decided autonomously:

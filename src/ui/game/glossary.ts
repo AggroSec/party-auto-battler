@@ -192,6 +192,30 @@ export const GLOSSARY: readonly Term[] = [
     pattern: /\bcritical(?: hit)?\b/i,
   },
   {
+    id: 'consumable',
+    term: 'Consumable',
+    text: 'Every unit has one consumable slot beside its items. A consumable fires once, when its trigger happens, and is then used up; if its trigger never happens, it stays for the next fight. Buying a new one replaces the old. The shop always offers one, and won fights sometimes drop one for free.',
+    pattern: /\bconsumables?\b/i,
+  },
+  {
+    id: 'rules-mode',
+    term: 'Rules mode',
+    text: 'A run type where every class has a kit of skills and you write each unit’s priority list. Each turn the unit uses the first rule whose skill is ready and whose condition holds for its target, else it basic-attacks. Order is the strategy: put the finisher on top with a condition, the setup below it.',
+    pattern: /\brules mode\b|\bpriority list\b/i,
+  },
+  {
+    id: 'affliction',
+    term: 'Affliction',
+    text: 'Rules mode: a harmful status such as Frostbite, Weakness, Brittle, Hush, Rot, Fever, Bind, Bleed, Poison, Burn, Marked, Slowed or Runes. Most last a few turns and are refreshed by reapplying. Each counts once toward "per affliction" damage, whoever applied it, so an affliction team stacks them for its finishers. Cures remove them one at a time.',
+    pattern: /\bafflictions?\b/i,
+  },
+  {
+    id: 'hush-bind',
+    term: 'Hush and Bind',
+    text: 'Rules mode: Hush stops skills and abilities (only basic attacks), Bind costs the target its next turn. The Spiritbinder kills outright once its victim has Frostbite, Weakness and Hush at once (a boss loses 25% of its max HP instead).',
+    pattern: /\bHush\b|\bBind\b/,
+  },
+  {
     id: 'ladder',
     term: 'Ladder tiers',
     text: 'Winning a run unlocks the next difficulty tier. Each tier adds one modifier on top of all the earlier ones (tier 15 has all fifteen).',
@@ -199,7 +223,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'elite',
     term: 'Elites and bosses',
-    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability. From tier 11 a lost boss fight costs 2 lives, and from tier 13 unique bosses with their own classes take over.',
+    text: 'From ladder tier 7, one enemy per fight may be an Elite with +20% HP and ATK. From tier 8, rounds 5, 10 and 15 bring a boss with its own passive; on tier 10 bosses also cast a second ability. From tier 11 losing the round 10 or 15 boss costs 2 lives, and from tier 13 unique bosses with their own classes take over.',
   },
   {
     id: 'perks',

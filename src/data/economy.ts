@@ -26,6 +26,9 @@ export const RUN_CONFIG: RunConfig = {
     trainingChance: 0.35,
     // Brandon (M5): once the party is full, offer mostly items and training.
     fullPartyUnitSlots: 2,
+    // Post-1.0 (Brandon): one slot is always a consumable; won fights sometimes drop one.
+    consumableSlots: 1,
+    consumableDropChance: 0.35,
   },
   progression: {
     // Levels 1-10. A unit bought in round 1 reaches level 3 around round 4 and

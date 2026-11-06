@@ -16,11 +16,12 @@ export const LADDER: LadderTier[] = [
   { tier: 8, description: 'Rounds 5, 10 and 15 are boss fights.', modifier: { bossRounds: [5, 10, 15] } },
   { tier: 9, description: 'Elites appear from round 5.', modifier: { elitesFrom: 5 } },
   { tier: 10, description: 'Enemies have +5% more HP and ATK, and bosses cast a second ability.', modifier: { enemyStats: 0.05, empoweredBosses: true } },
-  // Post-1.0 (Brandon): five more tiers. Past tier 10 a lost boss fight costs 2 lives.
-  { tier: 11, description: 'Losing a boss fight costs 2 lives.', modifier: { bossLossLives: 2 } },
-  { tier: 12, description: 'Enemies are 1 level higher.', modifier: { enemyLevels: 1 } },
+  // Post-1.0 (Brandon): five more tiers. Past tier 10 a lost late boss fight costs 2 lives
+  // (from round 10 only, since Milestone 11: at round 5 it decided runs too early).
+  { tier: 11, description: 'Losing the round 10 or 15 boss fight costs 2 lives.', modifier: { bossLossLives: 2, bossLossFrom: 10 } },
+  { tier: 12, description: 'Enemies gain a level, ramping in by round 10.', modifier: { enemyLevels: 1 } },
   { tier: 13, description: 'Unique bosses take over the boss fights.', modifier: { uniqueBosses: true } },
-  { tier: 14, description: 'From round 10, a second enemy per fight is an Elite.', modifier: { secondEliteFrom: 10 } },
+  { tier: 14, description: 'From round 10, a second enemy per fight is an Elite; from round 5, enemies carry consumables.', modifier: { secondEliteFrom: 10, enemyConsumablesFrom: 5 } },
   { tier: 15, description: 'Enemies gain another level and +5% more HP and ATK.', modifier: { enemyLevels: 1, enemyStats: 0.05 } },
 ];
 

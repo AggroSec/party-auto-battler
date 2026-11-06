@@ -2,6 +2,16 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-05 — Milestone 11: rules mode, consumables, tier 11–12 fix
+
+Command: `npm run sim` (seed `m3`, 2,000 runs per bot, tier 0), `npm run sim -- --only runs --mode rules`, and `npm run sim -- --only ladder --runs 200`.
+
+- **Classic bots:** completion random 1.2%, sensible 15.8%, greedy 24.4%, synergy 7.5% (Milestone 10: 4.0 / 18.3 / 27.7 / 10.1). The drop comes with consumables: the bots buy them as items without valuing them, which costs them interest and training gold. No stuck runs or tick-cap fights.
+- **Rules mode bots:** completion random 2.7%, sensible 10.7%, greedy 15.0%, synergy 8.1%. No stuck runs or tick-cap fights. Bots never edit rules; they fight with the class defaults, like the enemies.
+- **Rules-mode classes (lift vs round average):** Rogue +3.4, Cleric +2.0, Shaman +1.2, Mage +1.1, Runeblade +1.1, Warrior +0.6.
+- **Rules-mode advanced classes:** from Pyromancer +8.6 down to Chronomancer −3.4. Tertiary classes: none flagged after the last pass. They range from Blademaster +12.9 and Templar +12.8 down to Witch Doctor −6.4. Tertiaries only show up in late rounds, so their lift runs high.
+- **Ladder** (`--runs 200`, sensible avg wins): tier 11 3.5, tier 12 2.7 (Milestone 10: 3.3 and 1.9). The bots still finish no runs past tier 9; they play far worse than Brandon.
+
 ## 2026-11-03 — Milestone 10: Mercenary and ladder tiers 11–15
 
 Command: `npm run sim` (seed `m3`, 2,000 runs per bot, everything unlocked at tier 0), after one Brute and one Man-at-Arms buff.
