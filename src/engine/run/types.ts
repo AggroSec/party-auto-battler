@@ -1,5 +1,5 @@
 import type { CombatResult, Winner } from '../events.ts';
-import type { BoardPos, Party, Rule, StatKey, Stats } from '../types.ts';
+import type { BoardPos, Party, Rule, StatKey, Stats, StatusDef } from '../types.ts';
 import type {
   AdvancedClassDef,
   BossDef,
@@ -80,6 +80,8 @@ export interface RunContent {
   shopPool: readonly string[];
   /** Item ids the shop can offer. */
   itemPool: readonly string[];
+  /** Statuses by id, for naming them in rules (rules mode). */
+  statuses?: Readonly<Record<string, StatusDef>>;
   /** Consumable ids the shop's consumable slot (and won fights) can offer. */
   consumablePool?: readonly string[];
   enemies: readonly EnemyArchetype[];
@@ -191,6 +193,8 @@ export interface RunSetup {
   synergies: string[];
   /** Set on a daily run: the date it belongs to (YYYY-MM-DD). */
   daily?: string;
+  /** Rules mode (post-1.0): units act by priority lists the player writes. Unset = classic. */
+  mode?: 'rules';
   /**
    * Favored classes (post-M7): each is guaranteed a recruit offer in every
    * shop of the first rounds. A single string is a save from before a second
@@ -248,7 +252,9 @@ export type ShopAction =
   /** Resolve the first pending choice by option index. */
   | { type: 'choose'; option: number }
   /** Spend stat points on the unit at `at` (points per stat, not stat units). */
-  | { type: 'allocate'; at: SlotRef; points: Partial<Record<StatKey, number>> };
+  | { type: 'allocate'; at: SlotRef; points: Partial<Record<StatKey, number>> }
+  /** Rules mode: replace the unit's priority list (null = back to its class defaults). */
+  | { type: 'setRules'; at: SlotRef; rules: Rule[] | null };
 
 export type RunError =
   | 'notShopPhase'
@@ -272,7 +278,8 @@ export type RunError =
   | 'invalidAllocation'
   | 'notEnoughPoints'
   | 'alreadyEquipped'
-  | 'weaponsOnly';
+  | 'weaponsOnly'
+  | 'invalidRules';
 
 export type ActionResult = { ok: true; state: RunState } | { ok: false; error: RunError };
 

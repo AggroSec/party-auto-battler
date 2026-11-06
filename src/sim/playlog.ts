@@ -10,6 +10,7 @@ import {
   fight,
   getSlot,
   resolveBoard,
+  ruleLabel,
   type Board,
   type FightResult,
   type OwnedUnit,
@@ -66,6 +67,8 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
     }
     case 'move':
       return `moved ${unitAt(action.from)} to ${action.to.row} ${action.to.col + 1}`;
+    case 'setRules':
+      return action.rules ? `set ${unitAt(action.at)}'s rules: ${action.rules.map((r) => ruleLabel(r, ctx.content)).join(' > ')}` : `reset ${unitAt(action.at)}'s rules`;
     case 'moveItem':
       return `moved an item from ${unitAt(action.from)} to ${unitAt(action.to)}`;
     case 'reroll':

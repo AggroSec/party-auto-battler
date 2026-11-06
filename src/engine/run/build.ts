@@ -2,6 +2,7 @@
 // synergies) into the UnitSetup the combat engine consumes.
 import type { AbilityDef, Effect, Party, Stats, TriggeredEffect, UnitSetup } from '../types.ts';
 import type { BorrowedPassive, ClassTemplate, SynergyDef, SynergyTier, UnitFilter, UnitModifier } from './content-types.ts';
+import { defaultRules, unitSkills } from './rule-lists.ts';
 import type { Board, OwnedUnit, RunContent } from './types.ts';
 
 export const ZERO_STATS: Stats = { hp: 0, atk: 0, def: 0, spd: 0 };
@@ -196,6 +197,26 @@ function withCooldownDelta(ability: AbilityDef, delta: number): AbilityDef {
   };
 }
 
+/** Sum a per-skill record across modifiers. */
+function perSkill(mods: UnitModifier[], key: 'skillPower' | 'skillCooldown'): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const m of mods) for (const [id, v] of Object.entries(m[key] ?? {})) out[id] = (out[id] ?? 0) + v;
+  return out;
+}
+
+/**
+ * Rules mode: the unit's skills (class tiers, then granted abilities) with
+ * cooldown changes applied, its rules (granted skills join the end of a
+ * default list), and per-skill power from augments.
+ */
+function rulesSetup(unit: OwnedUnit, content: RunContent, mods: UnitModifier[], granted: AbilityDef[], cdDelta: number): Partial<UnitSetup> {
+  const cds = perSkill(mods, 'skillCooldown');
+  const skills = [...unitSkills(unit, content), ...granted].map((s) => withCooldownDelta(s, cdDelta + (cds[s.id] ?? 0)));
+  const rules = unit.rules ?? [...defaultRules(unit, content), ...granted.map((a) => ({ skill: a.id }))];
+  const power = perSkill(mods, 'skillPower');
+  return { skills, rules, ...(Object.keys(power).length > 0 ? { skillPower: power } : {}) };
+}
+
 /** Resolve one unit, given any extra modifiers (synergies). */
 export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitModifier[] = []): UnitSetup {
   const base = classFor(content, unit.classId);
@@ -233,6 +254,7 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   if (revives.length > 0) setup.revive = { hp: Math.max(...revives), times: revives.length };
   if (critChance > 0) setup.critChance = Math.min(1, critChance);
   if (weapons > 0) setup.weapons = weapons;
+  if (base.skills) Object.assign(setup, rulesSetup(unit, content, mods, granted, cdDelta));
   return setup;
 }
 

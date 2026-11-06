@@ -1,6 +1,21 @@
 export { applyShopAction, autoAllocate, createRun, fight, lifeCost, rerollCost } from './run.ts';
 export { equipError, itemRules, weaponCount } from './items.ts';
 export {
+  ALLY_TARGETS,
+  conditionText,
+  defaultRules,
+  ENEMY_TARGETS,
+  isRulesUnit,
+  ruleLabel,
+  skillName,
+  TARGET_LABEL,
+  targetsFor,
+  unitRules,
+  unitSkills,
+  validRules,
+} from './rule-lists.ts';
+export { rollConsumable, rollConsumableDrop } from './shop.ts';
+export {
   allSlots,
   autoPlaceSlot,
   emptyBoard,

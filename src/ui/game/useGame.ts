@@ -68,6 +68,7 @@ const ACTION_SOUND: Record<ShopAction['type'], SoundId | null> = {
   lock: 'lock',
   choose: 'choose',
   allocate: 'choose',
+  setRules: null,
   move: null,
   moveItem: null,
 };

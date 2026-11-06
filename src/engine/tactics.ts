@@ -36,6 +36,8 @@ export function conditionHolds(state: CombatState, unit: CombatUnit, when: RuleC
       return !!target && !target.statuses.has(when.status);
     case 'targetHas':
       return !!target && target.statuses.has(when.status);
+    case 'targetStacks':
+      return !!target && (target.statuses.get(when.status)?.stacks ?? 0) >= when.atLeast;
     case 'targetHpBelow':
       return !!target && pct(target) < when.percent;
     case 'selfHpBelow':

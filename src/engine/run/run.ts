@@ -6,6 +6,7 @@ import { boardUnits, classFor, effectiveClassId, newUnit, resolveBoard } from '.
 import { roundIncome } from './economy.ts';
 import { generateEnemy } from './enemies.ts';
 import { equipError } from './items.ts';
+import { isRulesUnit, unitSkills, validRules, withNewTierRules } from './rule-lists.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
 import { ensureFavored, rollConsumableDrop, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
@@ -229,6 +230,11 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const unit = findUnit(next, choice.uid);
       if (!unit || !applyChoice(unit, choice, action.option)) return fail('invalidChoice');
       next.pending.shift();
+      // Rules mode: a custom list picks up the new class tier's default rules.
+      if (unit.rules && (choice.kind === 'advance' || choice.kind === 'ascend')) {
+        const tier = choice.kind === 'advance' ? ctx.content.advancedClasses[unit.advancedClassId!] : ctx.content.tertiaryClasses[unit.tertiaryClassId!];
+        unit.rules = withNewTierRules(unit.rules, tier?.rules ?? []);
+      }
       if (choice.kind === 'ascend') {
         const offer = signatureOffer(unit.tertiaryClassId!, ctx);
         if (offer) next.shop.push(offer);
@@ -265,6 +271,19 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       const total = Object.values(action.points).reduce((s, n) => s + (n ?? 0), 0);
       if (total > unit.statPoints) return fail('notEnoughPoints');
       if (!allocatePoints(unit, action.points, progression)) return fail('invalidAllocation');
+      return { ok: true, state: next };
+    }
+    case 'setRules': {
+      if (!isValidSlot(action.at)) return fail('invalidSlot');
+      const unit = getSlot(next.board, action.at);
+      if (!unit) return fail('emptySlot');
+      if (!isRulesUnit(unit, ctx.content)) return fail('invalidRules');
+      if (action.rules === null) {
+        delete unit.rules;
+        return { ok: true, state: next };
+      }
+      if (!validRules(action.rules, unitSkills(unit, ctx.content))) return fail('invalidRules');
+      unit.rules = structuredClone(action.rules);
       return { ok: true, state: next };
     }
   }

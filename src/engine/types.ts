@@ -256,6 +256,7 @@ export type RuleCondition =
   | { kind: 'targetAfflictions'; atLeast: number }
   | { kind: 'targetLacks'; status: string }
   | { kind: 'targetHas'; status: string }
+  | { kind: 'targetStacks'; status: string; atLeast: number }
   | { kind: 'targetHpBelow'; percent: number }
   | { kind: 'selfHpBelow'; percent: number }
   | { kind: 'allyHpBelow'; percent: number }

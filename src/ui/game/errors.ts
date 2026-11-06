@@ -22,5 +22,6 @@ export const ERROR_TEXT: Record<RunError, string> = {
   notEnoughPoints: 'Not enough stat points.',
   alreadyEquipped: 'That unit already has one.',
   weaponsOnly: 'That unit has room only for weapons.',
+  invalidRules: 'Those rules don’t fit that unit.',
   lockLimit: 'You can\'t lock any more offers. Unlock one first.',
 };
