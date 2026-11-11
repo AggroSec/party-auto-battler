@@ -86,13 +86,35 @@ function applyToConfig(config: RunConfig, m: RunModifier): RunConfig {
   };
 }
 
+/**
+ * Every class id a unit of these base classes can become (base, advanced and
+ * tertiary), plus the classic class a rules-mode class counts as (`look`).
+ */
+function classLines(classes: readonly string[], content: RunContent): Set<string> {
+  const out = new Set<string>();
+  for (const id of classes) {
+    out.add(id);
+    const look = content.classes[id]?.look;
+    if (look) out.add(look);
+    for (const adv of content.classes[id]?.advancedClasses ?? []) {
+      out.add(adv);
+      for (const tert of content.advancedClasses[adv]?.tertiaryClasses ?? []) out.add(tert);
+    }
+  }
+  return out;
+}
+
 function filterContent(content: RunContent, setup: RunSetup): RunContent {
   const classes = setup.classes.filter((id) => content.classes[id]);
   const enemies = content.enemies.filter((a) => classes.includes(a.classId));
+  // A mode with its own classes (rules mode) skips items whose class bonus is
+  // for classes it doesn't have: nobody there could use the bonus.
+  const lines = setup.mode ? classLines(classes, content) : undefined;
+  const usable = (id: string) => !lines || !content.items[id]?.classBonus || content.items[id].classBonus.classIds.some((c) => lines.has(c));
   return {
     ...content,
     shopPool: classes,
-    itemPool: setup.items.filter((id) => content.items[id] && !content.items[id].tertiaryClassId),
+    itemPool: setup.items.filter((id) => content.items[id] && !content.items[id].tertiaryClassId && usable(id)),
     synergies: content.synergies.filter((s) => setup.synergies.includes(s.id)),
     // Never leave a round without enemies, even with a tiny unlocked pool.
     enemies: enemies.length > 0 ? enemies : content.enemies,

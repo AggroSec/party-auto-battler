@@ -193,7 +193,8 @@ export function RuleEditor({ unit, setup, ctx, onChange }: { unit: OwnedUnit; se
         {skills.map((s) => (
           <li key={s.id}>
             <strong>{s.name}</strong> <span className="cadence">{s.cooldown === 1 ? 'every turn' : `${cadenceText(s.cooldown).toLowerCase()} at most`}</span>
-            {setup.skillPower?.[s.id] ? <span className="muted"> (+{Math.round(setup.skillPower[s.id]! * 100)}% power)</span> : null}: <Rules text={s.description} />
+            {setup.skillPower?.[s.id] ? <span className="muted"> (+{Math.round(setup.skillPower[s.id]! * 100)}% power)</span> : null}
+            {s.empowered?.effects === s.effects ? <span className="muted"> (empowered)</span> : null}: <Rules text={s.description} />
           </li>
         ))}
       </ul>

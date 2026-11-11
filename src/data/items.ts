@@ -1,6 +1,7 @@
 import type { ItemDef } from '../engine/run/content-types.ts';
 import { on } from './builds/dsl.ts';
 import { CONSUMABLE_LIST } from './consumables.ts';
+import { RULES_SIGNATURES } from './rules-mode/signatures.ts';
 import { SIGNATURE_ITEMS } from './signature-items/index.ts';
 import { BROKEN_LIMB } from './statuses.ts';
 
@@ -148,7 +149,8 @@ const ITEM_LIST: ItemDef[] = [
     description: 'When bloodied, gain +4 ATK.',
     cost: 4, weapon: true,
     modifier: { triggers: [on('onBloodied', 'Rage Gauntlets', [{ kind: 'buff', target: 'self', stat: 'atk', amount: { flat: 4 } }])] },
-    classBonus: { classIds: ['berserker'], description: 'Berserkers: +15% lifesteal.', modifier: { lifesteal: 0.15 } },
+    // Rules-mode units match their base class through `look`; the Berserker is an advanced class, so it's named.
+    classBonus: { classIds: ['berserker', 'r-berserker'], description: 'Berserkers: +15% lifesteal.', modifier: { lifesteal: 0.15 } },
   },
   {
     id: 'assassins-dagger',
@@ -305,6 +307,6 @@ const ITEM_LIST: ItemDef[] = [
 ];
 
 /** Every item, including the tertiary classes' signature items (M7). */
-export const ITEMS: Record<string, ItemDef> = Object.fromEntries([...ITEM_LIST, ...SIGNATURE_ITEMS, ...CONSUMABLE_LIST].map((i) => [i.id, i]));
+export const ITEMS: Record<string, ItemDef> = Object.fromEntries([...ITEM_LIST, ...SIGNATURE_ITEMS, ...RULES_SIGNATURES, ...CONSUMABLE_LIST].map((i) => [i.id, i]));
 /** Items the shop and enemies roll (signature items are offered separately). */
 export const ITEM_IDS = ITEM_LIST.map((i) => i.id);

@@ -4,8 +4,16 @@ import type { AdvancedClassDef, ClassTemplate, StatWeights, TalentDef, TertiaryC
 import type { AbilityDef, Effect, Range, Rule, RuleCondition, Stats, StatusDef, TargetSelector } from '../../engine/types.ts';
 
 /** A skill. `aim` set = rules pick its target and its effects hit 'focus'. */
-export function skill(id: string, name: string, cooldown: number, aim: AbilityDef['aim'] | null, description: string, effects: Effect[]): AbilityDef {
-  return { id, name, description, cooldown, effects, ...(aim ? { aim } : {}) };
+export function skill(
+  id: string,
+  name: string,
+  cooldown: number,
+  aim: AbilityDef['aim'] | null,
+  description: string,
+  effects: Effect[],
+  empowered?: AbilityDef['empowered'],
+): AbilityDef {
+  return { id, name, description, cooldown, effects, ...(aim ? { aim } : {}), ...(empowered ? { empowered } : {}) };
 }
 
 export const hit = (atk: number, extra: Partial<Extract<Effect, { kind: 'damage' }>> = {}): Effect => ({ kind: 'damage', target: 'focus', amount: { atk }, ...extra });
@@ -21,10 +29,16 @@ export const afflictions = (atLeast: number): RuleCondition => ({ kind: 'targetA
 export const selfBelow = (percent: number): RuleCondition => ({ kind: 'selfHpBelow', percent });
 export const allyBelow = (percent: number): RuleCondition => ({ kind: 'allyHpBelow', percent });
 
-/** Skill augments: every skill offers more power, and quicker skills a shorter cooldown. */
+/**
+ * Skill augments: every skill offers an Empowered version (+35% power, or its
+ * `empowered` upgrade when power has nothing to scale), and skills with a
+ * cooldown of 3+ a Quickened one.
+ */
 export function augments(skills: readonly AbilityDef[]): TalentDef[] {
   return skills.flatMap((s) => [
-    { id: `aug:${s.id}:power`, name: `Empowered ${s.name}`, description: `${s.name} has +35% power.`, skillPower: { [s.id]: 0.35 } },
+    s.empowered
+      ? { id: `aug:${s.id}:power`, name: `Empowered ${s.name}`, description: s.empowered.talent, skillUpgrade: [s.id] }
+      : { id: `aug:${s.id}:power`, name: `Empowered ${s.name}`, description: `${s.name} has +35% power.`, skillPower: { [s.id]: 0.35 } },
     ...(s.cooldown >= 3 ? [{ id: `aug:${s.id}:haste`, name: `Quickened ${s.name}`, description: `${s.name}'s cooldown is 1 turn shorter.`, skillCooldown: { [s.id]: -1 } }] : []),
   ]);
 }

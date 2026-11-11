@@ -249,6 +249,12 @@ export interface AbilityDef {
   effects: Effect[];
   /** Rules-mode skills: whom a rule aims it at (effects target 'focus'). Unset = it needs no aim. */
   aim?: 'enemy' | 'ally';
+  /**
+   * Rules mode: what the skill's Empowered augment does when +power has
+   * nothing to scale (taunts, buffs, cures): the skill's upgraded text and
+   * effects. `talent` describes the change.
+   */
+  empowered?: { talent: string; description: string; effects: Effect[] };
 }
 
 /** Rules mode: when a rule may fire. Percentages are 0-100. */
@@ -321,6 +327,11 @@ export interface UnitSetup {
   rules?: readonly Rule[];
   /** Per-skill bonus power (skill augments): added to abilityPower for that skill. */
   skillPower?: Readonly<Record<string, number>>;
+  /**
+   * Statuses that each satisfy the unit's executions on their own, without the
+   * full lock (Soulreaver's signature item: a Bound target can't defend itself).
+   */
+  executeWith?: readonly string[];
   /** A boss: executions only take a share of its HP. */
   boss?: boolean;
 }

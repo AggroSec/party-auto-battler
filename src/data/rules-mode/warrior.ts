@@ -1,6 +1,6 @@
 // Rules-mode Warrior: Guardian (tank) or Berserker (damage). Berserkers become
 // Reavers (bleeds and damage per affliction) or Slayers (more damage).
-import { BIND, BLEED, ENRAGED, FORTIFIED } from './statuses.ts';
+import { BIND, BLEED, ENRAGED, FORTIFIED, EMPOWERED } from './statuses.ts';
 import { advancedTier, afflict, afflictions, allyBelow, baseClass, hit, rule, selfBelow, selfLacks, selfStatus, skill, tertiaryTier } from './dsl.ts';
 
 export const warrior = baseClass({
@@ -17,7 +17,11 @@ export const warrior = baseClass({
   advancedClasses: ['guardian', 'r-berserker'],
   skills: [
     skill('cleave', 'Cleave', 2, null, '70% ATK to each enemy in the front row.', [{ kind: 'damage', target: 'enemyFrontRow', amount: { atk: 0.7 } }]),
-    skill('provoke', 'Provoke', 4, null, 'Taunt for 2 turns: enemies must target you.', [{ kind: 'taunt', target: 'self', turns: 2 }]),
+    skill('provoke', 'Provoke', 4, null, 'Taunt for 2 turns: enemies must target you.', [{ kind: 'taunt', target: 'self', turns: 2 }], {
+      talent: 'Provoke taunts for 3 turns.',
+      description: 'Taunt for 3 turns: enemies must target you.',
+      effects: [{ kind: 'taunt', target: 'self', turns: 3 }],
+    }),
     skill('second-wind', 'Second Wind', 5, null, 'Heal 25% of your max HP.', [{ kind: 'heal', target: 'self', amount: { maxHp: 0.25 } }]),
   ],
   rules: [rule('second-wind', selfBelow(50)), rule('provoke', allyBelow(60)), rule('cleave', { kind: 'enemiesAtLeast', count: 2 })],
@@ -33,7 +37,11 @@ export const guardian = advancedTier({
   statWeights: { hp: 4, atk: 1, def: 3, spd: 1 },
   modifier: { stats: { hp: 14, def: 2 } },
   skills: [
-    skill('shield-wall', 'Shield Wall', 3, null, 'Fortified: +6 DEF for 3 turns.', [selfStatus(FORTIFIED)]),
+    skill('shield-wall', 'Shield Wall', 3, null, 'Fortified: +6 DEF for 3 turns.', [selfStatus(FORTIFIED)], {
+      talent: 'Shield Wall gives +8 DEF.',
+      description: 'Fortified: +8 DEF for 3 turns.',
+      effects: [selfStatus(EMPOWERED.fortified)],
+    }),
     skill('intercept', 'Intercept', 3, 'ally', 'Shield an ally for 8 + 150% DEF.', [{ kind: 'shield', target: 'focus', amount: { flat: 8, def: 1.5 } }]),
   ],
   rules: [rule('intercept', allyBelow(60)), rule('shield-wall', selfLacks(FORTIFIED))],
@@ -50,7 +58,11 @@ export const berserker = advancedTier({
   modifier: { stats: { atk: 4, hp: 12 } },
   skills: [
     skill('rampage', 'Rampage', 2, 'enemy', '160% ATK.', [hit(1.6)]),
-    skill('blood-rage', 'Blood Rage', 4, null, 'Lose 10% max HP; Enraged: +4 ATK for 3 turns.', [{ kind: 'payHp', amount: { maxHp: 0.1 } }, selfStatus(ENRAGED)]),
+    skill('blood-rage', 'Blood Rage', 4, null, 'Lose 10% max HP; Enraged: +4 ATK for 3 turns.', [{ kind: 'payHp', amount: { maxHp: 0.1 } }, selfStatus(ENRAGED)], {
+      talent: 'Blood Rage gives +5 ATK.',
+      description: 'Lose 10% max HP; Enraged: +5 ATK for 3 turns.',
+      effects: [{ kind: 'payHp', amount: { maxHp: 0.1 } }, selfStatus(EMPOWERED.enraged)],
+    }),
   ],
   rules: [rule('blood-rage', selfLacks(ENRAGED)), rule('rampage')],
 });

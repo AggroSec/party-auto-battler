@@ -186,7 +186,8 @@ function applyEffect(
     }
     case 'execute': {
       for (const target of selectTargets(state, source, effect.target, ctx)) {
-        if (!effect.requires.every((id) => target.statuses.has(id))) continue;
+        const locked = effect.requires.every((id) => target.statuses.has(id)) || (source.setup.executeWith ?? []).some((id) => target.statuses.has(id));
+        if (!locked) continue;
         const value = target.setup.boss ? Math.round(target.maxHp * effect.bossMaxHp) : target.hp + target.shield;
         dealDamage(state, source, target, value, { true: true }, depth);
       }

@@ -52,12 +52,15 @@ export function applyStatus(
     s = { def, stacks: 0, source, dotPerStack: 0, applied: {}, via: source.via };
     target.statuses.set(def.id, s);
   }
+  // An Empowered version of the status (same id, bigger numbers) takes over its stat changes.
+  const swapped = s.def !== def && s.stacks > 0 && JSON.stringify(s.def.stats) !== JSON.stringify(def.stats);
   s.def = def;
   s.source = source;
   s.via = source.via;
   if (def.dot) s.dotPerStack = resolveAmount(def.dot, source) * power;
   if (def.duration !== undefined) s.turns = def.duration;
   const next = Math.min(def.maxStacks ?? Infinity, s.stacks + stacks);
+  if (swapped) setStacks(state, target, s, s.stacks);
   if (next === s.stacks) return;
   if (def.affliction) credit(source, 'afflictions', next - s.stacks);
   if (def.burstAt === undefined || next < def.burstAt) {

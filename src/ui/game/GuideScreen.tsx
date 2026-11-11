@@ -163,9 +163,15 @@ const SECTIONS: Section[] = [
           </li>
           <li>
             <strong>Afflictions</strong> count once each toward &quot;per affliction&quot; damage, whoever applied them, so a whole party can feed one finisher. Enemy healers
-            cure them, so keep them up.
+            cure them, so keep them up. Reapplying one only refreshes it: it doesn&apos;t stack.
           </li>
-          <li>Each class splits at level 3 and 7 like in classic runs. Talents are skill augments: more power or a shorter cooldown for one skill.</li>
+          <li>
+            Each class splits at level 3 and 7 like in classic runs. Talents are skill augments: Empowered (+35% power, or a stronger version of a skill with nothing
+            to power up, like a longer Provoke) or Quickened (a shorter cooldown).
+          </li>
+          <li>
+            Every tertiary class has its own signature item. Rules mode only offers items its classes can use: class items for classes it doesn&apos;t have are left out.
+          </li>
           <li>
             <strong>Check your rules after a fight:</strong> tap a unit in the fight report to see how often each rule fired, what it did, and why the others didn&apos;t
             (condition not met, on cooldown, or a rule above always fired first).

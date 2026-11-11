@@ -25,12 +25,16 @@ export interface UnitModifier {
   revive?: number;
   /** Additive extra damage against targets below 50% HP (0.5 = +50%) (M7). */
   executeBonus?: number;
+  /** Statuses that each satisfy an execution on their own (rules mode, Soulreaver's signature). */
+  executeWith?: readonly string[];
   /** Additive chance of critical hits (0.15 = 15%) (Mercenary). */
   critChance?: number;
   /** Rules mode (skill augments): extra power for one skill, by skill id (0.3 = +30%). */
   skillPower?: Readonly<Record<string, number>>;
   /** Rules mode (skill augments): cooldown change for one skill, by skill id. */
   skillCooldown?: Readonly<Record<string, number>>;
+  /** Rules mode (skill augments): skills that use their `empowered` version, by skill id. */
+  skillUpgrade?: readonly string[];
 }
 
 /** Rules mode: a class tier's skills and the default rules that use them. */
