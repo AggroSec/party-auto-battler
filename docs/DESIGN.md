@@ -21,7 +21,8 @@
 | After 1.0: Adventurer (Jack) | ✅ After M9 |
 | After 1.0: Mercenary, ladder tiers 11–15, unique bosses | ✅ Milestone 10 |
 | After 1.0: rules mode (Shaman + five class kits), consumables, guide and tips | ✅ Milestone 11 |
-| After 1.0: fight breakdown per rule / ability, softer tier 14 enemy consumables | 🔄 Milestone 12 |
+| After 1.0: fight breakdown per rule / ability, softer tier 14 enemy consumables | ✅ Milestone 12 |
+| After 1.0: rules-mode clean-up (boss executions, status stacking, Empowered upgrades, item pool, 24 signature items) | 🔄 Milestone 13 |
 
 ## Run structure
 
@@ -786,7 +787,8 @@ Linked from the title screen: who made the game (Brandon designed and directed i
   - **Conditions:** target has N+ afflictions; target lacks/has a status; target has N+ stacks of a status; target, self or any ally below N% HP; N+ enemies standing; self lacks a status.
   - Every class tier has **default rules**, which enemies always use. A player's custom list keeps working when the unit advances: the new tier's default rules go on top. "Reset to class defaults" goes back.
 - **Afflictions** (rules-mode statuses): Frostbite (−3 SPD), Weakness (−3 ATK), Brittle (−3 DEF), Hush (no skills or abilities), Rot, Bleed, Poison and Burn (damage over time), Fever (heals halved), Bind (lose a turn), Marked (+25% damage taken), Slowed (−4 SPD) and Runes. Most last a few of the afflicted unit's turns and refresh when reapplied. Each counts once toward **damage per affliction**, whoever applied it, so a party can feed one finisher. **Cures** remove afflictions one at a time.
-- **Talents are skill augments:** +35% power for one skill, or −1 cooldown for a skill whose cooldown is 3+.
+- **Talents are skill augments:** Empowered (+35% power for one skill) or Quickened (−1 cooldown, for skills whose cooldown is 3+). A skill with nothing for power to scale (taunts, buffs, cures, binds) gets a stronger version from Empowered instead *(Milestone 13)*: Provoke taunts 3 turns, Shield Wall +8 DEF, Enchant Blade +4 ATK, Blood Rage +5 ATK, Haste / Shadow Dance / Time Warp +5 SPD, Death Mark and Hex Totem +35% damage taken, Binding Rune 2 Runes, Cleanse 2 afflictions, Guardian Angel 3 turns, Time Stop also Slows.
+- **Timed statuses don't stack** *(Milestone 13 fix)*: reapplying refreshes them. Only Rot (3), Poison (3), Bleed (5) and Runes (5) stack.
 
 | Class | Advanced (level 3) | Tertiary (level 7) |
 |---|---|---|
@@ -803,7 +805,40 @@ Linked from the title screen: who made the game (Brandon designed and directed i
 | Shaman | **Hexcaller** (Imperian: build, then damage per affliction) | Doomspeaker (Rot, Cataclysm on everyone), Witch Doctor (Fever, Hex Totem marks everyone) |
 | | **Spiritbinder** (Achaea: Frostbite + Weakness + Hush, then **Sever Soul** kills outright; bosses lose 25% max HP) | Soulreaver (Spirit Chains bind), Spirit Warden (wards and cures allies) |
 
-- Class-tied items count rules-mode classes as their classic namesakes (Spellbook's Mage bonus works on a rules-mode Mage).
+- Class-tied items count rules-mode classes as their classic namesakes (Spellbook's Mage bonus works on a rules-mode Mage). Rage Gauntlets' Berserker bonus works on the rules-mode Berserker.
+- **Item pool** *(Milestone 13)*: rules mode leaves out items whose class bonus is for classes it doesn't have (Hunting Bow, Skull Totem, Prayer Beads, Enchanted Lute, Oak Heart, Cursed Tome, Gearbox, War Hammer, Throwing Axes, Halberd). They come back when those classes join the mode.
+- **Bosses** resist executions: Sever Soul takes 25% of a boss's max HP. *(Before Milestone 13 bosses were never flagged, so it killed them outright.)*
+
+### Rules-mode signature items (Milestone 13)
+
+One per tertiary class, offered once on reaching it like the classic ones (7 gold). Tuned with a paired test: a round 10 party with and without the item against the same 300 enemy parties; each adds 1–13 points of win rate.
+
+| Class | Item | Effect |
+|---|---|---|
+| Bulwark | Bastion Standard | +2 DEF; start of combat, shield every ally for 100% DEF |
+| Warden | Shackle Flail | +4 DEF; Shield Bash −1 cooldown |
+| Reaver | Serrated Cleaver | On kill, 2 Bleed on every enemy |
+| Slayer | Headsman's Greataxe | +2 ATK; +50% damage to enemies below half HP |
+| Oracle | Seer's Lens | After each skill, shield the most wounded ally for 40% ATK |
+| Saint | Halo of Mercy | Miracle +40% power; when bloodied, Blessed |
+| Zealot | Censer of Wrath | +2 ATK; on kill, every skill a turn sooner |
+| Templar | Seal of Silence | +2 DEF; start of combat, Hush the highest-ATK enemy |
+| Nightblade | Umbral Fang | +15% crit chance; Shadowstrike +30% power |
+| Phantom | Mirage Veil | When bloodied, Hasted and a 100% ATK shield |
+| Plaguebringer | Pestilent Thurible | Start of combat, Poison the enemy front row |
+| Envenomer | Viper Fang | +2 ATK, +20% lifesteal |
+| Flamecaller | Meteor Core | Meteor −1 cooldown, +20% power |
+| Ashbringer | Cinder Crown | Start of combat, Burn the highest-ATK enemy |
+| Timeweaver | Chrono Gear | Start of combat, every ally Hasted |
+| Riftmage | Rift Prism | +1 SPD; start of combat, Slow the highest-ATK enemy |
+| Stormblade | Storm Sigil | +2 SPD; Chain Lightning +30% power |
+| Blademaster | Twin-Edged Hilt | +2 ATK, +15% crit chance |
+| Runelord | Runic Codex | Start of combat, a Rune on every enemy |
+| Spellbreaker | Null Blade | Nullify +30% power; start of combat, Brittle on the highest-ATK enemy |
+| Doomspeaker | Doom Idol | Start of combat, 2 Rot on the highest-ATK enemy |
+| Witch Doctor | Fever Fetish | +2 ATK; start of combat, Fever on every enemy |
+| Soulreaver | Soulshackle Totem | *Brandon's idea:* Sever Soul kills a **Bound** enemy outright, no full lock needed (bosses still lose 25%). Needs a rule that aims Sever Soul at the Bound target. |
+| Spirit Warden | Ancestor Totem | When an ally falls, shield every ally for 100% ATK and cure one affliction each |
 - **Tuning:** rules-mode enemies have −12% HP and ATK, so the bots finish runs about as often as in classic.
 
 ## Consumables (Milestone 11)

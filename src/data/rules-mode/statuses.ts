@@ -6,7 +6,10 @@ import type { StatusDef } from '../../engine/types.ts';
  * kept up, and cures strip them one at a time. Every affliction counts once
  * toward "damage per affliction", whatever its stacks.
  */
-const aff = (def: Omit<StatusDef, 'affliction'>): StatusDef => ({ ...def, affliction: true });
+// One stack unless a status says otherwise (Rot, Bleed, Poison, Runes): reapplying
+// only refreshes it. (Before Milestone 13 these stacked without limit by mistake.)
+const aff = (def: Omit<StatusDef, 'affliction'>): StatusDef => ({ maxStacks: 1, ...def, affliction: true });
+const buff = (def: StatusDef): StatusDef => ({ maxStacks: 1, ...def });
 
 export const FROSTBITE = aff({ id: 'frostbite', name: 'Frostbite', stats: { spd: -3 }, duration: 4 });
 export const WEAKNESS = aff({ id: 'weakness', name: 'Weakness', stats: { atk: -3 }, duration: 4 });
@@ -23,11 +26,25 @@ export const SLOWED = aff({ id: 'slowed', name: 'Slowed', stats: { spd: -4 }, du
 /** Runeblade: carved runes, detonated by its skills for damage per rune. */
 export const RUNE_MARK = aff({ id: 'rune-mark', name: 'Rune', maxStacks: 5 });
 
-export const FORTIFIED: StatusDef = { id: 'fortified', name: 'Fortified', stats: { def: 6 }, duration: 3 };
-export const ENRAGED: StatusDef = { id: 'enraged', name: 'Enraged', stats: { atk: 4 }, duration: 3 };
-export const HASTED: StatusDef = { id: 'hasted', name: 'Hasted', stats: { spd: 4 }, duration: 3 };
-export const ENCHANTED: StatusDef = { id: 'enchanted', name: 'Enchanted', stats: { atk: 3 }, duration: 3 };
-export const BLESSED: StatusDef = { id: 'blessed', name: 'Blessed', preventDeath: true, duration: 2 };
+export const FORTIFIED = buff({ id: 'fortified', name: 'Fortified', stats: { def: 6 }, duration: 3 });
+export const ENRAGED = buff({ id: 'enraged', name: 'Enraged', stats: { atk: 4 }, duration: 3 });
+export const HASTED = buff({ id: 'hasted', name: 'Hasted', stats: { spd: 4 }, duration: 3 });
+export const ENCHANTED = buff({ id: 'enchanted', name: 'Enchanted', stats: { atk: 3 }, duration: 3 });
+export const BLESSED = buff({ id: 'blessed', name: 'Blessed', preventDeath: true, duration: 2 });
+
+/**
+ * Empowered versions (Milestone 13): the same status (same id, so rules that
+ * check it still match) with bigger numbers, from Empowered talents on skills
+ * that +power can't scale.
+ */
+export const EMPOWERED = {
+  fortified: { ...FORTIFIED, stats: { def: 8 } },
+  enraged: { ...ENRAGED, stats: { atk: 5 } },
+  hasted: { ...HASTED, stats: { spd: 5 } },
+  enchanted: { ...ENCHANTED, stats: { atk: 4 } },
+  marked: { ...MARKED, damageTaken: 1.35 },
+  blessed: { ...BLESSED, duration: 3 },
+} satisfies Record<string, StatusDef>;
 
 export const RULES_STATUSES: Record<string, StatusDef> = Object.fromEntries(
   [FROSTBITE, WEAKNESS, BRITTLE, HUSH, ROT, FEVER, BIND, BLEED, POISON, BURN, MARKED, SLOWED, RUNE_MARK, FORTIFIED, ENRAGED, HASTED, ENCHANTED, BLESSED].map((s) => [s.id, s]),

@@ -38,6 +38,7 @@ import {
   isBestRun,
   isBetterRun,
   RUN_KEY,
+  migrateSavedRun,
   savedRunValidator,
   type BestRun,
   type RunStats,
@@ -78,7 +79,10 @@ export const randomSeed = () => Math.random().toString(36).slice(2, 8);
 /** All game state and transitions for the UI. The engine does the work. */
 export function useGame() {
   const baseCtx = useMemo(() => buildRunContext(), []);
-  const [saved] = useState(() => load(RUN_KEY, savedRunValidator(baseCtx)));
+  const [saved] = useState(() => {
+    const run = load(RUN_KEY, savedRunValidator(baseCtx));
+    return run && migrateSavedRun(run);
+  });
   const [screen, setScreen] = useState<Screen>('title');
   const [runId, setRunId] = useState(() => saved?.runId ?? newRunId());
   const [run, setRun] = useState<RunState>(() => saved?.run ?? createRun(randomSeed(), baseCtx));

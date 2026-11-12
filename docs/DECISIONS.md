@@ -2,6 +2,16 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-11 — Milestone 13: rules-mode clean-up
+
+Brandon's calls (from his tier 15 clear and notes): fix Sever Soul killing bosses; give Empowered talents on skills like Provoke something to do (he picked "make it do something" over "stop offering it"); clean items tied to classes rules mode doesn't have (he picked "keep the Warrior/Rogue/Mage/Cleric items, hide the other 10"); add signature items for the rules-mode tertiary classes, with his Soulreaver idea (a Bound target dies to Sever Soul). Decided autonomously:
+- **Boss flag:** `resolveUnit` now sets `boss` from the enemy's `bossId`. It was never set, so executions ignored the boss rule since Milestone 11.
+- **Timed rules-mode statuses get one stack** (reapplying refreshes). The data comment and glossary always said they refresh, but without `maxStacks` they stacked: Frost Hex ×26 meant −78 SPD, Shield Wall without a "lacks Fortified" condition stacked DEF. Rot, Poison, Bleed and Runes keep their caps. The bots never stacked (their default rules check "lacks"), so only hand-written lists are affected.
+- **Empowered upgrades are hand-written per skill** (an `empowered` version on the skill: new text and effects; the talent swaps them in). A stronger buff is a same-id status with bigger numbers, so "lacks Fortified" conditions still match; refreshing a weaker copy with a stronger one updates its stats.
+- **Items:** rules-mode classes already counted as their classic namesake through `look`, so the Warrior/Rogue/Mage/Cleric items worked for base, advanced and tertiary rules units. My first count (18 dead) missed that; only Rage Gauntlets (Berserker-only) was dead and now names the rules Berserker. A run with a mode leaves out items whose class bonus matches none of its classes (or their `look`); classic is unchanged.
+- **Id clash fixed:** the rules Nightblade and Zealot used the classic ids `nightblade` and `zealot`, so the merged content replaced the classic classes (a classic Nightblade or Zealot lost its kit). Renamed to `r-nightblade` / `r-zealot`; a saved rules-mode run is migrated on load, and a test now forbids shared ids.
+- **Signature items** use existing hooks plus one new modifier, `executeWith` (statuses that satisfy an execution alone). Tuned by a paired test (same parties, same foes, with and without the item) until each adds 1–13 points; start-of-combat afflictions on every enemy were +20–30, so most hit one target or the front row.
+
 ## 2026-11-06 — Milestone 12: fight breakdown and softer tier 14 consumables
 
 Brandon's calls: a per-unit breakdown in the fight summary showing which rules fired and what they did; Hourglass stays as is (−1 cooldown on every skill: players account for it); bundle the enemy-consumable change. Decided autonomously:

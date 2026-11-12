@@ -88,6 +88,30 @@ describe('rules mode', () => {
     expect(boss.hp).toBe(750);
   });
 
+  it('executeWith: one status closes the lock on its own (Soulreaver’s totem), and bosses still only lose a share', () => {
+    const s = makeState(party([ruled([], [], { executeWith: ['bind'] })]), party([unit({ stats: { hp: 500 } }), { ...unit({ stats: { hp: 1000 } }), boss: true }]));
+    const [me, foe, boss] = [byId(s, 'p0'), byId(s, 'e0'), byId(s, 'e1')];
+    const sever = { kind: 'execute' as const, target: 'allEnemies' as const, requires: ['chill', 'weak', 'hush'], bossMaxHp: 0.25 };
+    applyEffects(s, me, [sever], {}, 0);
+    expect(foe.alive && boss.hp === 1000).toBe(true);
+    applyEffects(s, me, [{ kind: 'status', target: 'allEnemies', status: BIND, stacks: 1 }, sever], {}, 0);
+    expect(foe.alive).toBe(false);
+    expect(boss.hp).toBe(750);
+  });
+
+  it('a stronger version of a status (same id) takes over its stat change when it refreshes', () => {
+    const FORT: StatusDef = { id: 'fort', name: 'Fort', stats: { def: 6 }, duration: 3, maxStacks: 1 };
+    const s = makeState(party([unit({ stats: { def: 1 } })]), party([unit()]));
+    const me = byId(s, 'p0');
+    const fortify = (status: StatusDef) => applyEffects(s, me, [{ kind: 'status', target: 'self', status, stacks: 1 }], {}, 0);
+    fortify(FORT);
+    expect(me.def).toBe(7);
+    fortify({ ...FORT, stats: { def: 8 } });
+    expect(me.def).toBe(9);
+    fortify(FORT);
+    expect(me.def).toBe(7);
+  });
+
   it('targets: the most afflicted enemy, and the rule’s focus', () => {
     const s = makeState(party([ruled([chill], [{ skill: 'chill', target: 'mostAfflicted' }])]), party([unit(), unit()]));
     applyEffects(s, byId(s, 'p0'), [{ kind: 'status', target: 'allEnemies', status: WEAK, stacks: 1 }], {}, 0);

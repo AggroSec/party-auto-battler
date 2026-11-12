@@ -209,11 +209,15 @@ function perSkill(mods: UnitModifier[], key: 'skillPower' | 'skillCooldown'): Re
 /**
  * Rules mode: the unit's skills (class tiers, then granted abilities) with
  * cooldown changes applied, its rules (granted skills join the end of a
- * default list), and per-skill power from augments.
+ * default list), per-skill power from augments, and Empowered versions of
+ * skills that +power can't scale.
  */
 function rulesSetup(unit: OwnedUnit, content: RunContent, mods: UnitModifier[], granted: AbilityDef[], cdDelta: number): Partial<UnitSetup> {
   const cds = perSkill(mods, 'skillCooldown');
-  const skills = [...unitSkills(unit, content), ...granted].map((s) => withCooldownDelta(s, cdDelta + (cds[s.id] ?? 0)));
+  const upgraded = new Set(mods.flatMap((m) => m.skillUpgrade ?? []));
+  const skills = [...unitSkills(unit, content), ...granted].map((s) =>
+    withCooldownDelta(upgraded.has(s.id) && s.empowered ? { ...s, description: s.empowered.description, effects: s.empowered.effects } : s, cdDelta + (cds[s.id] ?? 0)),
+  );
   const rules = unit.rules ?? [...defaultRules(unit, content), ...granted.map((a) => ({ skill: a.id }))];
   const power = perSkill(mods, 'skillPower');
   return { skills, rules, ...(Object.keys(power).length > 0 ? { skillPower: power } : {}) };
@@ -235,6 +239,7 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   const lifesteal = mods.reduce((s, m) => s + (m.lifesteal ?? 0), 0);
   const abilityPower = 1 + mods.reduce((s, m) => s + (m.abilityPower ?? 0), 0);
   const executeBonus = mods.reduce((s, m) => s + (m.executeBonus ?? 0), 0);
+  const executeWith = [...new Set(mods.flatMap((m) => m.executeWith ?? []))];
   const revives = mods.flatMap((m) => (m.revive ? [m.revive] : []));
   const critChance = mods.reduce((s, m) => s + (m.critChance ?? 0), 0);
   const weapons = unit.items.filter((id) => content.items[id]?.weapon).length;
@@ -253,9 +258,11 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   if (lifesteal > 0) setup.lifesteal = lifesteal;
   if (abilityPower !== 1) setup.abilityPower = Math.max(0, abilityPower);
   if (executeBonus > 0) setup.executeBonus = executeBonus;
+  if (executeWith.length > 0) setup.executeWith = executeWith;
   if (revives.length > 0) setup.revive = { hp: Math.max(...revives), times: revives.length };
   if (critChance > 0) setup.critChance = Math.min(1, critChance);
   if (weapons > 0) setup.weapons = weapons;
+  if (unit.bossId) setup.boss = true;
   if (base.skills) Object.assign(setup, rulesSetup(unit, content, mods, granted, cdDelta));
   return setup;
 }

@@ -2,6 +2,15 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-11 — Milestone 13: rules-mode clean-up
+
+Commands: `npm run sim -- --only ladder --runs 300 --mode rules` and `--only ladder --runs 300` (classic), before and after; plus a paired signature-item test (below).
+
+- **Rules-mode ladder** (sensible / greedy completion, avg wins): tier 0 9.0% / 13.7%, 8.8 / 8.0 → 14.0% / 13.7%, 8.8 / 8.1; tier 15 2.7 / 2.5 avg wins before and after. Within noise elsewhere. The boss and stacking fixes matter for hand-written rules; the bots' defaults never stacked and rarely execute bosses.
+- **Classic ladder:** tiers 10–15 identical; tiers 0–9 shift by a few points from the Nightblade and Zealot getting their classic kits back (e.g. sensible tier 2 completion 9.7% → 15.3%, greedy unchanged within 1.3 points).
+- **Signature items (paired):** for each rules-mode tertiary class, 300 round-10 parties (generated, with that class swapped in) fight the same 300 round-10 enemy parties with and without the item. Win-rate gain after tuning, best first: Pestilent Thurible +12.8, Chrono Gear +12.5, Twin-Edged Hilt +11.3, Ancestor Totem +11.0, Cinder Crown +10.5, Storm Sigil +9.5, Null Blade +9.0, Seal of Silence +9.0, Doom Idol +7.8, Mirage Veil +7.7, Rift Prism +7.2, Halo of Mercy +6.3, Umbral Fang +6.2, Bastion Standard +5.8, Seer's Lens +5.0, Viper Fang +5.0, Runic Codex +5.0, Meteor Core +4.3, Fever Fetish +4.3, Shackle Flail +4.3, Censer of Wrath +4.2, Serrated Cleaver +3.7, Headsman's Greataxe +3.3, Soulshackle Totem +1.3 (needs a player rule).
+- **Tuned down during the pass:** start-of-combat afflictions on every enemy were too strong (Rot +23.5, Burn +23.3, Poison +21.3, Slow on all +30.0), so Doom Idol, Cinder Crown and Rift Prism hit the highest-ATK enemy and Pestilent Thurible the front row.
+
 ## 2026-11-06 — Milestone 12: fight breakdown, tier 14 consumables
 
 Command: `npm run sim -- --only ladder --runs 400`, run before and after the change.

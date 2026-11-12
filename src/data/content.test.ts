@@ -5,6 +5,7 @@ import { CLASSES, CLASS_IDS } from './classes.ts';
 import { buildRunContent, buildRunContext } from './content.ts';
 import { ENEMY_ARCHETYPES } from './enemies.ts';
 import { ITEMS } from './items.ts';
+import { RULES_ADVANCED, RULES_CLASSES } from './rules-mode/index.ts';
 import { SYNERGIES } from './synergies.ts';
 
 describe('run content', () => {
@@ -81,7 +82,7 @@ describe('build content integrity', () => {
   });
 
   it('item class bonuses name real classes', () => {
-    const known = new Set([...CLASS_IDS, ...Object.keys(ADVANCED_CLASSES)]);
+    const known = new Set([...CLASS_IDS, ...Object.keys(ADVANCED_CLASSES), ...Object.keys(RULES_CLASSES), ...Object.keys(RULES_ADVANCED)]);
     for (const item of Object.values(ITEMS)) {
       for (const c of item.classBonus?.classIds ?? []) expect(known).toContain(c);
       expect(item.cost).toBeGreaterThan(0);

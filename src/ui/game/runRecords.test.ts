@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildRunContext } from '../../data/content.ts';
 import { createRun, fight, newUnit } from '../../engine/run/index.ts';
-import { addFightStats, isBestRun, isBetterRun, savedRunValidator } from './runRecords.ts';
+import { addFightStats, isBestRun, isBetterRun, migrateSavedRun, savedRunValidator } from './runRecords.ts';
 
 const ctx = buildRunContext();
 
@@ -11,6 +11,16 @@ function runWithParty() {
   run.board.back[1] = newUnit(2, 'mage', 'Mira');
   return run;
 }
+
+describe('saved run migration', () => {
+  it('moves rules-mode runs to the renamed tertiary classes, and leaves classic runs alone', () => {
+    const run = runWithParty();
+    run.board.front[0] = { ...newUnit(1, 'warrior', 'Wren'), advancedClassId: 'r-assassin', tertiaryClassId: 'nightblade' };
+    expect(migrateSavedRun({ runId: 'r', run, stats: {} }).run.board.front[0]?.tertiaryClassId).toBe('nightblade');
+    const rules = { ...run, setup: { ...run.setup, mode: 'rules' as const } };
+    expect(migrateSavedRun({ runId: 'r', run: rules, stats: {} }).run.board.front[0]?.tertiaryClassId).toBe('r-nightblade');
+  });
+});
 
 describe('saved run validation', () => {
   const valid = savedRunValidator(ctx);

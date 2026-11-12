@@ -1,7 +1,7 @@
 // Shaman (Brandon, rules mode): stacks afflictions into a lock, then kills.
 // Hexcaller kills with damage per affliction (Imperian); Spiritbinder locks
 // Frostbite, Weakness and Hush, then severs the soul outright (Achaea).
-import { BIND, BRITTLE, FEVER, FROSTBITE, HUSH, MARKED, ROT, WEAKNESS } from './statuses.ts';
+import { BIND, BRITTLE, FEVER, FROSTBITE, HUSH, MARKED, ROT, WEAKNESS, EMPOWERED } from './statuses.ts';
 import { advancedTier, afflict, afflictions, allyBelow, baseClass, hit, lacks, rule, skill, tertiaryTier } from './dsl.ts';
 
 const SPIRIT = ['spirit', 'nature'];
@@ -96,7 +96,11 @@ export const witchDoctor = tertiaryTier({
   modifier: { stats: { hp: 10, atk: 2 } },
   skills: [
     skill('fever-curse', 'Fever Curse', 2, 'enemy', '60% ATK and Fever (heals on it are halved).', [hit(0.6), afflict(FEVER)]),
-    skill('hex-totem', 'Hex Totem', 4, null, 'Every enemy is Marked: +25% damage taken for 3 turns.', [afflict(MARKED, 1, 'allEnemies')]),
+    skill('hex-totem', 'Hex Totem', 4, null, 'Every enemy is Marked: +25% damage taken for 3 turns.', [afflict(MARKED, 1, 'allEnemies')], {
+      talent: 'Hex Totem makes every enemy take +35% damage.',
+      description: 'Every enemy is Marked: +35% damage taken for 3 turns.',
+      effects: [afflict(EMPOWERED.marked, 1, 'allEnemies')],
+    }),
   ],
   rules: [rule('hex-totem', lacks(MARKED)), rule('fever-curse', lacks(FEVER), 'mostAfflicted')],
 });

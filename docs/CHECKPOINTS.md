@@ -2,6 +2,32 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 13 — Rules-mode clean-up (2026-11-11)
+
+### What was built
+- **Sever Soul no longer kills bosses.** Bosses were never flagged as bosses, so the "bosses lose 25% max HP" rule never applied. Your tier 15 round 15 win had Sever Soul kill Vharoth outright.
+- **Rules-mode statuses refresh instead of stacking**, as the guide always said. Before, each Frost Hex took another −3 SPD and each Shield Wall gave another +6 DEF, so a rule without a "lacks" condition piled them up. Rot, Poison, Bleed and Runes still stack to their caps.
+- **Every Empowered talent does something.** 13 skills had nothing for +35% power to scale. Their Empowered talent now gives a stronger version: Provoke taunts 3 turns, Shield Wall +8 DEF, Haste +5 SPD, Death Mark +35% damage taken, Cleanse removes 2, Guardian Angel lasts 3 turns, Time Stop also Slows, and so on. The rule editor marks an upgraded skill "(empowered)".
+- **Item pool:** rules mode no longer offers the 10 items whose class bonus is for classes it doesn't have (Hunting Bow, Skull Totem, Prayer Beads, Enchanted Lute, Oak Heart, Cursed Tome, Gearbox, War Hammer, Throwing Axes, Halberd), so those slots go to useful items and training. The Warrior, Rogue, Mage and Cleric items already worked for rules-mode units; Rage Gauntlets now works for the rules Berserker too.
+- **24 signature items,** one per rules-mode tertiary class, offered once when a unit reaches the class. Yours is the Soulreaver's **Soulshackle Totem**: Sever Soul kills a Bound enemy outright, without Frostbite, Weakness and Hush (bosses still lose only 25%). Full list in DESIGN.md.
+- **Classic fix found along the way:** the rules-mode Nightblade and Zealot shared ids with the classic ones and replaced them, so a classic Nightblade or Zealot had the rules-mode kit since Milestone 11. Both are separate again.
+
+### What to playtest
+- A rules-mode affliction party against a boss round (tier 8+): Sever Soul should take a quarter of the boss's HP, not kill it.
+- Get a Soulreaver to level 7 and buy the Soulshackle Totem. Aim Spirit Chains and Sever Soul at the same target (e.g. both "most afflicted enemy", Sever Soul "if target has Bind" above Spirit Chains).
+- Take an Empowered talent on Provoke, Shield Wall or Haste and check the rule editor's skill list shows the stronger text.
+- Rules-mode shops: no Hunting Bow, Prayer Beads, Halberd and the like.
+- A classic Nightblade or Zealot: its kit should look like it did before Milestone 11.
+
+### Known issues
+- The Soulshackle Totem needs your own rule: the Soulreaver's default rules never aim Sever Soul at a Bound target, so bots and enemies get little from it.
+- Old play logs from rules runs replay against the new content, so their enemies and shops may differ from what you saw.
+
+### Balance (simulator)
+- Rules-mode ladder (300 runs per bot per tier): unchanged within noise. Bots use default rules, which already check "lacks", so they never stacked statuses.
+- Signature items, paired test at round 10: each adds 1–13 points of win rate (Pestilent Thurible +12.8 at the top, Soulshackle Totem +1.3 at the bottom with default rules).
+- Classic ladder: small shifts at tiers 0–9 from the Nightblade and Zealot getting their real kits back; tiers 10–15 identical.
+
 ## Milestone 12 — Fight breakdown (2026-11-06)
 
 ### What was built

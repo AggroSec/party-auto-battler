@@ -1,6 +1,6 @@
 // Rules-mode Mage: Pyromancer (fire: Flamecaller nukes, Ashbringer burns and
 // cashes in afflictions) or Chronomancer (time: Timeweaver supports, Riftmage locks).
-import { BIND, BRITTLE, BURN, HASTED, SLOWED } from './statuses.ts';
+import { BIND, BRITTLE, BURN, HASTED, SLOWED, EMPOWERED } from './statuses.ts';
 import { advancedTier, afflict, afflictions, allyBelow, baseClass, hit, lacks, rule, selfBelow, skill, tertiaryTier } from './dsl.ts';
 
 export const mage = baseClass({
@@ -50,7 +50,11 @@ export const chronomancer = advancedTier({
   modifier: { stats: { spd: 3, hp: 10, atk: 1 } },
   skills: [
     skill('slow', 'Slow', 2, 'enemy', '60% ATK and Slowed (−4 SPD).', [hit(0.6), afflict(SLOWED)]),
-    skill('haste', 'Haste', 3, 'ally', 'Hasted: +4 SPD for 3 turns.', [afflict(HASTED)]),
+    skill('haste', 'Haste', 3, 'ally', 'Hasted: +4 SPD for 3 turns.', [afflict(HASTED)], {
+      talent: 'Haste gives +5 SPD.',
+      description: 'Hasted: +5 SPD for 3 turns.',
+      effects: [afflict(EMPOWERED.hasted)],
+    }),
   ],
   rules: [rule('haste', { kind: 'targetLacks', status: HASTED.id }, 'self'), rule('slow', lacks(SLOWED), 'highestAtk')],
 });
@@ -94,7 +98,11 @@ export const timeweaver = tertiaryTier({
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
   modifier: { stats: { spd: 1, hp: 6 } },
   skills: [
-    skill('time-warp', 'Time Warp', 5, null, 'Every ally is Hasted: +4 SPD for 3 turns.', [afflict(HASTED, 1, 'allAllies')]),
+    skill('time-warp', 'Time Warp', 5, null, 'Every ally is Hasted: +4 SPD for 3 turns.', [afflict(HASTED, 1, 'allAllies')], {
+      talent: 'Time Warp gives every ally +5 SPD.',
+      description: 'Every ally is Hasted: +5 SPD for 3 turns.',
+      effects: [afflict(EMPOWERED.hasted, 1, 'allAllies')],
+    }),
     skill('rewind', 'Rewind', 3, 'ally', 'Heal an ally for 160% ATK.', [{ kind: 'heal', target: 'focus', amount: { atk: 1.6 } }]),
   ],
   rules: [rule('rewind', allyBelow(50)), rule('time-warp', { kind: 'targetLacks', status: HASTED.id }, 'self')],
@@ -110,7 +118,11 @@ export const riftmage = tertiaryTier({
   statWeights: { hp: 3, atk: 5, def: 0, spd: 2 },
   modifier: { stats: { atk: 3 } },
   skills: [
-    skill('time-stop', 'Time Stop', 5, 'enemy', 'Bind: it loses its next turn.', [afflict(BIND)]),
+    skill('time-stop', 'Time Stop', 5, 'enemy', 'Bind: it loses its next turn.', [afflict(BIND)], {
+      talent: 'Time Stop also Slows the target (−4 SPD).',
+      description: 'Bind: it loses its next turn. Slowed: −4 SPD for 3 turns.',
+      effects: [afflict(BIND), afflict(SLOWED)],
+    }),
     skill('unravel', 'Unravel', 3, 'enemy', '60% ATK + 35% ATK per affliction on the target.', [hit(0.6, { perAffliction: 0.35 })]),
   ],
   rules: [rule('time-stop', undefined, 'highestAtk'), rule('unravel', afflictions(2), 'mostAfflicted')],

@@ -1,6 +1,6 @@
 // Rules-mode Cleric: Priest (healer: Oracle prevents, Saint saves) or
 // Inquisitor (damage and afflictions: Zealot nukes, Templar silences).
-import { BLESSED, BRITTLE, BURN, HUSH, MARKED } from './statuses.ts';
+import { BLESSED, BRITTLE, BURN, HUSH, MARKED, EMPOWERED } from './statuses.ts';
 import { advancedTier, afflict, afflictions, allyBelow, baseClass, hit, lacks, rule, skill, tertiaryTier } from './dsl.ts';
 
 const healAlly = (atk: number, flat = 0) => ({ kind: 'heal' as const, target: 'focus' as const, amount: { atk, flat } });
@@ -47,7 +47,7 @@ export const inquisitor = advancedTier({
   baseClassId: 'r-cleric',
   description: 'Holy fire and condemnation: afflicts heretics for the party.',
   tags: ['divine'],
-  tertiaryClasses: ['zealot', 'r-templar'],
+  tertiaryClasses: ['r-zealot', 'r-templar'],
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
   modifier: { stats: { atk: 3, hp: 10 } },
   skills: [
@@ -68,7 +68,11 @@ export const oracle = tertiaryTier({
   modifier: { stats: { hp: 12, def: 1, atk: 1 } },
   skills: [
     skill('sanctuary', 'Sanctuary', 4, null, 'Shield every ally for 90% ATK.', [{ kind: 'shield', target: 'allAllies', amount: { atk: 0.9 } }]),
-    skill('cleanse', 'Cleanse', 3, null, 'Remove an affliction from every ally.', [{ kind: 'cure', target: 'allAllies', count: 1 }]),
+    skill('cleanse', 'Cleanse', 3, null, 'Remove an affliction from every ally.', [{ kind: 'cure', target: 'allAllies', count: 1 }], {
+      talent: 'Cleanse removes 2 afflictions from every ally.',
+      description: 'Remove 2 afflictions from every ally.',
+      effects: [{ kind: 'cure', target: 'allAllies', count: 2 }],
+    }),
   ],
   rules: [rule('cleanse', afflictions(2), 'mostAfflictedAlly'), rule('sanctuary')],
 });
@@ -84,13 +88,17 @@ export const saint = tertiaryTier({
   modifier: { stats: { hp: 8, atk: 2 } },
   skills: [
     skill('miracle', 'Miracle', 3, 'ally', 'Heal an ally for 300% ATK.', [healAlly(3)]),
-    skill('guardian-angel', 'Guardian Angel', 5, 'ally', 'Blessed: the ally can’t drop below 1 HP for 2 turns.', [afflict(BLESSED)]),
+    skill('guardian-angel', 'Guardian Angel', 5, 'ally', 'Blessed: the ally can’t drop below 1 HP for 2 turns.', [afflict(BLESSED)], {
+      talent: 'Guardian Angel lasts 3 turns.',
+      description: 'Blessed: the ally can’t drop below 1 HP for 3 turns.',
+      effects: [afflict(EMPOWERED.blessed)],
+    }),
   ],
   rules: [rule('guardian-angel', { kind: 'targetHpBelow', percent: 30 }), rule('miracle', allyBelow(45))],
 });
 
 export const zealot = tertiaryTier({
-  id: 'zealot',
+  id: 'r-zealot',
   name: 'Zealot',
   baseClassId: 'r-cleric',
   advancedClassId: 'r-inquisitor',

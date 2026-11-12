@@ -33,6 +33,19 @@ export interface SavedRun {
 export const RUN_KEY = 'run';
 export const BEST_KEY = 'best';
 
+/**
+ * Rules-mode tertiary classes renamed in Milestone 13: they had shared an id
+ * with a classic class, which overwrote the classic one.
+ */
+const RULES_RENAMES: Record<string, string> = { nightblade: 'r-nightblade', zealot: 'r-zealot' };
+
+/** A saved rules-mode run with the renamed class ids moved to their new names. */
+export function migrateSavedRun(saved: SavedRun): SavedRun {
+  if (saved.run.setup.mode !== 'rules') return saved;
+  const json = JSON.stringify(saved).replace(/"(nightblade|zealot)"/g, (_, id: string) => `"${RULES_RENAMES[id]}"`);
+  return JSON.parse(json) as SavedRun;
+}
+
 /** Shallow shape check of a saved run; every class (and class choice) on the board must still exist. */
 export function savedRunValidator(ctx: RunContext) {
   return (x: unknown): x is SavedRun => {

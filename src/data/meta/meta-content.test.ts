@@ -3,7 +3,7 @@ import { newProfile, runSetupFor, unlockedContent } from '../../engine/meta/inde
 import { createRun, fight, newUnit } from '../../engine/run/index.ts';
 import { TERTIARY_CLASSES } from '../builds/index.ts';
 import { CLASSES } from '../classes.ts';
-import { RULES_CLASSES } from '../rules-mode/index.ts';
+import { RULES_CLASSES, RULES_TERTIARY } from '../rules-mode/index.ts';
 import { buildRunContext } from '../content.ts';
 import { ITEMS, ITEM_IDS } from '../items.ts';
 import { SYNERGIES } from '../synergies.ts';
@@ -16,9 +16,10 @@ import { PERKS, PERK_IDS } from './perks.ts';
 describe('signature items', () => {
   const signatures = Object.values(ITEMS).filter((i) => i.tertiaryClassId);
 
-  it('every tertiary class has exactly one, priced 7–8, kept out of the random item pool', () => {
-    expect(signatures).toHaveLength(Object.keys(TERTIARY_CLASSES).length);
-    for (const id of Object.keys(TERTIARY_CLASSES)) expect(signatures.filter((i) => i.tertiaryClassId === id)).toHaveLength(1);
+  it('every tertiary class (classic and rules mode) has exactly one, priced 7–8, kept out of the random item pool', () => {
+    const terts = [...Object.keys(TERTIARY_CLASSES), ...Object.keys(RULES_TERTIARY)];
+    expect(signatures).toHaveLength(terts.length);
+    for (const id of terts) expect(signatures.filter((i) => i.tertiaryClassId === id)).toHaveLength(1);
     for (const item of signatures) {
       expect(item.cost).toBeGreaterThanOrEqual(7);
       expect(item.cost).toBeLessThanOrEqual(8);

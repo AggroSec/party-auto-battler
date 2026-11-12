@@ -151,6 +151,7 @@ docs/
 10. **Ladder + Mercenary (post-1.0):** ladder tiers 11–15 with unique bosses, and the Mercenary class.
 11. **Rules mode, consumables and the guide (post-1.0):** an optional run mode where units act by priority lists the player writes, skill kits for six classes (including the new Shaman), consumable items, an in-depth guide with one-time tips, and the tier 11–12 difficulty fix.
 12. **Fight breakdown (post-1.0):** tap a unit in the fight summary to see what each rule (or ability, attack, trigger and consumable) did and why rules didn't fire; softer tier 14 enemy consumables.
+13. **Rules-mode clean-up (post-1.0):** bosses resist executions, timed statuses refresh instead of stacking, Empowered talents always do something, an item pool that fits the mode, and a signature item for each of the 24 rules-mode tertiary classes.
 
 ## README requirements
 

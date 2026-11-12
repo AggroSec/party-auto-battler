@@ -1,6 +1,6 @@
 // Rules-mode Rogue: Assassin (nuke: Nightblade, Phantom) or Venomancer
 // (afflictions: Plaguebringer spreads them, Envenomer cashes them in).
-import { FEVER, HASTED, MARKED, POISON, WEAKNESS } from './statuses.ts';
+import { FEVER, HASTED, MARKED, POISON, WEAKNESS, EMPOWERED } from './statuses.ts';
 import { advancedTier, afflict, afflictions, baseClass, hit, lacks, rule, selfBelow, selfLacks, selfStatus, skill, tertiaryTier } from './dsl.ts';
 
 export const rogue = baseClass({
@@ -29,11 +29,15 @@ export const assassin = advancedTier({
   baseClassId: 'r-rogue',
   description: 'Marks a target, then deletes it.',
   tags: ['shadow'],
-  tertiaryClasses: ['nightblade', 'phantom'],
+  tertiaryClasses: ['r-nightblade', 'phantom'],
   statWeights: { hp: 2, atk: 5, def: 1, spd: 2 },
   modifier: { stats: { atk: 3, spd: 1 } },
   skills: [
-    skill('death-mark', 'Death Mark', 3, 'enemy', 'Marked: +25% damage taken for 3 turns.', [afflict(MARKED)]),
+    skill('death-mark', 'Death Mark', 3, 'enemy', 'Marked: +25% damage taken for 3 turns.', [afflict(MARKED)], {
+      talent: 'Death Mark makes the target take +35% damage.',
+      description: 'Marked: +35% damage taken for 3 turns.',
+      effects: [afflict(EMPOWERED.marked)],
+    }),
     skill('assassinate', 'Assassinate', 3, 'enemy', '180% ATK.', [hit(1.8)]),
   ],
   rules: [rule('assassinate', { kind: 'targetHas', status: MARKED.id }, 'lowestHp'), rule('death-mark', lacks(MARKED), 'lowestHp')],
@@ -56,7 +60,7 @@ export const venomancer = advancedTier({
 });
 
 export const nightblade = tertiaryTier({
-  id: 'nightblade',
+  id: 'r-nightblade',
   name: 'Nightblade',
   baseClassId: 'r-rogue',
   advancedClassId: 'r-assassin',
@@ -79,7 +83,11 @@ export const phantom = tertiaryTier({
   modifier: { stats: { atk: 4, spd: 2, hp: 8 } },
   skills: [
     skill('fan-of-knives', 'Fan of Knives', 3, null, '85% ATK to every enemy.', [{ kind: 'damage', target: 'allEnemies', amount: { atk: 0.85 } }]),
-    skill('shadow-dance', 'Shadow Dance', 4, null, 'Hasted: +4 SPD for 3 turns.', [selfStatus(HASTED)]),
+    skill('shadow-dance', 'Shadow Dance', 4, null, 'Hasted: +4 SPD for 3 turns.', [selfStatus(HASTED)], {
+      talent: 'Shadow Dance gives +5 SPD.',
+      description: 'Hasted: +5 SPD for 3 turns.',
+      effects: [selfStatus(EMPOWERED.hasted)],
+    }),
   ],
   rules: [rule('shadow-dance', selfLacks(HASTED)), rule('fan-of-knives', { kind: 'enemiesAtLeast', count: 3 })],
 });

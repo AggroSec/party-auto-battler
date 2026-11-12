@@ -1,7 +1,7 @@
 // Rules-mode Runeblade: carves Runes into enemies and detonates them.
 // Spellblade (damage: Stormblade, Blademaster) or Runecarver (afflictions:
 // Runelord detonates everyone, Spellbreaker shuts casters down).
-import { BRITTLE, ENCHANTED, HUSH, RUNE_MARK } from './statuses.ts';
+import { BRITTLE, ENCHANTED, HUSH, RUNE_MARK, EMPOWERED } from './statuses.ts';
 import { advancedTier, afflict, afflictions, baseClass, hit, lacks, rule, selfLacks, selfStatus, skill, tertiaryTier } from './dsl.ts';
 
 const runes = (atLeast: number) => ({ kind: 'targetStacks' as const, status: RUNE_MARK.id, atLeast });
@@ -22,7 +22,11 @@ export const runeblade = baseClass({
   skills: [
     skill('rune-strike', 'Rune Strike', 1, 'enemy', '80% ATK and a Rune (up to 5).', [hit(0.8), afflict(RUNE_MARK)]),
     skill('detonate', 'Detonate', 3, 'enemy', '50% ATK + 40% ATK per Rune on the target; the Runes are used up.', [detonate(0.5, 0.4)]),
-    skill('enchant', 'Enchant Blade', 4, null, 'Enchanted: +3 ATK for 3 turns.', [selfStatus(ENCHANTED)]),
+    skill('enchant', 'Enchant Blade', 4, null, 'Enchanted: +3 ATK for 3 turns.', [selfStatus(ENCHANTED)], {
+      talent: 'Enchant Blade gives +4 ATK.',
+      description: 'Enchanted: +4 ATK for 3 turns.',
+      effects: [selfStatus(EMPOWERED.enchanted)],
+    }),
   ],
   rules: [rule('enchant', selfLacks(ENCHANTED)), rule('detonate', runes(3)), rule('rune-strike')],
 });
@@ -54,7 +58,11 @@ export const runecarver = advancedTier({
   modifier: { stats: { hp: 12, def: 2, atk: 1 } },
   skills: [
     skill('sigil-of-frailty', 'Sigil of Frailty', 2, 'enemy', '40% ATK, Brittle (−3 DEF) and a Rune.', [hit(0.4), afflict(BRITTLE), afflict(RUNE_MARK)]),
-    skill('binding-rune', 'Binding Rune', 4, 'enemy', 'Hush (no skills or abilities for 2 turns) and a Rune.', [afflict(HUSH), afflict(RUNE_MARK)]),
+    skill('binding-rune', 'Binding Rune', 4, 'enemy', 'Hush (no skills or abilities for 2 turns) and a Rune.', [afflict(HUSH), afflict(RUNE_MARK)], {
+      talent: 'Binding Rune carves 2 Runes.',
+      description: 'Hush (no skills or abilities for 2 turns) and 2 Runes.',
+      effects: [afflict(HUSH), afflict(RUNE_MARK, 2)],
+    }),
   ],
   rules: [rule('binding-rune', lacks(HUSH), 'highestAtk'), rule('sigil-of-frailty', lacks(BRITTLE), 'mostAfflicted')],
 });

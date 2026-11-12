@@ -212,7 +212,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'hush-bind',
     term: 'Hush and Bind',
-    text: 'Rules mode: Hush stops skills and abilities (only basic attacks), Bind costs the target its next turn. The Spiritbinder kills outright once its victim has Frostbite, Weakness and Hush at once (a boss loses 25% of its max HP instead).',
+    text: 'Rules mode: Hush stops skills and abilities (only basic attacks), Bind costs the target its next turn. The Spiritbinder kills outright once its victim has Frostbite, Weakness and Hush at once (a boss loses 25% of its max HP instead). With the Soulreaver’s Soulshackle Totem, Bind alone is enough.',
     pattern: /\bHush\b|\bBind\b/,
   },
   {
