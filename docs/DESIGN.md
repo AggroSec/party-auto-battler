@@ -159,6 +159,8 @@ Triggers can have a `chance` (seeded) and a per-combat `limit`. Chains of trigge
 | Runeblade 🔒 | Striker | Melee | 36/6/2/10 | nearest | **Runestrike** (3): 110% ATK to the nearest enemy and carve 2 Runes | **Runic Detonation:** basic attacks carve 1 Rune; 5 Runes detonate for 250% ATK |
 | Dark Knight 🔒 | Frontline | Melee | 40/6/2/8 | nearest | **Blood Price** (3): pay 8% max HP, 130% ATK + 20% missing HP to the nearest enemy, heal 50% ATK | **Dark Resolve:** when bloodied, +3 DEF and +2 ATK |
 | Cultist 🔒 | Support | Ranged | 30/4/1/9 | nearest | **Siphon** (2): 100% ATK to the nearest enemy and 2 Blight, heal the most wounded ally 100% ATK | **Blight:** basic attacks give 1 Blight; every Blight tick heals the Cultist's most wounded ally for half the damage |
+| Shaman 🔒 | Caster | Ranged | 28/6/1/9 | most afflicted | **Frost Hex** (3): Frostbite and Weakness on the most afflicted enemy, then 40% ATK + 25% per affliction | **Spirit Sight:** start of combat, Weakness on the highest-ATK enemy |
+| Sylvan 🔒 | Support | Ranged | 30/5/1/9 | nearest | **Bloom** (2): Renewal on the front row (heals 70% ATK each turn for 3 turns) | **Rootbound:** start of combat, Renewal on the most wounded ally and self |
 
 🔒 = unlockable via meta progression (Milestone 7). Monk, Bard, Druid, Warlock and Engineer were added in M5 at Brandon's request; Runeblade and Dark Knight after M7, the Cultist after M8, and the Adventurer after M9, to his design (see below).
 
@@ -865,6 +867,80 @@ One per tertiary class, offered once on reaching it like the classic ones (7 gol
 
 - **How to play** opens a guide from the title screen (highlighted until you've played a run). It has ten short sections, each collapsible for phones: a primer for players new to auto-battlers, your first run step by step, the shop and interest, positioning, stats and combat, levels and classes, items and consumables, synergies, rules mode, and meta progression.
 - **One-time tips** appear in the shop the first time something comes up: recruiting, the first level-up, stat points, round 2's economy, the first synergy, the first lost fight, and rules mode's rule editor. "Got it" dismisses one; "No more tips" turns them off. The guide can turn them back on and reset them. Tips never show in daily runs.
+
+## Story mode (Milestone 14, issue #26)
+
+Brandon's design: a mode beside the normal run where **the party is fixed to a theme** and built up over a story's missions. Finishing a story unlocks its classes and its synergy for normal runs.
+
+- **Classic rules underneath:** classic classes, abilities, talents, items and synergies. A story run is a normal run state plus where the party is in the story.
+- **Missions are maps.** Each mission is a seeded map of 7 layers: two opening fights, then 2–4 stops per layer, a camp layer before the boss, and the boss at the top. Paths never cross, every stop can be reached, and the middle layer always has a shop. Stops: ⚔️ **fight**, 💀 **elite** (one Elite and one more enemy; better pay and a free item; from layer 2), 🛒 **shop** (items, training and a consumable; rerolls allowed; no recruits), ❓ **event** (story text with 2 choices), 🔥 **camp** (rest for a life when one is missing, or train a hero for 4 XP) and 👑 **boss**.
+- **Heroes:** the story hands them out and they can't be sold. A hero joins at the start of its mission at about the party's level (at least level 2). Heroes on a story path are **locked to their advanced class** (Korrin → Berserker, Bram → Beastmaster); everyone picks their tertiary class freely.
+- **Fights:** as many enemies as heroes (an elite stop adds one), from the mission's own themed roster, at the difficulty of a normal run's round `1 + 5 × mission + layer`, with story enemies −25% HP and ATK (story parties are smaller early). A won fight pays 5 gold (elite 7 + an item, boss 10 + two items) and 2 XP (elite and boss 3). A lost or drawn fight pays 1 XP and moves on; a lost boss waits for another try.
+- **Lives:** 3 per mission. Running out restarts the mission from its checkpoint (the party as it was when the mission began) with full lives. Beating a boss refills lives.
+- **Story ladder:** each story has its own small ladder, unlocked by finishing the story on its highest tier. The Hollowing: tier 1 enemies +10% HP and ATK; tier 2 bosses cast a second ability and elite stops field a second Elite; tier 3 one less life, enemies gain a level and one enemy carries a consumable from round 5.
+- **Records:** stories keep their own record (tier unlocked, completions). Story fights don't count toward other achievements, and story runs don't count as runs. A story save sits beside a normal run's save, so both can be in progress.
+
+### The Hollowing
+
+The Greymoor tribe's spirits are being drained by the Hollowing. Heroes: **Korrin** (Warrior → Berserker) and **Ama** (Shaman) from mission 1, **Thessa** (Druid) and **Bram** (Ranger → Beastmaster) from mission 2, **Lio** (Sylvan) in mission 3.
+
+| Mission | Enemies | Boss |
+|---|---|---|
+| 1. Silent Totems | Raiders: Brute (Warrior), Cutthroat (Rogue), Archer (Ranger), Sellsword (Mercenary), Totem Breaker (Dark Knight), Hexer (Warlock) | **Gorrask Totem-Breaker** (Raider Chief): Totem Smash, 150% ATK with splash. *Stolen Spirits:* +2 ATK and +2 DEF at the start; shields himself when bloodied. Second ability: War Stomp |
+| 2. The Wild Paths | Maddened beasts: Feral Wolf (Rogue), Blighted Bear (Warrior), Thornback Boar (Monk), Hollow Hawk (Ranger), Maddened Grove Keeper (Druid), Blight Wisp (Mage) | **The Hollow Stag:** Antler Charge on the front row. *Call of the Hollow Pack:* a Hollow Wolf joins at the start and when bloodied. Second ability: Blight Bellow (Weakness on all) |
+| 3. The Heartwood | The hollowed dead and their cult: Hollowed Ancestor (Dark Knight), Hollow Cultist (Cultist), Bone Caller (Necromancer), Hexbinder (Warlock), Hollow Warden (Warrior), Grave Priest (Cleric) | **The Hollow King:** Drain the Heartwood, damage to all and a self-heal. *Crown of Hollows:* a big shield at the start, +3 ATK whenever an ally falls. Second ability: The Hollowing (Fever on all) |
+
+Twelve events, four per mission (e.g. *A Wounded Wolf*: heal Ash for +2 ATK and +1 SPD on Bram, or take 5 gold). Finishing the story earns **Spirits Restored**, which unlocks the classic Shaman, the Sylvan and Strength of the Tribe.
+
+### Strength of the Tribe
+
+Brandon's Bloodlust-like synergy: a start-of-combat speed burst for **every ally** that wears off at a set tick, bigger with more of the Tribe. It counts **different** Tribe classes, one of each: the Berserker line (Berserker, Warlord, Bloodreaver), the Beastmaster line (Beastmaster, Packlord, Falconer), Druid, Shaman and Sylvan.
+
+| Different Tribe classes | Burst | Wears off after tick |
+|---|---|---|
+| 3 | +3 SPD | 20 |
+| 4 | +5 SPD | 30 |
+| 5 | +8 SPD | 40 |
+
+### Sylvan (Brandon: a heal-over-time healer)
+
+Support, ranged, 30/5/1/9, tags nature and spirit. Heals ahead of the damage with **Renewal** (heals 70% of the Sylvan's ATK at the start of each of the target's turns, for 3 turns; refreshes, doesn't stack). Strongest in long fights and against chip damage, weakest against burst.
+
+| Class | Ability | Passive |
+|---|---|---|
+| **Sylvan** | **Bloom** (2): Renewal on the front row | **Rootbound:** start of combat, Renewal on the most wounded ally and self |
+| Verdant Keeper | **Wild Bloom** (3): heal all 50% ATK and Renewal on all | **Overgrowth:** each turn, heal the most wounded ally 30% ATK |
+| ↳ Lifebinder | **Lifebind** (3): heal all 80% ATK and Renewal on all | **Overflow:** healing past full HP becomes a shield (60%) |
+| ↳ Bloomcaller | **Spring Rain** (3): Greater Renewal (110% ATK) on all | **Rebirth Bloom:** when an ally falls, heal all 100% ATK and Greater Renewal |
+| Thornweaver | **Bramble Bloom** (3): Renewal and **Thorns** (melee attackers take 40% ATK) on the front row, 80% ATK to the nearest enemy | **Briar Skin:** start of combat, Thorns on the front row |
+| ↳ Briarheart | **Heart of Thorns** (3): taunt 2 turns, Thorns on self, Renewal on all | **Sapdrinker:** +20 HP, +2 DEF, 25% lifesteal |
+| ↳ Rootwarden | **Grasping Roots** (3): Renewal and Thorns on the front row; enemy front row takes 70% ATK and is **Rooted** (−3 SPD, 2 turns) | **Deep Roots:** start of combat, Root the enemy front row |
+
+Signature items: Heartseed (Lifebinder), Everbloom Garland (Bloomcaller), Bramble Crown (Briarheart), Ironroot Staff (Rootwarden).
+
+### Classic Shaman
+
+The rules-mode Shaman (Brandon's design) as a classic class, with ids starting `c-` because rules-mode ids may never shadow classic ones. Caster, ranged, 28/6/1/9; attacks and abilities aim at the **most afflicted enemy**, so the whole kit piles onto one victim. Uses the rules-mode afflictions (Frostbite, Weakness, Brittle, Hush, Rot, Fever, Marked, Bind).
+
+| Class | Ability | Passive |
+|---|---|---|
+| **Shaman** | **Frost Hex** (3): Frostbite and Weakness, then 40% ATK + 25% per affliction | **Spirit Sight:** start of combat, Weakness on the highest-ATK enemy |
+| Hexcaller | **Soul Rend** (3): Brittle, then 50% ATK + 45% per affliction | **Lingering Hex:** basic attacks give Frostbite |
+| ↳ Doomspeaker | **Cataclysm** (4): 2 Rot, then every enemy takes 40% + 35% per affliction | **Creeping Doom:** attacks give Frostbite and Rot |
+| ↳ Witch Doctor | **Hex Totem** (3): Marked on all; 60% ATK and Fever on the victim | **Juju:** 40% on attack, Weakness |
+| Spiritbinder | **Sever Soul** (4): Hush, 40% ATK; with Frostbite and Weakness too, the victim dies outright (bosses lose 25% max HP) | **Binding Frost:** attacks give Frostbite and Weakness, 50% each |
+| ↳ Soulreaver | **Soul Reap** (4): Bind and Hush, 50% ATK, then the same execution | **Frozen Chains:** attacks give Frostbite and Weakness |
+| ↳ Spirit Warden | **Spirit Ward** (3): shield the most wounded ally 120% ATK, cure one affliction from every ally, Hush the victim | **Ancestral Lock:** attacks give Frostbite and Weakness, 50% each |
+
+Signature items: Skull of Ruin (Doomspeaker), Juju Pouch (Witch Doctor), **Chain of Souls** (Soulreaver: Brandon's Soulshackle idea, classic version: Bind alone completes the lock) and Spirit Drum (Spirit Warden). After the story unlocks them, Hill Shaman and Forest Sylvan join the normal enemy roster.
+
+### Engine additions
+
+- **Healing over time** (`StatusDef.hot`) and **Thorns** (`StatusDef.thorns`): resolved from the applier when applied, like damage over time; credited to the applier. Thorns answer direct hits from melee units only, as damage over time, so thorns never set off thorns.
+- **Speed burst** (`speedBurst` on a modifier): +SPD from the start of combat until a tick, logged as a buff and its reversal.
+- **Overflow shields** (`overhealShield`): healing past full HP becomes a shield.
+- **"One of each" synergies:** a `party` requirement can ask for `count` of its slots, each filled by a different unit.
+- **No recruits** (`noRecruits` run modifier) for story shops; **locked advanced class** for story heroes.
 
 ## Open design questions (for Brandon)
 

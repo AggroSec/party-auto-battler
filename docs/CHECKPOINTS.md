@@ -2,6 +2,71 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 14 — Story mode (2026-11-13)
+
+### What was built
+- **Story mode** (issue #26), from the title screen. You lead a story's war band instead of drafting one. It runs on classic rules.
+- **Missions are maps.** Each of the 3 missions is a seeded map: 7 layers of stops with branching paths, ending in a boss.
+  - ⚔️ **Fights** pay gold and XP.
+  - 💀 **Elites** are harder, with one Elite and one more enemy, and pay more plus a free item.
+  - 🛒 **Shops** sell items, training and a consumable, with rerolls. They never sell recruits.
+  - ❓ **Events** are story text with two choices.
+  - 🔥 **Camps** let you rest for a life (when one is missing) or train a hero.
+  - 👑 **The boss** waits at the top.
+- **Heroes come from the story** and can't be sold.
+  - Mission 1: **Korrin** (Warrior, always becomes a Berserker) and **Ama** (Shaman).
+  - Mission 2: **Thessa** (Druid) and **Bram** (Ranger, always becomes a Beastmaster).
+  - Mission 3: **Lio** (Sylvan).
+  - Each hero joins at about the party's level. Tertiary classes are your pick.
+- **Lives:** 3 per mission. Running out restarts the mission from where it began, with full lives. A lost boss waits for another try.
+- **The Hollowing**, the first story: 3 missions with intro and outro text, 12 events and 3 new bosses.
+  - Gorrask Totem-Breaker, a raider chief who steals spirit-stones.
+  - The Hollow Stag, a corrupted beast that calls wolves.
+  - The Hollow King, who drains the Heartwood and gives everyone Fever.
+- **Story ladder:** 3 extra tiers, each unlocked by finishing the one before.
+- **Rewards:** finishing the story unlocks the **Sylvan**, the **Shaman** and **Strength of the Tribe** for normal runs, through the Spirits Restored achievement.
+- **Sylvan:** your heal-over-time healer. **Renewal** heals at the start of each of the target's turns for 3 turns.
+  - **Verdant Keeper** line: Lifebinder (healing past full HP becomes a shield) and Bloomcaller (Greater Renewal on everyone).
+  - **Thornweaver** line: Renewal plus **Thorns** that hurt melee attackers. It splits into Briarheart (a thorny tank-healer) and Rootwarden (Roots the enemy front row).
+  - Each tertiary class has a signature item.
+- **Classic Shaman:** the rules-mode kit as a classic class. Its attacks and abilities pile afflictions onto the most afflicted enemy.
+  - **Hexcaller** line deals damage per affliction (Doomspeaker, Witch Doctor).
+  - **Spiritbinder** line executes once the lock closes (Soulreaver, Spirit Warden).
+  - The classic Soulreaver's signature item, **Chain of Souls**, is your Soulshackle idea again: Bind alone completes the lock.
+- **Strength of the Tribe:** one of each Tribe class gives every ally a speed burst at the start of combat that wears off. The Tribe classes are the Berserker line, the Beastmaster line, Druid, Shaman and Sylvan.
+- **Everything else:** a guide section, glossary entries, a story tip, play logs that replay story runs, and a Hill Shaman and Forest Sylvan in the normal enemy pool once unlocked.
+
+### What to playtest
+1. **Story mode → The Hollowing, tier 0.**
+   - Are the map and the story text clear on your phone?
+   - Do the events feel like real choices?
+2. **Hero locks:** level Korrin to 3; he should only be offered Berserker.
+3. **The Tribe:** check the Strength of the Tribe bursts in playback. Is the burst worth building around, and does it feel "a bit OP" with all five?
+4. **The Sylvan as a second healer** next to a Cleric, in the story or once it's unlocked. Does healing over time feel different from Mend?
+5. **Ama on the Spiritbinder line:** does Sever Soul close the lock in classic mode?
+6. **Story tiers 1–3** once tier 0 is done.
+7. Send me the play log. It now labels each story fight with its mission and stop.
+
+### Known issues / open questions
+- **Strength of the Tribe is smaller than drafted,** and you leaned toward bigger numbers, so tell me if it feels too small. Here's why I cut it:
+  - The draft (+6/+10/+15 SPD until tick 30/40/50) added about 25 points of win rate at every tier in a paired test. That's twice the strongest other synergy.
+  - It's now +3 SPD until tick 20 (3 classes), +5 until tick 30 (4) and +8 until tick 40 (5).
+  - That's +11 points at 3 classes and +19 at 4, and with all 5 the party won every fight the simulator sampled.
+- **Story tier 3 is very hard for the bots:** 25% finish, with about 35 restarts. You play much better than they do; if it feels like a grind, I'll ease tier 3.
+- **Story fights don't count toward normal achievements,** and stories don't count as runs. Reaching a tertiary class still counts as discovered.
+- **Not checked in a browser.** No browser was available here. The story screens have server-side render tests, but how they look on a phone is untested.
+
+### Simulator balance numbers
+- **Classic run sim (1,000 per bot, tier 0):**
+  - Completion: random 1.4%, sensible 12.7%, greedy 25.1%, synergy 9.0%. No stuck runs.
+  - Shaman +5.6 lift, Sylvan +4.5 (Bard +5.5, Warrior +4.8). The Shaman was trimmed once for being over the outlier line.
+- **Strength of the Tribe (paired test):** 3 classes +10.7, 4 classes +18.9, 5 classes wins every sampled fight.
+- **Story, tier 0 (100 runs per bot):**
+  - Completion 97–100%, with 0.2–1.9 restarts per run.
+  - Mission 1 boss win rate: 24–67% depending on the bot.
+- **Story, tier 3:** completion 24–74%, with 18–37 restarts per run.
+- Details in docs/BALANCE.md.
+
 ## Milestone 13 — Rules-mode clean-up (2026-11-11)
 
 ### What was built
