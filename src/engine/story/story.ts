@@ -282,8 +282,8 @@ export function storyEnemy(state: RunState, node: StoryNode, ctx: RunContext, el
       enemyStats: (ctx.run?.enemyStats ?? 0) + (storyDef(ctx, s.storyId).enemyStats ?? 0),
       bossRounds: boss ? [round] : [],
       uniqueBosses: true,
-      // An elite stop (and the boss's guard) has an Elite; story tier 2+ adds a second on elite stops.
-      ...(elite || boss ? { elitesFrom: round } : {}),
+      // An elite stop has an Elite (story tier 2 adds a second); the boss's guard is a regular enemy.
+      ...(elite && !boss ? { elitesFrom: round } : {}),
       ...(elite && ctx.run?.secondEliteFrom !== undefined ? { secondEliteFrom: round } : {}),
     },
   };

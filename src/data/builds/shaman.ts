@@ -20,7 +20,7 @@ export const shamanTalents = [
     on('startOfCombat', 'Cold Spirits', [hex(FROSTBITE, 'highestAtk')]),
   )),
   talent('c-shaman/spirit-lash', 'Spirit Lash', '+30% ability power.', { abilityPower: 0.3 }),
-  talent('c-shaman/ancestral-hide', 'Ancestral Hide', '+10 HP, +1 DEF.', { stats: { hp: 10, def: 1 } }),
+  talent('c-shaman/ancestral-hide', 'Ancestral Hide', '+6 HP.', { stats: { hp: 6 } }),
   talent('c-shaman/withering-touch', 'Withering Touch', '30% on attack: Weakness on the target.', trig(
     on('onAttack', 'Withering Touch', [hex(WEAKNESS, 'triggerTarget')], { chance: 0.3 }),
   )),
@@ -35,9 +35,9 @@ export const hexcallerC = advanced({
   ability: {
     id: 'c-soul-rend',
     name: 'Soul Rend',
-    description: 'Every 3rd turn: Brittle on the most afflicted enemy (−3 DEF), then deal 60% ATK + 50% ATK per affliction on it.',
+    description: 'Every 3rd turn: Brittle on the most afflicted enemy (−3 DEF), then deal 50% ATK + 45% ATK per affliction on it.',
     cooldown: 3,
-    effects: [hex(BRITTLE), { kind: 'damage', target: 'mostAfflicted', amount: { atk: 0.6 }, perAffliction: 0.5 }],
+    effects: [hex(BRITTLE), { kind: 'damage', target: 'mostAfflicted', amount: { atk: 0.5 }, perAffliction: 0.45 }],
   },
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
   passive: { name: 'Lingering Hex', description: 'On attack: Frostbite on the target (−3 SPD for 4 turns).' },
@@ -107,9 +107,9 @@ export const shamanClass: ClassDef = {
   ability: {
     id: 'c-frost-hex',
     name: 'Frost Hex',
-    description: 'Every 3rd turn: Frostbite and Weakness on the most afflicted enemy (−3 SPD and −3 ATK for 4 turns), then deal 50% ATK + 30% ATK per affliction on it.',
+    description: 'Every 3rd turn: Frostbite and Weakness on the most afflicted enemy (−3 SPD and −3 ATK for 4 turns), then deal 40% ATK + 25% ATK per affliction on it.',
     cooldown: 3,
-    effects: [hex(FROSTBITE), hex(WEAKNESS), { kind: 'damage', target: 'mostAfflicted', amount: { atk: 0.5 }, perAffliction: 0.3 }],
+    effects: [hex(FROSTBITE), hex(WEAKNESS), { kind: 'damage', target: 'mostAfflicted', amount: { atk: 0.4 }, perAffliction: 0.25 }],
   },
   passive: { name: 'Spirit Sight', description: 'Start of combat: Weakness on the enemy with the highest ATK.' },
   triggers: [on('startOfCombat', 'Spirit Sight', [hex(WEAKNESS, 'highestAtk')])],

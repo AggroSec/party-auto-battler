@@ -54,7 +54,7 @@ export const GORRASK: BossDef = {
   classId: 'raider-chief',
   minRound: 1,
   unique: true,
-  statMultiplier: { hp: 1.6, atk: 1.25 },
+  statMultiplier: { hp: 1.3, atk: 1.1 },
   passive: { name: 'Stolen Spirits', description: 'Start of combat: +2 ATK and +2 DEF from his stolen spirit-stones. When bloodied, shield himself for 150% ATK.' },
   modifier: {
     triggers: [
@@ -80,7 +80,7 @@ export const HOLLOW_STAG: BossDef = {
   classId: 'hollow-stag',
   minRound: 1,
   unique: true,
-  statMultiplier: { hp: 2.0, atk: 1.4 },
+  statMultiplier: { hp: 1.7, atk: 1.3 },
   passive: { name: 'Call of the Hollow Pack', description: 'Start of combat, and when bloodied: a Hollow Wolf joins the fight.' },
   modifier: {
     triggers: [
@@ -103,7 +103,7 @@ export const HOLLOW_KING: BossDef = {
   classId: 'hollow-king',
   minRound: 1,
   unique: true,
-  statMultiplier: { hp: 2.4, atk: 1.6 },
+  statMultiplier: { hp: 2.1, atk: 1.5 },
   passive: { name: 'Crown of Hollows', description: 'Start of combat: shield himself for 200% ATK. When an ally falls, he gains +3 ATK.' },
   modifier: {
     triggers: [

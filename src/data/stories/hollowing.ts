@@ -199,7 +199,7 @@ export const HOLLOWING: StoryDef = {
   startingGold: 6,
   lives: 3,
   startLevel: 2,
-  enemyStats: -0.2,
+  enemyStats: -0.25,
 };
 
 export const STORIES: Record<string, StoryDef> = { [HOLLOWING.id]: HOLLOWING };

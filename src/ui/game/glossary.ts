@@ -242,7 +242,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'tribe',
     term: 'Strength of the Tribe',
-    text: 'A synergy for different Tribe classes (the Berserker line, the Beastmaster line, Druid, Shaman and Sylvan; doubles don’t count): every ally starts the fight with a burst of SPD that wears off. 3 classes: +6 SPD until tick 30; 4: +10 until tick 40; 5: +15 until tick 50.',
+    text: 'A synergy for different Tribe classes (the Berserker line, the Beastmaster line, Druid, Shaman and Sylvan; doubles don’t count): every ally starts the fight with a burst of SPD that wears off. 3 classes: +3 SPD until tick 20; 4: +5 until tick 30; 5: +8 until tick 40.',
     pattern: /\bstrength of the tribe\b/i,
   },
   {

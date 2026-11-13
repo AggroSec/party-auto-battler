@@ -28,9 +28,9 @@ export const TRIBE: UnitFilter[] = [
 
 /** Strength of the Tribe's burst by number of different Tribe classes. Tuned with the simulator (docs/BALANCE.md). */
 export const TRIBE_BURST: Record<number, { spd: number; untilTick: number }> = {
-  3: { spd: 6, untilTick: 30 },
-  4: { spd: 10, untilTick: 40 },
-  5: { spd: 15, untilTick: 50 },
+  3: { spd: 3, untilTick: 20 },
+  4: { spd: 5, untilTick: 30 },
+  5: { spd: 8, untilTick: 40 },
 };
 
 export const SYNERGIES: SynergyDef[] = [
