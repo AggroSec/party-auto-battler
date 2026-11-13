@@ -18,6 +18,11 @@ export const TIPS: readonly Tip[] = [
     when: (run) => run.setup.mode === 'rules' && boardUnits(run.board).length > 0,
   },
   {
+    id: 'story-mode',
+    text: 'Story mode: press Set out to open the map and pick your first stop. Fights pay gold and XP, shops sell items and training, events and camps let you choose. The boss waits at the top of the map.',
+    when: (run) => !!run.story && run.story.at === null && !run.story.scene,
+  },
+  {
     id: 'recruit',
     text: 'Start by recruiting: click a recruit card (or drag it onto the board). Tough units go in the front row; healers and ranged units in the back. Then press Fight.',
     when: (run) => run.round === 1 && boardUnits(run.board).length === 0,
@@ -35,7 +40,7 @@ export const TIPS: readonly Tip[] = [
   {
     id: 'round-two',
     text: 'You earn gold every round, plus interest on what you save. Fill the board, then buy training (XP) and items: click a unit first, then the item. The last shop slot is always a consumable.',
-    when: (run) => run.round === 2,
+    when: (run) => run.round === 2 && !run.story,
   },
   {
     id: 'synergy',
@@ -45,7 +50,7 @@ export const TIPS: readonly Tip[] = [
   {
     id: 'lost-life',
     text: 'Lost a fight? That costs a life, but loss streaks pay bonus gold. Check the fight report to see who did (and took) the damage.',
-    when: (run) => run.losses > 0,
+    when: (run) => run.losses > 0 && !run.story,
   },
 ];
 

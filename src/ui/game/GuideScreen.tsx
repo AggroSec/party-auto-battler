@@ -182,6 +182,34 @@ const SECTIONS: Section[] = [
     ),
   },
   {
+    id: 'story',
+    title: 'Story mode',
+    body: () => (
+      <>
+        <p>
+          Pick <strong>Story mode</strong> on the title screen. Instead of drafting a party, you lead a story&apos;s war band through its missions. The first story,{' '}
+          <em>The Hollowing</em>, starts with two heroes; more join at the start of each mission until there are five.
+        </p>
+        <ul>
+          <li>
+            Each mission is a <strong>map</strong>. Press <em>Set out</em> or <em>Move on</em> and pick the next stop: ⚔️ fights, 💀 elites (harder, with a free item), 🛒 shops, ❓
+            events, 🔥 camps (rest for a life or train a hero) and the 👑 boss at the top.
+          </li>
+          <li>The shop never sells recruits. Gold comes from won fights and events; spend it at shops on items, training and consumables.</li>
+          <li>Heroes level up and choose talents as usual. Some follow their story: Korrin always becomes a Berserker, Bram a Beastmaster. Tertiary classes are your pick.</li>
+          <li>
+            You have 3 lives per mission. Losing a fight costs one and moves you on without a reward; a lost boss waits for another try. Run out, and the mission starts over from
+            its beginning.
+          </li>
+          <li>
+            Finishing <em>The Hollowing</em> unlocks the Shaman, the Sylvan and Strength of the Tribe for normal runs, and the story&apos;s next tier. Story tiers add their own
+            modifiers, like the run ladder.
+          </li>
+        </ul>
+      </>
+    ),
+  },
+  {
     id: 'meta',
     title: 'Achievements, the ladder and dailies',
     body: () => (

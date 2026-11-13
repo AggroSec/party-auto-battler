@@ -9,7 +9,7 @@ import { equipError } from './items.ts';
 import { isRulesUnit, unitSkills, validRules, withNewTierRules } from './rule-lists.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
-import { chooseStoryOption, dismissScene, storyFight, travel } from '../story/story.ts';
+import { chooseStoryOption, createStoryRun, dismissScene, storyFight, travel } from '../story/story.ts';
 import { ensureFavored, rollConsumableDrop, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
 import type {
   ActionResult,
@@ -30,6 +30,8 @@ import type {
  * perks, everything in `ctx`).
  */
 export function createRun(seed: string, baseCtx: RunContext, setup: RunSetup = defaultSetup(baseCtx)): RunState {
+  // A story setup starts a story run (Milestone 14), so replays of play logs work for both.
+  if (setup.mode === 'story') return createStoryRun(seed, baseCtx, setup);
   const ctx = runContext(setup, baseCtx);
   const rng = new Rng(`${seed}:shop`);
   const board = emptyBoard();
