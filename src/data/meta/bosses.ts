@@ -138,7 +138,7 @@ const CLASS_BOSSES: BossDef[] = [
 ];
 
 /** A unique boss's own class: never in the shop or the regular enemy pool, with no talents or advanced classes. */
-function bossClass(id: string, name: string, baseStats: Stats, range: 'melee' | 'ranged', placement: number, ability: AbilityDef): ClassTemplate {
+export function bossClass(id: string, name: string, baseStats: Stats, range: 'melee' | 'ranged', placement: number, ability: AbilityDef): ClassTemplate {
   return {
     id,
     name,

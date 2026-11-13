@@ -20,6 +20,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'jack-of-all-trades', name: 'Jack of All Trades', description: 'Win a run with 5 different classes in your party.', condition: { kind: 'completeRun', distinctClasses: 5 }, reward: { classes: ['adventurer'] } },
   { id: 'arms-race', name: 'Arms Race', description: 'Go into a fight with 4 weapons equipped across your party.', condition: { kind: 'weaponsEquipped', count: 4 }, reward: { classes: ['mercenary'], items: ['war-hammer', 'throwing-axes', 'halberd'] } },
   // Rules mode (post-1.0).
+  // Story mode (Milestone 14): finishing The Hollowing brings the Tribe home.
+  { id: 'spirits-restored', name: 'Spirits Restored', description: 'Finish the story The Hollowing.', mode: 'story', condition: { kind: 'completeStory', story: 'hollowing' }, reward: { classes: ['c-shaman', 'sylvan'], synergies: ['strength-of-the-tribe'] } },
   { id: 'rulebreaker', name: 'Rulebreaker', description: 'Reach round 4 in rules mode.', mode: 'rules', condition: { kind: 'reachRound', round: 4 }, reward: { classes: ['shaman'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 

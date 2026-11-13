@@ -91,6 +91,14 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       const label = p?.kind === 'talent' || p?.kind === 'borrow' ? (ctx.content.talents[pick ?? '']?.name ?? pick) : nameOf(ctx, pick ?? '');
       return `${unit} took ${label}`;
     }
+    case 'travel': {
+      const node = state.story?.map.find((n) => n.id === action.node);
+      return `travelled to ${node ? `${node.kind}${node.eventId ? ` (${node.eventId})` : ''}` : action.node}`;
+    }
+    case 'storyChoice':
+      return `chose option ${action.option + 1} at ${state.story?.prompt?.id ?? '?'}`;
+    case 'scene':
+      return 'read the story';
   }
 }
 
@@ -260,10 +268,18 @@ export function formatReplay(replays: RunReplay[], ctx: RunContext): string {
     out.push(`Result: ${f.phase === 'shop' ? 'in progress' : f.phase} — ${f.wins} wins, ${f.lives} lives, ${r.rounds.length} rounds`);
     const { setup } = f;
     const perks = setup.perks.map((id) => ctx.content.perks[id]?.name ?? id).join(', ') || 'none';
-    out.push(`Setup: ${setup.daily ? `daily ${setup.daily}, ` : ''}tier ${setup.tier}, perks: ${perks}, ${setup.classes.length} classes and ${setup.items.length} items unlocked`);
+    if (setup.mode === 'story') {
+      const story = ctx.content.stories?.[setup.story ?? ''];
+      out.push(`Setup: story ${story?.name ?? setup.story}, story tier ${setup.tier}; mission ${(f.story?.mission ?? 0) + 1}, ${f.story?.restarts ?? 0} restarts`);
+    } else {
+      out.push(`Setup: ${setup.daily ? `daily ${setup.daily}, ` : ''}tier ${setup.tier}, perks: ${perks}, ${setup.classes.length} classes and ${setup.items.length} items unlocked`);
+    }
     for (const round of r.rounds) {
       const { result: res, shopped } = round;
-      out.push('', `### Round ${round.round}: ${RESULT[res.combat.winner]} in ${res.combat.ticks} ticks`);
+      // Story fights (Milestone 14): which mission and what kind of stop.
+      const stop = shopped.story ? shopped.story.map.find((n) => n.id === shopped.story!.at) : undefined;
+      const where = shopped.story ? ` (mission ${shopped.story.mission + 1}, ${stop?.kind ?? '?'}${stop?.kind === 'fight' && shopped.story.eliteNext ? ', elite' : ''})` : '';
+      out.push('', `### Round ${round.round}${where}: ${RESULT[res.combat.winner]} in ${res.combat.ticks} ticks`);
       if (round.mismatch) out.push(`  ⚠️ Replay disagrees with the logged result (${round.mismatch}).`);
       const shop = [...round.actions, ...(round.rerolls ? [`rerolled ×${round.rerolls}`] : [])];
       out.push(`  Shop: ${shop.length ? shop.join('; ') : 'nothing'} — ${shopped.gold}g left`);

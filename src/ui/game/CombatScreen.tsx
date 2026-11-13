@@ -177,11 +177,13 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
     <section className={`result ${outcome.cls}`} aria-live="polite">
       <h2>{outcome.title}</h2>
       <p className="result-line">
-        {fight.combat.winner === 'enemy' && <span>💔 −1 life ({game.run.lives} left) · </span>}
-        <span>
+        {fight.story?.restarted && <span>💔 Out of lives: the mission starts over · </span>}
+        {fight.combat.winner === 'enemy' && !fight.story?.restarted && <span>💔 −1 life ({game.run.lives} left) · </span>}
+        {fight.story && fight.story.gold > 0 && <span>💰 +{fight.story.gold}g · </span>}
+        {!fight.story?.restarted && <span>
           ⭐ +{fight.xp} XP{' '}
           {boardUnits(fight.board).some((u) => isMaxLevel(u, game.ctx.config.progression)) ? 'to every unit below max level' : 'to every unit'}
-        </span>
+        </span>}
         {fight.income && (
           <span>
             {' '}
@@ -206,7 +208,7 @@ function ResultPanel({ fight, game }: { fight: FightView; game: Game }) {
           {showLog ? 'Hide combat log' : 'Show combat log'}
         </button>
         <button type="button" className="primary" onClick={game.finishCombat} autoFocus>
-          {over ? 'See run summary →' : `Continue to round ${game.run.round} →`}
+          {over ? (game.run.story ? 'The end →' : 'See run summary →') : game.run.story ? 'Back to camp →' : `Continue to round ${game.run.round} →`}
         </button>
       </div>
       {showLog && <CombatLog combat={fight.combat} />}

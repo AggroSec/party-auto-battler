@@ -8,6 +8,8 @@ import {
   recordDiscovery,
   recordFight,
   recordRunEnd,
+  recordStoryEnd,
+  storyMaxTier,
   unlockedContent,
   type AchievementDef,
   type MetaUpdate,
@@ -26,6 +28,8 @@ import {
   type RunState,
   type ShopAction,
 } from '../../engine/run/index.ts';
+import { createStoryRun } from '../../engine/story/story.ts';
+import { STORIES, storySetup } from '../../data/stories/index.ts';
 import { play } from '../audio/sfx.ts';
 import type { SoundId } from '../audio/sounds.ts';
 import { DEV_TOOLS } from '../devTools.ts';
@@ -38,6 +42,7 @@ import {
   isBestRun,
   isBetterRun,
   RUN_KEY,
+  STORY_KEY,
   migrateSavedRun,
   savedRunValidator,
   type BestRun,
@@ -56,9 +61,11 @@ export interface FightView {
   income: IncomeBreakdown | null;
   xp: number;
   levelUps: LevelUp[];
+  /** Story fights: gold won, and whether running out of lives restarted the mission. */
+  story?: { gold: number; restarted: boolean };
 }
 
-export type Screen = 'title' | 'setup' | 'collection' | 'credits' | 'guide' | 'shop' | 'combat' | 'summary';
+export type Screen = 'title' | 'setup' | 'storySetup' | 'collection' | 'credits' | 'guide' | 'shop' | 'combat' | 'summary';
 
 /** What each successful shop action sounds like (a level-up overrides it). */
 const ACTION_SOUND: Record<ShopAction['type'], SoundId | null> = {
@@ -72,6 +79,9 @@ const ACTION_SOUND: Record<ShopAction['type'], SoundId | null> = {
   setRules: null,
   move: null,
   moveItem: null,
+  travel: 'choose',
+  storyChoice: 'choose',
+  scene: null,
 };
 
 export const randomSeed = () => Math.random().toString(36).slice(2, 8);
@@ -93,6 +103,9 @@ export function useGame() {
   const [recentLevelUps, setRecentLevelUps] = useState<LevelUp[]>([]);
   const [best, setBest] = useState<BestRun | null>(() => load(BEST_KEY, isBestRun));
   const [canContinue, setCanContinue] = useState(saved !== null);
+  const [savedStory, setSavedStory] = useState(() => load(STORY_KEY, savedRunValidator(baseCtx)));
+  /** A story run that just ended unlocked this story tier, if any. */
+  const [storyTierUnlocked, setStoryTierUnlocked] = useState<number | null>(null);
   const [profile, setProfile] = useState<Profile>(loadProfile);
   /** Achievements earned and not yet dismissed (toasts). */
   const [toasts, setToasts] = useState<AchievementDef[]>([]);
@@ -110,11 +123,12 @@ export function useGame() {
   const today = todayString();
   const daily = useMemo(() => dailyRun(today, META_CATALOG), [today]);
 
-  // Save after every change while a run is in its shop phase.
+  // Save after every change while a run is in its shop phase. A story keeps its own save, beside a normal run's.
   useEffect(() => {
-    if (screen === 'title' || screen === 'setup' || screen === 'collection' || screen === 'credits' || screen === 'guide') return;
-    if (run.phase === 'shop') save(RUN_KEY, { runId, run, stats } satisfies SavedRun);
-    else remove(RUN_KEY);
+    if (screen === 'title' || screen === 'setup' || screen === 'storySetup' || screen === 'collection' || screen === 'credits' || screen === 'guide') return;
+    const key = run.story ? STORY_KEY : RUN_KEY;
+    if (run.phase === 'shop') save(key, { runId, run, stats } satisfies SavedRun);
+    else remove(key);
   }, [screen, runId, run, stats]);
 
   const applyMeta = useCallback((update: MetaUpdate) => {
@@ -155,10 +169,56 @@ export function useGame() {
     setScreen('setup');
   }, []);
 
-  const continueRun = useCallback(() => {
-    setScreen('shop');
-    logPlay({ type: 'resume', run: runId, state: run });
-  }, [runId, run]);
+  /** Pick up the saved normal run (or, with `story`, the saved story) where it was left. */
+  const resume = useCallback(
+    (story: boolean) => {
+      const stored = story ? load(STORY_KEY, savedRunValidator(baseCtx)) : load(RUN_KEY, savedRunValidator(baseCtx));
+      const next = stored ? migrateSavedRun(stored) : null;
+      if (next) {
+        setRunId(next.runId);
+        setRun(next.run);
+        setStats(next.stats);
+        setLastFight(null);
+        setRecentLevelUps([]);
+        setRunEarned([]);
+        setTierUnlocked(null);
+        setStoryTierUnlocked(null);
+        setError(null);
+      }
+      setScreen('shop');
+      const current = next ?? { runId, run };
+      logPlay({ type: 'resume', run: current.runId, state: current.run });
+    },
+    [baseCtx, runId, run],
+  );
+  const continueRun = useCallback(() => resume(false), [resume]);
+  const continueStory = useCallback(() => resume(true), [resume]);
+
+  /** Start a story on one of its tiers (Milestone 14). */
+  const startStory = useCallback(
+    (storyId: string, tier: number) => {
+      const story = STORIES[storyId];
+      if (!story) return;
+      const max = storyMaxTier(profile, storyId, story.tiers.length);
+      // A story's own synergy (Strength of the Tribe) is always on in it: it's the story's point.
+      const setup = storySetup(storyId, Math.min(tier, max), unlocked, [...new Set([...unlocked.synergies, 'strength-of-the-tribe'])]);
+      const seed = randomSeed();
+      const id = newRunId();
+      setRunId(id);
+      setRun(createStoryRun(seed, baseCtx, setup));
+      setStats({});
+      setLastFight(null);
+      setRecentLevelUps([]);
+      setRunEarned([]);
+      setTierUnlocked(null);
+      setStoryTierUnlocked(null);
+      setError(null);
+      setSavedStory(null);
+      setScreen('shop');
+      logPlay({ type: 'start', run: id, seed, setup });
+    },
+    [baseCtx, profile, unlocked],
+  );
 
   const dispatch = useCallback(
     (action: ShopAction): boolean => {
@@ -189,14 +249,36 @@ export function useGame() {
     play('fight');
     logPlay({ type: 'fight', run: runId, round: run.round, winner: r.combat.winner });
     const { progression } = ctx.config;
-    const xp = { player: progression.xpPerWin, enemy: progression.xpPerLoss, draw: progression.xpPerDraw }[r.combat.winner];
-    const gained = levelUps(run.board, r.state.board, progression);
-    setLastFight({ round: run.round, combat: r.combat, board: run.board, enemy: r.enemyBuilds, income: r.income, xp, levelUps: gained });
+    const restarted = !!run.story && r.state.story!.restarts > run.story.restarts;
+    const xp = run.story
+      ? restarted
+        ? 0
+        : boardUnits(r.state.board).reduce((m, u) => Math.max(m, u.xp - (boardUnits(run.board).find((b) => b.uid === u.uid)?.xp ?? u.xp)), 0)
+      : { player: progression.xpPerWin, enemy: progression.xpPerLoss, draw: progression.xpPerDraw }[r.combat.winner];
+    const gained = restarted ? [] : levelUps(run.board, r.state.board, progression);
+    const story = run.story ? { gold: restarted ? 0 : r.state.gold - run.gold, restarted } : undefined;
+    setLastFight({ round: run.round, combat: r.combat, board: run.board, enemy: r.enemyBuilds, income: r.income, xp, levelUps: gained, ...(story ? { story } : {}) });
     setRecentLevelUps(gained);
     setStats((s) => addFightStats(s, run.board, r.combat));
     setRun(r.state);
     setError(null);
     setScreen('combat');
+
+    if (run.story) {
+      // Stories keep their own record (Milestone 14): only finishing one counts.
+      let meta: MetaUpdate = recordDiscovery(profile, r.state, META_CATALOG);
+      if (r.state.phase === 'complete') {
+        const tiers = STORIES[run.story.storyId]?.tiers.length ?? 0;
+        const before = storyMaxTier(meta.profile, run.story.storyId, tiers);
+        const end = recordStoryEnd(meta.profile, r.state, tiers, META_CATALOG);
+        const after = storyMaxTier(end.profile, run.story.storyId, tiers);
+        if (after > before) setStoryTierUnlocked(after);
+        meta = { profile: end.profile, earned: [...meta.earned, ...end.earned] };
+        setSavedStory(null);
+      }
+      applyMeta(meta);
+      return;
+    }
 
     let meta = recordFight(profile, { before: run, after: r.state, combat: r.combat }, baseCtx, META_CATALOG);
     if (r.state.phase !== 'shop') {
@@ -217,9 +299,10 @@ export function useGame() {
   const finishCombat = useCallback(() => setScreen(run.phase === 'shop' ? 'shop' : 'summary'), [run.phase]);
 
   const toTitle = useCallback(() => {
-    setCanContinue(run.phase === 'shop' && (run.history.length > 0 || boardUnits(run.board).length > 0));
+    if (run.story) setSavedStory(run.phase === 'shop' ? { runId, run, stats } : null);
+    else setCanContinue(run.phase === 'shop' && (run.history.length > 0 || boardUnits(run.board).length > 0));
     setScreen('title');
-  }, [run]);
+  }, [run, runId, stats]);
 
   const setUnlockAll = useCallback(
     (on: boolean) => {
@@ -267,6 +350,12 @@ export function useGame() {
     openCredits: () => setScreen('credits'),
     openGuide: () => setScreen('guide'),
     continueRun,
+    /** The saved story run, if any (Milestone 14). */
+    savedStory,
+    storyTierUnlocked,
+    continueStory,
+    startStory,
+    openStorySetup: () => setScreen('storySetup'),
     dispatch,
     fight,
     finishCombat,

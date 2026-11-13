@@ -8,6 +8,9 @@ import { ERROR_TEXT } from './errors.ts';
 import { Hud } from './Hud.tsx';
 import { Inspector } from './Inspector.tsx';
 import { ShopRow } from './Shop.tsx';
+import { StoryMap } from './StoryMap.tsx';
+import { StoryPrompt, StoryScene } from './StoryPanels.tsx';
+import { StoryBar } from './StoryBar.tsx';
 import { SynergyList } from './SynergyList.tsx';
 import { TipBanner } from './TipBanner.tsx';
 import type { Game } from './useGame.ts';
@@ -20,6 +23,8 @@ export function ShopScreen({ game }: { game: Game }) {
   const [selected, setSelected] = useState<SlotRef | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: 'select' });
   const [hint, setHint] = useState<string | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
+  const story = run.story;
 
   const party = useMemo(() => resolveBoard(run.board, ctx.content), [run.board, ctx]);
   const units = useMemo(() => boardUnits(run.board), [run.board]);
@@ -90,7 +95,10 @@ export function ShopScreen({ game }: { game: Game }) {
             onChoose={(option) => act({ type: 'choose', option })}
           />
         )}
-        <ShopRow run={run} ctx={ctx} onOfferClick={onOfferClick} onReroll={() => act({ type: 'reroll' })} onLock={(offer) => act({ type: 'lock', offer })} />
+        {story && <StoryPrompt run={run} ctx={ctx} onChoose={(option) => act({ type: 'storyChoice', option })} />}
+        {(!story || run.shop.some((o) => o !== null)) && (
+          <ShopRow run={run} ctx={ctx} onOfferClick={onOfferClick} onReroll={() => act({ type: 'reroll' })} onLock={(offer) => act({ type: 'lock', offer })} />
+        )}
         <div className="shop-main">
           <section className="party" aria-label="Your party">
             <div className="party-head">
@@ -105,9 +113,13 @@ export function ShopScreen({ game }: { game: Game }) {
               <p className={`message${!hint && !error && pointsHint ? ' info' : ''}`} role="status">
                 {message}
               </p>
-              <button type="button" className="fight" disabled={!!pending || units.length === 0} onClick={game.fight}>
-                ⚔️ Fight round {run.round}
-              </button>
+              {story ? (
+                <StoryBar run={run} pending={!!pending} onFight={game.fight} onMap={() => setMapOpen(true)} />
+              ) : (
+                <button type="button" className="fight" disabled={!!pending || units.length === 0} onClick={game.fight}>
+                  ⚔️ Fight round {run.round}
+                </button>
+              )}
             </div>
           </section>
           <aside className="side">
@@ -128,6 +140,7 @@ export function ShopScreen({ game }: { game: Game }) {
                   setMode({ kind: 'select' });
                 }}
                 onMoveUnit={() => setMode(mode.kind === 'moveUnit' ? { kind: 'select' } : { kind: 'moveUnit' })}
+                canSell={!selectedUnit.storyHero}
                 onSell={() => {
                   if (act({ type: 'sell', from: selected })) setSelected(null);
                   setMode({ kind: 'select' });
@@ -141,6 +154,20 @@ export function ShopScreen({ game }: { game: Game }) {
           </aside>
         </div>
       </div>
+      {story?.scene && run.phase === 'shop' && <StoryScene run={run} onDone={() => act({ type: 'scene' })} />}
+      {story && mapOpen && (
+        <StoryMap
+          run={run}
+          {...(story.toFight || (story.prompt && story.prompt.picked === undefined)
+            ? {}
+            : {
+                onTravel: (node: string) => {
+                  if (act({ type: 'travel', node })) setMapOpen(false);
+                },
+              })}
+          onClose={() => setMapOpen(false)}
+        />
+      )}
     </DragProvider>
   );
 }

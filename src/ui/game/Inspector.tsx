@@ -78,6 +78,7 @@ export function Inspector({
   onAllocate,
   onSetRules,
   onClose,
+  canSell = true,
 }: {
   unit: OwnedUnit;
   slot: SlotRef;
@@ -93,6 +94,8 @@ export function Inspector({
   onAllocate: (points: StatPoints) => void;
   onSetRules: (rules: Rule[] | null) => void;
   onClose: () => void;
+  /** Story heroes (Milestone 14) can't be sold. */
+  canSell?: boolean;
 }) {
   const { content, config } = ctx;
   const prog = config.progression;
@@ -180,9 +183,13 @@ export function Inspector({
         <button type="button" className={movingUnit ? 'active' : ''} onClick={onMoveUnit}>
           {movingUnit ? 'Cancel move' : 'Move'}
         </button>
-        <button type="button" className="danger" onClick={onSell}>
-          Sell (+{config.sellRefund + unit.items.length * prog.itemSellRefund}g)
-        </button>
+        {canSell ? (
+          <button type="button" className="danger" onClick={onSell}>
+            Sell (+{config.sellRefund + unit.items.length * prog.itemSellRefund}g)
+          </button>
+        ) : (
+          <span className="muted small">Story hero: stays with the party.</span>
+        )}
       </div>
     </section>
   );

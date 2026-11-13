@@ -23,6 +23,10 @@ export interface ActiveStatus {
   turns?: number;
   /** DoT damage per stack, resolved from the applier. */
   dotPerStack: number;
+  /** Healing over time per stack, fixed when applied (Milestone 14). Optional for statuses built elsewhere. */
+  hotPerStack?: number;
+  /** Thorns damage per stack, fixed when applied (Milestone 14). */
+  thornsPerStack?: number;
   /** Stat changes currently applied by this status (so they undo exactly). */
   applied: Partial<Record<BuffableStat, number>>;
   /** The applier's action that put it on (ActionTally key): credited for its damage. */

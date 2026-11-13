@@ -25,11 +25,16 @@ const ICON_SOURCES: Record<string, string> = {
   adventurer: 'delapouite/backpack',
   mercenary: 'lorc/crossed-axes',
   shaman: 'lorc/totem-mask',
+  sylvan: 'lorc/sprout',
   // Unique bosses.
   'chain-warden': 'lorc/manacles',
   'pale-choir': 'lorc/ghost',
   bonesaw: 'lorc/battered-axe',
   'ashen-wyrm': 'lorc/dragon-head',
+  // Story bosses (Milestone 14).
+  'raider-chief': 'delapouite/barbarian',
+  'hollow-stag': 'caro-asercion/deer-head',
+  'hollow-king': 'lorc/crowned-skull',
   // Summons.
   treant: 'cathelineau/tree-face',
   imp: 'lorc/imp',
@@ -63,6 +68,7 @@ const AUTHORS: Record<string, string> = {
   skoll: 'Skoll',
   sbed: 'Sbed',
   cathelineau: 'Cathelineau',
+  'caro-asercion': 'Caro Asercion',
 };
 
 const RAW = 'https://raw.githubusercontent.com/game-icons/icons/master';

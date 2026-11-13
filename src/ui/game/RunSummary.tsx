@@ -1,3 +1,4 @@
+import { STORIES } from '../../data/stories/index.ts';
 import { boardUnits, effectiveClassId } from '../../engine/run/index.ts';
 import { classStyle } from './classStyle.ts';
 import { rewardText } from './CollectionScreen.tsx';
@@ -9,8 +10,9 @@ import type { Game } from './useGame.ts';
 const RESULT_ICON = { player: '✅', enemy: '❌', draw: '➖' } as const;
 
 export function RunSummary({ game }: { game: Game }) {
-  const { run, stats, ctx, best, runEarned, tierUnlocked } = game;
+  const { run, stats, ctx, best, runEarned, tierUnlocked, storyTierUnlocked } = game;
   const complete = run.phase === 'complete';
+  const story = run.story ? STORIES[run.story.storyId] : undefined;
   const units = Object.entries(stats)
     .map(([uid, s]) => ({ uid: Number(uid), ...s }))
     .sort((a, b) => b.dealt + b.healed - (a.dealt + a.healed));
@@ -18,19 +20,27 @@ export function RunSummary({ game }: { game: Game }) {
   const finalParty = boardUnits(run.board);
   return (
     <div className="screen summary-screen">
-      <h1 className={complete ? 'win' : 'loss'}>{complete ? '🏆 Run complete!' : 'Run over'}</h1>
+      <h1 className={complete ? 'win' : 'loss'}>{story ? `🏆 ${story.name}: complete!` : complete ? '🏆 Run complete!' : 'Run over'}</h1>
+      {story && <p className="story-text">{story.missions[story.missions.length - 1]?.outro}</p>}
       <p className="summary-line">
-        {run.wins} wins · {run.losses} losses{run.draws ? ` · ${run.draws} draws` : ''} · {run.history.length} rounds
-        {complete && ` · ${run.lives} lives left`}
+        {run.wins} wins · {run.losses} losses{run.draws ? ` · ${run.draws} draws` : ''} · {run.history.length} {story ? 'fights' : 'rounds'}
+        {complete && !story && ` · ${run.lives} lives left`}
+        {story && ` · ${run.story!.restarts} mission restart${run.story!.restarts === 1 ? '' : 's'}`}
       </p>
+      {story && run.setup.tier > 0 && <p className="muted">Story tier {run.setup.tier}</p>}
+      {story && storyTierUnlocked !== null && (
+        <p className="unlock-note">
+          🔓 Story tier {storyTierUnlocked} unlocked: {story.tiers.find((t) => t.tier === storyTierUnlocked)?.description}
+        </p>
+      )}
       {run.setup.daily && <p className="muted">Daily run · {run.setup.daily}</p>}
-      {run.setup.tier > 0 && <p className="muted">Ladder tier {run.setup.tier}</p>}
+      {!story && run.setup.tier > 0 && <p className="muted">Ladder tier {run.setup.tier}</p>}
       {tierUnlocked !== null && (
         <p className="unlock-note">
           🔓 Ladder tier {tierUnlocked} unlocked: {ctx.content.ladder.find((l) => l.tier === tierUnlocked)?.description}
         </p>
       )}
-      {best && <p className="muted">Best run: {best.completed ? 'completed' : `${best.wins} wins`} in {best.rounds} rounds</p>}
+      {best && !story && <p className="muted">Best run: {best.completed ? 'completed' : `${best.wins} wins`} in {best.rounds} rounds</p>}
 
       {runEarned.length > 0 && (
         <section>
@@ -47,7 +57,7 @@ export function RunSummary({ game }: { game: Game }) {
       )}
 
       <section>
-        <h2>Rounds</h2>
+        <h2>{story ? 'Fights' : 'Rounds'}</h2>
         <ol className="history">
           {run.history.map((h) => (
             <li key={h.round} className={h.result} title={`Round ${h.round}: ${h.enemy.map((id) => className(ctx.content, id)).join(', ')}`}>

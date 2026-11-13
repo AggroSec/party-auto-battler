@@ -29,7 +29,7 @@ const STARTER_ITEMS = [
 ];
 
 /** Synergies locked behind achievements; every other synergy is available from the start. */
-const LOCKED_SYNERGIES = ['light', 'dark', 'twilight', 'rivals', 'sacred-and-profane'];
+const LOCKED_SYNERGIES = ['light', 'dark', 'twilight', 'rivals', 'sacred-and-profane', 'strength-of-the-tribe'];
 
 /**
  * Brandon (M7): new players start with the original five classes and a

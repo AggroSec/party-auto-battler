@@ -1,5 +1,6 @@
 // Meta progression (M7): achievements, unlocks and the player's profile.
 import type { UnitFilter } from '../run/content-types.ts';
+import type { RunMode } from '../run/types.ts';
 
 /** Content an achievement unlocks (or the starting set). */
 export interface Unlocks {
@@ -19,6 +20,8 @@ export type AchievementCondition =
   /** …and, with `favoredLevel`, with a unit of one of the run's favored classes at that level or higher. */
   | { kind: 'completeRun'; minTier?: number; maxLives?: number; flawless?: boolean; favoredLevel?: number; distinctClasses?: number }
   | { kind: 'loseRun' }
+  /** Finish a story (story mode, Milestone 14), optionally on at least `minTier` of its own ladder. */
+  | { kind: 'completeStory'; story: string; minTier?: number }
   | { kind: 'winStreak'; count: number }
   | { kind: 'reachRound'; round: number }
   | { kind: 'reachLevel'; level: number }
@@ -63,7 +66,7 @@ export interface AchievementDef {
   description: string;
   condition: AchievementCondition;
   /** Only counts in runs of this mode. */
-  mode?: 'rules';
+  mode?: RunMode;
   reward: Unlocks;
 }
 
@@ -104,6 +107,14 @@ export interface Profile {
   daily: DailyRecord | null;
   /** Testing toggle: everything unlocked. Progress still tracks. Only offered in dev builds since 1.0. */
   unlockAll: boolean;
+  /** Story mode (Milestone 14), by story id: the highest story tier unlocked and how often it was finished. Optional so older profiles load. */
+  stories?: Record<string, StoryRecord>;
+}
+
+export interface StoryRecord {
+  /** Highest tier of the story's own ladder the player may start (0 until it's finished once). */
+  maxTier: number;
+  completions: number;
 }
 
 /** What the player can use right now. */

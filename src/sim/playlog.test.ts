@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { buildRunContext } from '../data/content.ts';
 import { applyShopAction, createRun, fight, type PlayLogEntry } from '../engine/run/index.ts';
+import { storySetup } from '../data/stories/index.ts';
+import { reachable } from '../engine/story/map.ts';
 import { formatReplay, replayLog } from './playlog.ts';
 
 const ctx = buildRunContext();
@@ -30,6 +32,35 @@ describe('play log replay', () => {
     expect(round.rerolls).toBe(1);
     expect(round.actions[0]).toMatch(/^recruited /);
     expect(formatReplay([run!], ctx)).toContain('### Round 1:');
+  });
+
+  it('replays a story run: its travel, events and fights (Milestone 14)', () => {
+    const setup = storySetup('hollowing', 0, { items: [...ctx.content.itemPool] }, ctx.content.synergies.map((s) => s.id));
+    let s = createRun('story-log', ctx, setup);
+    const log: PlayLogEntry[] = [{ type: 'start', run: 's1', at, seed: 'story-log', setup }];
+    for (const action of [{ type: 'scene' }, { type: 'travel', node: reachable(s.story!.map, null)[0]!.id }] as const) {
+      const r = applyShopAction(s, action, ctx);
+      if (!r.ok) throw new Error(r.error);
+      s = r.state;
+      log.push({ type: 'action', run: 's1', at, action });
+    }
+    // The heroes start at level 2: their talent picks come first.
+    while (s.pending.length > 0) {
+      const action = { type: 'choose', option: 0 } as const;
+      const r = applyShopAction(s, action, ctx);
+      if (!r.ok) throw new Error(r.error);
+      s = r.state;
+      log.push({ type: 'action', run: 's1', at, action });
+    }
+    const f = fight(s, ctx);
+    if (!f.ok) throw new Error(f.error);
+    log.push({ type: 'fight', run: 's1', at, round: 1, winner: f.combat.winner });
+    const [run] = replayLog(log, ctx);
+    expect(run?.rounds[0]?.mismatch).toBeUndefined();
+    const text = formatReplay([run!], ctx);
+    expect(text).toContain('story The Hollowing');
+    expect(text).toContain('### Round 1 (mission 1, fight)');
+    expect(text).toContain('travelled to fight');
   });
 
   it('flags a logged result that the replay does not reproduce', () => {

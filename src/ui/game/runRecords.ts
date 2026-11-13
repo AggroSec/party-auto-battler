@@ -32,6 +32,8 @@ export interface SavedRun {
 
 export const RUN_KEY = 'run';
 export const BEST_KEY = 'best';
+/** A story run's save (Milestone 14), kept beside a normal run's. */
+export const STORY_KEY = 'story';
 
 /**
  * Rules-mode tertiary classes renamed in Milestone 13: they had shared an id

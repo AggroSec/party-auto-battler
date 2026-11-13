@@ -21,6 +21,9 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
   { id: 'plague-cultist', name: 'Plague Cultist', classId: 'cultist', minRound: 3, statMultiplier: { hp: 0.95 } },
   { id: 'bounty-hunter', name: 'Bounty Hunter', classId: 'mercenary', minRound: 3 },
   { id: 'fallen-knight', name: 'Fallen Knight', classId: 'dark-knight', minRound: 2, statMultiplier: { hp: 1.05, atk: 0.9 } },
+  // Milestone 14: the Tribe's classes, once finishing The Hollowing unlocks them.
+  { id: 'hill-shaman', name: 'Hill Shaman', classId: 'c-shaman', minRound: 3 },
+  { id: 'forest-sylvan', name: 'Forest Sylvan', classId: 'sylvan', minRound: 3 },
 ];
 
 /** Tuned with `npm run sim`; see docs/BALANCE.md. */

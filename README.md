@@ -14,6 +14,7 @@ A browser-playable party auto-battler with RPG classes and builds. You draft a p
 - **Synergies and items.** Class tags and specific pairs unlock party synergies; every tertiary class has a signature item worth chasing.
 - **Meta progression.** Achievements unlock classes, items, synergies and starting perks. Winning a run opens the next of 15 ladder tiers, with Elites, bosses and unique bosses higher up. There's also a daily run with the same seed for everyone.
 - **Rules mode.** An optional run type where every class has a kit of skills and you write each unit's priority list: "if the target has 3+ afflictions, Spirit Lash; if it lacks Frostbite, Frost Hex…". Build a standard party, a nuke team or an affliction lock with the Shaman. After each fight, tap a unit to see which rules fired, what they did and why the others didn't.
+- **Story mode.** Lead a story's war band instead of drafting one. In *The Hollowing*, heroes join mission by mission; each mission is a map of fights, elites, shops, events and camps up to a boss. Finishing it unlocks the Sylvan (a healer over time), the Shaman and the Strength of the Tribe synergy for normal runs, and the story's own harder tiers.
 - **Consumables.** One slot per unit for a potion, bomb or tonic that fires once when its trigger comes up.
 - **New to the genre?** The in-game guide walks through a first run, and one-time tips explain things as they happen.
 

@@ -21,10 +21,14 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `adventurer`: "Backpack" by Delapouite, https://game-icons.net/1x1/delapouite/backpack.html, CC BY 3.0
 - `mercenary`: "Crossed Axes" by Lorc, https://game-icons.net/1x1/lorc/crossed-axes.html, CC BY 3.0
 - `shaman`: "Totem Mask" by Lorc, https://game-icons.net/1x1/lorc/totem-mask.html, CC BY 3.0
+- `sylvan`: "Sprout" by Lorc, https://game-icons.net/1x1/lorc/sprout.html, CC BY 3.0
 - `chain-warden`: "Manacles" by Lorc, https://game-icons.net/1x1/lorc/manacles.html, CC BY 3.0
 - `pale-choir`: "Ghost" by Lorc, https://game-icons.net/1x1/lorc/ghost.html, CC BY 3.0
 - `bonesaw`: "Battered Axe" by Lorc, https://game-icons.net/1x1/lorc/battered-axe.html, CC BY 3.0
 - `ashen-wyrm`: "Dragon Head" by Lorc, https://game-icons.net/1x1/lorc/dragon-head.html, CC BY 3.0
+- `raider-chief`: "Barbarian" by Delapouite, https://game-icons.net/1x1/delapouite/barbarian.html, CC BY 3.0
+- `hollow-stag`: "Deer Head" by Caro Asercion, https://game-icons.net/1x1/caro-asercion/deer-head.html, CC BY 3.0
+- `hollow-king`: "Crowned Skull" by Lorc, https://game-icons.net/1x1/lorc/crowned-skull.html, CC BY 3.0
 - `treant`: "Tree Face" by Cathelineau, https://game-icons.net/1x1/cathelineau/tree-face.html, CC BY 3.0
 - `imp`: "Imp" by Lorc, https://game-icons.net/1x1/lorc/imp.html, CC BY 3.0
 - `turret`: "Turret" by Sbed, https://game-icons.net/1x1/sbed/turret.html, CC BY 3.0

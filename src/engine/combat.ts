@@ -51,11 +51,13 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
 
   emit(state, { tick: 0, type: 'combatStart', units: state.units.map(snapshot) });
 
+  for (const unit of state.units) speedBurst(state, unit, 1);
   for (const unit of state.units) fireTriggers(state, unit, 'startOfCombat', {}, 0);
 
   let winner = checkWinner(state);
   while (winner === null && state.tick < tickCap) {
     state.tick += 1;
+    for (const unit of state.units) if (unit.setup.speedBurst?.untilTick === state.tick - 1) speedBurst(state, unit, -1);
     overtimePulse(state);
     winner = checkWinner(state);
     if (winner !== null) break;
@@ -88,6 +90,15 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
       ...(u.summonedBy ? { summonedBy: u.summonedBy } : {}),
     })),
   };
+}
+
+/** Strength of the Tribe: the start-of-combat speed burst (`sign` 1), and wearing off (`sign` -1). */
+function speedBurst(state: CombatState, unit: CombatUnit, sign: 1 | -1): void {
+  const burst = unit.setup.speedBurst;
+  if (!burst || burst.spd <= 0 || !unit.alive) return;
+  const before = unit.spd;
+  unit.spd = Math.max(0, before + sign * burst.spd);
+  emit(state, { tick: state.tick, type: 'buff', source: unit.id, target: unit.id, stat: 'spd', value: unit.spd - before, statAfter: unit.spd });
 }
 
 /** The unit's breakdown, with each rule's "a rule above it fired first" count filled in. */

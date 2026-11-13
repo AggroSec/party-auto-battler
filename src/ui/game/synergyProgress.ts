@@ -19,7 +19,7 @@ function count(req: SynergyRequirement, units: OwnedUnit[], content: RunContent)
     case 'units':
       return { have: units.filter((u) => matchesFilter(u, req.filter, content)).length, need: req.count, label: req.label };
     case 'party':
-      return { have: filledSlots(units, req.slots, content), need: req.slots.length, label: req.label };
+      return { have: filledSlots(units, req.slots, content), need: req.count ?? req.slots.length, label: req.label };
   }
 }
 

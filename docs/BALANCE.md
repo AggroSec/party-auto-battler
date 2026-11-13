@@ -2,6 +2,17 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-13 — Milestone 14: story mode, Sylvan, classic Shaman
+
+Commands: `npm run sim -- --only runs --runs 1000` (classic, all content, tier 0), `npm run sim -- --only story --runs 100 --tier 0` and `--tier 3` (new: whole stories per bot), plus a paired test for Strength of the Tribe.
+
+- **Classic bots** (completion, avg wins): random 1.4% / 2.65, sensible 12.7% / 7.76, greedy 25.1% / 9.65, synergy 9.0% / 6.32 (Milestone 11 at 2,000 runs: 1.2 / 15.8 / 24.4 / 7.5%). Two more classes and two more enemy archetypes in the pool; no stuck runs or tick-cap fights.
+- **New classes (lift vs round average):** Shaman +5.6 (first pass +6.2, flagged at 66.4%; Frost Hex, Soul Rend and Ancestral Hide trimmed), Sylvan +4.5. For comparison: Bard +5.5, Warrior +4.8, Engineer −8.3. Advanced: Verdant Keeper +11.3, Hexcaller +10.3, Thornweaver −0.2, Spiritbinder −0.3. Lifebinder and Bloomcaller sit just over the 65% outlier line with small samples, like most late tertiary classes.
+- **Strength of the Tribe, paired:** the same Tribe parties (generated at rounds 6–14) against the same enemies, with and without the burst. The draft (+6/+10/+15 SPD until tick 30/40/50) added +27, +23 and +25 points. Final (+3/+5/+8 until tick 20/30/40): **3 classes +10.7, 4 classes +18.9, 5 classes wins every sampled fight** (82.6% without). The raw lift in the run report (+20.9 for 3 classes) overstates it: only parties with leveled Berserkers and Beastmasters qualify.
+- **Story, tier 0** (completion, restarts per run; M1/M2/M3 boss win rate): random 100%, 0.22 (64/89/93%); sensible 100%, 1.86 (24/53/45%); greedy 97%, 1.44 (67/57/23%). The sensible bot buys no gear until it has 3 units, so mission 1 is its hardest.
+- **Story, tier 3:** random 74%, 17.6 restarts; sensible 24%, 36.5; greedy 25%, 34.6. Bosses win 85–99% against bots. This is the hardest story tier; the bots play far worse than a person.
+- **How the story got here:** the first draft (heroes from level 1, story enemies at full strength, an Elite beside each boss) won 7% of mission 1 fights. Changes: heroes join at level 2 or more, story enemies −25% HP and ATK, the boss's guard is a regular enemy, and boss multipliers HP/ATK Gorrask 2.2/1.5 → 1.3/1.1, Hollow Stag 2.4/1.6 → 1.7/1.3, Hollow King 2.8/1.8 → 2.1/1.5. Halving the Tribe burst made the story harder again, so the last softening came after it.
+
 ## 2026-11-11 — Milestone 13: rules-mode clean-up
 
 Commands: `npm run sim -- --only ladder --runs 300 --mode rules` and `--only ladder --runs 300` (classic), before and after; plus a paired signature-item test (below).

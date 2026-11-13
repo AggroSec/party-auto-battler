@@ -39,6 +39,7 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
     if (m.secondWind) out.secondWind = true;
     if (m.freeItem) out.freeItem = true;
     if (m.empoweredBosses) out.empoweredBosses = true;
+    if (m.noRecruits) out.noRecruits = true;
     if (m.uniqueBosses) out.uniqueBosses = true;
     if (m.bossLossLives !== undefined) out.bossLossLives = Math.max(out.bossLossLives ?? 1, m.bossLossLives);
     if (m.bossLossFrom !== undefined) out.bossLossFrom = Math.min(out.bossLossFrom ?? Infinity, m.bossLossFrom);
@@ -60,7 +61,9 @@ export function mergeRunModifiers(mods: readonly RunModifier[]): RunModifier {
 /** The modifiers a setup applies: ladder tiers 1..tier, then the chosen perks. */
 export function setupModifiers(setup: RunSetup, content: RunContent): RunModifier[] {
   const mode = setup.mode ? content.modes?.[setup.mode] : undefined;
-  const tiers = content.ladder.filter((t) => t.tier <= setup.tier).map((t) => t.modifier);
+  // A story has its own small ladder (Milestone 14).
+  const ladder = setup.mode === 'story' && setup.story ? (content.stories?.[setup.story]?.tiers ?? []) : content.ladder;
+  const tiers = ladder.filter((t) => t.tier <= setup.tier).map((t) => t.modifier);
   const perks = setup.perks.flatMap((id) => (content.perks[id] ? [content.perks[id].modifier] : []));
   return [...(mode ? [mode] : []), ...tiers, ...perks];
 }
@@ -76,7 +79,11 @@ function applyToConfig(config: RunConfig, m: RunModifier): RunConfig {
     lockCost: Math.max(0, config.lockCost + (m.lockCost ?? 0)),
     maxLocks: Math.max(0, config.maxLocks + (m.lockSlots ?? 0)),
     maxInterest: Math.max(0, config.maxInterest + (m.maxInterest ?? 0)),
-    shop: { ...config.shop, extraSlots: config.shop.extraSlots + (m.shopSlots ?? 0) },
+    shop: {
+      ...config.shop,
+      extraSlots: config.shop.extraSlots + (m.shopSlots ?? 0),
+      ...(m.noRecruits ? { unitSlots: 0, fullPartyUnitSlots: 0 } : {}),
+    },
     progression: {
       ...p,
       trainingCost: Math.max(0, p.trainingCost + (m.trainingCost ?? 0)),

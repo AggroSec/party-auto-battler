@@ -206,14 +206,50 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'affliction',
     term: 'Affliction',
-    text: 'Rules mode: a harmful status such as Frostbite, Weakness, Brittle, Hush, Rot, Fever, Bind, Bleed, Poison, Burn, Marked, Slowed or Runes. Most last a few turns and are refreshed by reapplying. Each counts once toward "per affliction" damage, whoever applied it, so an affliction team stacks them for its finishers. Cures remove them one at a time.',
+    text: 'Rules mode and the Shaman: a harmful status such as Frostbite, Weakness, Brittle, Hush, Rot, Fever, Bind, Bleed, Poison, Burn, Marked, Slowed, Rooted or Runes. Most last a few turns and are refreshed by reapplying. Each counts once toward "per affliction" damage, whoever applied it, so an affliction team stacks them for its finishers. Cures remove them one at a time.',
     pattern: /\bafflictions?\b/i,
   },
   {
     id: 'hush-bind',
     term: 'Hush and Bind',
-    text: 'Rules mode: Hush stops skills and abilities (only basic attacks), Bind costs the target its next turn. The Spiritbinder kills outright once its victim has Frostbite, Weakness and Hush at once (a boss loses 25% of its max HP instead). With the Soulreaver’s Soulshackle Totem, Bind alone is enough.',
+    text: 'Hush stops skills and abilities (only basic attacks), Bind costs the target its next turn. The Spiritbinder kills outright once its victim has Frostbite, Weakness and Hush at once (a boss loses 25% of its max HP instead). With the Soulreaver’s Soulshackle Totem (rules mode) or Chain of Souls (classic), Bind alone is enough.',
     pattern: /\bHush\b|\bBind\b/,
+  },
+  {
+    id: 'hexes',
+    term: 'Frostbite, Weakness, Brittle and other hexes',
+    text: 'Shaman afflictions, each lasting a few of the victim’s turns: Frostbite −3 SPD, Weakness −3 ATK, Brittle −3 DEF, Rot damage each turn (up to 3 stacks), Fever halves heals on it, Marked takes +25% damage. Reapplying refreshes them.',
+    pattern: /\b(?:frostbite|weakness|weakened|brittle|rot|fever|marked)\b/i,
+  },
+  {
+    id: 'renewal',
+    term: 'Renewal',
+    text: 'The Sylvan’s healing over time: at the start of each of its turns the unit heals (70% of the Sylvan’s ATK; Greater Renewal 110%), for 3 turns. Reapplying refreshes it; it doesn’t stack.',
+    pattern: /\b(?:greater )?renewal\b/i,
+  },
+  {
+    id: 'thorns',
+    term: 'Thorns',
+    text: 'For 3 turns, a melee enemy that hits the unit takes damage back (40% of the Thornweaver’s ATK), ignoring DEF.',
+    pattern: /\bthorns\b/i,
+  },
+  {
+    id: 'rooted',
+    term: 'Rooted',
+    text: 'An affliction from the Sylvan: −3 SPD for 2 of the victim’s turns.',
+    pattern: /\broot(?:ed|s)?\b/i,
+  },
+  {
+    id: 'tribe',
+    term: 'Strength of the Tribe',
+    text: 'A synergy for different Tribe classes (the Berserker line, the Beastmaster line, Druid, Shaman and Sylvan; doubles don’t count): every ally starts the fight with a burst of SPD that wears off. 3 classes: +3 SPD until tick 20; 4: +5 until tick 30; 5: +8 until tick 40.',
+    pattern: /\bstrength of the tribe\b/i,
+  },
+  {
+    id: 'story',
+    term: 'Story mode',
+    text: 'A fixed war band built up over a story’s missions. Each mission is a map: pick your path through fights, elites, shops, events and camps to the boss. The story gives your heroes (no recruits), and running out of lives restarts the mission. Finishing a story unlocks its classes for normal runs and the story’s next tier.',
+    pattern: /\bstory mode\b/i,
   },
   {
     id: 'ladder',
