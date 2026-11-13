@@ -156,7 +156,7 @@ function meets(tier: SynergyTier, units: OwnedUnit[], content: RunContent): bool
       case 'units':
         return units.filter((u) => matchesFilter(u, req.filter, content)).length >= req.count;
       case 'party':
-        return filledSlots(units, req.slots, content) === req.slots.length;
+        return filledSlots(units, req.slots, content) >= (req.count ?? req.slots.length);
     }
   });
 }
@@ -243,6 +243,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   const revives = mods.flatMap((m) => (m.revive ? [m.revive] : []));
   const critChance = mods.reduce((s, m) => s + (m.critChance ?? 0), 0);
   const weapons = unit.items.filter((id) => content.items[id]?.weapon).length;
+  const bursts = mods.flatMap((m) => (m.speedBurst ? [m.speedBurst] : []));
+  const overhealShield = mods.reduce((s, m) => s + (m.overhealShield ?? 0), 0);
 
   const setup: UnitSetup = {
     name: unit.name,
@@ -263,6 +265,8 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   if (critChance > 0) setup.critChance = Math.min(1, critChance);
   if (weapons > 0) setup.weapons = weapons;
   if (unit.bossId) setup.boss = true;
+  if (bursts.length > 0) setup.speedBurst = bursts.reduce((a, b) => (b.spd > a.spd ? b : a));
+  if (overhealShield > 0) setup.overhealShield = overhealShield;
   if (base.skills) Object.assign(setup, rulesSetup(unit, content, mods, granted, cdDelta));
   return setup;
 }

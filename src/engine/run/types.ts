@@ -18,6 +18,8 @@ import type {
 } from './content-types.ts';
 
 export type * from './content-types.ts';
+import type { StoryDef, StoryProgress } from '../story/types.ts';
+export type * from '../story/types.ts';
 
 /** Economy and run-structure numbers. Lives in data so the simulator can tune it. */
 export interface RunConfig {
@@ -89,7 +91,9 @@ export interface RunContent {
   enemyProgression: EnemyProgression;
   unitNames: readonly string[];
   /** Extra rules per run mode, applied before the ladder (rules mode's own tuning). */
-  modes?: Readonly<Partial<Record<'rules', RunModifier>>>;
+  modes?: Readonly<Partial<Record<RunMode, RunModifier>>>;
+  /** Story mode (Milestone 14): the stories, by id. */
+  stories?: Readonly<Record<string, StoryDef>>;
   /** Difficulty ladder: index 0 = tier 1 (M7). */
   ladder: readonly LadderTier[];
   perks: Readonly<Record<string, PerkDef>>;
@@ -131,6 +135,10 @@ export interface OwnedUnit {
   elite?: boolean;
   bossId?: string;
   empowered?: boolean;
+  /** Story mode (Milestone 14): a named hero the story gave you. Can't be sold. */
+  storyHero?: string;
+  /** Story mode: the only advanced class this unit may take at level 3. */
+  lockedAdvanced?: string;
 }
 
 export interface Board {
@@ -178,6 +186,9 @@ export interface RoundRecord {
 
 export type RunPhase = 'shop' | 'complete' | 'defeated';
 
+/** A run's mode; classic runs have none. */
+export type RunMode = 'rules' | 'story';
+
 /**
  * Fixed when a run starts (M7): its ladder tier, perks, and the content it
  * may draw from (what the player had unlocked then). Stored in the run so a
@@ -195,14 +206,20 @@ export interface RunSetup {
   synergies: string[];
   /** Set on a daily run: the date it belongs to (YYYY-MM-DD). */
   daily?: string;
-  /** Rules mode (post-1.0): units act by priority lists the player writes. Unset = classic. */
-  mode?: 'rules';
+  /**
+   * Rules mode (post-1.0): units act by priority lists the player writes.
+   * Story mode (Milestone 14): a story's missions with its heroes (see RunState.story).
+   * Unset = classic.
+   */
+  mode?: RunMode;
   /**
    * Favored classes (post-M7): each is guaranteed a recruit offer in every
    * shop of the first rounds. A single string is a save from before a second
    * favored class existed; read it with favoredClasses().
    */
   favored?: string | string[];
+  /** Story mode: which story (its id in RunContent.stories). */
+  story?: string;
 }
 
 /**
@@ -238,6 +255,8 @@ export interface RunState {
   locked?: number[];
   /** Locked offers bought this run (for the Window Shopper achievement). */
   lockedBought?: number;
+  /** Story mode (Milestone 14): where the party is in its story. */
+  story?: StoryProgress;
 }
 
 export type ShopAction =
@@ -256,7 +275,13 @@ export type ShopAction =
   /** Spend stat points on the unit at `at` (points per stat, not stat units). */
   | { type: 'allocate'; at: SlotRef; points: Partial<Record<StatKey, number>> }
   /** Rules mode: replace the unit's priority list (null = back to its class defaults). */
-  | { type: 'setRules'; at: SlotRef; rules: Rule[] | null };
+  | { type: 'setRules'; at: SlotRef; rules: Rule[] | null }
+  /** Story mode: move to a stop on the map. */
+  | { type: 'travel'; node: string }
+  /** Story mode: pick an option at an event or camp. */
+  | { type: 'storyChoice'; option: number }
+  /** Story mode: done reading the mission's story text. */
+  | { type: 'scene' };
 
 export type RunError =
   | 'notShopPhase'
@@ -281,7 +306,15 @@ export type RunError =
   | 'notEnoughPoints'
   | 'alreadyEquipped'
   | 'weaponsOnly'
-  | 'invalidRules';
+  | 'invalidRules'
+  /** Story mode: story heroes can't be sold. */
+  | 'storyHero'
+  /** Story mode: not available here (no shop at this stop, no locks). */
+  | 'notHere'
+  /** Story mode: that stop isn't reachable from here. */
+  | 'unreachable'
+  /** Story mode: deal with the current stop first (its fight, event or story text). */
+  | 'busy';
 
 export type ActionResult = { ok: true; state: RunState } | { ok: false; error: RunError };
 

@@ -1,5 +1,5 @@
 // Headless balance simulator.
-// Usage: npm run sim -- [--runs 2000] [--fights 2000] [--duels 200] [--seed m2] [--only runs|combat|ladder] [--tier 0] [--mode rules] [--out file.md]
+// Usage: npm run sim -- [--runs 2000] [--fights 2000] [--duels 200] [--seed m2] [--only runs|combat|ladder] [--tier 0] [--mode rules] [--only story --story hollowing --tier all] [--out file.md]
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { buildRunContext } from '../data/content.ts';
@@ -9,6 +9,8 @@ import { BOTS } from './bots.ts';
 import { formatReport, runDuels, runTeamFights } from './combat-report.ts';
 import { formatRunReports } from './run-format.ts';
 import { runBot } from './run-report.ts';
+import { formatStoryReports, runStoryBot } from './story-report.ts';
+import { storySetup } from '../data/stories/index.ts';
 
 const { values } = parseArgs({
   options: {
@@ -20,6 +22,7 @@ const { values } = parseArgs({
     tier: { type: 'string', default: '0' },
     out: { type: 'string' },
     mode: { type: 'string' },
+    story: { type: 'string' },
   },
 });
 
@@ -50,6 +53,21 @@ if (values.only === 'ladder') {
     console.error(`tier ${tier} done`);
   }
   sections.push(`### Ladder (${runs} runs per bot per tier)`, rows.join('\n'));
+}
+
+if (values.only === 'story') {
+  // Story mode (Milestone 14): whole stories per story tier.
+  const runs = Number(values.runs);
+  const ctx = buildRunContext();
+  const story = values.story ?? 'hollowing';
+  const tiers = values.tier === 'all' ? [0, 1, 2, 3] : [Number(values.tier)];
+  for (const tier of tiers) {
+    const setup = storySetup(story, tier, { items: [...ctx.content.itemPool] }, ctx.content.synergies.map((s) => s.id));
+    const bots = BOTS.filter((b) => b.name !== 'synergy');
+    const reports = bots.map((bot) => runStoryBot(bot, ctx, runs, `${seed}:story${tier}`, setup, bot.name !== 'random'));
+    sections.push(formatStoryReports(reports, tier));
+    console.error(`story tier ${tier} done`);
+  }
 }
 
 if (values.only === undefined || values.only === 'combat') {

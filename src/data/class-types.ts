@@ -16,7 +16,9 @@ export type ClassId =
   | 'dark-knight'
   | 'cultist'
   | 'adventurer'
-  | 'mercenary';
+  | 'mercenary'
+  | 'c-shaman'
+  | 'sylvan';
 
 export type ClassRole = 'frontline' | 'striker' | 'caster' | 'support';
 

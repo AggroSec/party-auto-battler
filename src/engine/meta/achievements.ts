@@ -5,7 +5,7 @@ import { activeSynergies, boardUnits, matchesFilter } from '../run/build.ts';
 import { weaponCount } from '../run/items.ts';
 import { runContext } from '../run/setup.ts';
 import { favoredClasses } from '../run/shop.ts';
-import type { RunContext, RunState } from '../run/types.ts';
+import type { RunContext, RunMode, RunState } from '../run/types.ts';
 import type { AchievementCondition, AchievementDef, MetaCatalog, Profile } from './types.ts';
 
 /** A finished fight: the shop state that fought, the state after, and the combat. */
@@ -122,7 +122,7 @@ function runEndMet(cond: AchievementCondition, state: RunState): boolean {
   }
 }
 
-function award(profile: Profile, catalog: MetaCatalog, met: (a: AchievementDef) => boolean, mode?: 'rules'): AchievementDef[] {
+function award(profile: Profile, catalog: MetaCatalog, met: (a: AchievementDef) => boolean, mode?: RunMode): AchievementDef[] {
   // A mode's achievements count only in runs of that mode.
   const earned = catalog.achievements.filter((a) => !profile.achievements.includes(a.id) && (a.mode === undefined || a.mode === mode) && met(a));
   profile.achievements.push(...earned.map((a) => a.id));
@@ -151,6 +151,33 @@ export function recordDiscovery(profile: Profile, state: RunState, catalog: Meta
   const next = structuredClone(profile);
   next.discovered.push(...new Set(fresh));
   return { profile: next, earned: award(next, catalog, (a) => lifetimeMet(a.condition, next), state.setup.mode) };
+}
+
+/**
+ * After a story run is finished (Milestone 14): the story's own ladder and
+ * story achievements. Stories keep their own record: they don't count as runs,
+ * and their fights don't count toward other achievements.
+ */
+export function recordStoryEnd(profile: Profile, state: RunState, tiers: number, catalog: MetaCatalog): MetaUpdate {
+  const storyId = state.setup.story;
+  if (state.phase !== 'complete' || !storyId) return { profile, earned: [] };
+  const next = structuredClone(profile);
+  const record = next.stories?.[storyId] ?? { maxTier: 0, completions: 0 };
+  record.completions += 1;
+  if (state.setup.tier >= record.maxTier) record.maxTier = Math.min(tiers, state.setup.tier + 1);
+  next.stories = { ...next.stories, [storyId]: record };
+  const earned = award(
+    next,
+    catalog,
+    (a) => a.condition.kind === 'completeStory' && a.condition.story === storyId && state.setup.tier >= (a.condition.minTier ?? 0),
+    'story',
+  );
+  return { profile: next, earned };
+}
+
+/** The highest tier of a story the player may start. */
+export function storyMaxTier(profile: Profile, storyId: string, tiers: number): number {
+  return profile.unlockAll ? tiers : Math.min(tiers, profile.stories?.[storyId]?.maxTier ?? 0);
 }
 
 /** After a run ends: totals, the next ladder tier, the daily record and run achievements. */

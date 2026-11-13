@@ -14,6 +14,8 @@ import { NECROMANCER_SIGNATURES } from './necromancer.ts';
 import { RANGER_SIGNATURES } from './ranger.ts';
 import { ROGUE_SIGNATURES } from './rogue.ts';
 import { RUNEBLADE_SIGNATURES } from './runeblade.ts';
+import { SHAMAN_SIGNATURES } from './shaman.ts';
+import { SYLVAN_SIGNATURES } from './sylvan.ts';
 import { WARLOCK_SIGNATURES } from './warlock.ts';
 import { WARRIOR_SIGNATURES } from './warrior.ts';
 
@@ -34,4 +36,6 @@ export const SIGNATURE_ITEMS: ItemDef[] = [
   ...CULTIST_SIGNATURES,
   ...ADVENTURER_SIGNATURES,
   ...MERCENARY_SIGNATURES,
+  ...SHAMAN_SIGNATURES,
+  ...SYLVAN_SIGNATURES,
 ];

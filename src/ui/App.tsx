@@ -9,6 +9,7 @@ import { GuideScreen } from './game/GuideScreen.tsx';
 import { RunSetupScreen } from './game/RunSetupScreen.tsx';
 import { RunSummary } from './game/RunSummary.tsx';
 import { ShopScreen } from './game/ShopScreen.tsx';
+import { StorySetupScreen } from './game/StorySetupScreen.tsx';
 import { TitleScreen } from './game/TitleScreen.tsx';
 import { useGame } from './game/useGame.ts';
 
@@ -37,6 +38,7 @@ export function App() {
     <main className="app">
       {game.screen === 'title' && <TitleScreen game={game} onOpenLab={() => setLab(true)} />}
       {game.screen === 'setup' && <RunSetupScreen game={game} />}
+      {game.screen === 'storySetup' && <StorySetupScreen game={game} />}
       {game.screen === 'collection' && <CollectionScreen game={game} />}
       {game.screen === 'credits' && <CreditsScreen game={game} />}
       {game.screen === 'guide' && <GuideScreen game={game} />}

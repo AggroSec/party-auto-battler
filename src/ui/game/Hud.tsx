@@ -1,16 +1,33 @@
 import { useState } from 'react';
+import { STORIES } from '../../data/stories/index.ts';
 import { lifeCost, type RunContext, type RunState } from '../../engine/run/index.ts';
+import { storyLives } from '../../engine/story/story.ts';
+import { BOSS_LAYER } from '../../engine/story/map.ts';
 import { SoundToggle } from '../audio/SoundToggle.tsx';
 import { Glossary } from './Rules.tsx';
 
 /** Round, gold, lives and wins. */
 export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMenu?: () => void }) {
-  const { startingLives, winsToComplete } = ctx.config;
+  const { winsToComplete } = ctx.config;
   const [help, setHelp] = useState(false);
+  const story = run.story ? STORIES[run.story.storyId] : undefined;
+  const startingLives = story ? storyLives(ctx, story) : ctx.config.startingLives;
+  const at = run.story?.at ? run.story.map.find((n) => n.id === run.story!.at) : undefined;
   return (
     <header className="hud">
-      <span className="hud-round">Round {run.round}</span>
-      {(run.setup.tier > 0 || run.setup.daily) && (
+      {story && run.story ? (
+        <span className="hud-round" title={story.name}>
+          {story.missions[run.story.mission]?.name} · stop {at ? at.layer + 1 : 0}/{BOSS_LAYER + 1}
+        </span>
+      ) : (
+        <span className="hud-round">Round {run.round}</span>
+      )}
+      {story && run.setup.tier > 0 && (
+        <span className="hud-tier" title={story.tiers.filter((l) => l.tier <= run.setup.tier).map((l) => `${l.tier}. ${l.description}`).join('\n')}>
+          Tier {run.setup.tier}
+        </span>
+      )}
+      {!story && (run.setup.tier > 0 || run.setup.daily) && (
         <span className="hud-tier" title={ctx.content.ladder.filter((l) => l.tier <= run.setup.tier).map((l) => `${l.tier}. ${l.description}`).join('\n')}>
           {run.setup.daily ? '📅 Daily · ' : ''}Tier {run.setup.tier}
         </span>
@@ -33,7 +50,7 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
           </span>
         ))}
       </span>
-      <span className="hud-wins" title="Wins" aria-label={`${run.wins} of ${winsToComplete} wins`}>
+      {!story && <span className="hud-wins" title="Wins" aria-label={`${run.wins} of ${winsToComplete} wins`}>
         🏆{' '}
         <span className="bump" key={run.wins}>
           {run.wins}
@@ -42,8 +59,8 @@ export function Hud({ run, ctx, onMenu }: { run: RunState; ctx: RunContext; onMe
         <span className="wins-bar" aria-hidden>
           <span style={{ width: `${(run.wins / winsToComplete) * 100}%` }} />
         </span>
-      </span>
-      {ctx.run?.bossRounds?.includes(run.round) && (
+      </span>}
+      {!story && ctx.run?.bossRounds?.includes(run.round) && (
         <span className="hud-boss" title="A boss replaces one enemy this round.">
           👑 Boss fight{lifeCost(run.round, ctx) > 1 ? `: losing costs ${lifeCost(run.round, ctx)} lives` : ''}
         </span>

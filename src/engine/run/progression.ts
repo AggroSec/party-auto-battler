@@ -167,7 +167,11 @@ export function refreshTalentOptions(unit: OwnedUnit, choice: PendingChoice, con
 
 /** Class options for an advance (level 3) or ascend (level 7) choice; null if the previous tier is undecided. */
 export function classOptions(unit: OwnedUnit, kind: 'advance' | 'ascend', content: RunContent): string[] | null {
-  if (kind === 'advance') return classFor(content, unit.classId).advancedClasses.filter((id) => content.advancedClasses[id]);
+  if (kind === 'advance') {
+    // Story heroes (Milestone 14) follow their story's path: one advanced class.
+    const open = classFor(content, unit.classId).advancedClasses.filter((id) => content.advancedClasses[id]);
+    return unit.lockedAdvanced && open.includes(unit.lockedAdvanced) ? [unit.lockedAdvanced] : open;
+  }
   const { adv } = classTiers(unit, content);
   if (!adv) return null;
   return (adv.tertiaryClasses ?? []).filter((id) => content.tertiaryClasses[id]);

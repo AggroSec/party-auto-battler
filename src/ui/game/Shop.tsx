@@ -92,16 +92,23 @@ export function ShopRow({
 }) {
   const { shop, gold } = run;
   const reroll = rerollCost(run, ctx);
-  const { lockCost, maxLocks } = runContext(run.setup, ctx).config;
+  // Story mode (Milestone 14): no locks, and rerolls only at a shop stop.
+  const story = run.story;
+  const { lockCost } = runContext(run.setup, ctx).config;
+  const maxLocks = story ? 0 : runContext(run.setup, ctx).config.maxLocks;
   const locked = run.locked ?? [];
   return (
     <section className="shop-row" aria-label="Shop">
       <div className="shop-head">
-        <h2>Shop</h2>
-        <span className="hint">Drag onto your party, or click. Items and training go to the unit you drop them on.</span>
-        <button type="button" className="reroll" onClick={onReroll} disabled={gold < reroll}>
-          🎲 Reroll ({reroll === 0 ? 'free' : `${reroll}g`})
-        </button>
+        <h2>{story && !story.shopOpen ? 'Spoils' : 'Shop'}</h2>
+        <span className="hint">
+          {story && !story.shopOpen ? 'Free for the taking, until you move on.' : 'Drag onto your party, or click. Items and training go to the unit you drop them on.'}
+        </span>
+        {(!story || story.shopOpen) && (
+          <button type="button" className="reroll" onClick={onReroll} disabled={gold < reroll}>
+            🎲 Reroll ({reroll === 0 ? 'free' : `${reroll}g`})
+          </button>
+        )}
       </div>
       <div className="offers">
         {shop.map((offer, i) =>

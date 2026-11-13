@@ -1,4 +1,4 @@
-import type { SynergyDef, UnitFilter } from '../engine/run/content-types.ts';
+import type { SynergyDef, SynergyTier, UnitFilter } from '../engine/run/content-types.ts';
 import { on } from './builds/dsl.ts';
 
 /** Light and Dark units (M7): divine units are Light; shadow and occult units are Dark. */
@@ -14,6 +14,25 @@ export const DARK: UnitFilter = { tags: ['shadow', 'occult'] };
  * Advanced classes replace their tags (e.g. Knight adds divine), so
  * advancing can open or close synergies.
  */
+/**
+ * The Tribe (Milestone 14, story mode): the Berserker line, the Beastmaster
+ * line, Druid, Shaman and Sylvan. Each counts once, so doubles don't help.
+ */
+export const TRIBE: UnitFilter[] = [
+  { classIds: ['berserker'] },
+  { classIds: ['beastmaster'] },
+  { classIds: ['druid'] },
+  { classIds: ['c-shaman'] },
+  { classIds: ['sylvan'] },
+];
+
+/** Strength of the Tribe's burst by number of different Tribe classes. Tuned with the simulator (docs/BALANCE.md). */
+export const TRIBE_BURST: Record<number, { spd: number; untilTick: number }> = {
+  3: { spd: 6, untilTick: 30 },
+  4: { spd: 10, untilTick: 40 },
+  5: { spd: 15, untilTick: 50 },
+};
+
 export const SYNERGIES: SynergyDef[] = [
   {
     id: 'martial',
@@ -288,5 +307,20 @@ export const SYNERGIES: SynergyDef[] = [
         appliesTo: { filter: { classIds: ['cleric', 'cultist'] } },
       },
     ],
+  },
+  {
+    // Brandon (Milestone 14): the Tribe's war cry. A burst of speed at the start
+    // of combat that wears off; bigger with more of the Tribe, one of each class.
+    id: 'strength-of-the-tribe',
+    name: 'Strength of the Tribe',
+    tiers: [3, 4, 5].map((count) => {
+      const burst = TRIBE_BURST[count]!;
+      return {
+        requires: [{ kind: 'party', slots: TRIBE, count, label: 'different Tribe classes' }],
+        description: `${count} different Tribe classes: every ally gains +${burst.spd} SPD at the start of combat, until tick ${burst.untilTick}.`,
+        modifier: { speedBurst: burst },
+        appliesTo: 'all',
+      } satisfies SynergyTier;
+    }),
   },
 ];

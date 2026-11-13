@@ -109,6 +109,18 @@ export interface StatusDef {
    * applier is alive (Cultist's Blight).
    */
   dotHeals?: number;
+  /**
+   * Healing over time (Milestone 14, Sylvan's Renewal): at the start of each of
+   * the unit's turns it heals this much per stack (resolved from the applier
+   * when applied, with its ability power). Credited to the applier.
+   */
+  hot?: Amount;
+  /**
+   * Thorns (Milestone 14, Sylvan's Thornweaver): a melee unit that hits this
+   * unit directly takes this much per stack (resolved from the applier when
+   * applied), ignoring DEF. Credited to the applier.
+   */
+  thorns?: Amount;
   /** Lasts this many of the afflicted unit's turns; reapplying refreshes it. Unset = until combat ends or it bursts. */
   duration?: number;
   /** At this many stacks the status bursts: the stacks clear and the applier's onBurst triggers fire (triggerTarget = afflicted). */
@@ -334,6 +346,13 @@ export interface UnitSetup {
   executeWith?: readonly string[];
   /** A boss: executions only take a share of its HP. */
   boss?: boolean;
+  /**
+   * A burst of speed from the start of combat (Milestone 14, Strength of the
+   * Tribe): +`spd` SPD until the end of tick `untilTick`, then it wears off.
+   */
+  speedBurst?: { spd: number; untilTick: number };
+  /** Healing this unit does past full HP becomes a shield, at this fraction (Sylvan's Lifebinder). */
+  overhealShield?: number;
 }
 
 export type Range = 'melee' | 'ranged';

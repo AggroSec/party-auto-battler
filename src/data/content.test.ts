@@ -37,7 +37,7 @@ describe('build content integrity', () => {
         expect(ADVANCED_CLASSES[a]?.talents).toHaveLength(a === 'berserker' ? 5 : 4);
       }
     }
-    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(32);
+    expect(Object.keys(ADVANCED_CLASSES)).toHaveLength(36);
   });
 
   it('every advanced class has 2 tertiary classes that point back to it, each with 4 talents and one granted ability', () => {
@@ -52,7 +52,7 @@ describe('build content integrity', () => {
         expect(t.talents.filter((tid) => TALENTS[tid]?.grantAbility), id).toHaveLength(1);
       }
     }
-    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(64);
+    expect(Object.keys(TERTIARY_CLASSES)).toHaveLength(72);
   });
 
   it('class ids are unique across tiers', () => {
@@ -66,8 +66,8 @@ describe('build content integrity', () => {
       ...Object.values(ADVANCED_CLASSES).filter((a) => a.baseClassId !== 'adventurer').map((a) => a.talents),
       ...Object.values(TERTIARY_CLASSES).filter((t) => t.baseClassId !== 'adventurer').map((t) => t.talents),
     ].flat();
-    expect(pools).toHaveLength(421);
-    expect(new Set(pools).size).toBe(421);
+    expect(pools).toHaveLength(477);
+    expect(new Set(pools).size).toBe(477);
     expect(Object.keys(TALENTS).filter((id) => !id.startsWith('borrow/')).sort()).toEqual([...pools].sort());
   });
 
@@ -107,7 +107,7 @@ describe('build content integrity', () => {
     }
     for (const adv of [...Object.values(ADVANCED_CLASSES), ...Object.values(TERTIARY_CLASSES)]) {
       const m = adv.modifier;
-      expect(Boolean(adv.passive), adv.id).toBe(Boolean(m.triggers?.length || m.reach || m.lifesteal || m.abilityPower || m.abilityCooldown || m.critChance || adv.items));
+      expect(Boolean(adv.passive), adv.id).toBe(Boolean(m.triggers?.length || m.reach || m.lifesteal || m.abilityPower || m.abilityCooldown || m.critChance || m.overhealShield || adv.items));
       if (adv.passive && m.triggers?.length) expect(m.triggers.map((t) => t.label), adv.id).toContain(adv.passive.name);
     }
   });

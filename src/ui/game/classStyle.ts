@@ -23,11 +23,15 @@ const COLORS: Record<string, string> = {
   adventurer: '#d9a441',
   mercenary: '#b5784a',
   shaman: '#3fb8a0',
+  sylvan: '#7fd18b',
   // Unique bosses.
   'chain-warden': '#7d8794',
   'pale-choir': '#c9d6e8',
   bonesaw: '#b8423a',
   'ashen-wyrm': '#e0703a',
+  'raider-chief': '#b0703c',
+  'hollow-stag': '#9a8f7a',
+  'hollow-king': '#8a7fb8',
   // Summons take their summoner's colour.
   treant: '#9cc93f',
   imp: '#c0399b',

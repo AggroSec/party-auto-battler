@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { META_CATALOG } from '../../data/meta/catalog.ts';
+import { STORIES } from '../../data/stories/index.ts';
 import { maxLevel } from '../../engine/run/index.ts';
 import { SoundToggle } from '../audio/SoundToggle.tsx';
 import { DEV_TOOLS } from '../devTools.ts';
@@ -42,6 +43,24 @@ export function TitleScreen({ game, onOpenLab }: { game: Game; onOpenLab: () => 
                   ? 'In progress: continue'
                   : 'Already attempted today'
                 : `Tier ${daily.setup.tier} · same seed for everyone · one attempt`}
+          </span>
+        </button>
+        {game.savedStory?.run.story ? (
+          <button type="button" className="big" onClick={game.continueStory}>
+            Continue story
+            <span className="sub">
+              {STORIES[game.savedStory.run.story.storyId]?.name} · mission {game.savedStory.run.story.mission + 1} · {game.savedStory.run.lives} lives
+              {game.savedStory.run.setup.tier > 0 ? ` · tier ${game.savedStory.run.setup.tier}` : ''}
+            </span>
+          </button>
+        ) : null}
+        <button type="button" className="big" onClick={game.openStorySetup}>
+          {game.savedStory ? 'New story' : 'Story mode'}
+          <span className="sub">
+            {Object.values(STORIES)
+              .map((s) => `${s.name}${profile.stories?.[s.id]?.completions ? ' ✓' : ''}`)
+              .join(' · ')}{' '}
+            · a fixed war band, mission by mission
           </span>
         </button>
         <button type="button" className="big" onClick={game.openCollection}>

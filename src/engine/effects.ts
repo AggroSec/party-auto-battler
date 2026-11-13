@@ -1,8 +1,8 @@
 // Effects and triggers: the data-driven layer behind abilities, passives,
 // talents, items and synergies.
 import { resolveAmount } from './damage.ts';
-import { applyHeal, dealDamage } from './hits.ts';
-import { beginAction, credit, emit, type CombatState, type CombatUnit } from './state.ts';
+import { addShield, applyHeal, dealDamage } from './hits.ts';
+import { beginAction, emit, type CombatState, type CombatUnit } from './state.ts';
 import { applyStatus, clearStatus } from './statuses.ts';
 import { summonUnit } from './summon.ts';
 import { afflictionCount, rowNeighbours, selectTargets, type TargetContext } from './targeting.ts';
@@ -104,19 +104,7 @@ function applyEffect(
     }
     case 'shield': {
       const value = Math.round(resolveAmount(effect.amount, source) * power);
-      for (const target of selectTargets(state, source, effect.target, ctx)) {
-        target.shield += value;
-        source.stats.shieldingDone += value;
-        credit(source, 'shielding', value);
-        emit(state, {
-          tick: state.tick,
-          type: 'shield',
-          source: source.id,
-          target: target.id,
-          value,
-          shieldAfter: target.shield,
-        });
-      }
+      for (const target of selectTargets(state, source, effect.target, ctx)) addShield(state, source, target, value);
       return;
     }
     case 'buff':

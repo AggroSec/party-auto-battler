@@ -37,3 +37,16 @@ export const DEATHLESS_FURY: StatusDef = {
  * small SPD loss on its own; the Headsman and Maimer build on them.
  */
 export const BROKEN_LIMB: StatusDef = { id: 'broken-limb', name: 'Broken Limb', stats: { spd: -1 }, maxStacks: 4 };
+
+/**
+ * Sylvan (Milestone 14): healing over time. At the start of each of the
+ * unit's turns it heals, for 3 turns; reapplying refreshes it (and re-reads
+ * the applier's ATK), it never stacks.
+ */
+export const RENEWAL: StatusDef = { id: 'renewal', name: 'Renewal', hot: { atk: 0.7 }, duration: 3, maxStacks: 1 };
+/** Bloomcaller's stronger Renewal (same id, so it refreshes rather than adds). */
+export const GREATER_RENEWAL: StatusDef = { ...RENEWAL, name: 'Greater Renewal', hot: { atk: 1.1 } };
+/** Thornweaver: melee attackers that hit the unit take damage, for 3 turns. */
+export const THORNS: StatusDef = { id: 'thorns', name: 'Thorns', thorns: { atk: 0.4 }, duration: 3, maxStacks: 1 };
+/** Rootwarden: rooted enemies lose 3 SPD for 2 turns. */
+export const ROOTED: StatusDef = { id: 'rooted', name: 'Rooted', stats: { spd: -3 }, duration: 2, maxStacks: 1, affliction: true };

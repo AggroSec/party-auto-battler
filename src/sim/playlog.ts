@@ -91,6 +91,14 @@ function describe(state: RunState, action: ShopAction, ctx: RunContext): string 
       const label = p?.kind === 'talent' || p?.kind === 'borrow' ? (ctx.content.talents[pick ?? '']?.name ?? pick) : nameOf(ctx, pick ?? '');
       return `${unit} took ${label}`;
     }
+    case 'travel': {
+      const node = state.story?.map.find((n) => n.id === action.node);
+      return `travelled to ${node ? `${node.kind}${node.eventId ? ` (${node.eventId})` : ''}` : action.node}`;
+    }
+    case 'storyChoice':
+      return `chose option ${action.option + 1} at ${state.story?.prompt?.id ?? '?'}`;
+    case 'scene':
+      return 'read the story';
   }
 }
 

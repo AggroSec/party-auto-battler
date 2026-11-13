@@ -9,6 +9,7 @@ import { equipError } from './items.ts';
 import { isRulesUnit, unitSkills, validRules, withNewTierRules } from './rule-lists.ts';
 import { allocatePoints, applyChoice, choiceOptions, grantXp, isMaxLevel, recommendedAllocation, refreshTalentOptions } from './progression.ts';
 import { defaultSetup, runContext } from './setup.ts';
+import { chooseStoryOption, dismissScene, storyFight, travel } from '../story/story.ts';
 import { ensureFavored, rollConsumableDrop, rollFreeItem, rollShop, signatureOffer } from './shop.ts';
 import type {
   ActionResult,
@@ -110,6 +111,13 @@ export function lifeCost(round: number, ctx: RunContext): number {
 /** Apply a shop-phase action. Never mutates `state`. */
 export function applyShopAction(state: RunState, action: ShopAction, baseCtx: RunContext): ActionResult {
   if (state.phase !== 'shop') return fail('notShopPhase');
+  // Story mode (Milestone 14): moving on the map, events and story text; no locks, rerolls only at a shop.
+  if (state.story) {
+    if (action.type === 'travel') return travel(state, action.node, baseCtx);
+    if (action.type === 'storyChoice') return chooseStoryOption(state, action.option, baseCtx);
+    if (action.type === 'scene') return dismissScene(state);
+    if (action.type === 'lock' || (action.type === 'reroll' && !state.story.shopOpen)) return fail('notHere');
+  } else if (action.type === 'travel' || action.type === 'storyChoice' || action.type === 'scene') return fail('notHere');
   const ctx = runContext(state.setup, baseCtx);
   const next = structuredClone(state);
   const { progression } = ctx.config;
@@ -162,6 +170,7 @@ export function applyShopAction(state: RunState, action: ShopAction, baseCtx: Ru
       if (!isValidSlot(action.from)) return fail('invalidSlot');
       const unit = getSlot(next.board, action.from);
       if (!unit) return fail('emptySlot');
+      if (unit.storyHero) return fail('storyHero');
       setSlot(next.board, action.from, null);
       next.pending = next.pending.filter((p) => p.uid !== unit.uid);
       next.gold += ctx.config.sellRefund + unit.items.length * progression.itemSellRefund;
@@ -304,6 +313,7 @@ export function autoAllocate(state: RunState, baseCtx: RunContext): void {
  */
 export function fight(state: RunState, baseCtx: RunContext): FightResult {
   if (state.phase !== 'shop') return fail('notShopPhase');
+  if (state.story) return storyFight(state, baseCtx);
   const ctx = runContext(state.setup, baseCtx);
   if (unitCount(state.board) === 0) return fail('emptyBoard');
   if (state.pending.length > 0) return fail('pendingChoice');

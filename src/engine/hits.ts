@@ -4,7 +4,7 @@ import { absorb, mitigate } from './damage.ts';
 import { fireTriggers } from './effects.ts';
 import { OVERTIME_SOURCE } from './events.ts';
 import { credit, emit, living, type CombatState, type CombatUnit } from './state.ts';
-import { cannotDie } from './statuses.ts';
+import { cannotDie, thornsDamage } from './statuses.ts';
 
 /** Damage multiplier for melee units attacking from the back row while their front row stands. */
 export const BACKLINE_MELEE_MULTIPLIER = 0.5;
@@ -43,13 +43,28 @@ export interface DamageOptions {
   dot?: boolean;
 }
 
-/** Restore HP to `target`, capped at max HP. Returns the amount actually healed. */
+/** Shield `target` for `value`, credited to `source`. */
+export function addShield(state: CombatState, source: CombatUnit, target: CombatUnit, value: number): void {
+  target.shield += value;
+  source.stats.shieldingDone += value;
+  credit(source, 'shielding', value);
+  emit(state, { tick: state.tick, type: 'shield', source: source.id, target: target.id, value, shieldAfter: target.shield });
+}
+
+/**
+ * Restore HP to `target`, capped at max HP. Returns the amount actually healed.
+ * A source with overhealShield turns healing past full HP into a shield.
+ */
 export function applyHeal(state: CombatState, source: CombatUnit, target: CombatUnit, amount: number): number {
-  const value = Math.max(0, Math.min(Math.round(amount * statusFactor(target, 'healingTaken')), target.maxHp - target.hp));
+  const full = Math.max(0, Math.round(amount * statusFactor(target, 'healingTaken')));
+  const value = Math.min(full, target.maxHp - target.hp);
   target.hp += value;
   source.stats.healingDone += value;
   credit(source, 'healing', value);
   emit(state, { tick: state.tick, type: 'heal', source: source.id, target: target.id, value, hpAfter: target.hp });
+  // Lifebinder: healing past full HP becomes a shield.
+  const overflow = Math.round((full - value) * (source.setup.overhealShield ?? 0));
+  if (overflow > 0) addShield(state, source, target, overflow);
   return value;
 }
 
@@ -113,6 +128,16 @@ export function dealDamage(
   }
   if (damage > 0 && !opts.dot) {
     fireTriggers(state, target, 'onHurt', source ? { triggerSource: source } : {}, depth);
+  }
+  // Thorns hurt melee attackers (damage over time, so thorns never set off more thorns).
+  if (hit && source?.alive && source.side !== target.side && source.setup.range === 'melee') {
+    for (const t of thornsDamage(target)) {
+      if (!source.alive) break;
+      const previous = t.source.via;
+      t.source.via = t.via;
+      dealDamage(state, t.source, source, t.damage, { pierce: true, dot: true }, depth + 1);
+      t.source.via = previous;
+    }
   }
   if (target.alive && !target.bloodied && target.hp < target.maxHp * BLOODIED_THRESHOLD) {
     target.bloodied = true;

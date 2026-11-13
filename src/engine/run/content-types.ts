@@ -35,6 +35,10 @@ export interface UnitModifier {
   skillCooldown?: Readonly<Record<string, number>>;
   /** Rules mode (skill augments): skills that use their `empowered` version, by skill id. */
   skillUpgrade?: readonly string[];
+  /** A start-of-combat speed burst that wears off after a tick (Strength of the Tribe). The biggest burst wins. */
+  speedBurst?: { spd: number; untilTick: number };
+  /** Additive fraction of overhealing that becomes a shield (Sylvan's Lifebinder). */
+  overhealShield?: number;
 }
 
 /** Rules mode: a class tier's skills and the default rules that use them. */
@@ -198,9 +202,11 @@ export type SynergyRequirement =
   | { kind: 'units'; filter: UnitFilter; count: number; label: string }
   /**
    * A different unit for each filter, e.g. a guardian, a healer and a damage
-   * dealer (M7). `label` names the line-up in the UI ("trinity roles").
+   * dealer (M7). `label` names the line-up in the UI ("trinity roles"). With
+   * `count`, at least that many of the filters (each a different unit) will do:
+   * Strength of the Tribe wants 3, 4 or 5 different Tribe classes, no doubles.
    */
-  | { kind: 'party'; slots: readonly UnitFilter[]; label: string };
+  | { kind: 'party'; slots: readonly UnitFilter[]; label: string; count?: number };
 
 export interface SynergyTier {
   /** All requirements must be met. */
@@ -318,6 +324,8 @@ export interface RunModifier {
   secondEliteFrom?: number;
   /** From this round, enemies carry consumables. */
   enemyConsumablesFrom?: number;
+  /** The shop never offers recruits (story mode: the story gives the party). */
+  noRecruits?: boolean;
 }
 
 /** One rung of the difficulty ladder; tier N applies tiers 1..N. */

@@ -23,5 +23,9 @@ export const ERROR_TEXT: Record<RunError, string> = {
   alreadyEquipped: 'That unit already has one.',
   weaponsOnly: 'That unit has room only for weapons.',
   invalidRules: 'Those rules don’t fit that unit.',
+  storyHero: 'Story heroes stay with the party: they can’t be sold.',
+  notHere: 'That isn’t available at this stop.',
+  unreachable: 'You can’t reach that stop from here.',
+  busy: 'Finish this stop first.',
   lockLimit: 'You can\'t lock any more offers. Unlock one first.',
 };

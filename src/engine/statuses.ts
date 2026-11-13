@@ -49,7 +49,7 @@ export function applyStatus(
   if (!target.alive || stacks <= 0) return;
   let s = target.statuses.get(def.id);
   if (!s) {
-    s = { def, stacks: 0, source, dotPerStack: 0, applied: {}, via: source.via };
+    s = { def, stacks: 0, source, dotPerStack: 0, hotPerStack: 0, applied: {}, via: source.via };
     target.statuses.set(def.id, s);
   }
   // An Empowered version of the status (same id, bigger numbers) takes over its stat changes.
@@ -58,6 +58,8 @@ export function applyStatus(
   s.source = source;
   s.via = source.via;
   if (def.dot) s.dotPerStack = resolveAmount(def.dot, source) * power;
+  if (def.hot) s.hotPerStack = resolveAmount(def.hot, source) * power;
+  if (def.thorns) s.thornsPerStack = resolveAmount(def.thorns, source) * power;
   if (def.duration !== undefined) s.turns = def.duration;
   const next = Math.min(def.maxStacks ?? Infinity, s.stacks + stacks);
   if (swapped) setStacks(state, target, s, s.stacks);
@@ -75,14 +77,32 @@ export function applyStatus(
   if (leftover > 0 && target.alive) applyStatus(state, source, target, def, leftover, power, depth, fireBurst);
 }
 
+/** Thorns: a melee hit on `target` hurts the attacker for each Thorns status on it. */
+export function thornsDamage(target: CombatUnit): { source: CombatUnit; via: string; damage: number }[] {
+  const out: { source: CombatUnit; via: string; damage: number }[] = [];
+  for (const s of target.statuses.values()) {
+    const damage = Math.round((s.thornsPerStack ?? 0) * s.stacks);
+    if (damage > 0) out.push({ source: s.source, via: s.via, damage });
+  }
+  return out;
+}
+
 /** Remove a status entirely (Headsman's execution uses up Broken Limbs). */
 export function clearStatus(state: CombatState, unit: CombatUnit, statusId: string): void {
   const s = unit.statuses.get(statusId);
   if (s) setStacks(state, unit, s, 0);
 }
 
-/** Start of the unit's turn: its damage-over-time statuses deal their damage. */
+/** Start of the unit's turn: its healing-over-time statuses heal it, then damage over time deals its damage. */
 export function tickStatuses(state: CombatState, unit: CombatUnit): void {
+  for (const s of [...unit.statuses.values()]) {
+    const heal = Math.round((s.hotPerStack ?? 0) * s.stacks);
+    if (heal <= 0 || !unit.alive) continue;
+    const previous = s.source.via;
+    s.source.via = s.via;
+    applyHeal(state, s.source, unit, heal);
+    s.source.via = previous;
+  }
   for (const s of [...unit.statuses.values()]) {
     if (!unit.alive) return;
     const damage = Math.round(s.dotPerStack * s.stacks);
