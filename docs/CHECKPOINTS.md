@@ -2,6 +2,69 @@
 
 Milestone summaries, newest first. Each one becomes the body of that milestone's pull request.
 
+## Milestone 15 — The Black Covenant (2026-11-20)
+
+### What was built
+- **A second story, *The Black Covenant*.** It's a prequel to *The Hollowing*, and you play the villains. Generations before the Hollowing, a knight the Dawn Order locked away breaks out, burns its abbey and wakes the Crown of Hollows in the Greymoor barrows. He becomes the Hollow King.
+  - **Heroes:** Vaskar (Dark Knight) and Brakka (Marauder) start. Ysolde (Cultist) and Sefin (Warlock) join in mission 2, Corvin (Apostate) in mission 3.
+  - **No locked classes.** Every advanced and tertiary choice is yours.
+  - **Missions:** *Chains*, *The Burning Abbey* and *The Barrow*, each with its own enemy roster.
+  - **Bosses:**
+    - **Halric, Warden-Inquisitor:** binds and silences.
+    - **Mother Abbess Seraphine:** heals her side.
+    - **The Barrow-Mother:** raises Barrow Spirits.
+  - **Events:** 12, all villainous choices.
+  - **Ladder:** the same 3-tier story ladder as *The Hollowing*.
+  - **Unlock:** finishing it earns **Crown of Hollows**, which unlocks the Apostate, the Marauder and Reign of Dread for normal runs.
+- **Apostate** (your affliction locker; the name comes from Achaea, the mechanics are new):
+  - **The lock:** Anathema halves the target's healing, and Hush stops its abilities. A target with both is **Forsaken** (+25% damage taken). The first cast curses the target, and the second locks it.
+  - **Blasphemer:** its **Profane Anathema** cancels healing on the target, and half of each heal hurts it instead.
+  - **Desecrator:** rots the target with Defiled. When a Forsaken enemy dies, its curses jump to the next enemy.
+  - **Tertiary classes:** Heresiarch, Voidspeaker, Defiler and Profaner, each with a signature item.
+- **Marauder** (your front-line brawler):
+  - **Grudge:** every hit it takes gives it a Grudge, up to 5. **Haymaker** spends them all, and at 3 or more it **Staggers** the target, which loses its next turn.
+  - **Juggernaut:** the tank. It taunts, and gains DEF from every hit.
+  - **Skullsplitter:** the bruiser. It breaks armour and hits neighbours too.
+  - **Tertiary classes:** Ironhide, Siegebreaker, Headtaker and Warmonger, each with a signature item.
+- **Reign of Dread:** the villains' mirror of Strength of the Tribe. With 3, 4 or 5 different villain classes (Dark Knight, Cultist, Warlock, Apostate, Marauder; doubles don't count), every enemy loses 20/30/40% of its ATK and DEF until tick 25/35/45. Each story now has its own synergy, always on while you play it.
+- **Rules-mode kits for the Apostate, the Marauder and the Sylvan:**
+  - Each has skills for every tier, default rules, augments and signature items.
+  - The Sylvan's kit unlocks with *The Hollowing*. If you've already finished it, the kit is unlocked straight away.
+  - There's a new rule condition, **self has N+ stacks of…**, so the Marauder can wait for 3 Grudge.
+- **Normal runs:** new enemies (a Wandering Heretic and a Pit Fighter in classic; a Grove Sylvan, Heretic Priest and Pit Brute in rules mode) join once their classes are unlocked.
+- **Play log fix:** story runs no longer get notes about interest or empty slots (from your 11-20 log).
+- **Docs and in-game help:** the glossary has Anathema, Forsaken, Defiled, Grudge and Reign of Dread. The guide, README, DESIGN and DECISIONS cover the new story.
+
+### What to playtest (and how)
+1. **Story mode → The Black Covenant**, tier 0. Things to look at:
+   - **Does it feel villainous?** Read the events and the story text.
+   - **The Apostate's lock:** watch for Anathema, then Hush, then Forsaken in the fight playback.
+   - **Profane Anathema:** watch it turn enemy healing into damage, especially against the Abbess and her Sisters of Mercy.
+   - **The Marauder's Grudge:** watch it build up and the Haymaker pay it off.
+2. **Reign of Dread:** with 3+ villains, enemies should visibly lose ATK and DEF at the start of a fight and get it back later.
+3. **Normal runs** (with Unlock everything on, or after finishing the story): try the Apostate and the Marauder in both modes, and the rules-mode Sylvan.
+4. Send me the play log afterwards.
+
+### Known issues / open questions
+- **Not checked in a browser**, like the last milestone: there are render tests, but nobody has looked at the new story on a screen yet.
+- **The Lifebinder's Overflow shield** (from your Hollowing log) isn't changed here. That waits for your tier 15 log, as agreed. The rules-mode Lifebinder only has 40% Overflow and heals when an ally is below 70%.
+- **The Abbess is easy for the bots** (93–99% won at tier 0), while the Barrow-Mother is the hard one. That's a sensible shape for a story, but tell me if mission 2 feels flat.
+- **Reign of Dread at 4–5 classes** is flagged high by the simulator, just like Strength of the Tribe, by the same design ("a bit OP with all five").
+
+### Simulator balance numbers
+See [BALANCE.md](BALANCE.md).
+- **Classic** (2,000 runs per bot): the Apostate is +2.5 lift and the Marauder +2.0, both mid-pack. The Juggernaut went from −8.2 to −2.6 after a buff.
+- **Reign of Dread vs Strength of the Tribe** (lift):
+
+  | Different classes | Reign of Dread | Strength of the Tribe |
+  |---|---|---|
+  | 3 | +18.7 | +21.5 |
+  | 4 | +30.2 | +28.3 |
+
+- **Rules mode** (1,000 runs per bot): Sylvan +3.1, Marauder +2.2, Apostate +1.7. None of the new classes is an outlier after trimming the Desecrator line (first pass +23) and the Blasphemer's tertiary classes.
+- **The Black Covenant, tier 0:** the bots finish 96–100% of the time, with 0.2–2.4 restarts. *The Hollowing* is 97–100% on the same code.
+- **The Black Covenant, tier 3:** the bots finish 32–87% of the time, with 11–35 restarts. That's similar to *The Hollowing*'s tier 3.
+
 ## Milestone 14 — Story mode (2026-11-13)
 
 ### What was built
