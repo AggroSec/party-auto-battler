@@ -56,6 +56,17 @@ export function addShield(state: CombatState, source: CombatUnit, target: Combat
  * A source with overhealShield turns healing past full HP into a shield.
  */
 export function applyHeal(state: CombatState, source: CombatUnit, target: CombatUnit, amount: number): number {
+  // Profane Anathema: the heal is cancelled and turns on the unit instead.
+  const profane = [...target.statuses.values()].find((s) => (s.def.healsHurt ?? 0) > 0 && s.stacks > 0);
+  if (profane) {
+    const damage = Math.round(Math.max(0, amount) * profane.def.healsHurt!);
+    if (damage <= 0 || !target.alive) return 0;
+    const previous = profane.source.via;
+    profane.source.via = profane.via;
+    dealDamage(state, profane.source, target, damage, { pierce: true, dot: true }, 0);
+    profane.source.via = previous;
+    return 0;
+  }
   const full = Math.max(0, Math.round(amount * statusFactor(target, 'healingTaken')));
   const value = Math.min(full, target.maxHp - target.hp);
   target.hp += value;

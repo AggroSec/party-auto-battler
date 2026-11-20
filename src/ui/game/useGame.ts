@@ -200,8 +200,8 @@ export function useGame() {
       const story = STORIES[storyId];
       if (!story) return;
       const max = storyMaxTier(profile, storyId, story.tiers.length);
-      // A story's own synergy (Strength of the Tribe) is always on in it: it's the story's point.
-      const setup = storySetup(storyId, Math.min(tier, max), unlocked, [...new Set([...unlocked.synergies, 'strength-of-the-tribe'])]);
+      // A story's own synergy (Strength of the Tribe, Reign of Dread) is always on in it: storySetup adds it.
+      const setup = storySetup(storyId, Math.min(tier, max), unlocked, unlocked.synergies);
       const seed = randomSeed();
       const id = newRunId();
       setRunId(id);

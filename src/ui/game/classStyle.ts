@@ -24,6 +24,8 @@ const COLORS: Record<string, string> = {
   mercenary: '#b5784a',
   shaman: '#3fb8a0',
   sylvan: '#7fd18b',
+  apostate: '#7a5cc4',
+  marauder: '#c0583a',
   // Unique bosses.
   'chain-warden': '#7d8794',
   'pale-choir': '#c9d6e8',
@@ -32,6 +34,9 @@ const COLORS: Record<string, string> = {
   'raider-chief': '#b0703c',
   'hollow-stag': '#9a8f7a',
   'hollow-king': '#8a7fb8',
+  'warden-inquisitor': '#9aa6b8',
+  abbess: '#e8dca0',
+  'barrow-mother': '#7a8a6a',
   // Summons take their summoner's colour.
   treant: '#9cc93f',
   imp: '#c0399b',
@@ -43,6 +48,7 @@ const COLORS: Record<string, string> = {
   fiend: '#d0453a',
   golem: '#8c9aa6',
   ghoul: '#7d8c5a',
+  'barrow-spirit': '#7a8a6a',
 };
 
 const FALLBACK_COLOR = '#8a90a2';

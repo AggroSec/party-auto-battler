@@ -22,6 +22,8 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `mercenary`: "Crossed Axes" by Lorc, https://game-icons.net/1x1/lorc/crossed-axes.html, CC BY 3.0
 - `shaman`: "Totem Mask" by Lorc, https://game-icons.net/1x1/lorc/totem-mask.html, CC BY 3.0
 - `sylvan`: "Sprout" by Lorc, https://game-icons.net/1x1/lorc/sprout.html, CC BY 3.0
+- `apostate`: "Evil Book" by Lorc, https://game-icons.net/1x1/lorc/evil-book.html, CC BY 3.0
+- `marauder`: "Brass Knuckles" by Delapouite, https://game-icons.net/1x1/delapouite/brass-knuckles.html, CC BY 3.0
 - `chain-warden`: "Manacles" by Lorc, https://game-icons.net/1x1/lorc/manacles.html, CC BY 3.0
 - `pale-choir`: "Ghost" by Lorc, https://game-icons.net/1x1/lorc/ghost.html, CC BY 3.0
 - `bonesaw`: "Battered Axe" by Lorc, https://game-icons.net/1x1/lorc/battered-axe.html, CC BY 3.0
@@ -29,6 +31,9 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `raider-chief`: "Barbarian" by Delapouite, https://game-icons.net/1x1/delapouite/barbarian.html, CC BY 3.0
 - `hollow-stag`: "Deer Head" by Caro Asercion, https://game-icons.net/1x1/caro-asercion/deer-head.html, CC BY 3.0
 - `hollow-king`: "Crowned Skull" by Lorc, https://game-icons.net/1x1/lorc/crowned-skull.html, CC BY 3.0
+- `warden-inquisitor`: "Barbute" by Lorc, https://game-icons.net/1x1/lorc/barbute.html, CC BY 3.0
+- `abbess`: "Robe" by Lorc, https://game-icons.net/1x1/lorc/robe.html, CC BY 3.0
+- `barrow-mother`: "Tombstone" by Lorc, https://game-icons.net/1x1/lorc/tombstone.html, CC BY 3.0
 - `treant`: "Tree Face" by Cathelineau, https://game-icons.net/1x1/cathelineau/tree-face.html, CC BY 3.0
 - `imp`: "Imp" by Lorc, https://game-icons.net/1x1/lorc/imp.html, CC BY 3.0
 - `turret`: "Turret" by Sbed, https://game-icons.net/1x1/sbed/turret.html, CC BY 3.0
@@ -39,6 +44,7 @@ Every third-party asset used in the game is listed here and on the in-game credi
 - `fiend`: "Daemon Skull" by Lorc, https://game-icons.net/1x1/lorc/daemon-skull.html, CC BY 3.0
 - `golem`: "Rock Golem" by Delapouite, https://game-icons.net/1x1/delapouite/rock-golem.html, CC BY 3.0
 - `ghoul`: "Shambling Zombie" by Delapouite, https://game-icons.net/1x1/delapouite/shambling-zombie.html, CC BY 3.0
+- `barrow-spirit`: "Spectre" by Lorc, https://game-icons.net/1x1/lorc/spectre.html, CC BY 3.0
 - `hp`: "Hearts" by Skoll, https://game-icons.net/1x1/skoll/hearts.html, CC BY 3.0
 - `atk`: "Broadsword" by Lorc, https://game-icons.net/1x1/lorc/broadsword.html, CC BY 3.0
 - `def`: "Checked Shield" by Lorc, https://game-icons.net/1x1/lorc/checked-shield.html, CC BY 3.0
