@@ -80,7 +80,7 @@ export const SERAPHINE: BossDef = {
   classId: 'abbess',
   minRound: 1,
   unique: true,
-  statMultiplier: { hp: 1.7, atk: 1.3 },
+  statMultiplier: { hp: 2, atk: 1.45 },
   passive: { name: 'Martyr’s Grace', description: 'When an ally falls, heal every ally for 100% ATK.' },
   modifier: {
     triggers: [on('onAllyDeath', 'Martyr’s Grace', [{ kind: 'heal', target: 'allAllies', amount: { atk: 1 } }])],
@@ -100,7 +100,7 @@ export const BARROW_MOTHER: BossDef = {
   classId: 'barrow-mother',
   minRound: 1,
   unique: true,
-  statMultiplier: { hp: 2.1, atk: 1.5 },
+  statMultiplier: { hp: 1.85, atk: 1.35 },
   passive: { name: 'The Greymoor Remembers', description: 'Start of combat, and when bloodied: a Barrow Spirit rises to fight for her.' },
   modifier: {
     triggers: [
