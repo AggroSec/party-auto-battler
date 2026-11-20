@@ -61,6 +61,9 @@ describe('play log replay', () => {
     expect(text).toContain('story The Hollowing');
     expect(text).toContain('### Round 1 (mission 1, fight)');
     expect(text).toContain('travelled to fight');
+    // Story runs pay no interest and sell no recruits: no notes about either (Brandon's 11-20 log).
+    expect(text).not.toContain('interest caps');
+    expect(text).not.toContain('empty slot');
   });
 
   it('flags a logged result that the replay does not reproduce', () => {
