@@ -200,6 +200,5 @@ export const HOLLOWING: StoryDef = {
   lives: 3,
   startLevel: 2,
   enemyStats: -0.25,
+  synergy: 'strength-of-the-tribe',
 };
-
-export const STORIES: Record<string, StoryDef> = { [HOLLOWING.id]: HOLLOWING };

@@ -21,7 +21,9 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'arms-race', name: 'Arms Race', description: 'Go into a fight with 4 weapons equipped across your party.', condition: { kind: 'weaponsEquipped', count: 4 }, reward: { classes: ['mercenary'], items: ['war-hammer', 'throwing-axes', 'halberd'] } },
   // Rules mode (post-1.0).
   // Story mode (Milestone 14): finishing The Hollowing brings the Tribe home.
-  { id: 'spirits-restored', name: 'Spirits Restored', description: 'Finish the story The Hollowing.', mode: 'story', condition: { kind: 'completeStory', story: 'hollowing' }, reward: { classes: ['c-shaman', 'sylvan'], synergies: ['strength-of-the-tribe'] } },
+  { id: 'spirits-restored', name: 'Spirits Restored', description: 'Finish the story The Hollowing.', mode: 'story', condition: { kind: 'completeStory', story: 'hollowing' }, reward: { classes: ['c-shaman', 'sylvan', 'r-sylvan'], synergies: ['strength-of-the-tribe'] } },
+  // Milestone 15: finishing The Black Covenant crowns the Hollow King, and brings his war band to normal runs.
+  { id: 'crown-of-hollows', name: 'Crown of Hollows', description: 'Finish the story The Black Covenant.', mode: 'story', condition: { kind: 'completeStory', story: 'black-covenant' }, reward: { classes: ['apostate', 'marauder', 'r-apostate', 'r-marauder'], synergies: ['reign-of-dread'] } },
   { id: 'rulebreaker', name: 'Rulebreaker', description: 'Reach round 4 in rules mode.', mode: 'rules', condition: { kind: 'reachRound', round: 4 }, reward: { classes: ['shaman'] } },
   { id: 'seasoned', name: 'Seasoned', description: 'Reach round 10.', condition: { kind: 'reachRound', round: 10 }, reward: { classes: ['engineer'], items: ['gearbox'] } },
 

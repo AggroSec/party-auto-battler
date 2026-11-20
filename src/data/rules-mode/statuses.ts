@@ -1,4 +1,5 @@
 import type { StatusDef } from '../../engine/types.ts';
+import { GREATER_RENEWAL, RENEWAL, ROOTED, THORNS } from '../statuses.ts';
 
 /**
  * Rules mode: afflictions and short buffs. Afflictions are timed (counted in
@@ -26,6 +27,30 @@ export const SLOWED = aff({ id: 'slowed', name: 'Slowed', stats: { spd: -4 }, du
 /** Runeblade: carved runes, detonated by its skills for damage per rune. */
 export const RUNE_MARK = aff({ id: 'rune-mark', name: 'Rune', maxStacks: 5 });
 
+/**
+ * Milestone 15, the Apostate (classic and rules). Anathema halves healing;
+ * with Hush on the same target the Apostate makes it Forsaken. Profane
+ * Anathema (Blasphemer) is the same curse, but healing on it hurts instead.
+ */
+export const ANATHEMA = aff({ id: 'anathema', name: 'Anathema', healingTaken: 0.5, duration: 3 });
+export const PROFANE_ANATHEMA: StatusDef = { ...ANATHEMA, name: 'Profane Anathema', healsHurt: 0.5 };
+export const FORSAKEN = aff({ id: 'forsaken', name: 'Forsaken', damageTaken: 1.25, duration: 2 });
+/** Desecrator: damage each turn, up to 3 stacks. */
+export const DEFILED = aff({ id: 'defiled', name: 'Defiled', dot: { atk: 0.3 }, maxStacks: 3, duration: 3 });
+/** Heresiarch: a longer Hush (same id). */
+export const LONG_HUSH: StatusDef = { ...HUSH, duration: 3 };
+/** Voidspeaker: a Hush on everyone, for a single turn (same id). */
+export const VOID_HUSH: StatusDef = { ...HUSH, duration: 1 };
+
+/**
+ * Milestone 15, the Marauder. Grudge builds on every hit it takes (up to 5)
+ * and its Haymaker spends it; Staggered loses its next turn; Ironclad is the
+ * Juggernaut's DEF that grows with every hit.
+ */
+export const GRUDGE = buff({ id: 'grudge', name: 'Grudge', maxStacks: 5 });
+export const STAGGERED = aff({ id: 'staggered', name: 'Staggered', stun: true, duration: 1 });
+export const IRONCLAD = buff({ id: 'ironclad', name: 'Ironclad', stats: { def: 1 }, maxStacks: 5 });
+
 export const FORTIFIED = buff({ id: 'fortified', name: 'Fortified', stats: { def: 6 }, duration: 3 });
 export const ENRAGED = buff({ id: 'enraged', name: 'Enraged', stats: { atk: 4 }, duration: 3 });
 export const HASTED = buff({ id: 'hasted', name: 'Hasted', stats: { spd: 4 }, duration: 3 });
@@ -46,6 +71,12 @@ export const EMPOWERED = {
   blessed: { ...BLESSED, duration: 3 },
 } satisfies Record<string, StatusDef>;
 
+export { GREATER_RENEWAL, RENEWAL, ROOTED, THORNS };
+
 export const RULES_STATUSES: Record<string, StatusDef> = Object.fromEntries(
-  [FROSTBITE, WEAKNESS, BRITTLE, HUSH, ROT, FEVER, BIND, BLEED, POISON, BURN, MARKED, SLOWED, RUNE_MARK, FORTIFIED, ENRAGED, HASTED, ENCHANTED, BLESSED].map((s) => [s.id, s]),
+  [
+    FROSTBITE, WEAKNESS, BRITTLE, HUSH, ROT, FEVER, BIND, BLEED, POISON, BURN, MARKED, SLOWED, RUNE_MARK, FORTIFIED, ENRAGED, HASTED, ENCHANTED, BLESSED,
+    // Milestone 15: the Apostate, the Marauder and the rules-mode Sylvan.
+    ANATHEMA, FORSAKEN, DEFILED, GRUDGE, STAGGERED, IRONCLAD, RENEWAL, THORNS, ROOTED,
+  ].map((s) => [s.id, s]),
 );

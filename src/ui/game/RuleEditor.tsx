@@ -16,6 +16,7 @@ const CONDITIONS: { kind: Kind; label: string }[] = [
   { kind: 'allyHpBelow', label: 'any ally below N% HP' },
   { kind: 'enemiesAtLeast', label: 'N+ enemies standing' },
   { kind: 'selfLacks', label: 'self lacks…' },
+  { kind: 'selfStacks', label: 'self has N+ stacks of…' },
 ];
 
 /** The rule without one of its optional fields. */
@@ -34,6 +35,7 @@ function newCondition(kind: Kind, statuses: string[]): RuleCondition {
     case 'targetAfflictions':
       return { kind, atLeast: 3 };
     case 'targetStacks':
+    case 'selfStacks':
       return { kind, status, atLeast: 3 };
     case 'targetLacks':
     case 'targetHas':
@@ -86,7 +88,7 @@ function ConditionPicker({ when, statuses, ctx, onChange }: { when: RuleConditio
         ))}
       </select>
       {when?.kind === 'targetAfflictions' && num(when.atLeast, range(1, 10), (atLeast) => ({ ...when, atLeast }), '+')}
-      {when?.kind === 'targetStacks' && (
+      {(when?.kind === 'targetStacks' || when?.kind === 'selfStacks') && (
         <>
           {num(when.atLeast, range(1, 5), (atLeast) => ({ ...when, atLeast }), '+')}
           {statusPick(when.status, (status) => ({ ...when, status }))}

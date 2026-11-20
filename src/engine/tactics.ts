@@ -49,6 +49,8 @@ export function conditionHolds(state: CombatState, unit: CombatUnit, when: RuleC
       return living(state, opponent(unit.side)).length >= when.count;
     case 'selfLacks':
       return !unit.statuses.has(when.status);
+    case 'selfStacks':
+      return (unit.statuses.get(when.status)?.stacks ?? 0) >= when.atLeast;
   }
 }
 

@@ -206,7 +206,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'affliction',
     term: 'Affliction',
-    text: 'Rules mode and the Shaman: a harmful status such as Frostbite, Weakness, Brittle, Hush, Rot, Fever, Bind, Bleed, Poison, Burn, Marked, Slowed, Rooted or Runes. Most last a few turns and are refreshed by reapplying. Each counts once toward "per affliction" damage, whoever applied it, so an affliction team stacks them for its finishers. Cures remove them one at a time.',
+    text: 'Rules mode, the Shaman and the Apostate: a harmful status such as Frostbite, Weakness, Brittle, Hush, Rot, Fever, Bind, Bleed, Poison, Burn, Marked, Slowed, Rooted, Anathema, Forsaken, Defiled, Staggered or Runes. Most last a few turns and are refreshed by reapplying. Each counts once toward "per affliction" damage, whoever applied it, so an affliction team stacks them for its finishers. Cures remove them one at a time.',
     pattern: /\bafflictions?\b/i,
   },
   {
@@ -244,6 +244,30 @@ export const GLOSSARY: readonly Term[] = [
     term: 'Strength of the Tribe',
     text: 'A synergy for different Tribe classes (the Berserker line, the Beastmaster line, Druid, Shaman and Sylvan; doubles don’t count): every ally starts the fight with a burst of SPD that wears off. 3 classes: +3 SPD until tick 20; 4: +5 until tick 30; 5: +8 until tick 40.',
     pattern: /\bstrength of the tribe\b/i,
+  },
+  {
+    id: 'reign-of-dread',
+    term: 'Reign of Dread',
+    text: 'A synergy for different villain classes (Dark Knight, Cultist, Warlock, Apostate and Marauder; doubles don’t count): every enemy starts the fight weakened, losing a share of its ATK and DEF until a tick. 3 classes: −20% until tick 25; 4: −30% until tick 35; 5: −40% until tick 45.',
+    pattern: /\breign of dread\b/i,
+  },
+  {
+    id: 'anathema',
+    term: 'Anathema, Profane Anathema and Forsaken',
+    text: 'The Apostate’s lock. Anathema halves the healing its victim receives, for 3 turns. Profane Anathema (the Blasphemer’s) cancels every heal instead, and half of each heal hurts the victim. A victim with Anathema and Hush at once is Forsaken: it takes +25% damage for 2 turns.',
+    pattern: /\b(?:(?:profane )?anathema|forsaken)\b/i,
+  },
+  {
+    id: 'defiled',
+    term: 'Defiled',
+    text: 'The Desecrator’s rot: damage at the start of each of the victim’s turns (30% of the Apostate’s ATK per stack, up to 3), for 3 turns. When a Forsaken enemy dies, the Desecrator’s curses jump to the next enemy.',
+    pattern: /\bdefiled\b/i,
+  },
+  {
+    id: 'grudge',
+    term: 'Grudge and Staggered',
+    text: 'The Marauder gains a Grudge every time it’s hurt (up to 5). Its Haymaker spends them all for extra damage, and at 3 or more it Staggers the target: it loses its next turn. The Juggernaut also gains Ironclad when hurt (+1 DEF each, up to 5).',
+    pattern: /\b(?:grudges?|stagger(?:s|ed)?|ironclad)\b/i,
   },
   {
     id: 'story',

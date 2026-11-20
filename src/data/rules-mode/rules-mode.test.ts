@@ -37,10 +37,11 @@ function builds(): OwnedUnit[] {
 }
 
 describe('rules-mode content', () => {
-  it('has six classes, each with two advanced classes that each have two tertiary classes', () => {
-    expect(RULES_CLASS_IDS).toEqual(['r-warrior', 'r-cleric', 'r-rogue', 'r-mage', 'r-runeblade', 'shaman']);
-    expect(Object.keys(RULES_ADVANCED)).toHaveLength(12);
-    expect(Object.keys(RULES_TERTIARY)).toHaveLength(24);
+  it('has nine classes, each with two advanced classes that each have two tertiary classes', () => {
+    // Milestone 15 adds the story classes: the Sylvan, the Apostate and the Marauder.
+    expect(RULES_CLASS_IDS).toEqual(['r-warrior', 'r-cleric', 'r-rogue', 'r-mage', 'r-runeblade', 'shaman', 'r-sylvan', 'r-apostate', 'r-marauder']);
+    expect(Object.keys(RULES_ADVANCED)).toHaveLength(18);
+    expect(Object.keys(RULES_TERTIARY)).toHaveLength(36);
   });
 
   it('every build’s default rules are valid for its kit, and every skill id is unique', () => {

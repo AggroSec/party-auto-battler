@@ -107,6 +107,8 @@ export interface StoryDef {
   enemyStats?: number;
   /** The level heroes join at, at least (later heroes join at about the party's level). */
   startLevel?: number;
+  /** The story's own synergy (Strength of the Tribe, Reign of Dread): always on in it, unlocked or not. */
+  synergy?: string;
 }
 
 /** A choice waiting at the current stop: an event, or the camp's. */

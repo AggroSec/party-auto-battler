@@ -21,8 +21,8 @@ export interface StoryReport {
   avgRestarts: number;
   /** Per mission: fights, fights won, boss attempts, bosses won, restarts. */
   missions: { fights: number; won: number; bossFights: number; bossWins: number; restarts: number }[];
-  /** Share of fights that ended with Strength of the Tribe active, by tier (3, 4, 5 classes). */
-  tribe: Record<number, number>;
+  /** Share of fights fought with the story's own synergy active, by tier (3, 4, 5 classes). */
+  synergy: Record<number, number>;
   avgLevelAtEnd: number;
   stuck: number;
 }
@@ -66,7 +66,7 @@ export function runStoryBot(bot: Bot, baseCtx: RunContext, runs: number, seed: s
   const rng = new Rng(`${seed}:${bot.name}`);
   const missions = story.missions.map(() => ({ fights: 0, won: 0, bossFights: 0, bossWins: 0, restarts: 0 }));
   const reached = story.missions.map(() => 0);
-  const tribeFights: Record<number, number> = { 3: 0, 4: 0, 5: 0 };
+  const synergyFights: Record<number, number> = { 3: 0, 4: 0, 5: 0 };
   let completed = 0, restarts = 0, stuck = 0, fights = 0, levelSum = 0, levelUnits = 0;
 
   for (let i = 0; i < runs; i++) {
@@ -91,8 +91,8 @@ export function runStoryBot(bot: Bot, baseCtx: RunContext, runs: number, seed: s
       if (p.toFight) {
         const node = p.map.find((n) => n.id === p.at)!;
         const m = missions[p.mission]!;
-        const tribe = activeSynergies(boardUnits(s.board), ctx.content).find((a) => a.synergy.id === 'strength-of-the-tribe');
-        if (tribe) tribeFights[tribe.tier + 3] = (tribeFights[tribe.tier + 3] ?? 0) + 1;
+        const own = activeSynergies(boardUnits(s.board), ctx.content).find((a) => a.synergy.id === story.synergy);
+        if (own) synergyFights[own.tier + 3] = (synergyFights[own.tier + 3] ?? 0) + 1;
         const before = s.story!.restarts;
         const r = fight(s, baseCtx);
         if (!r.ok) break;
@@ -128,7 +128,7 @@ export function runStoryBot(bot: Bot, baseCtx: RunContext, runs: number, seed: s
     reached,
     avgRestarts: restarts / runs,
     missions,
-    tribe: Object.fromEntries(Object.entries(tribeFights).map(([k, v]) => [k, fights > 0 ? v / fights : 0])),
+    synergy: Object.fromEntries(Object.entries(synergyFights).map(([k, v]) => [k, fights > 0 ? v / fights : 0])),
     avgLevelAtEnd: levelUnits > 0 ? levelSum / levelUnits : 0,
     stuck,
   };

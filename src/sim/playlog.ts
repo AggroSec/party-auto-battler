@@ -196,8 +196,10 @@ export function roundNotes(r: RoundReplay, ctx: RunContext): string[] {
   const notes: string[] = [];
   const { shopped } = r;
   const party = resolveBoard(shopped.board, ctx.content);
+  // Story runs pay no interest and never sell recruits, so those two notes are for normal runs only.
+  const story = !!shopped.story;
   const cap = ctx.config.interestPer * ctx.config.maxInterest;
-  if (shopped.gold > cap) notes.push(`${shopped.gold}g unspent: interest caps at ${cap}g, so ${shopped.gold - cap}g earned nothing.`);
+  if (!story && shopped.gold > cap) notes.push(`${shopped.gold}g unspent: interest caps at ${cap}g, so ${shopped.gold - cap}g earned nothing.`);
   party.back.forEach((u) => {
     if (u && u.range === 'melee' && !u.reach && party.front.some(Boolean)) {
       notes.push(`${u.name} is melee in the back row without reach (deals 50% while the front row stands).`);
@@ -205,7 +207,7 @@ export function roundNotes(r: RoundReplay, ctx: RunContext): string[] {
   });
   const units = boardUnits(shopped.board);
   const empty = 5 - units.length;
-  if (empty > 0 && shopped.gold >= ctx.config.unitCost) notes.push(`${empty} empty slot(s) with ${shopped.gold}g in hand.`);
+  if (!story && empty > 0 && shopped.gold >= ctx.config.unitCost) notes.push(`${empty} empty slot(s) with ${shopped.gold}g in hand.`);
   if (shopped.board.front.every((u) => !u)) notes.push('No front row: everyone is exposed.');
   return notes;
 }

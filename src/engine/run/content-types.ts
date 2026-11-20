@@ -39,6 +39,8 @@ export interface UnitModifier {
   speedBurst?: { spd: number; untilTick: number };
   /** Additive fraction of overhealing that becomes a shield (Sylvan's Lifebinder). */
   overhealShield?: number;
+  /** Enemies lose a share of ATK and DEF until a tick (Reign of Dread). The strongest aura wins. */
+  dreadAura?: { atk: number; def: number; untilTick: number };
 }
 
 /** Rules mode: a class tier's skills and the default rules that use them. */

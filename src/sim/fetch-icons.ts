@@ -26,6 +26,8 @@ const ICON_SOURCES: Record<string, string> = {
   mercenary: 'lorc/crossed-axes',
   shaman: 'lorc/totem-mask',
   sylvan: 'lorc/sprout',
+  apostate: 'lorc/evil-book',
+  marauder: 'delapouite/brass-knuckles',
   // Unique bosses.
   'chain-warden': 'lorc/manacles',
   'pale-choir': 'lorc/ghost',
@@ -35,6 +37,10 @@ const ICON_SOURCES: Record<string, string> = {
   'raider-chief': 'delapouite/barbarian',
   'hollow-stag': 'caro-asercion/deer-head',
   'hollow-king': 'lorc/crowned-skull',
+  // Story bosses (Milestone 15).
+  'warden-inquisitor': 'lorc/barbute',
+  abbess: 'lorc/robe',
+  'barrow-mother': 'lorc/tombstone',
   // Summons.
   treant: 'cathelineau/tree-face',
   imp: 'lorc/imp',
@@ -46,6 +52,7 @@ const ICON_SOURCES: Record<string, string> = {
   fiend: 'lorc/daemon-skull',
   golem: 'delapouite/rock-golem',
   ghoul: 'delapouite/shambling-zombie',
+  'barrow-spirit': 'lorc/spectre',
   // Stats.
   hp: 'skoll/hearts',
   atk: 'lorc/broadsword',

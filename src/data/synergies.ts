@@ -33,6 +33,25 @@ export const TRIBE_BURST: Record<number, { spd: number; untilTick: number }> = {
   5: { spd: 8, untilTick: 40 },
 };
 
+/**
+ * The villains (Milestone 15, story mode): the Dark Knight, Cultist, Warlock,
+ * Apostate and Marauder lines. Each counts once, so doubles don't help.
+ */
+export const VILLAINS: UnitFilter[] = [
+  { classIds: ['dark-knight'] },
+  { classIds: ['cultist'] },
+  { classIds: ['warlock'] },
+  { classIds: ['apostate'] },
+  { classIds: ['marauder'] },
+];
+
+/** Reign of Dread by number of different villain classes: the share of ATK and DEF every enemy loses, and until which tick. */
+export const DREAD_AURA: Record<number, { atk: number; def: number; untilTick: number }> = {
+  3: { atk: 0.2, def: 0.2, untilTick: 25 },
+  4: { atk: 0.3, def: 0.3, untilTick: 35 },
+  5: { atk: 0.4, def: 0.4, untilTick: 45 },
+};
+
 export const SYNERGIES: SynergyDef[] = [
   {
     id: 'martial',
@@ -319,6 +338,22 @@ export const SYNERGIES: SynergyDef[] = [
         requires: [{ kind: 'party', slots: TRIBE, count, label: 'different Tribe classes' }],
         description: `${count} different Tribe classes: every ally gains +${burst.spd} SPD at the start of combat, until tick ${burst.untilTick}.`,
         modifier: { speedBurst: burst },
+        appliesTo: 'all',
+      } satisfies SynergyTier;
+    }),
+  },
+  {
+    // Brandon (Milestone 15): the villains' answer to Strength of the Tribe.
+    // Instead of a burst of speed for your side, every enemy starts the fight
+    // weakened, until a tick; bigger with more villains, one of each class.
+    id: 'reign-of-dread',
+    name: 'Reign of Dread',
+    tiers: [3, 4, 5].map((count) => {
+      const aura = DREAD_AURA[count]!;
+      return {
+        requires: [{ kind: 'party', slots: VILLAINS, count, label: 'different villain classes' }],
+        description: `${count} different villain classes: every enemy loses ${aura.atk * 100}% of its ATK and DEF at the start of combat, until tick ${aura.untilTick}.`,
+        modifier: { dreadAura: aura },
         appliesTo: 'all',
       } satisfies SynergyTier;
     }),

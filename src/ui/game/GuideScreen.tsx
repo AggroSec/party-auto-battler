@@ -187,8 +187,9 @@ const SECTIONS: Section[] = [
     body: () => (
       <>
         <p>
-          Pick <strong>Story mode</strong> on the title screen. Instead of drafting a party, you lead a story&apos;s war band through its missions. The first story,{' '}
-          <em>The Hollowing</em>, starts with two heroes; more join at the start of each mission until there are five.
+          Pick <strong>Story mode</strong> on the title screen, then a story. Instead of drafting a party, you lead its war band through its missions: two heroes at first,
+          more at the start of each mission until there are five. <em>The Hollowing</em> follows the Greymoor tribe; <em>The Black Covenant</em>, its prequel, lets you play
+          the villains.
         </p>
         <ul>
           <li>
@@ -196,13 +197,18 @@ const SECTIONS: Section[] = [
             events, 🔥 camps (rest for a life or train a hero) and the 👑 boss at the top.
           </li>
           <li>The shop never sells recruits. Gold comes from won fights and events; spend it at shops on items, training and consumables.</li>
-          <li>Heroes level up and choose talents as usual. Some follow their story: Korrin always becomes a Berserker, Bram a Beastmaster. Tertiary classes are your pick.</li>
+          <li>
+            Heroes level up and choose talents as usual. Some follow their story: in <em>The Hollowing</em> Korrin always becomes a Berserker and Bram a Beastmaster.
+            Every other choice, and every tertiary class, is your pick.
+          </li>
+          <li>Each story has its own synergy, always on while you play it: Strength of the Tribe in <em>The Hollowing</em>, Reign of Dread in <em>The Black Covenant</em>.</li>
           <li>
             You have 3 lives per mission. Losing a fight costs one and moves you on without a reward; a lost boss waits for another try. Run out, and the mission starts over from
             its beginning.
           </li>
           <li>
-            Finishing <em>The Hollowing</em> unlocks the Shaman, the Sylvan and Strength of the Tribe for normal runs, and the story&apos;s next tier. Story tiers add their own
+            Finishing <em>The Hollowing</em> unlocks the Shaman, the Sylvan and Strength of the Tribe for normal runs (and the Sylvan for rules mode). Finishing{' '}
+            <em>The Black Covenant</em> unlocks the Apostate, the Marauder (in both modes) and Reign of Dread. Each also opens its next tier; story tiers add their own
             modifiers, like the run ladder.
           </li>
         </ul>

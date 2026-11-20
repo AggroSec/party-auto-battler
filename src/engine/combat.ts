@@ -14,7 +14,7 @@ import {
 import { expireStatuses, tickStatuses } from './statuses.ts';
 import { chooseRule, isSilenced, stunOf } from './tactics.ts';
 import { selectTargets } from './targeting.ts';
-import type { AbilityDef, Party } from './types.ts';
+import type { AbilityDef, Party, UnitSetup } from './types.ts';
 
 /** A unit acts each time its gauge reaches this value. Gauge fills by SPD per tick. */
 export const ACTION_THRESHOLD = 100;
@@ -52,12 +52,18 @@ export function simulateCombat({ player, enemy, rng, tickCap = DEFAULT_TICK_CAP 
   emit(state, { tick: 0, type: 'combatStart', units: state.units.map(snapshot) });
 
   for (const unit of state.units) speedBurst(state, unit, 1);
+  const dread = { player: strongestAura(state, 'player'), enemy: strongestAura(state, 'enemy') };
+  for (const unit of state.units) dreadAura(state, unit, dread[unit.side === 'player' ? 'enemy' : 'player'], 1);
   for (const unit of state.units) fireTriggers(state, unit, 'startOfCombat', {}, 0);
 
   let winner = checkWinner(state);
   while (winner === null && state.tick < tickCap) {
     state.tick += 1;
     for (const unit of state.units) if (unit.setup.speedBurst?.untilTick === state.tick - 1) speedBurst(state, unit, -1);
+    for (const unit of state.units) {
+      const aura = dread[unit.side === 'player' ? 'enemy' : 'player'];
+      if (aura?.untilTick === state.tick - 1) dreadAura(state, unit, aura, -1);
+    }
     overtimePulse(state);
     winner = checkWinner(state);
     if (winner !== null) break;
@@ -99,6 +105,29 @@ function speedBurst(state: CombatState, unit: CombatUnit, sign: 1 | -1): void {
   const before = unit.spd;
   unit.spd = Math.max(0, before + sign * burst.spd);
   emit(state, { tick: state.tick, type: 'buff', source: unit.id, target: unit.id, stat: 'spd', value: unit.spd - before, statAfter: unit.spd });
+}
+
+/** Reign of Dread: the strongest aura among a side's starting units (the biggest ATK share wins). */
+function strongestAura(state: CombatState, side: CombatUnit['side']): UnitSetup['dreadAura'] {
+  let best: UnitSetup['dreadAura'];
+  for (const u of state.units) {
+    const a = u.side === side ? u.setup.dreadAura : undefined;
+    if (a && (!best || a.atk > best.atk)) best = a;
+  }
+  return best;
+}
+
+/** Reign of Dread on one unit of the other side: it loses ATK and DEF (`sign` 1), then gets them back (`sign` -1). */
+function dreadAura(state: CombatState, unit: CombatUnit, aura: UnitSetup['dreadAura'], sign: 1 | -1): void {
+  if (!aura || !unit.alive) return;
+  for (const stat of ['atk', 'def'] as const) {
+    const change = sign === 1 ? -Math.round(unit[stat] * aura[stat]) : unit.auraLoss[stat];
+    if (change === 0) continue;
+    const before = unit[stat];
+    unit[stat] = Math.max(0, before + change);
+    unit.auraLoss[stat] = sign === 1 ? before - unit[stat] : 0;
+    emit(state, { tick: state.tick, type: 'buff', source: unit.id, target: unit.id, stat, value: unit[stat] - before, statAfter: unit[stat] });
+  }
 }
 
 /** The unit's breakdown, with each rule's "a rule above it fired first" count filled in. */
