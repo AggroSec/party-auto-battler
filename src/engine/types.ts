@@ -224,9 +224,9 @@ export type Effect =
    * Milestone 15 (the Apostate's Desecrator): copy the afflictions on `from`
    * (the trigger's victim, or the skill's focus) to each target other than
    * `from`, re-applied by the source. With `requires`, only if `from` has
-   * every listed status.
+   * every listed status. With `limit`, it reaches at most that many targets.
    */
-  | { kind: 'spread'; target: TargetSelector; from: 'triggerTarget' | 'focus'; requires?: readonly string[] };
+  | { kind: 'spread'; target: TargetSelector; from: 'triggerTarget' | 'focus'; requires?: readonly string[]; limit?: number };
 
 /** A combat-only unit created by a summon effect. It never joins the run's board. */
 export interface SummonDef {

@@ -47,9 +47,9 @@ export const VILLAINS: UnitFilter[] = [
 
 /** Reign of Dread by number of different villain classes: the share of ATK and DEF every enemy loses, and until which tick. */
 export const DREAD_AURA: Record<number, { atk: number; def: number; untilTick: number }> = {
-  3: { atk: 0.1, def: 0.1, untilTick: 20 },
-  4: { atk: 0.15, def: 0.15, untilTick: 30 },
-  5: { atk: 0.2, def: 0.2, untilTick: 40 },
+  3: { atk: 0.2, def: 0.2, untilTick: 25 },
+  4: { atk: 0.3, def: 0.3, untilTick: 35 },
+  5: { atk: 0.4, def: 0.4, untilTick: 45 },
 };
 
 export const SYNERGIES: SynergyDef[] = [

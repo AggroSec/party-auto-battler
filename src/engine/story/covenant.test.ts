@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { buildRunContext } from '../../data/content.ts';
 import { META_CATALOG } from '../../data/meta/catalog.ts';
 import { BLACK_COVENANT, STORIES, storySetup } from '../../data/stories/index.ts';
+import { DREAD_AURA } from '../../data/synergies.ts';
 import { newProfile, recordStoryEnd, unlockedContent } from '../meta/index.ts';
 import { activeSynergies, boardUnits, fight, newUnit, resolveBoard, runContext, type OwnedUnit, type RunState } from '../run/index.ts';
 import { createStoryRun } from './story.ts';
@@ -57,7 +58,7 @@ describe('The Black Covenant', () => {
     const all = [u('dark-knight'), u('marauder'), u('cultist'), u('warlock'), u('apostate', 'blasphemer')];
     expect(dread(all)?.tier).toBe(2);
     const board = { front: [all[0]!, all[1]!, all[2]!], back: [all[3]!, all[4]!] };
-    expect(resolveBoard(board, content).front[0]?.dreadAura).toEqual({ atk: 0.2, def: 0.2, untilTick: 40 });
+    expect(resolveBoard(board, content).front[0]?.dreadAura).toEqual(DREAD_AURA[5]);
   });
 
   it('plays through to the end, and finishing it unlocks the Apostate, the Marauder (both modes) and Reign of Dread', () => {

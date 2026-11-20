@@ -38,14 +38,14 @@ export const juggernaut = advanced({
   ability: {
     id: 'come-at-me',
     name: 'Come At Me',
-    description: 'Every 3rd turn: taunt for 2 turns, then a Haymaker: 70% ATK + 30% ATK per Grudge to the nearest enemy (Staggered at 3+ Grudge).',
+    description: 'Every 3rd turn: taunt for 2 turns, then a Haymaker: 90% ATK + 30% ATK per Grudge to the nearest enemy (Staggered at 3+ Grudge).',
     cooldown: 3,
-    effects: [{ kind: 'taunt', target: 'self', turns: 2 }, ...haymaker(0.7, 0.3)],
+    effects: [{ kind: 'taunt', target: 'self', turns: 2 }, ...haymaker(0.9, 0.3)],
   },
   statWeights: { hp: 5, atk: 2, def: 2, spd: 1 },
   passive: { name: 'Iron Grudge', description: 'When hurt, gain 1 Ironclad (+1 DEF, up to 5).' },
   modifier: {
-    stats: { hp: 14, def: 1 },
+    stats: { hp: 18, def: 2 },
     triggers: [on('onHurt', 'Iron Grudge', [{ kind: 'status', target: 'self', status: IRONCLAD, stacks: 1 }])],
   },
   talents: [
@@ -57,9 +57,9 @@ export const juggernaut = advanced({
     abilityTalent('juggernaut/brace', {
       id: 'brace',
       name: 'Brace',
-      description: 'Every 4th turn: shield yourself for 20% of your max HP.',
+      description: 'Every 4th turn: shield yourself for 30% of your max HP.',
       cooldown: 4,
-      effects: [{ kind: 'shield', target: 'self', amount: { maxHp: 0.2 } }],
+      effects: [{ kind: 'shield', target: 'self', amount: { maxHp: 0.3 } }],
     }),
   ],
 });

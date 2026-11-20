@@ -190,8 +190,8 @@ function applyEffect(
       if (!from || (effect.requires && !effect.requires.every((id) => from.statuses.has(id)))) return;
       const curses = [...from.statuses.values()].filter((s) => s.def.affliction && s.stacks > 0).map((s) => ({ def: s.def, stacks: s.stacks }));
       if (curses.length === 0) return;
-      for (const target of selectTargets(state, source, effect.target, ctx)) {
-        if (target === from) continue;
+      const targets = selectTargets(state, source, effect.target, ctx).filter((t) => t !== from);
+      for (const target of targets.slice(0, effect.limit ?? targets.length)) {
         for (const c of curses) {
           applyStatus(state, source, target, c.def, c.stacks, power, depth, (st, unit, afflicted, status, d) =>
             fireTriggers(st, unit, 'onBurst', { triggerTarget: afflicted, status }, d),

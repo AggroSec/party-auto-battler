@@ -119,7 +119,7 @@ export const headtaker = tertiaryTier({
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
   modifier: { stats: { hp: 8, atk: 4 }, executeBonus: 0.3 },
   passive: { name: 'Trophy Hunter', description: '+30% damage to enemies below half HP.' },
-  skills: [skill('r-behead', 'Behead', 4, 'enemy', '160% ATK.', [hit(1.6)])],
+  skills: [skill('r-behead', 'Behead', 4, 'enemy', '130% ATK.', [hit(1.3)])],
   rules: [rule('r-behead', { kind: 'targetHpBelow', percent: 50 }, 'lowestHp')],
 });
 

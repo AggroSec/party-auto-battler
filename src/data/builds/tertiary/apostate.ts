@@ -128,17 +128,17 @@ export const profaner = tertiary({
     id: 'profane-pyre',
     name: 'Profane Pyre',
     description:
-      'Every 3rd turn: deal 70% ATK to the most afflicted enemy, and 100% ATK more if it’s Forsaken. Then Anathema on it, a Hush if it already had Anathema, and Forsaken with both.',
+      'Every 3rd turn: deal 90% ATK to the most afflicted enemy, and 100% ATK more if it’s Forsaken. Then Anathema on it, a Hush if it already had Anathema, and Forsaken with both.',
     cooldown: 3,
     effects: [
-      { kind: 'damage', target: 'mostAfflicted', amount: { atk: 0.7 } },
+      { kind: 'damage', target: 'mostAfflicted', amount: { atk: 0.9 } },
       { kind: 'damage', target: 'mostAfflicted', amount: { atk: 1 }, requires: { status: FORSAKEN.id, stacks: 1 } },
       ...lock(),
     ],
   },
   statWeights: { hp: 3, atk: 5, def: 1, spd: 1 },
-  passive: { name: 'Last Rites', description: '+30% damage to enemies below half HP.' },
-  modifier: { stats: { hp: 8, atk: 4 }, executeBonus: 0.3 },
+  passive: { name: 'Last Rites', description: '+40% damage to enemies below half HP.' },
+  modifier: { stats: { hp: 8, atk: 4 }, executeBonus: 0.4 },
   talents: [
     talent('profaner/kindling', 'Kindling', '+30% ability power.', { abilityPower: 0.3 }),
     talent('profaner/ashen-vow', 'Ashen Vow', '+10 HP, +1 DEF.', { stats: { hp: 10, def: 1 } }),

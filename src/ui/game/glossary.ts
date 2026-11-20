@@ -248,7 +248,7 @@ export const GLOSSARY: readonly Term[] = [
   {
     id: 'reign-of-dread',
     term: 'Reign of Dread',
-    text: 'A synergy for different villain classes (Dark Knight, Cultist, Warlock, Apostate and Marauder; doubles don’t count): every enemy starts the fight weakened, losing a share of its ATK and DEF until a tick. 3 classes: −10% until tick 20; 4: −15% until tick 30; 5: −20% until tick 40.',
+    text: 'A synergy for different villain classes (Dark Knight, Cultist, Warlock, Apostate and Marauder; doubles don’t count): every enemy starts the fight weakened, losing a share of its ATK and DEF until a tick. 3 classes: −20% until tick 25; 4: −30% until tick 35; 5: −40% until tick 45.',
     pattern: /\breign of dread\b/i,
   },
   {

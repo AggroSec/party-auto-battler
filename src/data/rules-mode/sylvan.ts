@@ -57,7 +57,7 @@ export const thornweaver = advancedTier({
   tags: ['nature', 'wild'],
   tertiaryClasses: ['r-briarheart', 'r-rootwarden'],
   statWeights: { hp: 4, atk: 3, def: 2, spd: 1 },
-  modifier: { stats: { hp: 10, atk: 1, def: 1 } },
+  modifier: { stats: { hp: 10, atk: 2, def: 1 } },
   skills: [
     skill(
       'r-bramble-bloom',
@@ -72,7 +72,7 @@ export const thornweaver = advancedTier({
         effects: [afflict(GREATER_RENEWAL, 1, 'allyFrontRow'), afflict(THORNS, 1, 'allyFrontRow')],
       },
     ),
-    skill('r-snare', 'Snare', 3, 'enemy', '50% ATK and Rooted (−3 SPD for 2 turns).', [hit(0.5), afflict(ROOTED)]),
+    skill('r-snare', 'Snare', 3, 'enemy', '80% ATK and Rooted (−3 SPD for 2 turns).', [hit(0.8), afflict(ROOTED)]),
   ],
   rules: [rule('r-bramble-bloom', allyBelow(85)), rule('r-snare', lacks(ROOTED), 'highestAtk')],
 });
@@ -87,7 +87,7 @@ export const lifebinder = tertiaryTier({
   statWeights: { hp: 3, atk: 4, def: 1, spd: 2 },
   passive: { name: 'Overflow', description: 'Your healing past full HP becomes a shield (40% of the excess).' },
   modifier: { stats: { hp: 10, atk: 2 }, overhealShield: 0.4 },
-  skills: [skill('r-lifebind', 'Lifebind', 4, null, 'Heal every ally for 70% ATK.', [{ kind: 'heal', target: 'allAllies', amount: { atk: 0.7 } }])],
+  skills: [skill('r-lifebind', 'Lifebind', 3, null, 'Heal every ally for 70% ATK.', [{ kind: 'heal', target: 'allAllies', amount: { atk: 0.7 } }])],
   rules: [rule('r-lifebind', allyBelow(70))],
 });
 
