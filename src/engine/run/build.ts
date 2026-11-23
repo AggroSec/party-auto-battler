@@ -245,6 +245,7 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   const weapons = unit.items.filter((id) => content.items[id]?.weapon).length;
   const bursts = mods.flatMap((m) => (m.speedBurst ? [m.speedBurst] : []));
   const overhealShield = mods.reduce((s, m) => s + (m.overhealShield ?? 0), 0);
+  const auras = mods.flatMap((m) => (m.dreadAura ? [m.dreadAura] : []));
 
   const setup: UnitSetup = {
     name: unit.name,
@@ -267,6 +268,7 @@ export function resolveUnit(unit: OwnedUnit, content: RunContent, extra: UnitMod
   if (unit.bossId) setup.boss = true;
   if (bursts.length > 0) setup.speedBurst = bursts.reduce((a, b) => (b.spd > a.spd ? b : a));
   if (overhealShield > 0) setup.overhealShield = overhealShield;
+  if (auras.length > 0) setup.dreadAura = auras.reduce((a, b) => (b.atk > a.atk ? b : a));
   if (base.skills) Object.assign(setup, rulesSetup(unit, content, mods, granted, cdDelta));
   return setup;
 }

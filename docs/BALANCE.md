@@ -2,6 +2,18 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-20 — Milestone 15: The Black Covenant, Apostate, Marauder, Reign of Dread
+
+Commands: `npm run sim -- --only runs --runs 2000` (classic, all content, tier 0), `npm run sim -- --only runs --runs 1000 --mode rules`, `npm run sim -- --only story --story black-covenant --runs 100 --tier 0` and `--tier 3`, `--story hollowing --tier 0`, plus a paired test for Reign of Dread (the same villain parties against the same enemies, with and without it).
+
+- **Classic bots** (completion): random 1.8%, sensible 10.6%, greedy 25.9%, synergy 8.2%. No stuck runs or tick-cap fights.
+- **New classic classes (lift vs round average):** Apostate +2.5, Marauder +2.0 (Sylvan +3.3, Cultist +6.4 and Engineer −8.6 for comparison). Advanced: Blasphemer +10.4, Skullsplitter +4.0, Desecrator −1.3, Juggernaut −2.6 (first pass −8.2: +4 HP, +1 DEF, a harder Haymaker and a 30% Brace). Tertiary (small samples): Heresiarch +10.0 (just over the 65% line, like most late tertiaries), Ironhide −6.1, Warmonger −5.0.
+- **Reign of Dread:** the first numbers (−10/15/20% until tick 20/30/40) were worth +3 and +9 points in the paired test, under Strength of the Tribe's +7 and +24 in the same test. Final (−20/30/40% until tick 25/35/45): paired +6 to +9 (3 classes), +18 (4) and +36 (5); in full runs +18.7 / +30.2 / +46 lift against the Tribe's +21.5 / +28.3 / +48. Both are flagged high at 4–5 classes by design.
+- **Rules mode** (completion): random 4.1%, sensible 18.8%, greedy 21.6%, synergy 7.2% (adding three classes dilutes the pool). Sylvan +3.1, Marauder +2.2, Apostate +1.7; no new outliers. First pass: Desecrator +23.4 and Profaner +20.2 (Desecrate copied Hush and Forsaken onto every enemy; now onto one), Heresiarch, Voidspeaker and Defiler +15–19 (Grand Heresy no longer applies Forsaken, Word of the Void only hushes cursed enemies, Pandemic only spreads from Defiled enemies). Now Defiler +12.9, Heresiarch +12.5, Voidspeaker −6.3, Warmonger −7.9 (small samples).
+- **The Black Covenant, tier 0** (completion, restarts per run; M1/M2/M3 boss win rate): random 100%, 0.24 (79/99/56%); sensible 96%, 2.40 (27/93/19%); greedy 99%, 0.66 (97/98/31%). First pass: the Barrow-Mother won 88% against the greedy bot and the Abbess almost never; boss HP/ATK multipliers Seraphine 1.7/1.3 → 2.0/1.45, Barrow-Mother 2.1/1.5 → 1.85/1.35.
+- **The Black Covenant, tier 3:** random 87%, 11.1 restarts; sensible 32%, 35.4; greedy 56%, 22.1. The Hollowing's tier 3 was 24–74%.
+- **The Hollowing, tier 0, unchanged:** random 100%, sensible 99%, greedy 97%.
+
 ## 2026-11-13 — Milestone 14: story mode, Sylvan, classic Shaman
 
 Commands: `npm run sim -- --only runs --runs 1000` (classic, all content, tier 0), `npm run sim -- --only story --runs 100 --tier 0` and `--tier 3` (new: whole stories per bot), plus a paired test for Strength of the Tribe.

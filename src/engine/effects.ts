@@ -82,8 +82,9 @@ function applyEffect(
           if (effect.perAffliction) base += effect.perAffliction * source.atk * afflictionCount(target);
           const per = effect.perStack;
           if (per) {
-            base += per.atk * source.atk * (target.statuses.get(per.status)?.stacks ?? 0);
-            if (per.consume) clearStatus(state, target, per.status);
+            const holder = per.self ? source : target;
+            base += per.atk * source.atk * (holder.statuses.get(per.status)?.stacks ?? 0);
+            if (per.consume) clearStatus(state, holder, per.status);
           }
           const raw = base * power;
           // Capture neighbours before the primary hit, in case it kills the target.
@@ -155,7 +156,10 @@ function applyEffect(
       return;
     }
     case 'status': {
+      const own = effect.selfStacks;
+      if (own && (source.statuses.get(own.status)?.stacks ?? 0) < own.atLeast) return;
       for (const target of selectTargets(state, source, effect.target, ctx)) {
+        if (effect.requires && !effect.requires.every((id) => target.statuses.has(id))) continue;
         applyStatus(state, source, target, effect.status, effect.stacks, power, depth, (st, unit, afflicted, status, d) =>
           fireTriggers(st, unit, 'onBurst', { triggerTarget: afflicted, status }, d),
         );
@@ -178,6 +182,21 @@ function applyEffect(
         if (!locked) continue;
         const value = target.setup.boss ? Math.round(target.maxHp * effect.bossMaxHp) : target.hp + target.shield;
         dealDamage(state, source, target, value, { true: true }, depth);
+      }
+      return;
+    }
+    case 'spread': {
+      const from = effect.from === 'focus' ? ctx.focus : ctx.triggerTarget;
+      if (!from || (effect.requires && !effect.requires.every((id) => from.statuses.has(id)))) return;
+      const curses = [...from.statuses.values()].filter((s) => s.def.affliction && s.stacks > 0).map((s) => ({ def: s.def, stacks: s.stacks }));
+      if (curses.length === 0) return;
+      const targets = selectTargets(state, source, effect.target, ctx).filter((t) => t !== from);
+      for (const target of targets.slice(0, effect.limit ?? targets.length)) {
+        for (const c of curses) {
+          applyStatus(state, source, target, c.def, c.stacks, power, depth, (st, unit, afflicted, status, d) =>
+            fireTriggers(st, unit, 'onBurst', { triggerTarget: afflicted, status }, d),
+          );
+        }
       }
       return;
     }

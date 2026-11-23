@@ -1,7 +1,7 @@
 // Small constructors for rules-mode classes: skills, rules, and class tiers
 // with their skill-augment talents generated from their skills.
 import type { AdvancedClassDef, ClassTemplate, StatWeights, TalentDef, TertiaryClassDef, UnitModifier } from '../../engine/run/content-types.ts';
-import type { AbilityDef, Effect, Range, Rule, RuleCondition, Stats, StatusDef, TargetSelector } from '../../engine/types.ts';
+import type { AbilityDef, Effect, Range, Rule, RuleCondition, Stats, StatusDef, TargetSelector, TriggeredEffect } from '../../engine/types.ts';
 
 /** A skill. `aim` set = rules pick its target and its effects hit 'focus'. */
 export function skill(
@@ -61,14 +61,15 @@ export interface Built<T> {
 }
 
 export function baseClass(
-  input: TierInput & { baseStats: Stats; range: Range; placement: number; role: string; look: string; advancedClasses: string[] },
+  input: TierInput & { baseStats: Stats; range: Range; placement: number; role: string; look: string; advancedClasses: string[]; triggers?: TriggeredEffect[] },
 ): Built<ClassTemplate> {
   const talents = augments(input.skills);
   // A base class's stats are its base stats; it has no modifier.
   const rest: Omit<typeof input, 'modifier'> = { ...input };
   delete (rest as Partial<typeof input>).modifier;
   return {
-    cls: { ...rest, attackTarget: 'nearest', ability: input.skills[0]!, triggers: [], talents: talents.map((t) => t.id) },
+    // A base class's passive (Milestone 15: the Marauder's Grudge) is its triggers.
+    cls: { ...rest, attackTarget: 'nearest', ability: input.skills[0]!, triggers: input.triggers ?? [], talents: talents.map((t) => t.id) },
     talents,
   };
 }

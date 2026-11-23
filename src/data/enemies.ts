@@ -24,6 +24,9 @@ export const ENEMY_ARCHETYPES: readonly EnemyArchetype[] = [
   // Milestone 14: the Tribe's classes, once finishing The Hollowing unlocks them.
   { id: 'hill-shaman', name: 'Hill Shaman', classId: 'c-shaman', minRound: 3 },
   { id: 'forest-sylvan', name: 'Forest Sylvan', classId: 'sylvan', minRound: 3 },
+  // Milestone 15: the villains' classes, once finishing The Black Covenant unlocks them.
+  { id: 'heretic', name: 'Wandering Heretic', classId: 'apostate', minRound: 3 },
+  { id: 'pit-fighter', name: 'Pit Fighter', classId: 'marauder', minRound: 2 },
 ];
 
 /** Tuned with `npm run sim`; see docs/BALANCE.md. */

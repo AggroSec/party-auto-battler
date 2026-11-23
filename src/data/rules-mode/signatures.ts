@@ -3,7 +3,10 @@
 // on reaching the class, and it holds at most one copy.
 import type { ItemDef } from '../../engine/run/content-types.ts';
 import { on, signature } from '../builds/dsl.ts';
-import { BIND, BLEED, BLESSED, BRITTLE, BURN, FEVER, HASTED, HUSH, POISON, ROT, RUNE_MARK, SLOWED } from './statuses.ts';
+import {
+  ANATHEMA, BIND, BLEED, BLESSED, BRITTLE, BURN, DEFILED, ENRAGED, FEVER, FORSAKEN, GREATER_RENEWAL, GRUDGE, HASTED, HUSH, IRONCLAD, POISON,
+  PROFANE_ANATHEMA, RENEWAL, ROOTED, ROT, RUNE_MARK, SLOWED, THORNS,
+} from './statuses.ts';
 
 const startAfflict = (label: string, status: typeof POISON, target: 'allEnemies' | 'enemyFrontRow' | 'highestAtk' = 'allEnemies') =>
   on('startOfCombat', label, [{ kind: 'status', target, status, stacks: 1 }]);
@@ -103,4 +106,59 @@ const SHAMAN = [
   }),
 ];
 
-export const RULES_SIGNATURES: ItemDef[] = [...WARRIOR, ...CLERIC, ...ROGUE, ...MAGE, ...RUNEBLADE, ...SHAMAN];
+// Milestone 15: the story classes.
+const SYLVAN = [
+  signature('r-lifebinder', 'wellspring-seed', 'Wellspring Seed', '+8 HP. Start of combat: Renewal on every ally.', {
+    stats: { hp: 8 },
+    triggers: [on('startOfCombat', 'Wellspring Seed', [{ kind: 'status', target: 'allAllies', status: RENEWAL, stacks: 1 }])],
+  }),
+  signature('r-bloomcaller', 'spring-garland', 'Spring Garland', '+20% ability power. When bloodied, Greater Renewal on every ally.', {
+    abilityPower: 0.2,
+    triggers: [on('onBloodied', 'Spring Garland', [{ kind: 'status', target: 'allAllies', status: GREATER_RENEWAL, stacks: 1 }])],
+  }),
+  signature('r-briarheart', 'thicket-crown', 'Thicket Crown', '+3 DEF. Start of combat: Thorns on every ally.', {
+    stats: { def: 3 },
+    triggers: [on('startOfCombat', 'Thicket Crown', [{ kind: 'status', target: 'allAllies', status: THORNS, stacks: 1 }])],
+  }),
+  signature('r-rootwarden', 'deeproot-staff', 'Deeproot Staff', '+2 ATK. Start of combat: Root every enemy (−3 SPD for 2 turns).', {
+    stats: { atk: 2 },
+    triggers: [startAfflict('Deeproot Staff', ROOTED)],
+  }),
+];
+
+const APOSTATE = [
+  signature('r-heresiarch', 'heretics-tongue', 'Heretic’s Tongue', '+2 ATK. Start of combat: Profane Anathema and Hush on the enemy with the highest ATK.', {
+    stats: { atk: 2 },
+    triggers: [
+      on('startOfCombat', 'Heretic’s Tongue', [
+        { kind: 'status', target: 'highestAtk', status: PROFANE_ANATHEMA, stacks: 1 },
+        { kind: 'status', target: 'highestAtk', status: HUSH, stacks: 1 },
+      ]),
+    ],
+  }),
+  signature('r-voidspeaker', 'void-bell', 'Void Bell', 'Start of combat: Anathema on every enemy.', { triggers: [startAfflict('Void Bell', ANATHEMA)] }),
+  signature('r-defiler', 'carrion-thurible', 'Carrion Thurible', 'Start of combat: 2 Defiled on every enemy.', {
+    triggers: [on('startOfCombat', 'Carrion Thurible', [{ kind: 'status', target: 'allEnemies', status: DEFILED, stacks: 2 }])],
+  }),
+  signature('r-profaner', 'brand-of-the-forsaken', 'Brand of the Forsaken', '+3 ATK. On kill: Forsaken on the most afflicted enemy.', {
+    stats: { atk: 3 },
+    triggers: [on('onKill', 'Brand of the Forsaken', [{ kind: 'status', target: 'mostAfflicted', status: FORSAKEN, stacks: 1 }])],
+  }),
+];
+
+const MARAUDER = [
+  signature('r-ironhide', 'riveted-plate', 'Riveted Plate', '+4 DEF. Start of combat: gain 3 Ironclad (+1 DEF each).', {
+    stats: { def: 4 },
+    triggers: [on('startOfCombat', 'Riveted Plate', [{ kind: 'status', target: 'self', status: IRONCLAD, stacks: 3 }])],
+  }),
+  signature('r-siegebreaker', 'grudge-ledger', 'Grudge Ledger', '+2 ATK. Start of combat: gain 3 Grudge.', {
+    stats: { atk: 2 },
+    triggers: [on('startOfCombat', 'Grudge Ledger', [{ kind: 'status', target: 'self', status: GRUDGE, stacks: 3 }])],
+  }),
+  signature('r-headtaker', 'trophy-axe', 'Trophy Axe', '+3 ATK and +15% critical hit chance.', { stats: { atk: 3 }, critChance: 0.15 }),
+  signature('r-warmonger', 'war-horn', 'War Horn', 'Start of combat: every ally is Enraged (+4 ATK for 3 turns).', {
+    triggers: [on('startOfCombat', 'War Horn', [{ kind: 'status', target: 'allAllies', status: ENRAGED, stacks: 1 }])],
+  }),
+];
+
+export const RULES_SIGNATURES: ItemDef[] = [...WARRIOR, ...CLERIC, ...ROGUE, ...MAGE, ...RUNEBLADE, ...SHAMAN, ...SYLVAN, ...APOSTATE, ...MARAUDER];

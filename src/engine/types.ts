@@ -135,6 +135,12 @@ export interface StatusDef {
   stun?: boolean;
   /** Multiplies healing the unit receives (0.5 = half). */
   healingTaken?: number;
+  /**
+   * Profane Anathema (Milestone 15, the Apostate's Blasphemer): healing on the
+   * unit is cancelled, and this fraction of it is dealt to the unit as damage
+   * instead (ignoring DEF, credited to the status's applier).
+   */
+  healsHurt?: number;
   /** Multiplies damage the unit takes before DEF (1.25 = +25%). */
   damageTaken?: number;
 }
@@ -157,8 +163,11 @@ export type Effect =
       requires?: { status: string; stacks: number; consume?: boolean };
       /** Rules mode: + this × ATK per affliction on the target (damage per affliction). */
       perAffliction?: number;
-      /** + `atk` × ATK per stack of `status` on the target; `consume` clears the stacks. */
-      perStack?: { status: string; atk: number; consume?: boolean };
+      /**
+       * + `atk` × ATK per stack of `status` on the target (on the source with
+       * `self`, Milestone 15: the Marauder's Grudge); `consume` clears the stacks.
+       */
+      perStack?: { status: string; atk: number; consume?: boolean; self?: boolean };
     }
   | { kind: 'heal'; target: TargetSelector; amount: Amount }
   | { kind: 'shield'; target: TargetSelector; amount: Amount }
@@ -190,15 +199,34 @@ export type Effect =
    * no empty slot, `fallback` effects are applied instead.
    */
   | { kind: 'summon'; summon: SummonDef; fallback?: Effect[] }
-  /** Give the target `stacks` stacks of a status (post-M7). */
-  | { kind: 'status'; target: TargetSelector; status: StatusDef; stacks: number }
+  /**
+   * Give the target `stacks` stacks of a status (post-M7). Milestone 15:
+   * `requires` applies it only to targets that have every listed status (the
+   * Apostate's Forsaken needs Anathema and Hush), and `selfStacks` only while
+   * the source has enough stacks of a status (the Marauder's Grudge).
+   */
+  | {
+      kind: 'status';
+      target: TargetSelector;
+      status: StatusDef;
+      stacks: number;
+      requires?: readonly string[];
+      selfStacks?: { status: string; atLeast: number };
+    }
   /** Rules mode: remove up to `count` random afflictions from each target. */
   | { kind: 'cure'; target: TargetSelector; count: number }
   /**
    * Rules mode: if the target has every status in `requires`, it dies outright
    * (true damage equal to its HP and shield). Bosses take `bossMaxHp` × max HP instead.
    */
-  | { kind: 'execute'; target: TargetSelector; requires: readonly string[]; bossMaxHp: number };
+  | { kind: 'execute'; target: TargetSelector; requires: readonly string[]; bossMaxHp: number }
+  /**
+   * Milestone 15 (the Apostate's Desecrator): copy the afflictions on `from`
+   * (the trigger's victim, or the skill's focus) to each target other than
+   * `from`, re-applied by the source. With `requires`, only if `from` has
+   * every listed status. With `limit`, it reaches at most that many targets.
+   */
+  | { kind: 'spread'; target: TargetSelector; from: 'triggerTarget' | 'focus'; requires?: readonly string[]; limit?: number };
 
 /** A combat-only unit created by a summon effect. It never joins the run's board. */
 export interface SummonDef {
@@ -279,7 +307,9 @@ export type RuleCondition =
   | { kind: 'selfHpBelow'; percent: number }
   | { kind: 'allyHpBelow'; percent: number }
   | { kind: 'enemiesAtLeast'; count: number }
-  | { kind: 'selfLacks'; status: string };
+  | { kind: 'selfLacks'; status: string }
+  /** The unit itself has at least `atLeast` stacks of a status (Milestone 15: the Marauder's Grudge). */
+  | { kind: 'selfStacks'; status: string; atLeast: number };
 
 /**
  * Rules mode: one line of a unit's priority list. Each turn the unit uses the
@@ -353,6 +383,12 @@ export interface UnitSetup {
   speedBurst?: { spd: number; untilTick: number };
   /** Healing this unit does past full HP becomes a shield, at this fraction (Sylvan's Lifebinder). */
   overhealShield?: number;
+  /**
+   * Milestone 15, Reign of Dread: every enemy loses these fractions of its ATK
+   * and DEF from the start of combat until the end of tick `untilTick`. Only
+   * the strongest aura on a side counts.
+   */
+  dreadAura?: { atk: number; def: number; untilTick: number };
 }
 
 export type Range = 'melee' | 'ranged';

@@ -942,6 +942,81 @@ Signature items: Skull of Ruin (Doomspeaker), Juju Pouch (Witch Doctor), **Chain
 - **"One of each" synergies:** a `party` requirement can ask for `count` of its slots, each filled by a different unit.
 - **No recruits** (`noRecruits` run modifier) for story shops; **locked advanced class** for story heroes.
 
+## The Black Covenant (Milestone 15)
+
+The second story, and a prequel to The Hollowing: **you play the villains** (Brandon: true villains). Generations before the Hollowing, a knight of the Dawn Order who wanted never to die breaks out of its gaol, burns its abbey and wakes the **Crown of Hollows** in the Greymoor barrows. He becomes the Hollow King. No hero is locked to an advanced class: the base classes are all villains already (Brandon: the Hollowing's locks were there for its theme).
+
+Heroes: **Vaskar** (Dark Knight) and **Brakka** (Marauder) from mission 1, **Ysolde** (Cultist) and **Sefin** (Warlock) from mission 2, **Corvin** (Apostate) in mission 3.
+
+| Mission | Enemies | Boss |
+|---|---|---|
+| 1. Chains | The Dawn Order: Lantern Jailer (Warrior), Dawn Crossbow (Ranger), Order Hound (Rogue), Dawn Acolyte (Cleric), Sworn Blade (Mercenary), Inquisition Mage (Mage) | **Halric, Warden-Inquisitor:** Shackles of Dawn, 120% ATK and Bind. *Iron Faith:* a shield at the start, +3 DEF when bloodied. Second ability: Interrogation (Hush the strongest enemy) |
+| 2. The Burning Abbey | Abbey Guard (Warrior), Sister of Mercy (Cleric), Choir Mage (Mage), Bell-Ringer (Monk), Pilgrim Minstrel (Bard), Relic Knight (Runeblade) | **Mother Abbess Seraphine** (a healer): Mercy of Dawn, heal all 80% ATK and 60% ATK to the nearest enemy. *Martyr's Grace:* when an ally falls, heal all. Second ability: Sanctify (shield all) |
+| 3. The Barrow | The Greymoor tribe: Greymoor Warrior (Warrior), Greymoor Hunter (Ranger), Spirit-Speaker (Shaman), Grove Druid (Druid), Barrow Ancestor (Runeblade), Heartwood Sylvan (Sylvan) | **The Barrow-Mother:** Ancestors' Wrath, 80% ATK to every enemy. *The Greymoor Remembers:* a Barrow Spirit rises at the start and when bloodied. Second ability: Rite of Warding (Root all) |
+
+Twelve villainous events, four per mission (e.g. *The War-Leader's Oath*: cut down a young Greymoor war-leader for +2 stat points each and an elite next, or let her run and spread the fear for a life and XP; her line remembers). Same story ladder as The Hollowing. Finishing it earns **Crown of Hollows**, which unlocks the Apostate and the Marauder (classic and rules mode) and Reign of Dread.
+
+### Reign of Dread
+
+The villains' answer to Strength of the Tribe (Brandon approved the mirror and the name). Instead of a burst for your side, **every enemy starts the fight weakened**: it loses a share of its ATK and DEF until a set tick. Counts **different** villain classes, one of each: the Dark Knight, Cultist, Warlock, Apostate and Marauder lines.
+
+| Different villain classes | Enemy ATK and DEF | Until tick |
+|---|---|---|
+| 3 | −20% | 25 |
+| 4 | −30% | 35 |
+| 5 | −40% | 45 |
+
+Each story now names its own synergy, and it's always on while that story is played.
+
+### Apostate (Brandon: the villains' affliction locker, his favourite class from Achaea; mechanics our own)
+
+Caster, ranged, 28/6/1/9, tags shadow and occult. The Shaman counts afflictions and cashes them in; the Apostate **shuts things off**. **Anathema** halves the healing its victim receives (3 turns). **Hush** stops its abilities (2 turns). A victim with both is **Forsaken**: +25% damage taken (2 turns). Abilities lock in order: Hush lands only on a target that already has Anathema, so the first cast curses and the second locks. Attacks and abilities aim at the most afflicted enemy.
+
+| Class | Ability | Passive |
+|---|---|---|
+| **Apostate** | **Profane Word** (2): 50% ATK, Anathema, then Hush and Forsaken as above | **Heresy:** 30% on attack, Anathema |
+| Blasphemer | **Blasphemy** (3): 60% ATK and **Profane Anathema** (heals on it are cancelled and half of each hurts instead), then Hush and Forsaken | **Sacrilege:** start of combat, Profane Anathema on the enemy front row |
+| ↳ Heresiarch | **Grand Heresy** (3): 80% ATK, Profane Anathema, a 3-turn Hush and Forsaken at once | **Unbroken Silence:** start of combat, Hush the strongest enemy |
+| ↳ Voidspeaker | **Word of the Void** (4): 50% ATK to all, a 1-turn Hush on all, Forsaken on all with Anathema | **Echoing Void:** start of combat, Anathema on all |
+| Desecrator | **Desecrate** (3): 70% ATK, 2 **Defiled** (30% ATK per stack each turn, up to 3), Anathema, Hush, Forsaken | **Contagion of Sin:** when an enemy dies Forsaken (to anyone), its afflictions jump to the nearest enemy |
+| ↳ Defiler | **Defile** (3): 70% ATK, 2 Defiled on the victim and 1 on everyone else, the lock | **Pandemic:** when any enemy dies, its afflictions jump to the weakest enemy |
+| ↳ Profaner | **Profane Pyre** (3): 90% ATK, 100% ATK more if Forsaken, the lock | **Last Rites:** +40% damage to enemies below half HP |
+
+Signature items: Tongue of Heresy, Void Psalter, Censer of Rot, Pyre Brand.
+
+### Marauder (Brandon: the villains' front-line brawler)
+
+Frontline, melee, 44/6/2/7, tags martial and shadow. The Berserker grows stronger as it bleeds and the Monk switches stances; the Marauder **holds a grudge**. Every hit it takes is a **Grudge** (up to 5). Its **Haymaker** spends them all for extra damage, and at 3 or more it **Staggers** the target (it loses its next turn).
+
+| Class | Ability | Passive |
+|---|---|---|
+| **Marauder** | **Haymaker** (3): 90% ATK + 30% per Grudge | **Grudge:** when hurt, gain 1 |
+| Juggernaut (tank) | **Come At Me** (3): taunt 2 turns, then a Haymaker (90% + 30%) | **Iron Grudge:** when hurt, gain 1 **Ironclad** (+1 DEF, up to 5) |
+| ↳ Ironhide | **Iron Wall** (3): taunt, shield self 100% ATK + 200% DEF, Haymaker (70% + 30%) | **Second Skin:** when bloodied, shield self 30% max HP |
+| ↳ Siegebreaker | **Retaliate** (3): taunt, Haymaker (60% + 40%) with 30% splash | **Payback:** when hurt, 35% chance to hit the attacker for 60% ATK |
+| Skullsplitter (bruiser) | **Skull Crack** (3): Brittle, Haymaker (100% + 35%) with 40% splash | **Blood Feud:** on kill, gain 2 Grudge |
+| ↳ Headtaker | **Behead** (3): Haymaker (110% + 35%) on the weakest enemy | **Trophy Hunter:** +50% damage to enemies below half HP |
+| ↳ Warmonger | **Rallying Blow** (3): Haymaker (90% + 30%), then +1 ATK to every ally | **Warmonger:** start of combat, +2 ATK to every ally |
+
+Signature items: Ironbound Plate, Grudgebearer's Knuckles, Headtaker's Cleaver, Warmonger's Horn. After the story unlocks them, a Wandering Heretic and a Pit Fighter join the normal enemy roster.
+
+### Rules-mode kits: Sylvan, Apostate and Marauder
+
+Brandon asked for rules-mode versions of both new classes and of the Sylvan. Each has 3 base skills, 2 per advanced class and 1 per tertiary class, Empowered and Quickened augments, default rules and a signature item per tertiary class, like the other rules-mode classes.
+
+- **Sylvan:** Bloom (Renewal on an ally), Sap Mend (heal), Thorn Lash. Verdant Keeper: Wild Bloom, Mossbed; Lifebinder (Lifebind, Overflow 40%), Bloomcaller (Spring Rain). Thornweaver: Bramble Bloom, Snare; Briarheart (Heart of Thorns), Rootwarden (Grasping Roots). Unlocked by finishing The Hollowing.
+- **Apostate:** Anathema, Hush the Faithful, Forsake. Blasphemer: Profane Anathema, Excommunicate (Hush everything with Anathema); Heresiarch (Grand Heresy), Voidspeaker (Word of the Void). Desecrator: Defile, Desecrate (copy the victim's afflictions onto the next enemy), Contagion of Sin; Defiler (Plague Wind, Pandemic), Profaner (Profane Pyre).
+- **Marauder:** Haymaker, Goad (taunt), Jab (gain a Grudge). The default rules Haymaker at 3+ Grudge (new condition: *self has N+ stacks of…*). Juggernaut: Iron Stance, Brace; Ironhide, Siegebreaker. Skullsplitter: Skull Crack, Headbutt; Headtaker, Warmonger.
+
+### Engine additions
+
+- **Status prerequisites:** a status effect can require statuses on its target (`requires`: the Apostate's lock) or stacks on its source (`selfStacks`: the Marauder's stagger at 3+ Grudge).
+- **Damage per own stack:** `perStack.self` counts and spends the source's stacks (Haymaker).
+- **Healing that hurts:** `StatusDef.healsHurt` cancels heals on the unit and deals a share as damage, credited to the curse's applier.
+- **Spread:** a new effect copies a victim's (or the skill's focus's) afflictions onto other enemies, optionally only if it has given statuses, and optionally to a limited number of targets.
+- **Reign of Dread's aura** (`dreadAura`): the strongest aura on a side takes its share of every enemy's ATK and DEF at the start of combat and gives it back after its tick, logged as stat changes.
+- **Rule condition** `selfStacks` ("self has N+ stacks of…"), in the rule editor too.
+
 ## Open design questions (for Brandon)
 
 None blocking. Things to look at when playtesting M7:

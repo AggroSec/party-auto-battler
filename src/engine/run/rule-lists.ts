@@ -48,6 +48,7 @@ function validCondition(c: RuleCondition): boolean {
     case 'targetAfflictions':
       return inRange(c.atLeast, 1, 20);
     case 'targetStacks':
+    case 'selfStacks':
       return typeof c.status === 'string' && inRange(c.atLeast, 1, 20);
     case 'targetLacks':
     case 'targetHas':
@@ -125,6 +126,8 @@ export function conditionText(c: RuleCondition, content: RunContent): string {
       return `${c.count}+ enemies standing`;
     case 'selfLacks':
       return `self lacks ${st(c.status)}`;
+    case 'selfStacks':
+      return `self has ${c.atLeast}+ ${st(c.status)}`;
   }
 }
 

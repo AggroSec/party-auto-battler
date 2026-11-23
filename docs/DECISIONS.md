@@ -2,6 +2,21 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-20 — Milestone 15: The Black Covenant (Apostate, Marauder, Reign of Dread)
+
+Brandon's calls (from his first story playthrough and our discussion): a second story for villains with the Dark Knight, Cultist and Warlock plus two new classes, the **Apostate** (an affliction locker like the Shaman, with different mechanics; his favourite class from Achaea) and a front-line **brawler**; true villains; a prequel that ties into The Hollowing; silences rather than stun-locks; yes to the Blasphemer turning healing into damage; **no locked classes** this time (the villain base classes already fit); rules-mode versions of both new classes and of the Sylvan; the Reign of Dread mirror synergy. I drafted the classes, the story and the synergy; he approved them. Decided autonomously:
+- **Only the name comes from Achaea.** The Apostate's mechanics (Anathema, Hush, Forsaken, Profane Anathema, Defiled, spreading curses) are our own.
+- **The lock is ordered inside each ability**: Hush only lands on a target that already has Anathema, then Anathema, then Forsaken if both are there. The first cast curses and the second locks, without the Apostate needing a skill list. This needed a `requires` list on status effects.
+- **Profane Anathema is Anathema with the same id**, so everything that checks for Anathema (the lock, rule conditions) still matches. It cancels the heal entirely and deals half of it as damage over time, credited to whoever applied the curse, so it never sets off thorns or on-hurt effects.
+- **Contagion of Sin fires on any kill of a Forsaken enemy**, by the Desecrator or an ally, through `onKill` and `onAllyKill` triggers and a new `spread` effect. The curses are re-applied by the Desecrator, so their damage is credited to it.
+- **Grudge is a buff, not an affliction,** so cures don't strip it and it doesn't count toward "per affliction" damage. Staggered is an affliction (a 1-turn stun). Haymaker checks the stagger before it spends the Grudge, which needed `selfStacks` on status effects and `perStack.self` on damage.
+- **Rules-mode base classes can now carry a passive** (the Marauder's Grudge), through `triggers` on the base class.
+- **The prequel lore:** The Hollowing says the Hollow King was cast out of the Greymoor generations ago, so the Hollowing's heroes can't appear. Instead the young war-leader in *The War-Leader's Oath* swears her line will remember (a nod to Korrin's line), totem-smashing raiders are foreshadowed, and Vaskar becomes the Hollow King at the end.
+- **Each story names its own synergy** (`StoryDef.synergy`), always on while it's played; the story simulator tracks it instead of the Tribe by name.
+- **New enemies in normal runs:** a Wandering Heretic (Apostate, round 3+) and a Pit Fighter (Marauder, round 2+) once unlocked; rules mode gets a Grove Sylvan, Heretic Priest and Pit Brute.
+- **Spirits Restored now also unlocks the rules-mode Sylvan**, so players who already finished The Hollowing get it straight away (unlocks come from earned achievements).
+- **Play logs no longer note interest or empty slots in story runs** (from Brandon's 11-20 log: story runs pay no interest and never sell recruits).
+
 ## 2026-11-13 — Milestone 14: story mode (The Hollowing, Sylvan, classic Shaman)
 
 Brandon's calls (issue #26 and our discussion): story mode runs on classic rules; missions are maps of stops (fights, elites, shops, events, camps, a boss); the story hands out named heroes, locked to their story's advanced class but free to pick a tertiary class; 3 lives per mission, and running out restarts the mission; finishing the story unlocks its classes and synergy for normal runs; a classic Shaman ported from the rules kit; the Sylvan is a heal-over-time healer (he wants more healer variety: at high tiers he ran two Clerics, and the Cultist falls off); Strength of the Tribe is a Bloodlust-like speed burst at the start of combat that wears off, bigger with more of the Tribe, one of each class, "worth chasing at 3, a bit OP at 5"; a small tier ladder for replays; one PR. I drafted the story, the Sylvan's two lines and the numbers; he approved them. Decided autonomously:

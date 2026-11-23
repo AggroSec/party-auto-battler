@@ -55,6 +55,8 @@ export interface CombatUnit {
   alive: boolean;
   /** Has dropped below 50% HP this combat (onBloodied fires once). */
   bloodied: boolean;
+  /** ATK and DEF taken by the other side's Reign of Dread, given back when it ends (Milestone 15). */
+  auraLoss: { atk: number; def: number };
   /** Revives left (UnitSetup.revive). */
   revives: number;
   /** Fire counts per trigger, for TriggeredEffect.limit. */
@@ -134,6 +136,7 @@ export function makeCombatUnit(setup: UnitSetup, side: Side, pos: BoardPos, id: 
     taunt: 0,
     alive: true,
     bloodied: false,
+    auraLoss: { atk: 0, def: 0 },
     revives: setup.revive?.times ?? 0,
     triggerFires: new Map(),
     statuses: new Map(),

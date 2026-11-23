@@ -1,6 +1,7 @@
 // Every tertiary class's signature item (M7), one per class.
 import type { ItemDef } from '../../engine/run/content-types.ts';
 import { ADVENTURER_SIGNATURES } from './adventurer.ts';
+import { APOSTATE_SIGNATURES } from './apostate.ts';
 import { BARD_SIGNATURES } from './bard.ts';
 import { CLERIC_SIGNATURES } from './cleric.ts';
 import { CULTIST_SIGNATURES } from './cultist.ts';
@@ -8,6 +9,7 @@ import { DARK_KNIGHT_SIGNATURES } from './dark-knight.ts';
 import { DRUID_SIGNATURES } from './druid.ts';
 import { ENGINEER_SIGNATURES } from './engineer.ts';
 import { MAGE_SIGNATURES } from './mage.ts';
+import { MARAUDER_SIGNATURES } from './marauder.ts';
 import { MERCENARY_SIGNATURES } from './mercenary.ts';
 import { MONK_SIGNATURES } from './monk.ts';
 import { NECROMANCER_SIGNATURES } from './necromancer.ts';
@@ -38,4 +40,6 @@ export const SIGNATURE_ITEMS: ItemDef[] = [
   ...MERCENARY_SIGNATURES,
   ...SHAMAN_SIGNATURES,
   ...SYLVAN_SIGNATURES,
+  ...APOSTATE_SIGNATURES,
+  ...MARAUDER_SIGNATURES,
 ];
