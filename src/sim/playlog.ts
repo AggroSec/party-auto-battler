@@ -251,6 +251,7 @@ function breakdownLine(r: BreakdownRow): string {
     r.damage ? `dealt ${r.damage}` : '',
     r.support ? `healed/shielded ${r.support}` : '',
     r.afflictions ? `${r.afflictions} afflictions` : '',
+    r.amplified ? `+${r.amplified} ally damage` : '',
     r.kills ? `${r.kills} kill${r.kills === 1 ? '' : 's'}` : '',
   ].filter(Boolean);
   return `${r.label} ×${r.uses}${parts.length ? `: ${parts.join(', ')}` : ''}${r.note ? ` (${r.note})` : ''}`;

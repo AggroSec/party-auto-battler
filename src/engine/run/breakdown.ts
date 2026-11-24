@@ -15,6 +15,8 @@ export interface BreakdownRow {
   /** Healing plus shielding. */
   support: number;
   afflictions: number;
+  /** Extra damage allies dealt because of statuses it applied (e.g. Forsaken). */
+  amplified: number;
   kills: number;
   /** Rules: why it was passed over, e.g. "never fired: condition not met ×6, a rule above fired first ×9". */
   note?: string;
@@ -52,6 +54,7 @@ export function breakdownRows(actions: readonly ActionTally[], rules: readonly R
         damage: a.damage,
         support: a.healing + a.shielding,
         afflictions: a.afflictions,
+        amplified: a.amplified ?? 0,
         kills: a.kills,
         ...(a.passed && (a.uses === 0 || passes) ? { note: a.uses === 0 ? (passes ? `never fired: ${passes}` : 'never fired: no turns') : `skipped: ${passes}` } : {}),
       };

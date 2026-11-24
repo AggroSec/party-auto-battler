@@ -162,6 +162,7 @@ const blankTally = (key: string, kind: ActionTally['kind'], label: string): Acti
   shielding: 0,
   afflictions: 0,
   kills: 0,
+  amplified: 0,
 });
 
 /** Every rule (or the abilities) and basic attacks get a row up front, so ones that never fire still show. */
@@ -191,9 +192,9 @@ export function beginAction(unit: CombatUnit, key: string, kind: ActionTally['ki
 }
 
 /** Credit an amount to the unit's current action. */
-export function credit(unit: CombatUnit, field: 'damage' | 'healing' | 'shielding' | 'afflictions' | 'kills', amount: number, via = unit.via): void {
+export function credit(unit: CombatUnit, field: 'damage' | 'healing' | 'shielding' | 'afflictions' | 'kills' | 'amplified', amount: number, via = unit.via): void {
   const row = unit.tallies.get(via);
-  if (row && amount > 0) row[field] += amount;
+  if (row && amount > 0) row[field] = (row[field] ?? 0) + amount;
 }
 
 export function snapshot(unit: CombatUnit): UnitSnapshot {
