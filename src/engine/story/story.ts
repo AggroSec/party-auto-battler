@@ -24,6 +24,8 @@ export const STORY_GOLD = { fight: 5, elite: 7, boss: 10 } as const;
 const STORY_ITEMS = { fight: 0, elite: 1, boss: 2 } as const;
 /** XP a camp's training gives one hero. */
 export const CAMP_XP = 4;
+/** A camp's paid drill: its cost in gold, and the XP it gives every hero. */
+export const CAMP_DRILL = { gold: 15, xp: 2 } as const;
 
 const fail = (error: RunError): { ok: false; error: RunError } => ({ ok: false, error });
 
@@ -65,6 +67,7 @@ function joinHeroes(state: RunState, story: StoryDef, mission: number, ctx: RunC
     const unit: OwnedUnit = { ...newUnit(state.nextUid, hero.classId, hero.name), storyHero: hero.id, ...(hero.lockedAdvanced ? { lockedAdvanced: hero.lockedAdvanced } : {}) };
     const slot = autoPlaceSlot(state.board, classFor(ctx.content, hero.classId));
     if (!slot) continue;
+    for (const [k, v] of Object.entries(hero.bonus ?? {}) as [keyof typeof unit.growth, number][]) unit.growth[k] += v;
     setSlot(state.board, slot, unit);
     state.nextUid += 1;
     if (xp > 0) addXp(state, unit, xp, ctx);
@@ -165,7 +168,7 @@ export function travel(state: RunState, nodeId: string, baseCtx: RunContext): Ac
   return { ok: true, state: next };
 }
 
-/** A camp's options: rest for a life, or train one hero. */
+/** A camp's options: rest for a life, train one hero, or (with the gold) pay for a drill that trains everyone. */
 export function campOptions(state: RunState, ctx: RunContext): StoryEventOption[] {
   const story = storyDef(ctx, state.story!.storyId);
   const heroes = boardUnits(state.board).filter((u) => !isMaxLevel(u, ctx.config.progression));
@@ -177,8 +180,18 @@ export function campOptions(state: RunState, ctx: RunContext): StoryEventOption[
       outcomes: [{ kind: 'xp', amount: CAMP_XP, hero: u.storyHero ?? String(u.uid) }],
     }),
   );
+  const drill: StoryEventOption[] =
+    train.length > 0 && state.gold >= CAMP_DRILL.gold
+      ? [
+          {
+            label: `Pay for a drill (${CAMP_DRILL.gold} gold: +${CAMP_DRILL.xp} XP each)`,
+            result: 'Hired blades and hard drilling until dawn. Everyone is sharper for it.',
+            outcomes: [{ kind: 'gold', amount: -CAMP_DRILL.gold }, { kind: 'xp', amount: CAMP_DRILL.xp }],
+          },
+        ]
+      : [];
   // Resting is offered only when a life is missing (or there's nobody left to train).
-  return state.lives < storyLives(ctx, story) || train.length === 0 ? [rest, ...train] : train;
+  return [...(state.lives < storyLives(ctx, story) || train.length === 0 ? [rest] : []), ...train, ...drill];
 }
 
 /** The options at the current stop's event or camp. */

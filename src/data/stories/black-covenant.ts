@@ -51,7 +51,7 @@ const EVENTS: StoryEventDef[] = [
     text: 'Pilgrims bound for the abbey, singing. Ysolde smiles at them in a way that makes them stop.',
     options: [
       { label: 'Ysolde takes their blood (Ysolde +4 XP, +2 stat points)', result: 'The singing stops. Ysolde writes something in her ledger.', outcomes: [{ kind: 'xp', amount: 4, hero: 'ysolde' }, { kind: 'statPoints', amount: 2, hero: 'ysolde' }] },
-      { label: 'Take their offerings (+7 gold)', result: 'They give it all without being asked twice.', outcomes: [{ kind: 'gold', amount: 7 }] },
+      { label: 'Take their offerings (+3 gold, a free consumable)', result: 'They give it all without being asked twice, down to the last flask of holy water.', outcomes: [{ kind: 'gold', amount: 3 }, { kind: 'consumable' }] },
     ],
   },
   {
@@ -77,7 +77,7 @@ const EVENTS: StoryEventDef[] = [
     title: 'The Reliquary',
     text: 'A saint’s bones in a silver box, said to bless whoever holds them.',
     options: [
-      { label: 'Melt down the silver (+8 gold)', result: 'The bones go in the river. The silver goes in your packs.', outcomes: [{ kind: 'gold', amount: 8 }] },
+      { label: 'Melt down the silver (a free item)', result: 'The bones go in the river. The silver buys a smith’s silence, and his best work.', outcomes: [{ kind: 'item', count: 1 }] },
       { label: 'Vaskar takes the blessing (Vaskar +8 HP, +1 DEF)', result: 'It should burn him. It doesn’t. That worries Ysolde more than she lets on.', outcomes: [{ kind: 'growth', hero: 'vaskar', stats: { hp: 8, def: 1 } }] },
     ],
   },
@@ -97,7 +97,7 @@ const EVENTS: StoryEventDef[] = [
     text: 'Totems ring the barrow, humming with the tribe’s spirits. Corvin says they’ll weaken anything that crosses them.',
     options: [
       { label: 'Corvin unbinds the spirits (Corvin +2 ATK, +1 SPD)', result: 'The spirits come loose with a sound like weeping, and Corvin breathes them in.', outcomes: [{ kind: 'growth', hero: 'corvin', stats: { atk: 2, spd: 1 } }] },
-      { label: 'Smash them for their spirit-stones (+8 gold)', result: 'Raiders will be doing this for generations. You were the first.', outcomes: [{ kind: 'gold', amount: 8 }] },
+      { label: 'Smash them for their spirit-stones (+3 gold, +2 XP each)', result: 'Raiders will be doing this for generations. You were the first.', outcomes: [{ kind: 'gold', amount: 3 }, { kind: 'xp', amount: 2 }] },
     ],
   },
   {
@@ -115,7 +115,7 @@ const EVENTS: StoryEventDef[] = [
     text: 'Nobody sleeps. Sefin argues with something only he can hear. Brakka sharpens her knuckles. Vaskar stares at the barrow and doesn’t blink.',
     options: [
       { label: 'Rehearse the rite (+3 XP each)', result: 'By dawn every one of you knows the words. Corvin makes you say them twice.', outcomes: [{ kind: 'xp', amount: 3 }] },
-      { label: 'Raid the tribe’s stores (+8 gold)', result: 'Brakka comes back with a strongbox and somebody else’s blood on her.', outcomes: [{ kind: 'gold', amount: 8 }] },
+      { label: 'Raid the tribe’s stores (+3 gold, a free item)', result: 'Brakka comes back with a strongbox, a war-leader’s gear and somebody else’s blood on her.', outcomes: [{ kind: 'gold', amount: 3 }, { kind: 'item', count: 1 }] },
     ],
   },
 ];
@@ -130,7 +130,13 @@ export const BLACK_COVENANT: StoryDef = {
     { id: 'brakka', name: 'Brakka', classId: 'marauder', title: 'A pit-fighter who owes the Order a lifetime of grudges.' },
     { id: 'ysolde', name: 'Ysolde', classId: 'cultist', title: 'Keeps a blood cult’s ledger. Every debt gets paid.' },
     { id: 'sefin', name: 'Sefin', classId: 'warlock', title: 'Bargains with things in the dark, and always reads the small print.' },
-    { id: 'corvin', name: 'Corvin', classId: 'apostate', title: 'The Order’s own confessor, until he heard one confession too many.' },
+    {
+      id: 'corvin',
+      name: 'Corvin',
+      classId: 'apostate',
+      title: 'The Order’s own confessor, until he heard one confession too many. Still wears its mail (+14 HP, +1 DEF), and will stand in the front line if he must.',
+      bonus: { hp: 14, def: 1 },
+    },
   ],
   missions: [
     {
