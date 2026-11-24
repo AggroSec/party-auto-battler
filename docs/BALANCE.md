@@ -2,6 +2,13 @@
 
 Latest simulator output first. Regenerate with `npm run sim` (add `-- --out <file>` to save the raw report).
 
+## 2026-11-24 — Black Covenant tuning
+
+Commands: `npm run sim -- --only story --story black-covenant --tier all --runs 100`, the same for `--story hollowing`, then `--tier 3` again after the camp drill was cut to 15 gold / +2 XP.
+
+- **The Black Covenant, tier 0:** random, sensible and greedy all 100% complete (boss win rates 69–95 / 92–100 / 76–80%).
+- **Tier 3** (completion, restarts per run): The Black Covenant random 87% / 11.4, sensible 39% / 32.1, greedy 66% / 18.1 (before: 87 / 32 / 56%). The Hollowing random 77% / 17.1, sensible 39% / 32.3, greedy 27% / 32.8 (Milestone 14: 74 / 24 / 25%). The first drill (12 gold, +3 XP) gave 52% / 76% (Covenant) and 50% / 36% (Hollowing) for the sensible and greedy bots.
+
 ## 2026-11-20 — Milestone 15: The Black Covenant, Apostate, Marauder, Reign of Dread
 
 Commands: `npm run sim -- --only runs --runs 2000` (classic, all content, tier 0), `npm run sim -- --only runs --runs 1000 --mode rules`, `npm run sim -- --only story --story black-covenant --runs 100 --tier 0` and `--tier 3`, `--story hollowing --tier 0`, plus a paired test for Reign of Dread (the same villain parties against the same enemies, with and without it).
