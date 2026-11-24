@@ -33,6 +33,8 @@ export interface StoryHeroDef {
   lockedAdvanced?: string;
   /** One line about who they are. */
   title: string;
+  /** Permanent stats the hero joins with (e.g. Corvin's confessor's mail). */
+  bonus?: Partial<Stats>;
 }
 
 /** What picking an event option (or a camp choice) does. */

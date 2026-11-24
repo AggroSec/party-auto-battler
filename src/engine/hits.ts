@@ -19,6 +19,21 @@ function statusFactor(unit: CombatUnit, key: 'healingTaken' | 'damageTaken'): nu
   return f;
 }
 
+/**
+ * Statuses that make their target take more damage (Forsaken and the like):
+ * the extra share of an ally's hit is credited to whoever applied the status,
+ * so the breakdown shows what a debuffer added. The applier's own hits
+ * already count it in their damage.
+ */
+function creditAmplifiers(source: CombatUnit, target: CombatUnit, dealt: number): void {
+  if (dealt <= 0) return;
+  for (const s of target.statuses.values()) {
+    const factor = s.def.damageTaken ?? 1;
+    if (factor <= 1 || s.stacks <= 0 || s.source === source || s.source.side === target.side) continue;
+    credit(s.source, 'amplified', Math.round(dealt * (1 - 1 / factor)), s.via);
+  }
+}
+
 /** HP fraction below which a unit becomes bloodied (fires onBloodied once). */
 export const BLOODIED_THRESHOLD = 0.5;
 
@@ -113,6 +128,7 @@ export function dealDamage(
     source.lastHit = hpLost + toShield;
   }
   target.stats.damageTaken += hpLost + toShield;
+  if (source && !opts.true) creditAmplifiers(source, target, hpLost + toShield);
   emit(state, {
     tick: state.tick,
     type: 'damage',

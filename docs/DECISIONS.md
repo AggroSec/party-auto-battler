@@ -2,6 +2,14 @@
 
 Dated record of choices Claude Code made autonomously under the working agreement in [CLAUDE.md](../CLAUDE.md). Design-level choices that change what the player sees are asked about first, not logged here.
 
+## 2026-11-24 — Black Covenant tuning (Brandon's first playthrough)
+
+Brandon's calls (from his tier 0 log): yes to swapping late gold rewards, a way to spend gold at camps, a sturdier Corvin, and a breakdown line that shows what the Apostate's lock gives allies. Decided autonomously:
+- **Late Covenant events pay less gold.** He ended every round from mission 2 on with 30–46 gold and nothing to buy; in The Hollowing he hovered at 3–20. Mission 1's gold choices stay (early shops matter). In missions 2–3 the four pure-gold options now give a consumable, an item, XP or a smaller purse instead.
+- **Camps offer a paid drill in both stories:** 15 gold for +2 XP to every hero, shown only when you can afford it. The first try (12 gold, +3 XP) made story tier 3 much easier for the bots (The Hollowing's sensible bot 24% → 50% completion), so it was cut back. The careful bots take it whenever they can.
+- **Corvin joins with his confessor's mail (+14 HP, +1 DEF),** through a new per-hero `bonus` in the story data. The story party has three back-row casters for two back-row slots, so one of them has to stand in front; the Apostate class itself is unchanged (mid-pack in the simulator).
+- **Damage boosts are credited to whoever applied them.** When an ally hits a unit with a status that raises damage taken (Forsaken, and any like it), the extra share (`dealt × (1 − 1/multiplier)`) is added to the applier's breakdown row as "+N ally damage". The applier's own hits are skipped (their damage already includes it), and it isn't added to damage dealt, so totals don't double-count. The share is approximate when DEF or several boosts stack.
+
 ## 2026-11-20 — Milestone 15: The Black Covenant (Apostate, Marauder, Reign of Dread)
 
 Brandon's calls (from his first story playthrough and our discussion): a second story for villains with the Dark Knight, Cultist and Warlock plus two new classes, the **Apostate** (an affliction locker like the Shaman, with different mechanics; his favourite class from Achaea) and a front-line **brawler**; true villains; a prequel that ties into The Hollowing; silences rather than stun-locks; yes to the Blasphemer turning healing into damage; **no locked classes** this time (the villain base classes already fit); rules-mode versions of both new classes and of the Sylvan; the Reign of Dread mirror synergy. I drafted the classes, the story and the synergy; he approved them. Decided autonomously:

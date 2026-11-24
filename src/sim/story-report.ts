@@ -48,12 +48,14 @@ function pickNode(state: RunState, options: StoryNode[], ctx: RunContext, rng: R
   return [...options].sort((a, b) => score(b) - score(a) + (rng.next() - 0.5) * 0.1)[0]!;
 }
 
-/** Event and camp picks: a careful bot rests when hurt and otherwise trains its lowest-level hero; events are random. */
+/** Event and camp picks: a careful bot rests when hurt, pays for a drill when it can, and otherwise trains its lowest-level hero; events are random. */
 function pickOption(state: RunState, ctx: RunContext, rng: Rng, careful: boolean): number {
   const options = promptOptions(state, ctx);
   if (state.story?.prompt?.id !== 'rest' || !careful) return rng.int(options.length);
   const rest = options.findIndex((o) => o.outcomes.some((x) => x.kind === 'life'));
   if (rest >= 0 && state.lives <= 1) return rest;
+  const drill = options.findIndex((o) => o.outcomes.some((x) => x.kind === 'gold' && x.amount < 0));
+  if (drill >= 0) return drill;
   const heroes = boardUnits(state.board);
   const lowest = [...heroes].sort((a, b) => a.level - b.level)[0];
   const train = options.findIndex((o) => lowest && o.label.includes(lowest.name));

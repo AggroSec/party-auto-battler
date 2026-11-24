@@ -8,7 +8,7 @@ export const NODE_LOOK: Record<StoryNodeKind, { icon: string; label: string; hin
   elite: { icon: '💀', label: 'Elite', hint: 'A harder fight with an Elite and one more enemy. Win for more gold, more XP and a free item.' },
   shop: { icon: '🛒', label: 'Shop', hint: 'Items, training and a consumable. You can reroll here.' },
   event: { icon: '❓', label: 'Event', hint: 'Something happens. You choose how it goes.' },
-  rest: { icon: '🔥', label: 'Camp', hint: 'Rest for a life, or train a hero.' },
+  rest: { icon: '🔥', label: 'Camp', hint: 'Rest for a life, train a hero, or pay for a drill.' },
   boss: { icon: '👑', label: 'Boss', hint: 'The mission’s boss. Lose and it waits for another try.' },
 };
 

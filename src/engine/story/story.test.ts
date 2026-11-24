@@ -9,7 +9,7 @@ import { newProfile, recordStoryEnd, storyMaxTier, unlockedContent } from '../me
 import { activeSynergies, applyShopAction, boardUnits, fight, grantXp, newUnit, runContext, setupModifiers, type OwnedUnit, type RunState } from '../run/index.ts';
 import { Rng } from '../rng.ts';
 import { BOSS_LAYER, generateMap, LAYERS, reachable } from './map.ts';
-import { campOptions, createStoryRun, currentNode, STORY_GOLD } from './story.ts';
+import { CAMP_DRILL, campOptions, createStoryRun, currentNode, STORY_GOLD } from './story.ts';
 
 const base = buildRunContext();
 const setup = (tier = 0) => storySetup('hollowing', tier, { items: [...base.content.itemPool] }, SYNERGIES.map((s) => s.id));
@@ -149,6 +149,20 @@ describe('story runs', () => {
     expect(campOptions(s, ctx).some((o) => o.outcomes.some((x) => x.kind === 'life'))).toBe(false);
     s.lives -= 1;
     expect(campOptions(s, ctx)[0]!.outcomes).toEqual([{ kind: 'life', amount: 1 }]);
+  });
+
+  it('with the gold, a camp also offers a paid drill that trains every hero', () => {
+    const drill = (s: RunState) => campOptions(s, runContext(setup(), base)).find((o) => o.label.startsWith('Pay for a drill'));
+    let s = act(start(), { type: 'scene' });
+    s.gold = CAMP_DRILL.gold - 1;
+    expect(drill(s)).toBeUndefined();
+    s.gold = CAMP_DRILL.gold + 3;
+    expect(drill(s)).toBeDefined();
+    s.story!.prompt = { id: 'rest' };
+    const before = boardUnits(s.board).map((u) => u.xp);
+    s = act(s, { type: 'storyChoice', option: campOptions(s, runContext(setup(), base)).findIndex((o) => o.label === drill(s)!.label) });
+    expect(s.gold).toBe(3);
+    expect(boardUnits(s.board).map((u) => u.xp)).toEqual(before.map((x) => x + CAMP_DRILL.xp));
   });
 
   it('running out of lives restarts the mission from its checkpoint, with full lives', () => {

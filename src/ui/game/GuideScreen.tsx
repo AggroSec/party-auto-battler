@@ -44,7 +44,7 @@ const SECTIONS: Section[] = [
           <strong>Mix roles.</strong> A sturdy front-liner (Warrior), a damage dealer (Rogue, Ranger or Mage) and a healer (Cleric) beat three of the same.
         </li>
         <li>
-          <strong>Press Fight.</strong> Watch who hits whom. The fight report afterwards shows damage dealt and taken for every unit; tap a unit to see what its ability, attacks and items did.
+          <strong>Press Fight.</strong> Watch who hits whom. The fight report afterwards shows damage dealt and taken for every unit; tap a unit to see what its ability, attacks and items did (debuffs like Forsaken also show the extra damage they gave allies).
         </li>
         <li>
           <strong>Spend your new gold.</strong> Fill the board up to five, then buy <em>training</em> (XP) and <em>items</em> for your best units.
@@ -194,7 +194,7 @@ const SECTIONS: Section[] = [
         <ul>
           <li>
             Each mission is a <strong>map</strong>. Press <em>Set out</em> or <em>Move on</em> and pick the next stop: ⚔️ fights, 💀 elites (harder, with a free item), 🛒 shops, ❓
-            events, 🔥 camps (rest for a life or train a hero) and the 👑 boss at the top.
+            events, 🔥 camps (rest for a life, train a hero, or pay 15 gold to drill everyone) and the 👑 boss at the top.
           </li>
           <li>The shop never sells recruits. Gold comes from won fights and events; spend it at shops on items, training and consumables.</li>
           <li>

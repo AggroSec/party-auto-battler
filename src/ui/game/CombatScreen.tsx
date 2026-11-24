@@ -59,6 +59,7 @@ function Breakdown({ summary, setup, content }: { summary: UnitSummary; setup: U
           r.damage ? `${r.damage} dealt` : '',
           r.support ? `${r.support} healed + shielded` : '',
           r.afflictions ? `${r.afflictions} affliction${r.afflictions === 1 ? '' : 's'}` : '',
+          r.amplified ? `+${r.amplified} ally damage` : '',
           r.kills ? `${r.kills}💀` : '',
         ].filter(Boolean);
         return (

@@ -61,6 +61,17 @@ describe('The Black Covenant', () => {
     expect(resolveBoard(board, content).front[0]?.dreadAura).toEqual(DREAD_AURA[5]);
   });
 
+  it('Corvin joins in his confessor’s mail, tough enough for the front line', () => {
+    let s = start();
+    for (let m = 0; m < 2; m++) {
+      const r = fight(rigAtBoss(s), base);
+      if (!r.ok) throw new Error(r.error);
+      s = r.state;
+    }
+    const corvin = boardUnits(s.board).find((u) => u.storyHero === 'corvin')!;
+    expect(corvin.growth).toMatchObject({ hp: 14, def: 1 });
+  });
+
   it('plays through to the end, and finishing it unlocks the Apostate, the Marauder (both modes) and Reign of Dread', () => {
     let s = start();
     for (let m = 0; m < BLACK_COVENANT.missions.length; m++) {

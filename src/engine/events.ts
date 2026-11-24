@@ -95,6 +95,8 @@ export interface ActionTally {
   /** Affliction stacks applied. */
   afflictions: number;
   kills: number;
+  /** Extra damage allies dealt because of statuses it applied (Forsaken and the like). Optional: older logs lack it. */
+  amplified?: number;
   /** Rules only: turns the rule was reached and passed over, by reason, and turns a rule above it fired first. */
   passed?: Record<RulePass, number> & { above: number };
 }

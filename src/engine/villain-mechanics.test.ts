@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { simulateCombat } from './combat.ts';
 import { applyEffects } from './effects.ts';
-import { applyHeal } from './hits.ts';
+import { applyHeal, dealDamage } from './hits.ts';
 import { Rng } from './rng.ts';
 import { conditionHolds } from './tactics.ts';
 import { byId, makeState, ofType, party, unit } from './test-helpers.ts';
@@ -57,6 +57,20 @@ describe('Milestone 15 mechanics', () => {
     expect(p.stats.damageDealt).toBe(10);
     expect(healer.stats.healingDone).toBe(0);
     expect(ofType(s.events, 'damage').at(-1)).toMatchObject({ source: 'p0', target: 'e0', value: 10 });
+  });
+
+  it('the extra damage allies deal to a unit that takes more damage is credited to whoever applied it', () => {
+    const s = makeState(party([unit(), unit({ name: 'Ally' })]), party([unit({ stats: { hp: 500, def: 0 } })]));
+    const [p, ally, e] = [byId(s, 'p0'), byId(s, 'p1'), byId(s, 'e0')];
+    applyEffects(s, p, [status(DOOMED)], {}, 0);
+    const row = () => p.tallies.get(p.via)!;
+    dealDamage(s, ally, e, 40, { pierce: true }, 0);
+    expect(e.hp).toBe(450); // 40 × 1.25
+    expect(row().amplified).toBe(10);
+    expect(row().damage).toBe(0);
+    // The applier's own hits already count the bonus in their damage.
+    dealDamage(s, p, e, 40, { pierce: true }, 0);
+    expect(row().amplified).toBe(10);
   });
 
   it('spread copies the victim’s afflictions (not its buffs) to the other targets, if it has what `requires` asks for', () => {
